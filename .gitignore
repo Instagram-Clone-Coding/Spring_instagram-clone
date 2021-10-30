@@ -4,6 +4,9 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+docker-compose.yml
+Dockerfile
+src/main/resources/*.yml
 
 ### STS ###
 .apt_generated
