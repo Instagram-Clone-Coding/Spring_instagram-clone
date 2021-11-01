@@ -2,10 +2,14 @@ package cloneproject.Instagram.entity.member;
 
 import javax.persistence.*;
 
+import cloneproject.Instagram.vo.Image;
+import cloneproject.Instagram.vo.ImageType;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.UUID;
 
 @Getter
 @Entity
@@ -44,18 +48,14 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @Column(name = "member_image_url")
-    private String imageUrl;
-
-    @Column(name = "member_image_type")
-    @Enumerated(EnumType.STRING)
-    private ImageType imageType;
-
-    @Column(name = "member_image_name")
-    private String imageName;
-
-    @Column(name = "member_image_uuid")
-    private String imageUUID;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "imageUrl", column = @Column(name = "member_image_url")),
+            @AttributeOverride(name = "imageType", column = @Column(name = "member_image_type")),
+            @AttributeOverride(name = "imageName", column = @Column(name = "member_image_name")),
+            @AttributeOverride(name = "imageUUID", column = @Column(name = "member_image_uuid"))
+    })
+    private Image image;
 
     @Builder
     public Member(String userid, String username, String password, String phone){
@@ -66,9 +66,11 @@ public class Member {
         
         // 자동 초기화
         this.gender = Gender.PRIVATE;
-        this.imageUrl = "https://drive.google.com/file/d/1Gu0DcGCJNs4Vo0bz2U9U6v01d_VwKijs/view?usp=sharing";
-        this.imageName = "BaseImageName";
-        this.imageType = ImageType.PNG;
-        this.imageUUID = "BaseImageUUID";
+        this.image = Image.builder()
+                .imageName("base")
+                .imageType(ImageType.PNG)
+                .imageUrl("https://drive.google.com/file/d/1Gu0DcGCJNs4Vo0bz2U9U6v01d_VwKijs/view?usp=sharing")
+                .imageUUID("base-UUID")
+                .build();
     }
 }
