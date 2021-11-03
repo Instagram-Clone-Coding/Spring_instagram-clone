@@ -26,7 +26,7 @@ public class PostTag {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_image_id")
-    private PostImage image;
+    private PostImage postImage;
 
     @Embedded
     @AttributeOverrides({
@@ -36,9 +36,9 @@ public class PostTag {
     private Tag tag;
 
     @Builder
-    public PostTag(Member member, PostImage image, Tag tag) {
+    public PostTag(Member member, PostImage postImage, Tag tag) {
         this.member = member;
-        this.image = image;
+        this.postImage = postImage;
         this.tag = tag;
     }
 }
