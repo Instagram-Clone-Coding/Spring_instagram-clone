@@ -57,6 +57,10 @@ public class Member {
     })
     private Image image;
 
+    public void setEncryptedPassword(String encryptedPassword){
+        this.password = encryptedPassword;
+    }
+
     @Builder
     public Member(String userid, String username, String password, String phone){
         this.userid = userid;
