@@ -9,7 +9,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
 
 @Getter
 @Entity
@@ -56,6 +55,10 @@ public class Member {
             @AttributeOverride(name = "imageUUID", column = @Column(name = "member_image_uuid"))
     })
     private Image image;
+
+    public void setEncryptedPassword(String encryptedPassword){
+        this.password = encryptedPassword;
+    }
 
     @Builder
     public Member(String userid, String username, String password, String phone){
