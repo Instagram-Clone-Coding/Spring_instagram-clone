@@ -2,6 +2,7 @@ package cloneproject.Instagram.entity.highlight;
 
 import cloneproject.Instagram.vo.Image;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -45,4 +46,14 @@ public class HighlightStory {
 
     @Column(name = "highlight_representation_flag")
     private boolean representationFlag;
+
+    @Builder
+    public HighlightStory(Highlight highlight, String storyContent, Long storyContentY, Long storyContentX, Image image, boolean representationFlag) {
+        this.highlight = highlight;
+        this.storyContent = storyContent;
+        this.storyContentY = storyContentY;
+        this.storyContentX = storyContentX;
+        this.image = image;
+        this.representationFlag = representationFlag;
+    }
 }
