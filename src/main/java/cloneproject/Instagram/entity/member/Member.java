@@ -21,14 +21,18 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "member_userid", nullable = false, length = 20, unique = true)
-    private String userid;
-
-    @Column(name = "member_username", nullable = false, length = 20)
+    @Column(name = "member_username", nullable = false, length = 20, unique = true)
     private String username;
+    
+    @Column(name = "member_role")
+    @Enumerated(EnumType.STRING)
+    private MemberRole role;
 
     @Column(name = "member_password", nullable = false)
     private String password;
+    
+    @Column(name = "member_name", nullable = false, length = 20)
+    private String name;
 
     @Column(name = "member_website")
     private String website;
@@ -61,13 +65,14 @@ public class Member {
     }
 
     @Builder
-    public Member(String userid, String username, String password, String phone){
-        this.userid = userid;
+    public Member(String username, String name, String password, String phone){
         this.username = username;
+        this.name = name;
         this.password = password;
         this.phone = phone;
         
         // 자동 초기화
+        this.role = MemberRole.ROLE_USER;
         this.gender = Gender.PRIVATE;
         this.image = Image.builder()
                 .imageName("base")
