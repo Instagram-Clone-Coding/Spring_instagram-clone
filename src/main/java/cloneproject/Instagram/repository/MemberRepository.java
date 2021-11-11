@@ -7,5 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import cloneproject.Instagram.entity.member.Member;
 
 public interface MemberRepository extends JpaRepository<Member, Long>{
-    public Optional<Member> findByUserid(String userid);
+    public Optional<Member> findByUsername(String username);
+    public Optional<Member> findById(Long id);
+    public boolean existsByUsername(String username);
 }

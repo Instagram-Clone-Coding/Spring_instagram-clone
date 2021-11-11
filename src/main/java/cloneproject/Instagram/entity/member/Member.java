@@ -2,8 +2,11 @@ package cloneproject.Instagram.entity.member;
 
 import javax.persistence.*;
 
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import cloneproject.Instagram.vo.Image;
 import cloneproject.Instagram.vo.ImageType;
+import cloneproject.Instagram.vo.RefreshToken;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,6 +16,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "members")
 public class Member {
 
@@ -21,14 +25,18 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "member_userid", nullable = false, length = 20, unique = true)
-    private String userid;
-
-    @Column(name = "member_username", nullable = false, length = 20)
+    @Column(name = "member_username", nullable = false, length = 20, unique = true)
     private String username;
+    
+    @Column(name = "member_role")
+    @Enumerated(EnumType.STRING)
+    private MemberRole role;
 
     @Column(name = "member_password", nullable = false)
     private String password;
+    
+    @Column(name = "member_name", nullable = false, length = 20)
+    private String name;
 
     @Column(name = "member_website")
     private String website;
@@ -47,6 +55,14 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
+    
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "value", column = @Column(name = "member_refresh_token_value")),
+            @AttributeOverride(name = "createdAt", column = @Column(name = "member_refresh_token_created_At")),
+    })
+    private RefreshToken refreshToken;
+
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "imageUrl", column = @Column(name = "member_image_url")),
@@ -56,18 +72,23 @@ public class Member {
     })
     private Image image;
 
+    public void setRefreshToken(RefreshToken refreshToken){
+        this.refreshToken = refreshToken;
+    }
+
     public void setEncryptedPassword(String encryptedPassword){
         this.password = encryptedPassword;
     }
 
     @Builder
-    public Member(String userid, String username, String password, String phone){
-        this.userid = userid;
+    public Member(String username, String name, String password, String phone){
         this.username = username;
+        this.name = name;
         this.password = password;
         this.phone = phone;
         
         // 자동 초기화
+        this.role = MemberRole.ROLE_USER;
         this.gender = Gender.PRIVATE;
         this.image = Image.builder()
                 .imageName("base")
