@@ -2,24 +2,22 @@ package cloneproject.Instagram.service;
 
 
 
-import javax.transaction.Transactional;
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import cloneproject.Instagram.dto.JwtDto;
 import cloneproject.Instagram.dto.LoginRequest;
 import cloneproject.Instagram.dto.RegisterRequest;
 import cloneproject.Instagram.dto.ReissueRequest;
-import cloneproject.Instagram.entity.auth.RefreshToken;
 import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.exception.UseridAlreadyExistException;
 import cloneproject.Instagram.repository.MemberRepository;
-import cloneproject.Instagram.repository.RefreshTokenRepository;
 import cloneproject.Instagram.util.JwtUtil;
+import cloneproject.Instagram.vo.RefreshToken;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -28,7 +26,6 @@ public class MemberService {
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtUtil jwtUtil;
-    private final RefreshTokenRepository refreshTokenRepository;
 
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -51,10 +48,13 @@ public class MemberService {
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         JwtDto jwtDto = jwtUtil.generateTokenDto(authentication);
         RefreshToken refreshToken = RefreshToken.builder()
-                                            .memberId(authentication.getName())
-                                            .tokenValue(jwtDto.getRefreshToken())
+                                            .value(jwtDto.getRefreshToken())
                                             .build();
-        refreshTokenRepository.save(refreshToken);
+        // ! 예외 수정
+        Member member = memberRepository.findById(Long.valueOf(authentication.getName()))
+                                        .orElseThrow(() -> new RuntimeException("회원정보가없네요"));
+        member.setRefreshToken(refreshToken);
+        memberRepository.save(member);
         
         return jwtDto;
     }
@@ -69,10 +69,10 @@ public class MemberService {
         }
         Authentication authentication = jwtUtil.getAuthentication(accessTokenString);
         // TODO 서버로 요청해야함, exception
-        RefreshToken refreshToken = refreshTokenRepository.findByMemberId(authentication.getName())
+        Member member = memberRepository.findById(Long.valueOf(authentication.getName()))
                                         .orElseThrow(() -> new RuntimeException("로그아웃했네요"));
-
-        if(!refreshToken.getTokenValue().equals(refreshTokenString)){
+        RefreshToken refreshToken = member.getRefreshToken();
+        if(!refreshToken.getValue().equals(refreshTokenString)){
             //TODO exception
             throw new RuntimeException("잘못된토큰입니다");
         }
@@ -80,7 +80,8 @@ public class MemberService {
         JwtDto jwtDto = jwtUtil.generateTokenDto(authentication);
 
         refreshToken.updateTokenValue(jwtDto.getRefreshToken());
-        refreshTokenRepository.save(refreshToken);
+        // ? 되나확인
+        memberRepository.save(member);
 
         return jwtDto;
     }

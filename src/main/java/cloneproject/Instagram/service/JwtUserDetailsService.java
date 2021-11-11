@@ -2,7 +2,6 @@ package cloneproject.Instagram.service;
 
 import java.util.Collections;
 
-import javax.transaction.Transactional;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -11,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.repository.MemberRepository;
@@ -23,7 +23,7 @@ public class JwtUserDetailsService implements UserDetailsService{
     private final MemberRepository memberRepository;
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) {
         return memberRepository.findByUsername(username)
                 .map(this::createUserDetails)

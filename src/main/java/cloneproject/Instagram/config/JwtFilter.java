@@ -23,12 +23,12 @@ public class JwtFilter extends OncePerRequestFilter{
 
     private final JwtUtil jwtUtil;
     
+    // ! 예외 처리 리팩토링
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, 
                             FilterChain filterChain) throws IOException, ServletException {
 
         String jwt = getStringFromJwt(request);
-
         if (StringUtils.hasText(jwt) && jwtUtil.validateAccessJwt(jwt)) {
             Authentication authentication = jwtUtil.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);

@@ -4,6 +4,7 @@ package cloneproject.Instagram.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
 import cloneproject.Instagram.dto.JwtDto;
@@ -26,7 +27,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping(value = "/accounts")
-    public ResponseEntity<MessageResponse> register(@RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<MessageResponse> register(@Validated @RequestBody RegisterRequest registerRequest) {
         memberService.register(registerRequest);
 
         MessageResponse response = new MessageResponse("회원가입 되었습니다.");
@@ -34,14 +35,14 @@ public class MemberController {
     }
 
     @PostMapping(value = "/login")
-    public ResponseEntity<JwtDto> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<JwtDto> login(@Validated @RequestBody LoginRequest loginRequest) {
         JwtDto result = memberService.login(loginRequest);
         
         return ResponseEntity.ok(result);
     }
 
     @PostMapping(value = "/reissue")
-    public ResponseEntity<JwtDto> reissue(@RequestBody ReissueRequest reissueRequest) {
+    public ResponseEntity<JwtDto> reissue(@Validated @RequestBody ReissueRequest reissueRequest) {
         JwtDto result = memberService.reisuue(reissueRequest);
         
         return ResponseEntity.ok(result);

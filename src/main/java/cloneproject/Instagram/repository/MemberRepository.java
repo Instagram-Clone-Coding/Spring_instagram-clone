@@ -8,5 +8,6 @@ import cloneproject.Instagram.entity.member.Member;
 
 public interface MemberRepository extends JpaRepository<Member, Long>{
     public Optional<Member> findByUsername(String username);
+    public Optional<Member> findById(Long id);
     public boolean existsByUsername(String username);
 }

@@ -2,8 +2,11 @@ package cloneproject.Instagram.entity.member;
 
 import javax.persistence.*;
 
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import cloneproject.Instagram.vo.Image;
 import cloneproject.Instagram.vo.ImageType;
+import cloneproject.Instagram.vo.RefreshToken;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,6 +16,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "members")
 public class Member {
 
@@ -51,6 +55,14 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
+    
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "value", column = @Column(name = "member_refresh_token_value")),
+            @AttributeOverride(name = "createdAt", column = @Column(name = "member_refresh_token_created_At")),
+    })
+    private RefreshToken refreshToken;
+
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "imageUrl", column = @Column(name = "member_image_url")),
@@ -59,6 +71,10 @@ public class Member {
             @AttributeOverride(name = "imageUUID", column = @Column(name = "member_image_uuid"))
     })
     private Image image;
+
+    public void setRefreshToken(RefreshToken refreshToken){
+        this.refreshToken = refreshToken;
+    }
 
     public void setEncryptedPassword(String encryptedPassword){
         this.password = encryptedPassword;
