@@ -1,7 +1,9 @@
 package cloneproject.Instagram.exception;
 
-public class UseridAlreadyExistException extends RuntimeException{
+import cloneproject.Instagram.dto.error.ErrorCode;
+
+public class UseridAlreadyExistException extends BusinessException{
         public UseridAlreadyExistException(){
-            super("이미 존재하는 ID 입니다");
+            super(ErrorCode.USERNAME_ALREADY_EXISTS);
         }
 }

@@ -1,21 +1,50 @@
 package cloneproject.Instagram.config;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
+import cloneproject.Instagram.dto.error.ErrorCode;
+import cloneproject.Instagram.dto.error.ErrorResponse;
+import cloneproject.Instagram.exception.BusinessException;
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@Slf4j
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint{
     
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, 
                     AuthenticationException authException) throws IOException {
-        // 유효한 자격증명을 제공하지 않고 접근하려 할때 401
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        Object errorObject = request.getAttribute("bussinessException");
+        if(errorObject != null){
+            if(errorObject instanceof BusinessException){
+                ErrorCode errorCode = ((BusinessException) errorObject).getErrorCode();
+                sendError(response, errorCode);
+            }else{
+                sendError(response, ErrorCode.NEED_LOGIN);
+            }
+        }else{
+            sendError(response, ErrorCode.NEED_LOGIN);
+        }
     }
+
+    private void sendError(HttpServletResponse response, ErrorCode errorCode) throws IOException{
+        response.setStatus(errorCode.getStatus());
+        response.setContentType("application/json,charset=utf-8");
+        try(OutputStream os = response.getOutputStream()){
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.writeValue(os, ErrorResponse.of(errorCode));
+            os.flush();
+        }
+    }
+    
 }

@@ -12,9 +12,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import cloneproject.Instagram.exception.BusinessException;
 import cloneproject.Instagram.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter{
     
@@ -23,21 +26,22 @@ public class JwtFilter extends OncePerRequestFilter{
 
     private final JwtUtil jwtUtil;
     
-    // ! 예외 처리 리팩토링
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, 
                             FilterChain filterChain) throws IOException, ServletException {
-
-        String jwt = getStringFromJwt(request);
-        if (StringUtils.hasText(jwt) && jwtUtil.validateAccessJwt(jwt)) {
-            Authentication authentication = jwtUtil.getAuthentication(jwt);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        try{
+            String jwt = getTokenStringFromRequest(request);
+            if (StringUtils.hasText(jwt) && jwtUtil.validateAccessJwt(jwt)) {
+                Authentication authentication = jwtUtil.getAuthentication(jwt);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        } catch(BusinessException e){
+            request.setAttribute("bussinessException", e);
         }
-
         filterChain.doFilter(request, response);
     }
 
-    private String getStringFromJwt(HttpServletRequest request) {
+    private String getTokenStringFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
             return bearerToken.substring(7);

@@ -2,6 +2,7 @@ package cloneproject.Instagram.service;
 
 
 
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -14,10 +15,14 @@ import cloneproject.Instagram.dto.LoginRequest;
 import cloneproject.Instagram.dto.RegisterRequest;
 import cloneproject.Instagram.dto.ReissueRequest;
 import cloneproject.Instagram.entity.member.Member;
+import cloneproject.Instagram.exception.AccountDoesNotMatch;
+import cloneproject.Instagram.exception.InvalidJwtException;
+import cloneproject.Instagram.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.exception.UseridAlreadyExistException;
 import cloneproject.Instagram.repository.MemberRepository;
 import cloneproject.Instagram.util.JwtUtil;
 import cloneproject.Instagram.vo.RefreshToken;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -43,20 +48,23 @@ public class MemberService {
 
     @Transactional
     public JwtDto login(LoginRequest loginRequest){
-        UsernamePasswordAuthenticationToken authenticationToken = 
-            new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        JwtDto jwtDto = jwtUtil.generateTokenDto(authentication);
-        RefreshToken refreshToken = RefreshToken.builder()
-                                            .value(jwtDto.getRefreshToken())
-                                            .build();
-        // ! 예외 수정
-        Member member = memberRepository.findById(Long.valueOf(authentication.getName()))
-                                        .orElseThrow(() -> new RuntimeException("회원정보가없네요"));
-        member.setRefreshToken(refreshToken);
-        memberRepository.save(member);
-        
-        return jwtDto;
+        try{
+            UsernamePasswordAuthenticationToken authenticationToken = 
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            JwtDto jwtDto = jwtUtil.generateTokenDto(authentication);
+            RefreshToken refreshToken = RefreshToken.builder()
+                                                .value(jwtDto.getRefreshToken())
+                                                .build();
+            Member member = memberRepository.findById(Long.valueOf(authentication.getName()))
+                                            .orElseThrow(() -> new MemberDoesNotExistException());
+            member.setRefreshToken(refreshToken);
+            memberRepository.save(member);
+            
+            return jwtDto;
+        }catch(BadCredentialsException e){
+            throw new AccountDoesNotMatch();
+        }
     }
 
     @Transactional
@@ -64,23 +72,24 @@ public class MemberService {
         String accessTokenString = reissueRequest.getAccessToken();
         String refreshTokenString = reissueRequest.getRefreshToken();
         if(!jwtUtil.validateRefeshJwt(refreshTokenString)){
-            // TODO exception 만들기
-            throw new RuntimeException("REFRESH TOKEN 이상함");
+            throw new InvalidJwtException();
         }
-        Authentication authentication = jwtUtil.getAuthentication(accessTokenString);
-        // TODO 서버로 요청해야함, exception
+        Authentication authentication;
+        try{
+            authentication = jwtUtil.getAuthentication(accessTokenString);
+        } catch(JwtException e){
+            throw new InvalidJwtException();
+        }
         Member member = memberRepository.findById(Long.valueOf(authentication.getName()))
-                                        .orElseThrow(() -> new RuntimeException("로그아웃했네요"));
+                                        .orElseThrow(() -> new MemberDoesNotExistException());
         RefreshToken refreshToken = member.getRefreshToken();
         if(!refreshToken.getValue().equals(refreshTokenString)){
-            //TODO exception
-            throw new RuntimeException("잘못된토큰입니다");
+            throw new InvalidJwtException();
         }
         
         JwtDto jwtDto = jwtUtil.generateTokenDto(authentication);
 
         refreshToken.updateTokenValue(jwtDto.getRefreshToken());
-        // ? 되나확인
         memberRepository.save(member);
 
         return jwtDto;
