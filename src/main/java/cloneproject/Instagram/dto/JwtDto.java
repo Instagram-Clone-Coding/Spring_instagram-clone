@@ -1,5 +1,7 @@
 package cloneproject.Instagram.dto;
 
+import java.util.Date;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,5 +15,5 @@ public class JwtDto {
     private String type;
     private String accessToken;
     private String refreshToken;
-    private Long accessTokenExpires;
+    private Date accessTokenExpires;
 }

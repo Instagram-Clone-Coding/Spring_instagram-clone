@@ -28,19 +28,23 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint{
         if(errorObject != null){
             if(errorObject instanceof BusinessException){
                 ErrorCode errorCode = ((BusinessException) errorObject).getErrorCode();
-                log.info("HHH3");
-                response.setStatus(errorCode.getStatus());
-                response.setContentType("application/json,charset=utf-8");
-                try(OutputStream os = response.getOutputStream()){
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    objectMapper.writeValue(os, ErrorResponse.of(errorCode));
-                    os.flush();
-                }
+                sendError(response, errorCode);
             }else{
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                sendError(response, ErrorCode.NEED_LOGIN);
             }
         }else{
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            sendError(response, ErrorCode.NEED_LOGIN);
         }
     }
+
+    private void sendError(HttpServletResponse response, ErrorCode errorCode) throws IOException{
+        response.setStatus(errorCode.getStatus());
+        response.setContentType("application/json,charset=utf-8");
+        try(OutputStream os = response.getOutputStream()){
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.writeValue(os, ErrorResponse.of(errorCode));
+            os.flush();
+        }
+    }
+    
 }

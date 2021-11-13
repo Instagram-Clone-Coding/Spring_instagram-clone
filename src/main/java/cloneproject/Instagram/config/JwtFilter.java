@@ -7,7 +7,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -36,7 +35,7 @@ public class JwtFilter extends OncePerRequestFilter{
                 Authentication authentication = jwtUtil.getAuthentication(jwt);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-        }catch(BusinessException e){
+        } catch(BusinessException e){
             request.setAttribute("bussinessException", e);
         }
         filterChain.doFilter(request, response);

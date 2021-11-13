@@ -78,6 +78,7 @@ public class JwtUtil {
                 .type(BEARER_TYPE)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
+                .accessTokenExpires(accessTokenExpiresIn)
                 .build();
     }
     
@@ -103,40 +104,30 @@ public class JwtUtil {
     }
 
     public boolean validateAccessJwt(String token){
-        try{
-            return validateJwt(token, accessKey);
-        }catch(ExpiredJwtException e){
-            throw new ExpiredAccessTokenException();
-        }catch(JwtException e){
-            throw new InvalidJwtException();
-        }
+        return validateJwt(token, accessKey);
     }
 
     public boolean validateRefeshJwt(String token){
-        try{
-            return validateJwt(token, refreshKey);
-        }catch(ExpiredJwtException e){
-            throw new ExpiredRefreshTokenException();
-        }catch(JwtException e){
-            throw new InvalidJwtException();
-        }
+        return validateJwt(token, refreshKey);
     }
 
     private boolean validateJwt(String token, Key key){
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
-        } catch (SecurityException e) {
+        } catch(ExpiredJwtException e){
+            if(key == refreshKey){
+                throw new ExpiredRefreshTokenException();
+            }else{
+                throw new ExpiredAccessTokenException();
+            }
+        } catch (JwtException e) {
             throw new InvalidJwtException();
         }
     }
 
     private Claims parseClaims(String accessToken) {
-        try {
-            return Jwts.parserBuilder().setSigningKey(accessKey).build().parseClaimsJws(accessToken).getBody();
-        } catch (ExpiredJwtException e) {
-            return e.getClaims();
-        }
+        return Jwts.parserBuilder().setSigningKey(accessKey).build().parseClaimsJws(accessToken).getBody();
     }
 
 }
