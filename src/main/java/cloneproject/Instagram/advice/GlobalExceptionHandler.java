@@ -12,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import static cloneproject.Instagram.dto.error.ErrorCode.*;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -28,6 +29,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     protected ResponseEntity<ErrorResponse> handleBindException(BindException e) {
         final ErrorResponse response = ErrorResponse.of(INVALID_INPUT_VALUE, e.getBindingResult());
+        return new ResponseEntity<>(response, BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    protected ResponseEntity<ErrorResponse> handleMissingServletRequestPartException(MissingServletRequestPartException e) {
+        final ErrorResponse response = ErrorResponse.of(NO_POST_IMAGE);
         return new ResponseEntity<>(response, BAD_REQUEST);
     }
 

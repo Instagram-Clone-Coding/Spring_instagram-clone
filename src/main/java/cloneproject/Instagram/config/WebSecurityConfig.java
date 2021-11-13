@@ -17,17 +17,16 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import cloneproject.Instagram.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 
-
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
-    
+
     private final JwtUtil jwtUtil;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-    
+
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder(){
@@ -54,26 +53,26 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
     public void configure(WebSecurity web) throws Exception{
         web.ignoring().antMatchers("/css/**", "/js/**"); // 나중에 수정
     }
-    
+
     @Override
     protected void configure(HttpSecurity http) throws Exception{
         JwtFilter customFilter = new JwtFilter(jwtUtil);
         http.addFilterBefore(customFilter, UsernamePasswordAuthenticationFilter.class);
 
         http.exceptionHandling()
-            .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-            .accessDeniedHandler(jwtAccessDeniedHandler);
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .accessDeniedHandler(jwtAccessDeniedHandler);
 
         http.sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.cors().configurationSource(configurationSource())
-            .and()
-            .csrf().disable()
-            .authorizeRequests()
-            .antMatchers("/login", "/accounts").permitAll()
-            .antMatchers("/info").hasAuthority("ROLE_USER")
-            .antMatchers("/admin").hasAuthority("ROLE_ADMIN");
+                .and()
+                .csrf().disable()
+                .authorizeRequests()
+                .antMatchers("/login", "/accounts").permitAll()
+                .antMatchers("/info", "/posts/**").hasAuthority("ROLE_USER")
+                .antMatchers("/admin").hasAuthority("ROLE_ADMIN");
     }
 
 }
