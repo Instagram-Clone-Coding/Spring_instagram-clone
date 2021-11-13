@@ -18,6 +18,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import cloneproject.Instagram.dto.JwtDto;
+import cloneproject.Instagram.exception.ExpiredAccessTokenException;
+import cloneproject.Instagram.exception.ExpiredRefreshTokenException;
+import cloneproject.Instagram.exception.InvalidJwtException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -26,11 +29,10 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
 
-// TODO access와 refresh token 분리
 @Component
 public class JwtUtil {
     
-    private final static long ACCESS_TOKEN_EXPIRES = 1000 * 60; // 10분
+    private final static long ACCESS_TOKEN_EXPIRES = 1000 * 60; // 10분 (test를 위해 1분으로 설정됨)
     private final static long REFRESH_TOKEN_EXPIRES = 1000 * 60 * 60 * 24 * 7; // 7일
     
     private final static String BEARER_TYPE = "Bearer";
@@ -83,8 +85,7 @@ public class JwtUtil {
         Claims claims = parseClaims(accessToken);
         
         if (claims.get(AUTHENTITIES_KEY) == null) {
-            // TODO 권한이없는 토큰 exception
-            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
+            throw new InvalidJwtException();
         }
 
         String authorityString = claims.get(AUTHENTITIES_KEY).toString();
@@ -102,11 +103,23 @@ public class JwtUtil {
     }
 
     public boolean validateAccessJwt(String token){
-        return validateJwt(token, accessKey);
+        try{
+            return validateJwt(token, accessKey);
+        }catch(ExpiredJwtException e){
+            throw new ExpiredAccessTokenException();
+        }catch(JwtException e){
+            throw new InvalidJwtException();
+        }
     }
 
     public boolean validateRefeshJwt(String token){
-        return validateJwt(token, refreshKey);
+        try{
+            return validateJwt(token, refreshKey);
+        }catch(ExpiredJwtException e){
+            throw new ExpiredRefreshTokenException();
+        }catch(JwtException e){
+            throw new InvalidJwtException();
+        }
     }
 
     private boolean validateJwt(String token, Key key){
@@ -114,14 +127,7 @@ public class JwtUtil {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (SecurityException e) {
-            // TODO 잘못된 서명 exception
-            throw e;
-        } catch(ExpiredJwtException e){
-            // TODO 만료된 토큰 exception
-            throw e;
-        } catch(JwtException e){
-            // TODO 관련 exception 만들기
-            throw e;
+            throw new InvalidJwtException();
         }
     }
 

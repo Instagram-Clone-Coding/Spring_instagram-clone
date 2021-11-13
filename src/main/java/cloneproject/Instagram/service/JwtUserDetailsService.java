@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cloneproject.Instagram.entity.member.Member;
+import cloneproject.Instagram.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -27,11 +28,11 @@ public class JwtUserDetailsService implements UserDetailsService{
     public UserDetails loadUserByUsername(String username) {
         return memberRepository.findByUsername(username)
                 .map(this::createUserDetails)
-                .orElseThrow(() -> new UsernameNotFoundException("해당하는 ID가 없습니다"));
+                .orElseThrow(() -> new MemberDoesNotExistException());
     }
 
     private UserDetails createUserDetails(Member member){
-        GrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_USER");
+        GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getRole().toString());
 
         // TOKEN, AUTHENTICATION 에 넣을 값 (ex. username, id)
         return new User(

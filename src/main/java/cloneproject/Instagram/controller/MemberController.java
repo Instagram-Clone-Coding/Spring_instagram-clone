@@ -1,6 +1,7 @@
 package cloneproject.Instagram.controller;
 
 
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,9 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cloneproject.Instagram.dto.JwtDto;
 import cloneproject.Instagram.dto.LoginRequest;
-import cloneproject.Instagram.dto.MessageResponse;
 import cloneproject.Instagram.dto.RegisterRequest;
 import cloneproject.Instagram.dto.ReissueRequest;
+import cloneproject.Instagram.dto.result.ResultCode;
+import cloneproject.Instagram.dto.result.ResultResponse;
 import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -27,25 +29,24 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping(value = "/accounts")
-    public ResponseEntity<MessageResponse> register(@Validated @RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<ResultResponse> register(@Validated @RequestBody RegisterRequest registerRequest) {
         memberService.register(registerRequest);
-
-        MessageResponse response = new MessageResponse("회원가입 되었습니다.");
-        return new ResponseEntity<MessageResponse>(response,HttpStatus.OK);
+        ResultResponse result = ResultResponse.of(ResultCode.REGISTER_SUCCESS,null);
+        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
     @PostMapping(value = "/login")
-    public ResponseEntity<JwtDto> login(@Validated @RequestBody LoginRequest loginRequest) {
-        JwtDto result = memberService.login(loginRequest);
-        
-        return ResponseEntity.ok(result);
+    public ResponseEntity<ResultResponse> login(@Validated @RequestBody LoginRequest loginRequest) {
+        JwtDto jwt = memberService.login(loginRequest);
+        ResultResponse result = ResultResponse.of(ResultCode.LOGIN_SUCCESS, jwt);
+        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
     @PostMapping(value = "/reissue")
-    public ResponseEntity<JwtDto> reissue(@Validated @RequestBody ReissueRequest reissueRequest) {
-        JwtDto result = memberService.reisuue(reissueRequest);
-        
-        return ResponseEntity.ok(result);
+    public ResponseEntity<ResultResponse> reissue(@Validated @RequestBody ReissueRequest reissueRequest) {
+        JwtDto jwt = memberService.reisuue(reissueRequest);
+        ResultResponse result = ResultResponse.of(ResultCode.REISSUE_SUCCESS, jwt);
+        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
 

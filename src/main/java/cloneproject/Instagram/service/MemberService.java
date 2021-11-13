@@ -14,6 +14,8 @@ import cloneproject.Instagram.dto.LoginRequest;
 import cloneproject.Instagram.dto.RegisterRequest;
 import cloneproject.Instagram.dto.ReissueRequest;
 import cloneproject.Instagram.entity.member.Member;
+import cloneproject.Instagram.exception.InvalidJwtException;
+import cloneproject.Instagram.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.exception.UseridAlreadyExistException;
 import cloneproject.Instagram.repository.MemberRepository;
 import cloneproject.Instagram.util.JwtUtil;
@@ -50,9 +52,8 @@ public class MemberService {
         RefreshToken refreshToken = RefreshToken.builder()
                                             .value(jwtDto.getRefreshToken())
                                             .build();
-        // ! 예외 수정
         Member member = memberRepository.findById(Long.valueOf(authentication.getName()))
-                                        .orElseThrow(() -> new RuntimeException("회원정보가없네요"));
+                                        .orElseThrow(() -> new MemberDoesNotExistException());
         member.setRefreshToken(refreshToken);
         memberRepository.save(member);
         
@@ -64,23 +65,19 @@ public class MemberService {
         String accessTokenString = reissueRequest.getAccessToken();
         String refreshTokenString = reissueRequest.getRefreshToken();
         if(!jwtUtil.validateRefeshJwt(refreshTokenString)){
-            // TODO exception 만들기
-            throw new RuntimeException("REFRESH TOKEN 이상함");
+            throw new InvalidJwtException();
         }
         Authentication authentication = jwtUtil.getAuthentication(accessTokenString);
-        // TODO 서버로 요청해야함, exception
         Member member = memberRepository.findById(Long.valueOf(authentication.getName()))
-                                        .orElseThrow(() -> new RuntimeException("로그아웃했네요"));
+                                        .orElseThrow(() -> new MemberDoesNotExistException());
         RefreshToken refreshToken = member.getRefreshToken();
         if(!refreshToken.getValue().equals(refreshTokenString)){
-            //TODO exception
-            throw new RuntimeException("잘못된토큰입니다");
+            throw new InvalidJwtException();
         }
         
         JwtDto jwtDto = jwtUtil.generateTokenDto(authentication);
 
         refreshToken.updateTokenValue(jwtDto.getRefreshToken());
-        // ? 되나확인
         memberRepository.save(member);
 
         return jwtDto;
