@@ -2,6 +2,7 @@ package cloneproject.Instagram.entity.post;
 
 import cloneproject.Instagram.entity.member.Member;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -33,7 +34,9 @@ public class Post {
     @CreatedDate
     private LocalDateTime uploadDate;
 
-    public Post(String content) {
+    @Builder
+    public Post(Member member, String content) {
+        this.member = member;
         this.content = content;
     }
 }
