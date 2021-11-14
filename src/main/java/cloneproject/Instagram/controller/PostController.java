@@ -33,15 +33,12 @@ public class PostController {
     private final PostService postService;
     private final CustomValidator validator;
 
-    // TODO: 인증 정보 가져와서 Post에 매핑하는 코드 추가
-
     @ApiImplicitParam(name = "content", value = "게시물 내용", example = "안녕하세요.", required = true)
     @PostMapping("/posts")
     public ResponseEntity<ResultResponse> createPost(
-            @RequestHeader("Authorization") String authorization,
             @Validated @Length(max = 2200, message = "최대 2,200자까지 입력 가능합니다.")
             @RequestParam String content) {
-        final Long postId = postService.create(content, authorization);
+        final Long postId = postService.create(content);
         PostCreateResponse response = new PostCreateResponse(postId);
 
         return ResponseEntity.ok(ResultResponse.of(CREATE_POST_SUCCESS, response));

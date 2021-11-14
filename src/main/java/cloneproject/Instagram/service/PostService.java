@@ -11,7 +11,6 @@ import cloneproject.Instagram.repository.MemberRepository;
 import cloneproject.Instagram.repository.PostImageRepository;
 import cloneproject.Instagram.repository.PostRepository;
 import cloneproject.Instagram.repository.PostTagRepository;
-import cloneproject.Instagram.util.JwtUtil;
 import cloneproject.Instagram.vo.Image;
 import cloneproject.Instagram.vo.ImageType;
 import cloneproject.Instagram.vo.Tag;
@@ -19,7 +18,7 @@ import com.google.common.base.Enums;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,12 +37,11 @@ public class PostService {
     private final PostImageRepository postImageRepository;
     private final PostTagRepository postTagRepository;
     private final MemberRepository memberRepository;
-    private final JwtUtil jwtUtil;
 
     @Transactional
-    public Long create(String content, String authorization) {
-        final Authentication authentication = jwtUtil.getAuthentication(authorization.substring(7));
-        final Member member = memberRepository.findById(Long.valueOf(authentication.getName())).orElseThrow(MemberDoesNotExistException::new);
+    public Long create(String content) {
+        String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
+        final Member member = memberRepository.findById(Long.valueOf(memberId)).orElseThrow(MemberDoesNotExistException::new);
         Post post = Post.builder()
                 .member(member)
                 .content(content)
