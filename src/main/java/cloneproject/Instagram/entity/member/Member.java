@@ -80,6 +80,10 @@ public class Member {
         this.password = encryptedPassword;
     }
 
+    public void uplodateImage(Image image){
+        this.image = image;
+    }
+
     @Builder
     public Member(String username, String name, String password, String phone){
         this.username = username;

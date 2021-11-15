@@ -9,18 +9,22 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import cloneproject.Instagram.dto.JwtDto;
-import cloneproject.Instagram.dto.LoginRequest;
-import cloneproject.Instagram.dto.RegisterRequest;
-import cloneproject.Instagram.dto.ReissueRequest;
+import cloneproject.Instagram.dto.member.JwtDto;
+import cloneproject.Instagram.dto.member.LoginRequest;
+import cloneproject.Instagram.dto.member.RegisterRequest;
+import cloneproject.Instagram.dto.member.ReissueRequest;
+import cloneproject.Instagram.dto.member.UserProfileResponse;
 import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.exception.AccountDoesNotMatch;
 import cloneproject.Instagram.exception.InvalidJwtException;
 import cloneproject.Instagram.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.exception.UseridAlreadyExistException;
 import cloneproject.Instagram.repository.MemberRepository;
+import cloneproject.Instagram.util.ImageUtil;
 import cloneproject.Instagram.util.JwtUtil;
+import cloneproject.Instagram.vo.Image;
 import cloneproject.Instagram.vo.RefreshToken;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +61,7 @@ public class MemberService {
                                                 .value(jwtDto.getRefreshToken())
                                                 .build();
             Member member = memberRepository.findById(Long.valueOf(authentication.getName()))
-                                            .orElseThrow(() -> new MemberDoesNotExistException());
+                                            .orElseThrow(MemberDoesNotExistException::new);
             member.setRefreshToken(refreshToken);
             memberRepository.save(member);
             
@@ -81,7 +85,7 @@ public class MemberService {
             throw new InvalidJwtException();
         }
         Member member = memberRepository.findById(Long.valueOf(authentication.getName()))
-                                        .orElseThrow(() -> new MemberDoesNotExistException());
+                                        .orElseThrow(MemberDoesNotExistException::new);
         RefreshToken refreshToken = member.getRefreshToken();
         if(!refreshToken.getValue().equals(refreshTokenString)){
             throw new InvalidJwtException();
@@ -93,6 +97,28 @@ public class MemberService {
         memberRepository.save(member);
 
         return jwtDto;
+    }
+
+    @Transactional(readOnly = true)
+    public UserProfileResponse getUserProfile(String username){
+        final Member member = memberRepository.findByUsername(username)
+                                        .orElseThrow(MemberDoesNotExistException::new);
+        return UserProfileResponse.builder()
+                                .memberUsername(member.getUsername())
+                                .memberName(member.getName())
+                                .memberImageUrl(member.getImage().getImageUrl())
+                                // .memberFollowers() // TODO: 팔로워 구현 후 추가할것
+                                // .memberFollowings()
+                                .build();
+    }
+
+    @Transactional
+    public void uploadMemberImage(Long memberId, MultipartFile uploadedImage){
+        Member member = memberRepository.findById(memberId)
+                                    .orElseThrow(MemberDoesNotExistException::new);
+        Image image = ImageUtil.convertMultipartToImage(uploadedImage);
+        member.uplodateImage(image);
+        memberRepository.save(member);
     }
 
     // ! login 권한 테스트를 위해 임시로 만든 메서드입니다. 추후에 삭제
