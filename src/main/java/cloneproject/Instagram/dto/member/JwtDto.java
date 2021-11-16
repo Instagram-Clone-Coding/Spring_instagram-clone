@@ -1,4 +1,4 @@
-package cloneproject.Instagram.dto;
+package cloneproject.Instagram.dto.member;
 
 import java.util.Date;
 

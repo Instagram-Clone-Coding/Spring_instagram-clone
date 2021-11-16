@@ -17,7 +17,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import cloneproject.Instagram.dto.JwtDto;
+import cloneproject.Instagram.dto.member.JwtDto;
 import cloneproject.Instagram.exception.ExpiredAccessTokenException;
 import cloneproject.Instagram.exception.ExpiredRefreshTokenException;
 import cloneproject.Instagram.exception.InvalidJwtException;
@@ -27,7 +27,6 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SecurityException;
 
 @Component
 public class JwtUtil {
