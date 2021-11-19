@@ -74,8 +74,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
                 .antMatchers("/info", "/posts/**", "/accounts/**").hasAuthority("ROLE_USER")
                 .antMatchers("/**/follow", "/**/unfollow").hasAuthority("ROLE_USER")
                 .antMatchers("/admin").hasAuthority("ROLE_ADMIN");
-                // .anyRequest().hasAuthority("ROLE_USER");
-                // TODO follow목록을 보는건 권한 없어도 가능하게 수정
     }
 
 }
