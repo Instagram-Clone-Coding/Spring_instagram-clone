@@ -13,7 +13,7 @@ import cloneproject.Instagram.exception.CantUnfollowException;
 import cloneproject.Instagram.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.repository.FollowRepository;
 import cloneproject.Instagram.repository.MemberRepository;
-import cloneproject.Instagram.vo.UsernameWithImage;
+import cloneproject.Instagram.vo.FollowerInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,28 +51,28 @@ public class FollowService {
     }
 
     @Transactional(readOnly = true)
-    public List<UsernameWithImage> getFollowings(String memberUsername){ 
+    public List<FollowerInfo> getFollowings(String memberUsername){ 
         Member member = memberRepository.findByUsername(memberUsername)
                                                 .orElseThrow(MemberDoesNotExistException::new);
         List<Follow> follows = followRepository.findAllByMemberId(member.getId());
         List<Member> followingMembers = follows.stream()
                                                 .map(follow->follow.getFollowMember())
                                                 .toList();
-        List<UsernameWithImage> result = followingMembers.stream()
+        List<FollowerInfo> result = followingMembers.stream()
                                                 .map(this::convertMemberToUsernameWithImages)
                                                 .toList();
         return result;
     }
 
     @Transactional(readOnly = true)
-    public List<UsernameWithImage> getFollowers(String memberUsername){ 
+    public List<FollowerInfo> getFollowers(String memberUsername){ 
         Member member = memberRepository.findByUsername(memberUsername)
                                                 .orElseThrow(MemberDoesNotExistException::new);
         List<Follow> follows = followRepository.findAllByFollowMemberId(member.getId());
         List<Member> followingMembers = follows.stream()
                                                 .map(follow->follow.getMember())
                                                 .toList();
-        List<UsernameWithImage> result = followingMembers.stream()
+        List<FollowerInfo> result = followingMembers.stream()
                                                 .map(this::convertMemberToUsernameWithImages)
                                                 .toList();
         return result;
@@ -108,11 +108,15 @@ public class FollowService {
         return followRepository.existsByMemberIdAndFollowMemberId(Long.valueOf(memberId), followMember.getId());
     }
 
-    private UsernameWithImage convertMemberToUsernameWithImages(Member member){
-        UsernameWithImage result = UsernameWithImage.builder()
-                                                    .username(member.getUsername())
-                                                    .image(member.getImage())
-                                                    .build();
+    private FollowerInfo convertMemberToUsernameWithImages(Member member){
+        FollowerInfo result = FollowerInfo.builder()
+                                    .username(member.getUsername())
+                                    .name(member.getName())
+                                    .image(member.getImage())
+                                    .isFollowing(isFollowing(member.getUsername()))
+                                    //TODO story 여부 판단함수
+                                    .hasStory(false)
+                                    .build();
         return result;
     }
 

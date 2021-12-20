@@ -72,7 +72,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
                 .authorizeRequests()
                 .antMatchers("/login", "/accounts").permitAll()
                 .antMatchers("/info", "/posts/**", "/accounts/**").hasAuthority("ROLE_USER")
-                .antMatchers("/**/follow", "/**/unfollow").hasAuthority("ROLE_USER")
+                .antMatchers("/**/follow", "/**/unfollow",  "/**/followers", "/**/following").hasAuthority("ROLE_USER")
                 .antMatchers("/admin").hasAuthority("ROLE_ADMIN");
     }
 
