@@ -9,7 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import cloneproject.Instagram.entity.member.Follow;
 import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.exception.AlreadyFollowException;
+import cloneproject.Instagram.exception.CantFollowMyselfException;
 import cloneproject.Instagram.exception.CantUnfollowException;
+import cloneproject.Instagram.exception.CantUnfollowMyselfException;
 import cloneproject.Instagram.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.repository.FollowRepository;
 import cloneproject.Instagram.repository.MemberRepository;
@@ -31,6 +33,9 @@ public class FollowService {
                                         .orElseThrow(MemberDoesNotExistException::new);
         Member followMember = memberRepository.findByUsername(followMemberUsername)
                                                 .orElseThrow(MemberDoesNotExistException::new);
+        if(member.getId() == followMember.getId()){
+            throw new CantFollowMyselfException();
+        }
         if(followRepository.existsByMemberIdAndFollowMemberId(member.getId(), followMember.getId())){
             throw new AlreadyFollowException();
         }
@@ -44,6 +49,9 @@ public class FollowService {
         String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
         Member followMember = memberRepository.findByUsername(followMemberUsername)
                                                 .orElseThrow(MemberDoesNotExistException::new);
+        if(Long.valueOf(memberId) == followMember.getId()){
+            throw new CantUnfollowMyselfException();
+        }
         Follow follow = followRepository.findByMemberIdAndFollowMemberId(Long.valueOf(memberId), followMember.getId())
                                         .orElseThrow(CantUnfollowException::new);
         followRepository.delete(follow);

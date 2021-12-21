@@ -17,8 +17,8 @@ public enum ResultCode {
     //Follow
     FOLLOW_SUCCESS(200, "F001", "회원 팔로우 완료"),
     UNFOLLOW_SUCCESS(200, "F002", "회원 언팔로우 완료"),
-    GET_FOLLOWINGS_SUCCESS(200, "F002", "회원 팔로우 목록"),
-    GET_FOLLOWERS_SUCCESS(200, "F002", "회원 팔로워 목록"),
+    GET_FOLLOWINGS_SUCCESS(200, "F003", "회원 팔로우 목록"),
+    GET_FOLLOWERS_SUCCESS(200, "F004", "회원 팔로워 목록"),
 
     // POST
     CREATE_POST_SUCCESS(200, "P001", "게시물 생성 성공"),
