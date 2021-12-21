@@ -14,6 +14,12 @@ public enum ResultCode {
     GET_USERPROFILE_SUCCESS(200, "M004", "회원 프로필 조회 완료"),
     UPLOAD_MEMBER_IMAGE_SUCCESS(200, "M005", "회원 이미지 등록 완료"),
 
+    //Follow
+    FOLLOW_SUCCESS(200, "F001", "회원 팔로우 완료"),
+    UNFOLLOW_SUCCESS(200, "F002", "회원 언팔로우 완료"),
+    GET_FOLLOWINGS_SUCCESS(200, "F003", "회원 팔로우 목록"),
+    GET_FOLLOWERS_SUCCESS(200, "F004", "회원 팔로워 목록"),
+
     // POST
     CREATE_POST_SUCCESS(200, "P001", "게시물 생성 성공"),
     UPLOAD_IMAGES_SUCCESS(200, "P002", "이미지 업로드 성공"),

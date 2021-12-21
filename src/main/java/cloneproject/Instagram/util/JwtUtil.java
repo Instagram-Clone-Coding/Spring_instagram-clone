@@ -31,7 +31,7 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtUtil {
     
-    private final static long ACCESS_TOKEN_EXPIRES = 1000 * 60; // 10분 (test를 위해 1분으로 설정됨)
+    private final static long ACCESS_TOKEN_EXPIRES = 1000 * 60 * 10; // 10분
     private final static long REFRESH_TOKEN_EXPIRES = 1000 * 60 * 60 * 24 * 7; // 7일
     
     private final static String BEARER_TYPE = "Bearer";

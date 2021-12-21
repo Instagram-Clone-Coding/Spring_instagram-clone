@@ -19,6 +19,12 @@ public enum ErrorCode {
     NEED_LOGIN(401, "M003", "로그인이 필요한 화면입니다."),
     NO_AUTHORITY(403, "M004", "권한이 없습니다."),
     ACCOUNT_DOES_NOT_MATCH(403, "M005", "계정정보가 일치하지 않습니다."),
+    
+    // FOLLOW
+    ALREADY_FOLLOW(401, "F001", "이미 팔로우한 유저입니다."),
+    CANT_UNFOLLOW(401, "F002", "팔로우하지 않을 유저는 언팔로우 할 수 없습니다"),
+    CANT_FOLLOW_MYSELF(401, "F003", "자기자신을 팔로우 할 수 없습니다"),
+    CANT_UNFOLLOW_MYSELF(401, "F004", "자기자신을 언팔로우 할 수 없습니다"),
 
     // Jwt
     INVALID_JWT(401, "J001", "유효하지 않은 토큰입니다."),
