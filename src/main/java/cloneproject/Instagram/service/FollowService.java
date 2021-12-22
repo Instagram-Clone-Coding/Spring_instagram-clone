@@ -1,6 +1,7 @@
 package cloneproject.Instagram.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,7 @@ public class FollowService {
                                         .orElseThrow(MemberDoesNotExistException::new);
         Member followMember = memberRepository.findByUsername(followMemberUsername)
                                                 .orElseThrow(MemberDoesNotExistException::new);
-        if(member.getId() == followMember.getId()){
+        if(member.getId().equals(followMember.getId())){
             throw new CantFollowMyselfException();
         }
         if(followRepository.existsByMemberIdAndFollowMemberId(member.getId(), followMember.getId())){
@@ -49,7 +50,7 @@ public class FollowService {
         String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
         Member followMember = memberRepository.findByUsername(followMemberUsername)
                                                 .orElseThrow(MemberDoesNotExistException::new);
-        if(Long.valueOf(memberId) == followMember.getId()){
+        if(Long.valueOf(memberId).equals(followMember.getId())){
             throw new CantUnfollowMyselfException();
         }
         Follow follow = followRepository.findByMemberIdAndFollowMemberId(Long.valueOf(memberId), followMember.getId())
@@ -65,10 +66,10 @@ public class FollowService {
         List<Follow> follows = followRepository.findAllByMemberId(member.getId());
         List<Member> followingMembers = follows.stream()
                                                 .map(follow->follow.getFollowMember())
-                                                .toList();
+                                                .collect(Collectors.toList());
         List<FollowerInfo> result = followingMembers.stream()
                                                 .map(this::convertMemberToUsernameWithImages)
-                                                .toList();
+                                                .collect(Collectors.toList());
         return result;
     }
 
@@ -79,10 +80,10 @@ public class FollowService {
         List<Follow> follows = followRepository.findAllByFollowMemberId(member.getId());
         List<Member> followingMembers = follows.stream()
                                                 .map(follow->follow.getMember())
-                                                .toList();
+                                                .collect(Collectors.toList());
         List<FollowerInfo> result = followingMembers.stream()
                                                 .map(this::convertMemberToUsernameWithImages)
-                                                .toList();
+                                                .collect(Collectors.toList());
         return result;
     }
 
@@ -97,7 +98,7 @@ public class FollowService {
         List<Follow> follows = followRepository.findAllByMemberId(Long.valueOf(memberId));
         List<Long> result = follows.stream()
                                         .map(follow->follow.getFollowMember().getId())
-                                        .toList();
+                                        .collect(Collectors.toList());
         return result;
 
     }
