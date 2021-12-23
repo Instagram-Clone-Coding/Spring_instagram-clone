@@ -30,9 +30,11 @@ import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtUtil {
-    
-    private final static long ACCESS_TOKEN_EXPIRES = 1000 * 60 * 10; // 10분
-    private final static long REFRESH_TOKEN_EXPIRES = 1000 * 60 * 60 * 24 * 7; // 7일
+
+    @Value("access-token-expires")
+    private long ACCESS_TOKEN_EXPIRES;
+    @Value("refresh-token-expires")
+    private long REFRESH_TOKEN_EXPIRES;
     
     private final static String BEARER_TYPE = "Bearer";
     private final static String AUTHENTITIES_KEY = "auth";
