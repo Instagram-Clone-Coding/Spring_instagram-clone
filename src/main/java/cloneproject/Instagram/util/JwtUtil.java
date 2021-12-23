@@ -31,9 +31,9 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtUtil {
 
-    @Value("access-token-expires")
+    @Value("${access-token-expires}")
     private long ACCESS_TOKEN_EXPIRES;
-    @Value("refresh-token-expires")
+    @Value("${refresh-token-expires}")
     private long REFRESH_TOKEN_EXPIRES;
     
     private final static String BEARER_TYPE = "Bearer";
