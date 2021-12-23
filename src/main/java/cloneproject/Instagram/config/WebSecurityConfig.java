@@ -1,5 +1,6 @@
 package cloneproject.Instagram.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -17,6 +18,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import cloneproject.Instagram.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -51,7 +53,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
 
     @Override
     public void configure(WebSecurity web) throws Exception{
-        web.ignoring().antMatchers("/css/**", "/js/**"); // 나중에 수정
+        web.ignoring().antMatchers("/static/css/**", "/static/js/**", "*.ico"); // 나중에 수정
+
+        // swagger
+        web.ignoring().antMatchers(
+                "/v2/api-docs", "/configuration/ui", "/swagger-resources",
+                "/configuration/security", "/swagger-ui.html", "/webjars/**","/swagger/**");
     }
 
     @Override
@@ -70,7 +77,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
                 .and()
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/login", "/accounts").permitAll()
+                .antMatchers("/login", "/accounts", "/swagger-resources/**", "/swagger-ui/**").permitAll()
                 .antMatchers("/info", "/posts/**", "/accounts/**").hasAuthority("ROLE_USER")
                 .antMatchers("/**/follow", "/**/unfollow",  "/**/followers", "/**/following").hasAuthority("ROLE_USER")
                 .antMatchers("/admin").hasAuthority("ROLE_ADMIN");

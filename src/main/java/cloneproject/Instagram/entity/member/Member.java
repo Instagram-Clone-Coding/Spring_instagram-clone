@@ -12,6 +12,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Getter
 @Entity
@@ -55,6 +58,8 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
+    @OneToMany(mappedBy = "member")
+    private List<Follow> followings = new ArrayList<>();
     
     @Embedded
     @AttributeOverrides({
