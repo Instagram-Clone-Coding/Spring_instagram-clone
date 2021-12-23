@@ -2,6 +2,7 @@ package cloneproject.Instagram.controller;
 
 
 
+import io.swagger.annotations.ApiImplicitParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,6 +38,7 @@ public class MemberController {
     
     private final MemberService memberService;
 
+    @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " ")
     @PostMapping(value = "/accounts")
     public ResponseEntity<ResultResponse> register(@Validated @RequestBody RegisterRequest registerRequest) {
         memberService.register(registerRequest);
@@ -44,6 +46,7 @@ public class MemberController {
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
+    @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " ")
     @PostMapping(value = "/login")
     public ResponseEntity<ResultResponse> login(@Validated @RequestBody LoginRequest loginRequest) {
         JwtDto jwt = memberService.login(loginRequest);
@@ -52,6 +55,7 @@ public class MemberController {
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
+    @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " ")
     @PostMapping(value = "/reissue")
     public ResponseEntity<ResultResponse> reissue(@Validated @RequestBody ReissueRequest reissueRequest) {
         JwtDto jwt = memberService.reisuue(reissueRequest);
@@ -60,7 +64,7 @@ public class MemberController {
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
-    @GetMapping(value = "/{username}")
+    @GetMapping(value = "/accounts/{username}")
     public ResponseEntity<ResultResponse> getUserProfile(@PathVariable("username") String username){
         UserProfileResponse userProfileResponse = memberService.getUserProfile(username);
 
