@@ -78,7 +78,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/login", "/accounts", "/swagger-resources/**", "/swagger-ui/**").permitAll()
-                .antMatchers("/info", "/posts/**", "/accounts/**").hasAuthority("ROLE_USER")
+                .antMatchers("/info", "/posts/**", "/accounts/image").hasAuthority("ROLE_USER")
                 .antMatchers("/**/follow", "/**/unfollow",  "/**/followers", "/**/following").hasAuthority("ROLE_USER")
                 .antMatchers("/admin").hasAuthority("ROLE_ADMIN");
     }

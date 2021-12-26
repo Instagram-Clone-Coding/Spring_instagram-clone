@@ -16,15 +16,21 @@ import cloneproject.Instagram.dto.result.ResultCode;
 import cloneproject.Instagram.dto.result.ResultResponse;
 import cloneproject.Instagram.service.FollowService;
 import cloneproject.Instagram.vo.FollowerInfo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 
+@Api(tags = "팔로우 API")
 @RestController
 @RequiredArgsConstructor
 public class FollowController {
     
     private final FollowService followService;
 
+    @ApiOperation(value = "팔로우")
     @PostMapping("/{followMemberUsername}/follow")
+    @ApiImplicitParam(name = "followMemberUsername", value = "팔로우할 계정의 username", required = true, example = "dlwlrma")
     public ResponseEntity<ResultResponse> follow(@PathVariable("followMemberUsername") @Validated
                                                  @NotBlank(message = "username이 필요합니다") String followMemberUsername){
         boolean success = followService.follow(followMemberUsername);
@@ -33,7 +39,9 @@ public class FollowController {
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
+    @ApiOperation(value = "언팔로우")
     @PostMapping("/{followMemberUsername}/unfollow")
+    @ApiImplicitParam(name = "followMemberUsername", value = "언팔로우할 계정의 username", required = true, example = "dlwlrma")
     public ResponseEntity<ResultResponse> unfollow(@PathVariable("followMemberUsername") @Validated
                                                 @NotBlank(message = "username이 필요합니다") String followMemberUsername){
         boolean success = followService.unfollow(followMemberUsername);
@@ -42,7 +50,9 @@ public class FollowController {
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
+    @ApiOperation(value = "팔로잉 목록 조회")
     @GetMapping("/{memberUsername}/following")
+    @ApiImplicitParam(name = "memberUsername", value = "조회 할 계정의 username", required = true, example = "dlwlrma")
     public ResponseEntity<ResultResponse> getFollowings(@PathVariable("memberUsername") @Validated
                                                 @NotBlank(message = "username이 필요합니다") String memberUsername){
         List<FollowerInfo> followings = followService.getFollowings(memberUsername);
@@ -51,7 +61,9 @@ public class FollowController {
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
+    @ApiOperation(value = "팔로워 목록 조회")
     @GetMapping("/{memberUsername}/followers")
+    @ApiImplicitParam(name = "memberUsername", value = "조회 할 계정의 username", required = true, example = "dlwlrma")
     public ResponseEntity<ResultResponse> getFollowers(@PathVariable("memberUsername") @Validated
                                                 @NotBlank(message = "username이 필요합니다") String memberUsername){
         List<FollowerInfo> followings = followService.getFollowers(memberUsername);

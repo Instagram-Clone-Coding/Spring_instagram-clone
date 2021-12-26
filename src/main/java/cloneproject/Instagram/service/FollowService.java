@@ -29,10 +29,10 @@ public class FollowService {
 
     @Transactional
     public boolean follow(String followMemberUsername){
-        String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findById(Long.valueOf(memberId))
+        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
+        final Member member = memberRepository.findById(Long.valueOf(memberId))
                                         .orElseThrow(MemberDoesNotExistException::new);
-        Member followMember = memberRepository.findByUsername(followMemberUsername)
+        final Member followMember = memberRepository.findByUsername(followMemberUsername)
                                                 .orElseThrow(MemberDoesNotExistException::new);
         if(member.getId().equals(followMember.getId())){
             throw new CantFollowMyselfException();
@@ -47,8 +47,8 @@ public class FollowService {
 
     @Transactional
     public boolean unfollow(String followMemberUsername){
-        String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member followMember = memberRepository.findByUsername(followMemberUsername)
+        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
+        final Member followMember = memberRepository.findByUsername(followMemberUsername)
                                                 .orElseThrow(MemberDoesNotExistException::new);
         if(Long.valueOf(memberId).equals(followMember.getId())){
             throw new CantUnfollowMyselfException();
@@ -61,30 +61,47 @@ public class FollowService {
 
     @Transactional(readOnly = true)
     public List<FollowerInfo> getFollowings(String memberUsername){ 
-        Member member = memberRepository.findByUsername(memberUsername)
+        final Member member = memberRepository.findByUsername(memberUsername)
                                                 .orElseThrow(MemberDoesNotExistException::new);
-        List<Follow> follows = followRepository.findAllByMemberId(member.getId());
-        List<Member> followingMembers = follows.stream()
+        final List<Follow> follows = followRepository.findAllByMemberId(member.getId());
+        final List<Member> followingMembers = follows.stream()
                                                 .map(follow->follow.getFollowMember())
                                                 .collect(Collectors.toList());
-        List<FollowerInfo> result = followingMembers.stream()
-                                                .map(this::convertMemberToUsernameWithImages)
+        final List<FollowerInfo> result = followingMembers.stream()
+                                                .map(this::convertMemberToFollowerInfo)
                                                 .collect(Collectors.toList());
         return result;
     }
 
     @Transactional(readOnly = true)
     public List<FollowerInfo> getFollowers(String memberUsername){ 
-        Member member = memberRepository.findByUsername(memberUsername)
+        final Member member = memberRepository.findByUsername(memberUsername)
                                                 .orElseThrow(MemberDoesNotExistException::new);
-        List<Follow> follows = followRepository.findAllByFollowMemberId(member.getId());
-        List<Member> followingMembers = follows.stream()
+        final List<Follow> follows = followRepository.findAllByFollowMemberId(member.getId());
+        final List<Member> followingMembers = follows.stream()
                                                 .map(follow->follow.getMember())
                                                 .collect(Collectors.toList());
-        List<FollowerInfo> result = followingMembers.stream()
-                                                .map(this::convertMemberToUsernameWithImages)
+        final List<FollowerInfo> result = followingMembers.stream()
+                                                .map(this::convertMemberToFollowerInfo)
                                                 .collect(Collectors.toList());
         return result;
+    }
+
+
+    @Transactional(readOnly = true)
+    public Integer getFollowingsCount(String memberUsername){ 
+        final Member member = memberRepository.findByUsername(memberUsername)
+                                                .orElseThrow(MemberDoesNotExistException::new);
+        final List<Follow> follows = followRepository.findAllByMemberId(member.getId());
+        return follows.size();
+    }
+
+    @Transactional(readOnly = true)
+    public Integer getFollowersCount(String memberUsername){ 
+        final Member member = memberRepository.findByUsername(memberUsername)
+                                                .orElseThrow(MemberDoesNotExistException::new);
+        final List<Follow> follows = followRepository.findAllByFollowMemberId(member.getId());
+        return follows.size();
     }
 
     /**
@@ -94,9 +111,9 @@ public class FollowService {
      */
     @Transactional(readOnly = true)
     public List<Long> getOnlyFollowingsMemberId(){
-        String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-        List<Follow> follows = followRepository.findAllByMemberId(Long.valueOf(memberId));
-        List<Long> result = follows.stream()
+        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
+        final List<Follow> follows = followRepository.findAllByMemberId(Long.valueOf(memberId));
+        final List<Long> result = follows.stream()
                                         .map(follow->follow.getFollowMember().getId())
                                         .collect(Collectors.toList());
         return result;
@@ -111,14 +128,14 @@ public class FollowService {
      */
     @Transactional(readOnly = true)
     public boolean isFollowing(String followMemberUsername){
-        String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member followMember = memberRepository.findByUsername(followMemberUsername)
+        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
+        final Member followMember = memberRepository.findByUsername(followMemberUsername)
                                                 .orElseThrow(MemberDoesNotExistException::new);
         return followRepository.existsByMemberIdAndFollowMemberId(Long.valueOf(memberId), followMember.getId());
     }
 
-    private FollowerInfo convertMemberToUsernameWithImages(Member member){
-        FollowerInfo result = FollowerInfo.builder()
+    private FollowerInfo convertMemberToFollowerInfo(Member member){
+        final FollowerInfo result = FollowerInfo.builder()
                                     .username(member.getUsername())
                                     .name(member.getName())
                                     .image(member.getImage())
