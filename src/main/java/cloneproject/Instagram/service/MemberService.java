@@ -11,11 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import cloneproject.Instagram.dto.member.JwtDto;
-import cloneproject.Instagram.dto.member.LoginRequest;
-import cloneproject.Instagram.dto.member.RegisterRequest;
-import cloneproject.Instagram.dto.member.ReissueRequest;
-import cloneproject.Instagram.dto.member.UserProfileResponse;
+import cloneproject.Instagram.dto.member.*;
 import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.exception.AccountDoesNotMatch;
 import cloneproject.Instagram.exception.InvalidJwtException;
@@ -28,7 +24,9 @@ import cloneproject.Instagram.vo.Image;
 import cloneproject.Instagram.vo.RefreshToken;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -37,6 +35,7 @@ public class MemberService {
     private final JwtUtil jwtUtil;
 
     private final MemberRepository memberRepository;
+    private final FollowService followService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
@@ -107,8 +106,8 @@ public class MemberService {
                                 .memberUsername(member.getUsername())
                                 .memberName(member.getName())
                                 .memberImageUrl(member.getImage().getImageUrl())
-                                // .memberFollowers() // TODO: 팔로워 구현 후 추가할것
-                                // .memberFollowings()
+                                .memberFollowers(followService.getFollowersCount(username))
+                                .memberFollowings(followService.getFollowingsCount(username))
                                 .build();
     }
 
