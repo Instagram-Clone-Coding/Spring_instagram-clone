@@ -13,6 +13,9 @@ public enum ResultCode {
     REISSUE_SUCCESS(200, "M003", "재발급 되었습니다."),
     GET_USERPROFILE_SUCCESS(200, "M004", "회원 프로필 조회 완료"),
     UPLOAD_MEMBER_IMAGE_SUCCESS(200, "M005", "회원 이미지 등록 완료"),
+    DELETE_MEMBER_IMAGE_SUCCESS(200, "M006", "회원 이미지 삭제 완료"),
+    GET_EDIT_PROFILE_SUCCESS(200, "M007", "회원 프로필 수정정보 조회"),
+    EDIT_PROFILE_SUCCESS(200, "M008", "회원 프로필 수정 완료"),
 
     //Follow
     FOLLOW_SUCCESS(200, "F001", "회원 팔로우 완료"),

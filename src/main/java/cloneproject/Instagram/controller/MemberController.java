@@ -14,6 +14,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import cloneproject.Instagram.dto.member.EditProfileRequest;
+import cloneproject.Instagram.dto.member.EditProfileResponse;
 import cloneproject.Instagram.dto.member.JwtDto;
 import cloneproject.Instagram.dto.member.LoginRequest;
 import cloneproject.Instagram.dto.member.RegisterRequest;
@@ -24,18 +26,21 @@ import cloneproject.Instagram.dto.result.ResultResponse;
 import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 // TODO member api
-//  프로필 수정 
-//  프로필 수정정보 조회
+//  프로필 수정 o
+//  프로필 수정정보 조회 o
 //  프로필 조회 o
 //  이미지 등록 o
-//  이미지 삭제
+//  이미지 삭제 o
+@Slf4j
 @Api(tags = "멤버 API")
 @RestController
 @RequiredArgsConstructor
@@ -88,19 +93,37 @@ public class MemberController {
     @ApiOperation(value = "회원 프로필 사진 업로드")
     @PostMapping(value = "/accounts/image")
     public ResponseEntity<ResultResponse> uploadImage(@RequestParam MultipartFile uploadedImage) {
-        Long memberId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
-        memberService.uploadMemberImage(memberId, uploadedImage);
+        memberService.uploadMemberImage(uploadedImage);
 
         ResultResponse result = ResultResponse.of(ResultCode.UPLOAD_MEMBER_IMAGE_SUCCESS,null);
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
-    // TODO 임시
+    @ApiOperation(value = "회원 프로필 사진 삭제")
+    @DeleteMapping(value = "/accounts/image")
+    public ResponseEntity<ResultResponse> deleteImage() {
+        memberService.deleteMemberImage();
+
+        ResultResponse result = ResultResponse.of(ResultCode.DELETE_MEMBER_IMAGE_SUCCESS ,null);
+        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
+    }
+
+    @ApiOperation(value = "회원 프로필 수정정보 조회")
     @GetMapping(value = "/accounts/edit")
-    public String getEdit() {
-        String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member result = memberService.info(memberId);
+    public ResponseEntity<ResultResponse> getMemberEdit() {
+        EditProfileResponse editProfileResponse = memberService.getEditProfile();
         
-        return result.getUsername();
+        ResultResponse result = ResultResponse.of(ResultCode.GET_EDIT_PROFILE_SUCCESS ,editProfileResponse);
+        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
+    }
+
+    @ApiOperation(value = "회원 프로필 수정")
+    @PostMapping(value = "/accounts/edit")
+    public ResponseEntity<ResultResponse> editProfile(@Validated @RequestBody EditProfileRequest editProfileRequest) {
+        log.info("1");
+        memberService.editProfile(editProfileRequest);
+        
+        ResultResponse result = ResultResponse.of(ResultCode.EDIT_PROFILE_SUCCESS , null);
+        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 }
