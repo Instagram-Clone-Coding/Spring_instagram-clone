@@ -10,6 +10,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -38,6 +40,9 @@ public class PostImage {
 
     @CreatedDate
     private LocalDateTime uploadDate;
+
+    @OneToMany(mappedBy = "postImage")
+    private List<PostTag> postTags = new ArrayList<>();
 
     @Builder
     public PostImage(Post post, Image image) {

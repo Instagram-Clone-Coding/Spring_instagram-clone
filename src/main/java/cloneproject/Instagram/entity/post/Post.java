@@ -1,5 +1,6 @@
 package cloneproject.Instagram.entity.post;
 
+import cloneproject.Instagram.entity.comment.Comment;
 import cloneproject.Instagram.entity.member.Member;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -10,6 +11,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -33,6 +36,18 @@ public class Post {
 
     @CreatedDate
     private LocalDateTime uploadDate;
+
+    @OneToMany(mappedBy = "post")
+    private List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post")
+    private List<PostLike> postLikes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post")
+    private List<Bookmark> bookmarks = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post")
+    private List<PostImage> postImages = new ArrayList<>();
 
     @Builder
     public Post(Member member, String content) {
