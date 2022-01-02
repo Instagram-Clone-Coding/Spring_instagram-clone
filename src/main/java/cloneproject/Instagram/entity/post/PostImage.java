@@ -41,7 +41,7 @@ public class PostImage {
     @CreatedDate
     private LocalDateTime uploadDate;
 
-    @OneToMany(mappedBy = "postImage")
+    @OneToMany(mappedBy = "postImage", orphanRemoval = true)
     private List<PostTag> postTags = new ArrayList<>();
 
     @Builder
