@@ -44,7 +44,7 @@ public class PostService {
 
     @Transactional
     public Long create(String content) {
-        String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
+        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
         final Member member = memberRepository.findById(Long.valueOf(memberId)).orElseThrow(MemberDoesNotExistException::new);
         Post post = Post.builder()
                 .member(member)
@@ -124,5 +124,12 @@ public class PostService {
         final Long memberId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
         final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
         return postRepository.findPostDtoPage(member, pageable);
+    }
+
+    @Transactional
+    public void delete(Long postId) {
+        final Long memberId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+        final Post post = postRepository.findByIdAndMemberId(postId, memberId).orElseThrow(PostNotFoundException::new);
+        postRepository.delete(post);
     }
 }

@@ -76,9 +76,17 @@ public class PostController {
 
     @ApiOperation(value = "게시물 목록 조회")
     @GetMapping("/posts")
-    public ResponseEntity<ResultResponse> postDtoList(int size) {
+    public ResponseEntity<ResultResponse> postDtoList(@Validated @NotNull(message = "조회할 게시물 size는 필수입니다.") @RequestParam int size) {
         final Slice<PostDTO> postPage = postService.getPostDtoPage(size);
 
         return ResponseEntity.ok(ResultResponse.of(FIND_POST_PAGE_SUCCESS, postPage));
+    }
+
+    @ApiOperation(value = "게시물 삭제")
+    @DeleteMapping("/posts")
+    public ResponseEntity<ResultResponse> deletePost(@Validated @NotNull(message = "삭제할 게시물 PK는 필수입니다.") @RequestParam Long postId) {
+        postService.delete(postId);
+
+        return ResponseEntity.ok(ResultResponse.of(DELETE_POST_SUCCESS, null));
     }
 }
