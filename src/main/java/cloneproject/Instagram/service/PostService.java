@@ -1,5 +1,6 @@
 package cloneproject.Instagram.service;
 
+import cloneproject.Instagram.dto.post.PostDTO;
 import cloneproject.Instagram.dto.post.PostImageTagDTO;
 import cloneproject.Instagram.dto.post.PostImageTagRequest;
 import cloneproject.Instagram.entity.member.Member;
@@ -18,6 +19,7 @@ import com.google.common.base.Enums;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.data.domain.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Slf4j
 @Service
@@ -62,7 +66,7 @@ public class PostService {
             String extension = FilenameUtils.getExtension(originalName).toUpperCase();
             String fileName = FilenameUtils.getBaseName(originalName);
 
-            if(!Enums.getIfPresent(ImageType.class, extension).isPresent())
+            if (!Enums.getIfPresent(ImageType.class, extension).isPresent())
                 throw new NotSupportedImageTypeException();
 
             Image image = Image.builder()
@@ -88,30 +92,37 @@ public class PostService {
 
     @Transactional
     public void addTags(List<PostImageTagRequest> requests) {
-        if(requests.isEmpty())
+        if (requests.isEmpty())
             throw new NoPostImageTagException();
 
         for (PostImageTagRequest request : requests) {
             final PostImage postImage = postImageRepository.findById(request.getId()).orElseThrow(PostImageNotFoundException::new);
             final List<PostImageTagDTO> postImageTagDTOs = request.getPostImageTagDTOs();
             for (PostImageTagDTO postImageTagDTO : postImageTagDTOs) {
-                // TODO: x, y 범위 검증 코드 추가
+                if (postImageTagDTO.getTagX() < 0 || postImageTagDTO.getTagX() > 100 || postImageTagDTO.getTagY() < 0 || postImageTagDTO.getTagY() > 100)
+                    throw new InvalidTagLocationException();
+                final String username = postImageTagDTO.getUsername();
+                memberRepository.findByUsername(username).orElseThrow(MemberDoesNotExistException::new);
                 Tag tag = Tag.builder()
                         .x(postImageTagDTO.getTagX())
                         .y(postImageTagDTO.getTagY())
+                        .username(username)
                         .build();
-
-                final String username = postImageTagDTO.getUsername();
-                final Member member = memberRepository.findByUsername(username).orElseThrow(MemberDoesNotExistException::new);
 
                 PostTag postTag = PostTag.builder()
                         .postImage(postImage)
                         .tag(tag)
-                        .member(member)
                         .build();
 
                 postTagRepository.save(postTag);
             }
         }
+    }
+
+    public Slice<PostDTO> getPostDtoPage(int size) {
+        final Pageable pageable = PageRequest.of(0, size, Sort.by(DESC, "id"));
+        final Long memberId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
+        return postRepository.findPostDtoPage(member, pageable);
     }
 }

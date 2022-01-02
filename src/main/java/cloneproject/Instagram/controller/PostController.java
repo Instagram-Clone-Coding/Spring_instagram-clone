@@ -1,16 +1,20 @@
 package cloneproject.Instagram.controller;
 
 import cloneproject.Instagram.config.CustomValidator;
+import cloneproject.Instagram.dto.post.PostDTO;
 import cloneproject.Instagram.dto.post.PostCreateResponse;
 import cloneproject.Instagram.dto.post.PostImageTagRequest;
 import cloneproject.Instagram.dto.post.PostImageUploadResponse;
 import cloneproject.Instagram.dto.result.ResultResponse;
+import cloneproject.Instagram.entity.post.Post;
 import cloneproject.Instagram.service.PostService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -33,6 +37,7 @@ public class PostController {
     private final PostService postService;
     private final CustomValidator validator;
 
+    @ApiOperation(value = "게시물 생성")
     @ApiImplicitParam(name = "content", value = "게시물 내용", example = "안녕하세요.", required = true)
     @PostMapping("/posts")
     public ResponseEntity<ResultResponse> createPost(
@@ -44,6 +49,7 @@ public class PostController {
         return ResponseEntity.ok(ResultResponse.of(CREATE_POST_SUCCESS, response));
     }
 
+    @ApiOperation(value = "게시물 이미지 업로드")
     @ApiImplicitParam(name = "id", value = "게시물 PK", example = "1", required = true)
     @PostMapping("/posts/images")
     public ResponseEntity<ResultResponse> uploadImages(
@@ -53,9 +59,10 @@ public class PostController {
         final List<Long> imageIdList = postService.uploadImages(id, uploadImages);
         PostImageUploadResponse response = new PostImageUploadResponse(imageIdList);
 
-        return ResponseEntity.ok(ResultResponse.of(UPLOAD_IMAGES_SUCCESS, response));
+        return ResponseEntity.ok(ResultResponse.of(UPLOAD_POST_IMAGES_SUCCESS, response));
     }
 
+    @ApiOperation(value = "게시물 이미지 태그 적용")
     @PostMapping("/posts/images/tags")
     public ResponseEntity<ResultResponse> uploadImageTags(@RequestBody List<PostImageTagRequest> requests, BindingResult bindingResult) throws BindException {
         validator.validate(requests, bindingResult);
@@ -64,6 +71,14 @@ public class PostController {
 
         postService.addTags(requests);
 
-        return ResponseEntity.ok(ResultResponse.of(ADD_TAGS_SUCCESS, null));
+        return ResponseEntity.ok(ResultResponse.of(ADD_POST_IMAGE_TAGS_SUCCESS, null));
+    }
+
+    @ApiOperation(value = "게시물 목록 조회")
+    @GetMapping("/posts")
+    public ResponseEntity<ResultResponse> postDtoList(int size) {
+        final Slice<PostDTO> postPage = postService.getPostDtoPage(size);
+
+        return ResponseEntity.ok(ResultResponse.of(FIND_POST_PAGE_SUCCESS, postPage));
     }
 }
