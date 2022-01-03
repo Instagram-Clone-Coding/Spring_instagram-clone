@@ -12,9 +12,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
 
 @Getter
 @Entity
@@ -114,10 +114,19 @@ public class Member {
     }
 
     public void uploadImage(Image image){
+        deleteImage();
         this.image = image;
     }
 
     public void deleteImage(){
+        if(this.image.getImageUUID().equals("base-UUID"))
+            return;
+        File file = new File(this.image.getImageUrl() + "\\" + this.image.getImageUUID());
+
+        if(file.exists()){
+            file.delete();
+        }
+
         this.image = Image.builder()
                 .imageName("base")
                 .imageType(ImageType.PNG)
@@ -143,4 +152,5 @@ public class Member {
                 .imageUUID("base-UUID")
                 .build();
     }
+    
 }
