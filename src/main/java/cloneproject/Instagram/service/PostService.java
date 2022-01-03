@@ -3,6 +3,7 @@ package cloneproject.Instagram.service;
 import cloneproject.Instagram.dto.post.PostDTO;
 import cloneproject.Instagram.dto.post.PostImageTagDTO;
 import cloneproject.Instagram.dto.post.PostImageTagRequest;
+import cloneproject.Instagram.dto.post.PostResponse;
 import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.entity.post.Post;
 import cloneproject.Instagram.entity.post.PostImage;
@@ -116,11 +117,13 @@ public class PostService {
 
                 postTagRepository.save(postTag);
             }
+
         }
     }
 
-    public Slice<PostDTO> getPostDtoPage(int size) {
-        final Pageable pageable = PageRequest.of(0, size, Sort.by(DESC, "id"));
+    public Page<PostDTO> getPostDtoPage(int size, int page) {
+        page = (page == 0 ? 0 : page - 1);
+        final Pageable pageable = PageRequest.of(page, size, Sort.by(DESC, "id"));
         final Long memberId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
         final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
         return postRepository.findPostDtoPage(member, pageable);
@@ -131,5 +134,10 @@ public class PostService {
         final Long memberId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
         final Post post = postRepository.findByIdAndMemberId(postId, memberId).orElseThrow(PostNotFoundException::new);
         postRepository.delete(post);
+    }
+
+    public PostResponse getPost(Long postId) {
+
+        return null;
     }
 }

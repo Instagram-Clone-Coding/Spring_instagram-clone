@@ -12,8 +12,9 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<PostDTO> findPostDtoPage(Member member, Pageable pageable) {
+    public Page<PostDTO> findPostDtoPage(Member member, Pageable pageable) {
         if (member.getFollowings().isEmpty())
             return null;
 
@@ -107,8 +108,6 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
             postDTO.setPostImageDTOs(transform);
         }
 
-        boolean hasNext = pageable.isPaged() && content.size() > pageable.getPageSize();
-
-        return new SliceImpl<>(content, pageable, hasNext);
+        return new PageImpl<>(content, pageable, content.size());
     }
 }
