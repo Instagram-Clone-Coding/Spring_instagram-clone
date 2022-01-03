@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import cloneproject.Instagram.dto.member.*;
 import cloneproject.Instagram.entity.member.Gender;
 import cloneproject.Instagram.entity.member.Member;
-import cloneproject.Instagram.exception.AccountDoesNotMatch;
+import cloneproject.Instagram.exception.AccountDoesNotMatchException;
 import cloneproject.Instagram.exception.InvalidJwtException;
 import cloneproject.Instagram.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.exception.UseridAlreadyExistException;
@@ -69,7 +69,7 @@ public class MemberService {
             
             return jwtDto;
         }catch(BadCredentialsException e){
-            throw new AccountDoesNotMatch();
+            throw new AccountDoesNotMatchException();
         }
     }
 
@@ -108,10 +108,25 @@ public class MemberService {
         return UserProfileResponse.builder()
                                 .memberUsername(member.getUsername())
                                 .memberName(member.getName())
-                                .memberImageUrl(member.getImage().getImageUrl())
-                                .memberFollowers(followService.getFollowersCount(username))
-                                .memberFollowings(followService.getFollowingsCount(username))
+                                .memberImage(member.getImage())
+                                .memberFollowersCount(followService.getFollowersCount(username))
+                                .memberFollowingsCount(followService.getFollowingsCount(username))
                                 .memberIntroduce(member.getIntroduce())
+                                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public MiniProfileResponse getMiniProfile(String username){
+        final Member member = memberRepository.findByUsername(username)
+                                        .orElseThrow(MemberDoesNotExistException::new);
+        return MiniProfileResponse.builder()
+                                .memberUsername(member.getUsername())
+                                .memberImage(member.getImage())
+                                .memberName(member.getName())
+                                .memberWebsite(member.getWebsite())
+                                .memberPostCount(0) // TODO 추후에 수정
+                                .memberFollowersCount(followService.getFollowersCount(username))
+                                .memberFollowingsCount(followService.getFollowingsCount(username))
                                 .build();
     }
 
@@ -134,6 +149,21 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+    @Transactional
+    public void updatePassword(UpdatePasswordRequest updatePasswordRequest){
+        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member member = memberRepository.findById(Long.valueOf(memberId))
+                                    .orElseThrow(MemberDoesNotExistException::new);
+        boolean oldPasswordCorrect = bCryptPasswordEncoder.matches(updatePasswordRequest.getOldPassword()
+                                                                , member.getPassword());
+        if(!oldPasswordCorrect){
+            throw new AccountDoesNotMatchException();
+        }
+        String encryptedPassword = bCryptPasswordEncoder.encode(updatePasswordRequest.getNewPassword());
+        member.setEncryptedPassword(encryptedPassword);              
+        memberRepository.save(member);
+    }
+
     public EditProfileResponse getEditProfile(){
         final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findById(Long.valueOf(memberId))
@@ -153,6 +183,12 @@ public class MemberService {
         final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findById(Long.valueOf(memberId))
                                 .orElseThrow(MemberDoesNotExistException::new);
+        
+        if(memberRepository.existsByUsername(editProfileRequest.getMemberUsername())
+                        && !member.getUsername().equals(editProfileRequest.getMemberUsername())){
+            throw new UseridAlreadyExistException();
+        }
+        
         member.updateUsername(editProfileRequest.getMemberUsername());
         member.updateName(editProfileRequest.getMemberName());
         member.updateEmail(editProfileRequest.getMemberEmail());

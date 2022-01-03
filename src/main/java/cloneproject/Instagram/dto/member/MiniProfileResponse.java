@@ -7,23 +7,26 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-@ApiModel("유저 프로필 조회 응답 모델")
+@ApiModel("유저 미니프로필 응답 모델")
 @Getter
 @Builder
 @AllArgsConstructor
-public class UserProfileResponse {
-    
+public class MiniProfileResponse {
+
     @ApiModelProperty(value = "유저네임", example = "dlwlrma")
     String memberUsername;
-
-    @ApiModelProperty(value = "이름", example = "이지금")
-    String memberName;
 
     @ApiModelProperty(value = "프로필사진")
     Image memberImage;
 
-    @ApiModelProperty(value = "소개", example = "안녕하세요")
-    String memberIntroduce;
+    @ApiModelProperty(value = "이름", example = "이지금")
+    String memberName;
+
+    @ApiModelProperty(value = "웹사이트", example = "http://localhost:8080")
+    String memberWebsite;
+
+    @ApiModelProperty(value = "포스팅 수", example = "90")
+    Integer memberPostCount;
 
     @ApiModelProperty(value = "팔로워 수", example = "100")
     Integer memberFollowersCount;
@@ -31,4 +34,5 @@ public class UserProfileResponse {
     @ApiModelProperty(value = "팔로잉 수", example = "100")
     Integer memberFollowingsCount;
 
+    
 }
