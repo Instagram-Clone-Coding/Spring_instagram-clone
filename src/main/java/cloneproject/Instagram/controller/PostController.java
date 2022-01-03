@@ -6,6 +6,7 @@ import cloneproject.Instagram.dto.result.ResultResponse;
 import cloneproject.Instagram.service.PostService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -72,6 +73,10 @@ public class PostController {
     }
 
     @ApiOperation(value = "게시물 목록 조회")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "size", value = "한 페이지당 가져올 게시물 size", example = "5", required = true),
+            @ApiImplicitParam(name = "page", value = "게시물 page", example = "1", required = true)
+    })
     @GetMapping("/posts")
     public ResponseEntity<ResultResponse> getPosts(
             @Validated @NotNull(message = "조회할 게시물 size는 필수입니다.") @RequestParam int size,
