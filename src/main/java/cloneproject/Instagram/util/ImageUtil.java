@@ -1,5 +1,7 @@
 package cloneproject.Instagram.util;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.UUID;
 
 import com.google.common.base.Enums;
@@ -13,7 +15,8 @@ import cloneproject.Instagram.vo.ImageType;
 
 public class ImageUtil {
     public static Image convertMultipartToImage(MultipartFile file){
-        String url = "C:\\spring";
+        
+        String url = "C:\\spring\\upload";
         String originalName = file.getOriginalFilename();
         String extension = FilenameUtils.getExtension(originalName).toUpperCase();
         String fileName = FilenameUtils.getBaseName(originalName);
@@ -27,6 +30,12 @@ public class ImageUtil {
                 .imageName(fileName)
                 .imageUUID(UUID.randomUUID().toString())
                 .build();
+        try{
+            File savedFile = new File(url + "\\" + image.getImageUUID());
+            file.transferTo(savedFile);
+        } catch(IOException e){
+            throw new NotSupportedImageTypeException();
+        }
         return image;
     }
 }
