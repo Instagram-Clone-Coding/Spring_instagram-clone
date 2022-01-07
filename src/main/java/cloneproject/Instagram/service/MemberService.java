@@ -155,10 +155,6 @@ public class MemberService {
             throw new UploadProfileImageFailException();
         }
         member.uploadImage(image);
-        log.info(member.getImage().getImageUrl());
-        log.info(member.getImage().getImageName());
-        log.info(member.getImage().getImageType().toString());
-        log.info(member.getImage().getImageUUID());
         memberRepository.save(member);
     }
 

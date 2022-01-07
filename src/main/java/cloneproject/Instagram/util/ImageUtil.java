@@ -1,7 +1,5 @@
 package cloneproject.Instagram.util;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.UUID;
 
 import com.google.common.base.Enums;
