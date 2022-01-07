@@ -24,6 +24,10 @@ public class Image {
 
     private String imageUUID;
 
+    public void setUrl(String url){
+        this.imageUrl = url;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(getImageUUID());

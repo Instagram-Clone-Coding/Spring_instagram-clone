@@ -2,6 +2,9 @@ package cloneproject.Instagram.service;
 
 
 
+import java.io.IOException;
+import java.util.UUID;
+
 import org.hibernate.query.criteria.internal.predicate.MemberOfPredicate;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,11 +22,14 @@ import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.exception.AccountDoesNotMatchException;
 import cloneproject.Instagram.exception.InvalidJwtException;
 import cloneproject.Instagram.exception.MemberDoesNotExistException;
+import cloneproject.Instagram.exception.UploadProfileImageFailException;
 import cloneproject.Instagram.exception.UseridAlreadyExistException;
 import cloneproject.Instagram.repository.MemberRepository;
 import cloneproject.Instagram.util.ImageUtil;
 import cloneproject.Instagram.util.JwtUtil;
+import cloneproject.Instagram.util.S3Uploader;
 import cloneproject.Instagram.vo.Image;
+import cloneproject.Instagram.vo.ImageType;
 import cloneproject.Instagram.vo.RefreshToken;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +46,8 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final FollowService followService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    
+    private final S3Uploader s3Uploader;
 
     @Transactional
     public void register(RegisterRequest registerRequest){
@@ -135,8 +143,22 @@ public class MemberService {
         final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findById(Long.valueOf(memberId))
                                     .orElseThrow(MemberDoesNotExistException::new);
-        Image image = ImageUtil.convertMultipartToImage(uploadedImage);
+
+        // 기존 사진 삭제
+        Image originalImage = member.getImage();
+        s3Uploader.deleteImage("member", originalImage);
+
+        Image image;
+        try{
+            image = s3Uploader.uploadImage(uploadedImage, "member");
+        }catch(IOException e){
+            throw new UploadProfileImageFailException();
+        }
         member.uploadImage(image);
+        log.info(member.getImage().getImageUrl());
+        log.info(member.getImage().getImageName());
+        log.info(member.getImage().getImageType().toString());
+        log.info(member.getImage().getImageUUID());
         memberRepository.save(member);
     }
 
@@ -145,6 +167,8 @@ public class MemberService {
         final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findById(Long.valueOf(memberId))
                                     .orElseThrow(MemberDoesNotExistException::new);
+        Image image = member.getImage();
+        s3Uploader.deleteImage("member", image);
         member.deleteImage();
         memberRepository.save(member);
     }
