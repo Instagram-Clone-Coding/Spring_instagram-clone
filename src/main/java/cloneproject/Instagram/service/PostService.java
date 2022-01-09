@@ -64,29 +64,15 @@ public class PostService {
 
         Arrays.stream(uploadImages)
                 .forEach(ui -> {
-                    String originalName = ui.getOriginalFilename();
-                    String extension = FilenameUtils.getExtension(originalName).toUpperCase();
-                    String fileName = FilenameUtils.getBaseName(originalName);
-
-                    if (!Enums.getIfPresent(ImageType.class, extension).isPresent())
-                        throw new NotSupportedImageTypeException();
-
-                    Image image = Image.builder()
-                            .imageType(ImageType.valueOf(extension))
-                            .imageName(fileName)
-                            .imageUUID(UUID.randomUUID().toString())
-                            .build();
-
-                    final PostImage postImage = postImageRepository.save(
-                            PostImage.builder()
-                                    .post(post)
-                                    .image(image)
-                                    .build());
-                    final Long imageId = postImageRepository.save(postImage).getId();
-                    imageIds.add(imageId);
-
                     try {
-                        uploader.uploadImage(ui, "post");
+                        Image image = uploader.uploadImage(ui, "post");
+                        final PostImage postImage = postImageRepository.save(
+                                PostImage.builder()
+                                        .post(post)
+                                        .image(image)
+                                        .build());
+                        final Long imageId = postImageRepository.save(postImage).getId();
+                        imageIds.add(imageId);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
