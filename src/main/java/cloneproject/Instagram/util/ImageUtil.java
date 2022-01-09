@@ -13,20 +13,22 @@ import cloneproject.Instagram.vo.ImageType;
 
 public class ImageUtil {
     public static Image convertMultipartToImage(MultipartFile file){
-        String url = "C:\\spring";
+        
+        String url = "C:\\spring\\upload";
         String originalName = file.getOriginalFilename();
-        String extension = FilenameUtils.getExtension(originalName).toUpperCase();
-        String fileName = FilenameUtils.getBaseName(originalName);
+        String name = FilenameUtils.getBaseName(originalName);
+        String type = FilenameUtils.getExtension(originalName).toUpperCase();
 
-        if(!Enums.getIfPresent(ImageType.class, extension).isPresent())
+        if(!Enums.getIfPresent(ImageType.class, type).isPresent())
             throw new NotSupportedImageTypeException();
 
         Image image = Image.builder()
                 .imageUrl(url)
-                .imageType(ImageType.valueOf(extension))
-                .imageName(fileName)
+                .imageType(ImageType.valueOf(type))
+                .imageName(name)
                 .imageUUID(UUID.randomUUID().toString())
                 .build();
+
         return image;
     }
 }

@@ -18,7 +18,8 @@ public enum ErrorCode {
     USERNAME_ALREADY_EXISTS(401, "M002", "이미 존재하는 사용자 이름입니다."),
     NEED_LOGIN(401, "M003", "로그인이 필요한 화면입니다."),
     NO_AUTHORITY(403, "M004", "권한이 없습니다."),
-    ACCOUNT_DOES_NOT_MATCH(403, "M005", "계정정보가 일치하지 않습니다."),
+    ACCOUNT_DOES_NOT_MATCH(401, "M005", "계정정보가 일치하지 않습니다."),
+    UPLOAD_PROFILE_IMAGE_FAIL(401, "M006", "회원 이미지를 업로드 하는 중 실패했습니다."),
     
     // FOLLOW
     ALREADY_FOLLOW(401, "F001", "이미 팔로우한 유저입니다."),
@@ -37,7 +38,9 @@ public enum ErrorCode {
     NOT_SUPPORTED_IMAGE_TYPE(400, "P003", "지원하지 않는 이미지 타입입니다."),
     POST_IMAGE_NOT_FOUND(400, "P004", "존재하지 않는 게시물 이미지입니다."),
     NO_POST_IMAGE_TAG(400, "P005", "게시물 이미지 태그는 필수입니다."),
-    INVALID_TAG_LOCATION(400, "P006", "게시물 이미지 태그 위치가 유효하지 않습니다."),
+
+    // FILE
+    CANT_CONVERT_FILE(401, "FI001", "파일을 변환할수 없습니다");
     ;
 
     private int status;

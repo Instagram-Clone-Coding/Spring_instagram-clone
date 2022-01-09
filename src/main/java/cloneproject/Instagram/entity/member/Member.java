@@ -12,9 +12,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
 
 @Getter
 @Entity
@@ -77,6 +77,34 @@ public class Member {
     })
     private Image image;
 
+    public void updateUsername(String username){
+        this.username = username;
+    }
+
+    public void updateName(String name){
+        this.name = name;
+    }
+
+    public void updateWebsite(String website){
+        this.website = website;
+    }
+
+    public void updateIntroduce(String introduce){
+        this.introduce = introduce;
+    }
+
+    public void updatePhone(String phone){
+        this.phone = phone;
+    }
+
+    public void updateEmail(String email){
+        this.email = email;
+    }
+
+    public void updateGender(Gender gender){
+        this.gender = gender;
+    }
+
     public void setRefreshToken(RefreshToken refreshToken){
         this.refreshToken = refreshToken;
     }
@@ -85,8 +113,21 @@ public class Member {
         this.password = encryptedPassword;
     }
 
-    public void uplodateImage(Image image){
+    public void uploadImage(Image image){
+        deleteImage();
         this.image = image;
+    }
+
+    public void deleteImage(){
+        if(this.image.getImageUUID().equals("base-UUID"))
+            return;
+
+        this.image = Image.builder()
+                .imageName("base")
+                .imageType(ImageType.PNG)
+                .imageUrl("https://drive.google.com/file/d/1Gu0DcGCJNs4Vo0bz2U9U6v01d_VwKijs/view?usp=sharing")
+                .imageUUID("base-UUID")
+                .build();
     }
 
     @Builder
@@ -106,4 +147,5 @@ public class Member {
                 .imageUUID("base-UUID")
                 .build();
     }
+    
 }

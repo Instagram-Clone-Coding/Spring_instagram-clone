@@ -12,7 +12,12 @@ public enum ResultCode {
     LOGIN_SUCCESS(200, "M002", "로그인 되었습니다."),
     REISSUE_SUCCESS(200, "M003", "재발급 되었습니다."),
     GET_USERPROFILE_SUCCESS(200, "M004", "회원 프로필 조회 완료"),
-    UPLOAD_MEMBER_IMAGE_SUCCESS(200, "M005", "회원 이미지 등록 완료"),
+    GET_MINIPROFILE_SUCCESS(200, "M005", "미니 프로필 조회 완료"),
+    UPLOAD_MEMBER_IMAGE_SUCCESS(200, "M006", "회원 이미지 등록 완료"),
+    DELETE_MEMBER_IMAGE_SUCCESS(200, "M007", "회원 이미지 삭제 완료"),
+    GET_EDIT_PROFILE_SUCCESS(200, "M008", "회원 프로필 수정정보 조회"),
+    EDIT_PROFILE_SUCCESS(200, "M009", "회원 프로필 수정 완료"),
+    UPDATE_PASSWORD_SUCCESS(200, "M010", "회원 비밀번호 변경 완료"),
 
     //Follow
     FOLLOW_SUCCESS(200, "F001", "회원 팔로우 완료"),
