@@ -5,11 +5,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,9 +35,6 @@ public class PostImage {
             @AttributeOverride(name = "imageUUID", column = @Column(name = "post_image_uuid"))
     })
     private Image image;
-
-    @CreatedDate
-    private LocalDateTime uploadDate;
 
     @OneToMany(mappedBy = "postImage", orphanRemoval = true)
     private List<PostTag> postTags = new ArrayList<>();
