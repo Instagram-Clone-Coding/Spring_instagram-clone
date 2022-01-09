@@ -1,11 +1,10 @@
 package cloneproject.Instagram.repository;
 
-import cloneproject.Instagram.dto.post.PostDTO;
-import cloneproject.Instagram.dto.post.PostImageDTO;
-import cloneproject.Instagram.dto.post.PostTagDTO;
-import cloneproject.Instagram.dto.post.QPostDTO;
+import cloneproject.Instagram.dto.post.*;
+import cloneproject.Instagram.entity.comment.QComment;
 import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.entity.member.QMember;
+import cloneproject.Instagram.entity.post.Post;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
@@ -15,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.SliceImpl;
 
 import java.util.List;
 
@@ -110,4 +108,5 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
         return new PageImpl<>(content, pageable, content.size());
     }
+
 }

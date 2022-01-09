@@ -3,6 +3,7 @@ package cloneproject.Instagram.controller;
 import cloneproject.Instagram.config.CustomValidator;
 import cloneproject.Instagram.dto.post.*;
 import cloneproject.Instagram.dto.result.ResultResponse;
+import cloneproject.Instagram.entity.post.Post;
 import cloneproject.Instagram.service.PostService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -93,13 +94,4 @@ public class PostController {
 
         return ResponseEntity.ok(ResultResponse.of(DELETE_POST_SUCCESS, null));
     }
-
-    /*// TODO: 게시물 목록 조회 쿼리 개선하면서 같이 구현하기
-    @ApiOperation(value = "게시물 조회")
-    @GetMapping("/posts/{postId}")
-    public ResponseEntity<ResultResponse> getPost(@Validated @NotNull(message = "삭제할 게시물 PK는 필수입니다.") @PathVariable Long postId) {
-        final PostResponse response = postService.getPost(postId);
-
-        return ResponseEntity.ok(ResultResponse.of(FIND_POST_SUCCESS, response));
-    }*/
 }
