@@ -1,5 +1,6 @@
 package cloneproject.Instagram.service;
 
+import cloneproject.Instagram.dto.post.PostDTO;
 import cloneproject.Instagram.dto.post.PostImageTagDTO;
 import cloneproject.Instagram.dto.post.PostImageTagRequest;
 import cloneproject.Instagram.entity.member.Member;
@@ -11,6 +12,7 @@ import cloneproject.Instagram.repository.MemberRepository;
 import cloneproject.Instagram.repository.PostImageRepository;
 import cloneproject.Instagram.repository.PostRepository;
 import cloneproject.Instagram.repository.PostTagRepository;
+import cloneproject.Instagram.util.S3Uploader;
 import cloneproject.Instagram.vo.Image;
 import cloneproject.Instagram.vo.ImageType;
 import cloneproject.Instagram.vo.Tag;
@@ -18,14 +20,19 @@ import com.google.common.base.Enums;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.data.domain.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Slf4j
 @Service
@@ -37,10 +44,11 @@ public class PostService {
     private final PostImageRepository postImageRepository;
     private final PostTagRepository postTagRepository;
     private final MemberRepository memberRepository;
+    private final S3Uploader uploader;
 
     @Transactional
     public Long create(String content) {
-        String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
+        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
         final Member member = memberRepository.findById(Long.valueOf(memberId)).orElseThrow(MemberDoesNotExistException::new);
         Post post = Post.builder()
                 .member(member)
@@ -54,64 +62,81 @@ public class PostService {
         final Post post = postRepository.findById(id).orElseThrow(PostNotFoundException::new);
         List<Long> imageIds = new ArrayList<>();
 
-        for (MultipartFile uploadImage : uploadImages) {
-            MultipartFile file = uploadImage;
-            // TODO: url 수정
-            String url = "C:\\spring";
-            String originalName = file.getOriginalFilename();
-            String extension = FilenameUtils.getExtension(originalName).toUpperCase();
-            String fileName = FilenameUtils.getBaseName(originalName);
+        Arrays.stream(uploadImages)
+                .forEach(ui -> {
+                    String originalName = ui.getOriginalFilename();
+                    String extension = FilenameUtils.getExtension(originalName).toUpperCase();
+                    String fileName = FilenameUtils.getBaseName(originalName);
 
-            if(!Enums.getIfPresent(ImageType.class, extension).isPresent())
-                throw new NotSupportedImageTypeException();
+                    if (!Enums.getIfPresent(ImageType.class, extension).isPresent())
+                        throw new NotSupportedImageTypeException();
 
-            Image image = Image.builder()
-                    .imageUrl(url)
-                    .imageType(ImageType.valueOf(extension))
-                    .imageName(fileName)
-                    .imageUUID(UUID.randomUUID().toString())
-                    .build();
+                    Image image = Image.builder()
+                            .imageType(ImageType.valueOf(extension))
+                            .imageName(fileName)
+                            .imageUUID(UUID.randomUUID().toString())
+                            .build();
 
-            final PostImage postImage = postImageRepository.save(
-                    PostImage.builder()
-                            .post(post)
-                            .image(image)
-                            .build());
-            // TODO: 이미지 url에 저장
+                    final PostImage postImage = postImageRepository.save(
+                            PostImage.builder()
+                                    .post(post)
+                                    .image(image)
+                                    .build());
+                    final Long imageId = postImageRepository.save(postImage).getId();
+                    imageIds.add(imageId);
 
-            final Long imageId = postImageRepository.save(postImage).getId();
-            imageIds.add(imageId);
-        }
+                    try {
+                        uploader.uploadImage(ui, "post");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
 
         return imageIds;
     }
 
     @Transactional
     public void addTags(List<PostImageTagRequest> requests) {
-        if(requests.isEmpty())
+        if (requests.isEmpty())
             throw new NoPostImageTagException();
 
-        for (PostImageTagRequest request : requests) {
-            final PostImage postImage = postImageRepository.findById(request.getId()).orElseThrow(PostImageNotFoundException::new);
-            final List<PostImageTagDTO> postImageTagDTOs = request.getPostImageTagDTOs();
-            for (PostImageTagDTO postImageTagDTO : postImageTagDTOs) {
-                // TODO: x, y 범위 검증 코드 추가
-                Tag tag = Tag.builder()
-                        .x(postImageTagDTO.getTagX())
-                        .y(postImageTagDTO.getTagY())
-                        .build();
+        requests
+                .forEach(r -> {
+                    final PostImage postImage = postImageRepository.findById(r.getId()).orElseThrow(PostImageNotFoundException::new);
+                    final List<PostImageTagDTO> postImageTagDTOs = r.getPostImageTagDTOs();
+                    for (PostImageTagDTO postImageTagDTO : postImageTagDTOs) {
+                        if (postImageTagDTO.getTagX() < 0 || postImageTagDTO.getTagX() > 100 || postImageTagDTO.getTagY() < 0 || postImageTagDTO.getTagY() > 100)
+                            throw new InvalidTagLocationException();
+                        final String username = postImageTagDTO.getUsername();
+                        memberRepository.findByUsername(username).orElseThrow(MemberDoesNotExistException::new);
+                        Tag tag = Tag.builder()
+                                .x(postImageTagDTO.getTagX())
+                                .y(postImageTagDTO.getTagY())
+                                .username(username)
+                                .build();
 
-                final String username = postImageTagDTO.getUsername();
-                final Member member = memberRepository.findByUsername(username).orElseThrow(MemberDoesNotExistException::new);
+                        PostTag postTag = PostTag.builder()
+                                .postImage(postImage)
+                                .tag(tag)
+                                .build();
 
-                PostTag postTag = PostTag.builder()
-                        .postImage(postImage)
-                        .tag(tag)
-                        .member(member)
-                        .build();
+                        postTagRepository.save(postTag);
+                    }
+                });
+    }
 
-                postTagRepository.save(postTag);
-            }
-        }
+    public Page<PostDTO> getPostDtoPage(int size, int page) {
+        page = (page == 0 ? 0 : page - 1);
+        final Pageable pageable = PageRequest.of(page, size, Sort.by(DESC, "id"));
+        final Long memberId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
+        return postRepository.findPostDtoPage(member, pageable);
+    }
+
+    @Transactional
+    public void delete(Long postId) {
+        final Long memberId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+        final Post post = postRepository.findByIdAndMemberId(postId, memberId).orElseThrow(PostNotFoundException::new);
+        postRepository.delete(post);
     }
 }

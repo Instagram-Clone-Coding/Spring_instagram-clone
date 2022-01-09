@@ -1,6 +1,5 @@
 package cloneproject.Instagram.entity.post;
 
-import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.vo.Tag;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -21,23 +20,19 @@ public class PostTag {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_image_id")
     private PostImage postImage;
 
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "y", column = @Column(name = "post_tag_y")),
-            @AttributeOverride(name = "x", column = @Column(name = "post_tag_x"))
+            @AttributeOverride(name = "x", column = @Column(name = "post_tag_x")),
+            @AttributeOverride(name = "username", column = @Column(name = "post_tag_username"))
     })
     private Tag tag;
 
     @Builder
-    public PostTag(Member member, PostImage postImage, Tag tag) {
-        this.member = member;
+    public PostTag(PostImage postImage, Tag tag) {
         this.postImage = postImage;
         this.tag = tag;
     }

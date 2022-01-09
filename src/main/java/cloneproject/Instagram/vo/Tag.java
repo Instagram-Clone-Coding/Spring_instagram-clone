@@ -14,10 +14,11 @@ public class Tag {
 
     private Long x;
     private Long y;
+    private String username;
 
     @Override
     public int hashCode() {
-        return Objects.hash(x, y);
+        return Objects.hash(x, y, username);
     }
 
     @Override
@@ -28,6 +29,6 @@ public class Tag {
             return false;
 
         Tag tag = (Tag) obj;
-        return Objects.equals(x, tag.x) && Objects.equals(y, tag.y);
+        return Objects.equals(x, tag.x) && Objects.equals(y, tag.y) && Objects.equals(username, tag.username);
     }
 }

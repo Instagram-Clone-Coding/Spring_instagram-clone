@@ -27,8 +27,11 @@ public enum ResultCode {
 
     // POST
     CREATE_POST_SUCCESS(200, "P001", "게시물 생성 성공"),
-    UPLOAD_IMAGES_SUCCESS(200, "P002", "이미지 업로드 성공"),
-    ADD_TAGS_SUCCESS(200, "P003", "태그 추가 성공"),
+    UPLOAD_POST_IMAGES_SUCCESS(200, "P002", "게시물 이미지 업로드 성공"),
+    ADD_POST_IMAGE_TAGS_SUCCESS(200, "P003", "게시물 이미지 태그 추가 성공"),
+    FIND_POST_PAGE_SUCCESS(200, "P004", "게시물 페이지 조회 성공"),
+    DELETE_POST_SUCCESS(200, "P005", "게시물 삭제 성공"),
+    FIND_POST_SUCCESS(200, "P006", "게시물 조회 성공"),
     ;
 
     private int status;
