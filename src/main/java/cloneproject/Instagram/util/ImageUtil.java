@@ -14,7 +14,6 @@ import cloneproject.Instagram.vo.ImageType;
 public class ImageUtil {
     public static Image convertMultipartToImage(MultipartFile file){
         
-        String url = "C:\\spring\\upload";
         String originalName = file.getOriginalFilename();
         String name = FilenameUtils.getBaseName(originalName);
         String type = FilenameUtils.getExtension(originalName).toUpperCase();
@@ -23,7 +22,6 @@ public class ImageUtil {
             throw new NotSupportedImageTypeException();
 
         Image image = Image.builder()
-                .imageUrl(url)
                 .imageType(ImageType.valueOf(type))
                 .imageName(name)
                 .imageUUID(UUID.randomUUID().toString())
