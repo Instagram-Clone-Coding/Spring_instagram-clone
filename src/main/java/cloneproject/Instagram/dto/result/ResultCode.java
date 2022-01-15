@@ -32,6 +32,7 @@ public enum ResultCode {
     FIND_POST_PAGE_SUCCESS(200, "P004", "게시물 페이지 조회 성공"),
     DELETE_POST_SUCCESS(200, "P005", "게시물 삭제 성공"),
     FIND_POST_SUCCESS(200, "P006", "게시물 조회 성공"),
+    FIND_RECENT10POSTS_SUCCESS(200, "P007", "최근 게시물 10개 조회 성공"),
     ;
 
     private int status;
