@@ -51,6 +51,9 @@ public class Comment {
     @Column(name = "comment_upload_date")
     private LocalDateTime uploadDate;
 
+    @OneToMany(mappedBy = "comment", orphanRemoval = true)
+    private List<CommentLike> commentLikes = new ArrayList<>();
+
     @Builder
     public Comment(Comment parent, Member member, Post post, String content) {
         this.parent = (parent == null ? this : parent);

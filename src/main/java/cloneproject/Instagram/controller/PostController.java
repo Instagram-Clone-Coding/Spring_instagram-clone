@@ -6,7 +6,6 @@ import cloneproject.Instagram.dto.result.ResultResponse;
 import cloneproject.Instagram.service.PostService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -74,9 +73,7 @@ public class PostController {
     }
 
     @ApiOperation(value = "게시물 페이징 조회(무한스크롤)")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", value = "게시물 page", example = "1", required = true)
-    })
+    @ApiImplicitParam(name = "page", value = "게시물 page", example = "1", required = true)
     @GetMapping("/posts")
     public ResponseEntity<ResultResponse> getPostPage(
             @Validated @NotNull(message = "조회할 게시물 page는 필수입니다.") @RequestParam int page) {
@@ -94,11 +91,22 @@ public class PostController {
     }
 
     @ApiOperation(value = "게시물 삭제")
+    @ApiImplicitParam(name = "postId", value = "게시물 PK", example = "1", required = true)
     @DeleteMapping("/posts")
     public ResponseEntity<ResultResponse> deletePost(
             @Validated @NotNull(message = "삭제할 게시물 PK는 필수입니다.") @RequestParam Long postId) {
         postService.delete(postId);
 
         return ResponseEntity.ok(ResultResponse.of(DELETE_POST_SUCCESS, null));
+    }
+
+    @ApiOperation(value = "게시물 조회")
+    @ApiImplicitParam(name = "postId", value = "게시물 PK", example = "1", required = true)
+    @GetMapping("/posts/{postId}")
+    public ResponseEntity<ResultResponse> getPost(
+            @Validated @NotNull(message = "조회할 게시물 PK는 필수입니다.") @PathVariable Long postId) {
+        final PostResponse response = postService.getPost(postId);
+
+        return ResponseEntity.ok(ResultResponse.of(FIND_POST_SUCCESS, response));
     }
 }

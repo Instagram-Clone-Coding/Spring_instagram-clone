@@ -3,6 +3,7 @@ package cloneproject.Instagram.service;
 import cloneproject.Instagram.dto.post.PostDTO;
 import cloneproject.Instagram.dto.post.PostImageTagDTO;
 import cloneproject.Instagram.dto.post.PostImageTagRequest;
+import cloneproject.Instagram.dto.post.PostResponse;
 import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.entity.post.Post;
 import cloneproject.Instagram.entity.post.PostImage;
@@ -14,12 +15,9 @@ import cloneproject.Instagram.repository.PostRepository;
 import cloneproject.Instagram.repository.PostTagRepository;
 import cloneproject.Instagram.util.S3Uploader;
 import cloneproject.Instagram.vo.Image;
-import cloneproject.Instagram.vo.ImageType;
 import cloneproject.Instagram.vo.Tag;
-import com.google.common.base.Enums;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FilenameUtils;
 import org.springframework.data.domain.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -30,7 +28,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
@@ -129,5 +126,10 @@ public class PostService {
     public List<PostDTO> getRecent10PostDTOs() {
         final Long memberId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
         return postRepository.findRecent10PostDTOs(memberId);
+    }
+
+    public PostResponse getPost(Long postId) {
+        final Long memberId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+        return postRepository.findPostResponse(postId, memberId).orElseThrow(PostNotFoundException::new);
     }
 }
