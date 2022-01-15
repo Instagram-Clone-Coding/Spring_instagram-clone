@@ -86,7 +86,7 @@ public class PostController {
     }
 
     @ApiOperation(value = "최근 게시물 10개 조회")
-    @GetMapping("/home/posts")
+    @GetMapping("/posts/recent")
     public ResponseEntity<ResultResponse> getRecent10Posts() {
         final List<PostDTO> postList = postService.getRecent10PostDTOs();
 
