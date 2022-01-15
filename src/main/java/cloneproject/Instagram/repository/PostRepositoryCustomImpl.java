@@ -16,6 +16,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static cloneproject.Instagram.entity.member.QFollow.follow;
 import static cloneproject.Instagram.entity.post.QBookmark.bookmark;
@@ -38,7 +40,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
             return null;
 
         // TODO: 최신 댓글 2개 추가 -> 댓글 API 구현할 때 업데이트
-        QueryResults<PostDTO> results = queryFactory
+        final List<PostDTO> postDTOs = queryFactory
                 .select(new QPostDTO(
                         post.id,
                         post.content,
@@ -74,39 +76,131 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                                 .select(follow.followMember.username)
                                 .from(follow)
                                 .where(follow.member.eq(member))
-                )).distinct()
+                ))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(post.id.desc())
-                .fetchResults();
+                .fetch();
 
-        List<PostDTO> content = results.getResults();
-        for (PostDTO postDTO : content) {
-            final List<PostImageDTO> transform = queryFactory
-                    .from(postImage)
-                    .where(postImage.post.id.eq(postDTO.getPostId()))
-                    .innerJoin(postTag)
-                    .on(postImage.id.eq(postTag.postImage.id))
-                    .transform(
-                            groupBy(postImage.id).list(
-                                    Projections.fields(
-                                            PostImageDTO.class,
-                                            postImage.id,
-                                            postImage.image,
-                                            list(
-                                                    Projections.fields(
-                                                            PostTagDTO.class,
-                                                            postTag.id,
-                                                            postTag.tag
-                                                    )
-                                            ).as("postTagDTOs")
-                                    )
-                            )
-                    );
-            postDTO.setPostImageDTOs(transform);
-        }
+        final List<Long> postIds = postDTOs.stream()
+                .map(PostDTO::getPostId)
+                .collect(Collectors.toList());
 
-        return new PageImpl<>(content, pageable, content.size());
+        final List<PostImageDTO> postImageDTOs = queryFactory
+                .select(new QPostImageDTO(
+                        postImage.post.id,
+                        postImage.id,
+                        postImage.image.imageUrl
+                ))
+                .from(postImage)
+                .where(postImage.post.id.in(postIds))
+                .fetch();
+
+        final List<Long> postImageIds = postImageDTOs.stream()
+                .map(PostImageDTO::getId)
+                .collect(Collectors.toList());
+
+        final List<PostTagDTO> postTagDTOs = queryFactory
+                .select(new QPostTagDTO(
+                        postTag.postImage.id,
+                        postTag.id,
+                        postTag.tag
+                ))
+                .from(postTag)
+                .where(postTag.postImage.id.in(postImageIds))
+                .fetch();
+
+        final Map<Long, List<PostTagDTO>> postImageDTOMap = postTagDTOs.stream()
+                .collect(Collectors.groupingBy(PostTagDTO::getPostImageId));
+        postImageDTOs.forEach(i -> i.setPostTagDTOs(postImageDTOMap.get(i.getId())));
+
+        final Map<Long, List<PostImageDTO>> postDTOMap = postImageDTOs.stream()
+                .collect(Collectors.groupingBy(PostImageDTO::getPostId));
+        postDTOs.forEach(p -> p.setPostImageDTOs(postDTOMap.get(p.getPostId())));
+
+        return new PageImpl<>(postDTOs, pageable, postDTOs.size());
+    }
+
+    @Override
+    public List<PostDTO> findRecent10PostDTOs(Long memberId) {
+        final List<PostDTO> postDTOs = queryFactory
+                .select(new QPostDTO(
+                        post.id,
+                        post.content,
+                        post.uploadDate,
+                        post.member.username,
+                        post.member.name,
+                        post.member.image.imageUrl,
+                        post.comments.size(),
+                        post.postLikes.size(),
+                        JPAExpressions
+                                .selectFrom(bookmark)
+                                .where(bookmark.post.eq(post).and(bookmark.member.id.eq(memberId)))
+                                .exists(),
+                        JPAExpressions
+                                .selectFrom(postLike)
+                                .where(postLike.post.eq(post).and(postLike.member.id.eq(memberId)))
+                                .exists(),
+                        JPAExpressions
+                                .select(postLike.member.username)
+                                .from(postLike)
+                                .where(postLike.post.eq(post)
+                                        .and(postLike.member
+                                                .in(JPAExpressions
+                                                        .select(follow.followMember)
+                                                        .from(follow)
+                                                        .where(follow.member.id.eq(memberId)))))
+                                .limit(1)
+                ))
+                .from(post)
+                .join(post.member, QMember.member)
+                .on(post.member.username.in(
+                        JPAExpressions
+                                .select(follow.followMember.username)
+                                .from(follow)
+                                .where(follow.member.id.eq(memberId))
+                ))
+                .limit(10)
+                .orderBy(post.id.desc())
+                .fetch();
+
+        final List<Long> postIds = postDTOs.stream()
+                .map(PostDTO::getPostId)
+                .collect(Collectors.toList());
+
+        final List<PostImageDTO> postImageDTOs = queryFactory
+                .select(new QPostImageDTO(
+                        postImage.post.id,
+                        postImage.id,
+                        postImage.image.imageUrl
+                ))
+                .from(postImage)
+                .where(postImage.post.id.in(postIds))
+                .fetch();
+
+        final List<Long> postImageIds = postImageDTOs.stream()
+                .map(PostImageDTO::getId)
+                .collect(Collectors.toList());
+
+        final List<PostTagDTO> postTagDTOs = queryFactory
+                .select(new QPostTagDTO(
+                        postTag.postImage.id,
+                        postTag.id,
+                        postTag.tag
+                ))
+                .from(postTag)
+                .where(postTag.postImage.id.in(postImageIds))
+                .fetch();
+
+        final Map<Long, List<PostTagDTO>> postImageDTOMap = postTagDTOs.stream()
+                .collect(Collectors.groupingBy(PostTagDTO::getPostImageId));
+        postImageDTOs.forEach(i -> i.setPostTagDTOs(postImageDTOMap.get(i.getId())));
+
+        final Map<Long, List<PostImageDTO>> postDTOMap = postImageDTOs.stream()
+                .collect(Collectors.groupingBy(PostImageDTO::getPostId));
+        postDTOs.forEach(p -> p.setPostImageDTOs(postDTOMap.get(p.getPostId())));
+
+        return postDTOs;
     }
 
 }
