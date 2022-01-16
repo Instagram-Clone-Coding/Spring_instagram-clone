@@ -1,6 +1,7 @@
 package cloneproject.Instagram.dto.post;
 
-import cloneproject.Instagram.vo.Image;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,16 @@ import java.util.List;
 @NoArgsConstructor
 public class PostImageDTO {
 
+    @JsonIgnore
+    private Long postId;
     private Long id;
-    private Image image;
+    private String postImageUrl;
     private List<PostTagDTO> postTagDTOs = new ArrayList<>();
+
+    @QueryProjection
+    public PostImageDTO(Long postId, Long id, String postImageUrl) {
+        this.postId = postId;
+        this.id = id;
+        this.postImageUrl = postImageUrl;
+    }
 }

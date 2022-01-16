@@ -3,11 +3,9 @@ package cloneproject.Instagram.controller;
 import cloneproject.Instagram.config.CustomValidator;
 import cloneproject.Instagram.dto.post.*;
 import cloneproject.Instagram.dto.result.ResultResponse;
-import cloneproject.Instagram.entity.post.Post;
 import cloneproject.Instagram.service.PostService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,7 +61,8 @@ public class PostController {
 
     @ApiOperation(value = "게시물 이미지 태그 적용")
     @PostMapping(value = "/posts/images/tags")
-    public ResponseEntity<ResultResponse> uploadImageTags(@RequestBody List<PostImageTagRequest> requests, BindingResult bindingResult) throws BindException {
+    public ResponseEntity<ResultResponse> uploadImageTags(
+            @RequestBody List<PostImageTagRequest> requests, BindingResult bindingResult) throws BindException {
         validator.validate(requests, bindingResult);
         if (bindingResult.hasErrors())
             throw new BindException(bindingResult);
@@ -73,25 +72,41 @@ public class PostController {
         return ResponseEntity.ok(ResultResponse.of(ADD_POST_IMAGE_TAGS_SUCCESS, null));
     }
 
-    @ApiOperation(value = "게시물 목록 조회")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "size", value = "한 페이지당 가져올 게시물 size", example = "5", required = true),
-            @ApiImplicitParam(name = "page", value = "게시물 page", example = "1", required = true)
-    })
+    @ApiOperation(value = "게시물 페이징 조회(무한스크롤)")
+    @ApiImplicitParam(name = "page", value = "게시물 page", example = "1", required = true)
     @GetMapping("/posts")
-    public ResponseEntity<ResultResponse> getPosts(
-            @Validated @NotNull(message = "조회할 게시물 size는 필수입니다.") @RequestParam int size,
+    public ResponseEntity<ResultResponse> getPostPage(
             @Validated @NotNull(message = "조회할 게시물 page는 필수입니다.") @RequestParam int page) {
-        final Page<PostDTO> postPage = postService.getPostDtoPage(size, page);
+        final Page<PostDTO> postPage = postService.getPostDtoPage(1, page);
 
         return ResponseEntity.ok(ResultResponse.of(FIND_POST_PAGE_SUCCESS, postPage));
     }
 
+    @ApiOperation(value = "최근 게시물 10개 조회")
+    @GetMapping("/posts/recent")
+    public ResponseEntity<ResultResponse> getRecent10Posts() {
+        final List<PostDTO> postList = postService.getRecent10PostDTOs();
+
+        return ResponseEntity.ok(ResultResponse.of(FIND_RECENT10POSTS_SUCCESS, postList));
+    }
+
     @ApiOperation(value = "게시물 삭제")
+    @ApiImplicitParam(name = "postId", value = "게시물 PK", example = "1", required = true)
     @DeleteMapping("/posts")
-    public ResponseEntity<ResultResponse> deletePost(@Validated @NotNull(message = "삭제할 게시물 PK는 필수입니다.") @RequestParam Long postId) {
+    public ResponseEntity<ResultResponse> deletePost(
+            @Validated @NotNull(message = "삭제할 게시물 PK는 필수입니다.") @RequestParam Long postId) {
         postService.delete(postId);
 
         return ResponseEntity.ok(ResultResponse.of(DELETE_POST_SUCCESS, null));
+    }
+
+    @ApiOperation(value = "게시물 조회")
+    @ApiImplicitParam(name = "postId", value = "게시물 PK", example = "1", required = true)
+    @GetMapping("/posts/{postId}")
+    public ResponseEntity<ResultResponse> getPost(
+            @Validated @NotNull(message = "조회할 게시물 PK는 필수입니다.") @PathVariable Long postId) {
+        final PostResponse response = postService.getPost(postId);
+
+        return ResponseEntity.ok(ResultResponse.of(FIND_POST_SUCCESS, response));
     }
 }
