@@ -29,7 +29,7 @@ import static cloneproject.Instagram.entity.post.QPostTag.postTag;
 
 @Slf4j
 @RequiredArgsConstructor
-public class PostRepositoryCustomImpl implements PostRepositoryCustom {
+public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 
     private final JPAQueryFactory queryFactory;
 
@@ -79,6 +79,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(post.id.desc())
+                .distinct()
                 .fetch();
 
         final List<Long> postIds = postDTOs.stream()
