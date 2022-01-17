@@ -224,6 +224,7 @@ public class MemberService {
                                 .build();
     }
 
+    // TODO 변경시 이메일 인증 로직은?
     public void editProfile(EditProfileRequest editProfileRequest){
         final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findById(Long.valueOf(memberId))

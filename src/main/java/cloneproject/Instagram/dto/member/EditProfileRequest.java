@@ -35,11 +35,11 @@ public class EditProfileRequest {
     @ApiModelProperty(value = "소개", example = "안녕하세요", required = false)
     String memberIntroduce;
 
-    @ApiModelProperty(value = "이메일", example = "aaa@gmail.com", required = false)
+    @ApiModelProperty(value = "이메일", example = "aaa@gmail.com", required = true)
     @Email(message = "이메일의 형식이 맞지 않습니다")
     String memberEmail;
 
-    @ApiModelProperty(value = "전화번호", example = "010-0000-0000", required = true)
+    @ApiModelProperty(value = "전화번호", example = "010-0000-0000", required = false)
     @NotBlank(message = "휴대폰 번호를 입력해주세요")
     @Pattern(regexp = "^\\d{3}-\\d{3,4}-\\d{4}$", message = "휴대폰 번호 양식이 맞지 않습니다")
     String memberPhone;
