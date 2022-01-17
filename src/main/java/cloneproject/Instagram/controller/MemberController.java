@@ -98,11 +98,13 @@ public class MemberController {
     @PostMapping(value = "/accounts/email")
     public ResponseEntity<ResultResponse> sendConfirmEmail(
                                     @RequestParam
+                                    @Validated
                                     @NotBlank(message = "username을 입력해주세요")
                                     @Length(min = 4, max = 12, message = "사용자 이름은 4문자 이상 12문자 이하여야 합니다")
                                     @Pattern(regexp = "^[0-9a-zA-Z]+$", message = "username엔 대소문자, 숫자만 사용할 수 있습니다.")
                                     String username,
                                     @RequestParam
+                                    @Validated
                                     @NotBlank(message = "이메일을 입력해주세요")
                                     @Email(message = "이메일의 형식이 맞지 않습니다")
                                     String email) {
@@ -121,10 +123,17 @@ public class MemberController {
     }
 
     @ApiOperation(value = "토큰 재발급")
-    @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " ")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " "),
+        @ApiImplicitParam(name = "refreshToken", value = "refresh 토큰", required = true, example = "AAA.BBB.CCC"),
+    })
     @PostMapping(value = "/reissue")
-    public ResponseEntity<ResultResponse> reissue(@Validated @RequestBody ReissueRequest reissueRequest) {
-        JwtDto jwt = memberService.reisuue(reissueRequest);
+    public ResponseEntity<ResultResponse> reissue(
+                                    @Validated
+                                    @RequestParam
+                                    @NotBlank(message = "Refresh Token은 필수입니다")
+                                    String refreshToken) {
+        JwtDto jwt = memberService.reisuue(refreshToken);
 
         ResultResponse result = ResultResponse.of(ResultCode.REISSUE_SUCCESS, jwt);
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
@@ -132,7 +141,7 @@ public class MemberController {
 
     @ApiOperation(value = "유저 프로필 조회")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " "),
+        @ApiImplicitParam(name = "Authorization", value = "있어도 되고 없어도됨", required = false, example = "Bearer AAA.BBB.CCC"),
         @ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma")
     })
     @GetMapping(value = "/accounts/{username}")
@@ -145,7 +154,6 @@ public class MemberController {
 
     @ApiOperation(value = "미니 프로필 조회")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " "),
         @ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma")
     })
     @GetMapping(value = "/accounts/{username}/mini")

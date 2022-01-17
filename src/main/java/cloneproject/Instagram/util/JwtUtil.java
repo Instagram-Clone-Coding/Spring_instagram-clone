@@ -76,6 +76,7 @@ public class JwtUtil {
         String refreshToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .setExpiration(refreshTokenExpiresIn)
+                .claim(AUTHENTITIES_KEY, authorities.get(0))
                 .signWith(refreshKey, SignatureAlgorithm.HS512)
                 .compact();
 
@@ -87,8 +88,9 @@ public class JwtUtil {
                 .build();
     }
     
-    public Authentication getAuthentication(String accessToken) {
-        Claims claims = parseClaims(accessToken);
+    public Authentication getAuthentication(String token, boolean isAccessToken) {
+        final Key key = isAccessToken ? accessKey : refreshKey;
+        Claims claims = parseClaims(token, key);
         
         if (claims.get(AUTHENTITIES_KEY) == null) {
             throw new InvalidJwtException();
@@ -131,8 +133,8 @@ public class JwtUtil {
         }
     }
 
-    private Claims parseClaims(String accessToken) {
-        return Jwts.parserBuilder().setSigningKey(accessKey).build().parseClaimsJws(accessToken).getBody();
+    private Claims parseClaims(String token, Key key) {
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
 
 }

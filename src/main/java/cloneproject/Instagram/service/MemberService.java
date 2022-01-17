@@ -106,15 +106,13 @@ public class MemberService {
     }
 
     @Transactional
-    public JwtDto reisuue(ReissueRequest reissueRequest){
-        String accessTokenString = reissueRequest.getAccessToken();
-        String refreshTokenString = reissueRequest.getRefreshToken();
+    public JwtDto reisuue(String refreshTokenString){
         if(!jwtUtil.validateRefeshJwt(refreshTokenString)){
             throw new InvalidJwtException();
         }
         Authentication authentication;
         try{
-            authentication = jwtUtil.getAuthentication(accessTokenString);
+            authentication = jwtUtil.getAuthentication(refreshTokenString, false);
         } catch(JwtException e){
             throw new InvalidJwtException();
         }
@@ -136,12 +134,23 @@ public class MemberService {
     @Transactional(readOnly = true)
     public UserProfileResponse getUserProfile(String username){
         final Member member = memberRepository.findByUsername(username)
-                                        .orElseThrow(MemberDoesNotExistException::new);
+        .orElseThrow(MemberDoesNotExistException::new);
+        boolean isFollowing, isFollower;
+        try{
+            final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
+            isFollowing = followService.isFollowing(Long.valueOf(memberId), member.getId());
+            isFollower = followService.isFollowing(member.getId(), Long.valueOf(memberId));
+        }catch(Exception e){
+            isFollower = false;
+            isFollowing = false;
+        }
+
         return UserProfileResponse.builder()
                                 .memberUsername(member.getUsername())
                                 .memberName(member.getName())
                                 .memberImage(member.getImage())
-                                //TODO 팔로잉여부, 팔로워여부
+                                .isFollowing(isFollowing)
+                                .isFollower(isFollower)
                                 .memberFollowersCount(followService.getFollowersCount(username))
                                 .memberFollowingsCount(followService.getFollowingsCount(username))
                                 .memberIntroduce(member.getIntroduce())
@@ -152,12 +161,15 @@ public class MemberService {
     public MiniProfileResponse getMiniProfile(String username){
         final Member member = memberRepository.findByUsername(username)
                                         .orElseThrow(MemberDoesNotExistException::new);
+
         return MiniProfileResponse.builder()
                                 .memberUsername(member.getUsername())
                                 .memberImage(member.getImage())
                                 .memberName(member.getName())
                                 .memberWebsite(member.getWebsite())
                                 .memberPostCount(0) // TODO 추후에 수정
+                                .isFollowing(followService.isFollowing(username))
+                                .isFollower(followService.isFollower(username))
                                 .memberFollowersCount(followService.getFollowersCount(username))
                                 .memberFollowingsCount(followService.getFollowingsCount(username))
                                 .build();
