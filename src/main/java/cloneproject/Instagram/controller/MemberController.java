@@ -7,7 +7,13 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 
+import java.util.List;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+
+import org.hibernate.validator.constraints.Length;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -26,6 +32,7 @@ import cloneproject.Instagram.dto.member.UserProfileResponse;
 import cloneproject.Instagram.dto.result.ResultCode;
 import cloneproject.Instagram.dto.result.ResultResponse;
 import cloneproject.Instagram.service.MemberService;
+import cloneproject.Instagram.vo.SearchedMemberInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,12 +52,64 @@ public class MemberController {
     
     private final MemberService memberService;
 
+    @ApiOperation(value = "username 중복 조회")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " "),
+        @ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma")
+    })
+    @PostMapping(value = "/accounts/check")
+    public ResponseEntity<ResultResponse> checkUsername(
+                            @RequestParam
+                            @Validated 
+                            @NotBlank(message = "username을 입력해주세요")
+                            @Length(min = 4, max = 12, message = "사용자 이름은 4문자 이상 12문자 이하여야 합니다")
+                            @Pattern(regexp = "^[0-9a-zA-Z]+$", message = "username엔 대소문자, 숫자만 사용할 수 있습니다.") 
+                            String username) {
+        boolean check = memberService.checkUsername(username);
+        ResultResponse result;
+        if(check){
+            result = ResultResponse.of(ResultCode.CHECK_USERNAME_GOOD, true);
+        }else{
+            result = ResultResponse.of(ResultCode.CHECK_USERNAME_BAD, false);
+        }   
+        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
+    }
+
     @ApiOperation(value = "회원가입")
     @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " ")
     @PostMapping(value = "/accounts")
     public ResponseEntity<ResultResponse> register(@Validated @RequestBody RegisterRequest registerRequest) {
-        memberService.register(registerRequest);
-        ResultResponse result = ResultResponse.of(ResultCode.REGISTER_SUCCESS,null);
+        boolean isRegistered = memberService.register(registerRequest);
+        ResultResponse result;
+        if(isRegistered){
+            result = ResultResponse.of(ResultCode.REGISTER_SUCCESS,true);
+        }else{
+            result = ResultResponse.of(ResultCode.CONFIRM_EMAIL_FAIL, false);
+        }
+        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
+    }
+    
+    @ApiOperation(value = "인증코드 이메일 전송")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " "),
+        @ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma"),
+        @ApiImplicitParam(name = "email", value = "이메일", required = true, example = "aaa@gmail.com")
+    })
+    @PostMapping(value = "/accounts/email")
+    public ResponseEntity<ResultResponse> sendConfirmEmail(
+                                    @RequestParam
+                                    @Validated
+                                    @NotBlank(message = "username을 입력해주세요")
+                                    @Length(min = 4, max = 12, message = "사용자 이름은 4문자 이상 12문자 이하여야 합니다")
+                                    @Pattern(regexp = "^[0-9a-zA-Z]+$", message = "username엔 대소문자, 숫자만 사용할 수 있습니다.")
+                                    String username,
+                                    @RequestParam
+                                    @Validated
+                                    @NotBlank(message = "이메일을 입력해주세요")
+                                    @Email(message = "이메일의 형식이 맞지 않습니다")
+                                    String email) {
+        memberService.sendEmailConfirmation(username, email);
+        ResultResponse result = ResultResponse.of(ResultCode.SEND_CONFIRM_EMAIL_SUCCESS,null);
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
@@ -59,16 +118,22 @@ public class MemberController {
     @PostMapping(value = "/login")
     public ResponseEntity<ResultResponse> login(@Validated @RequestBody LoginRequest loginRequest) {
         JwtDto jwt = memberService.login(loginRequest);
-
         ResultResponse result = ResultResponse.of(ResultCode.LOGIN_SUCCESS, jwt);
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
     @ApiOperation(value = "토큰 재발급")
-    @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " ")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " "),
+        @ApiImplicitParam(name = "refreshToken", value = "refresh 토큰", required = true, example = "AAA.BBB.CCC"),
+    })
     @PostMapping(value = "/reissue")
-    public ResponseEntity<ResultResponse> reissue(@Validated @RequestBody ReissueRequest reissueRequest) {
-        JwtDto jwt = memberService.reisuue(reissueRequest);
+    public ResponseEntity<ResultResponse> reissue(
+                                    @Validated
+                                    @RequestParam
+                                    @NotBlank(message = "Refresh Token은 필수입니다")
+                                    String refreshToken) {
+        JwtDto jwt = memberService.reisuue(refreshToken);
 
         ResultResponse result = ResultResponse.of(ResultCode.REISSUE_SUCCESS, jwt);
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
@@ -76,7 +141,7 @@ public class MemberController {
 
     @ApiOperation(value = "유저 프로필 조회")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " "),
+        @ApiImplicitParam(name = "Authorization", value = "있어도 되고 없어도됨", required = false, example = "Bearer AAA.BBB.CCC"),
         @ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma")
     })
     @GetMapping(value = "/accounts/{username}")
@@ -89,7 +154,6 @@ public class MemberController {
 
     @ApiOperation(value = "미니 프로필 조회")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " "),
         @ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma")
     })
     @GetMapping(value = "/accounts/{username}/mini")
@@ -144,5 +208,15 @@ public class MemberController {
         ResultResponse result = ResultResponse.of(ResultCode.UPDATE_PASSWORD_SUCCESS , null);
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
-    
+
+    @ApiOperation(value = "멤버 검색")
+    @ApiImplicitParam(name = "text", value = "검색내용", required = true, example = "dlwl")
+    @PostMapping(value = "/search")
+    public ResponseEntity<ResultResponse> searchMember(@RequestParam String text) {
+        List<SearchedMemberInfo> memberInfos = memberService.searchMember(text);
+
+        ResultResponse result = ResultResponse.of(ResultCode.SEARCH_MEMBER_SUCCESS, memberInfos);
+        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
+    }
+
 }

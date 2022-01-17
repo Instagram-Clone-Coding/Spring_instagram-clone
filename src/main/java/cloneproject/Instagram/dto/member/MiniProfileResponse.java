@@ -25,6 +25,12 @@ public class MiniProfileResponse {
     @ApiModelProperty(value = "웹사이트", example = "http://localhost:8080")
     String memberWebsite;
 
+    @ApiModelProperty(value = "팔로잉 여부", example = "true")
+    boolean isFollowing;
+
+    @ApiModelProperty(value = "팔로워 여부", example = "false")
+    boolean isFollower;
+
     @ApiModelProperty(value = "포스팅 수", example = "90")
     Integer memberPostCount;
 

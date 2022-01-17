@@ -21,6 +21,6 @@ public class JwtDto {
     private String accessToken;
     @ApiModelProperty(value = "Refresh 토큰", example = "AAA.BBB.CCC")
     private String refreshToken;
-    @ApiModelProperty(value = "Access 토큰 만료시간", example = "2021-12-26T05:51:30.099+00:00")
-    private Date accessTokenExpires;
+    @ApiModelProperty(value = "Access 토큰 만료시간", example = "2021-12-26 10:00")
+    private String accessTokenExpires;
 }

@@ -3,6 +3,7 @@ package cloneproject.Instagram.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.aspectj.weaver.MemberKind;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,8 @@ import cloneproject.Instagram.vo.FollowerInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+
+// TODO N+1 문제
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -132,6 +135,19 @@ public class FollowService {
         final Member followMember = memberRepository.findByUsername(followMemberUsername)
                                                 .orElseThrow(MemberDoesNotExistException::new);
         return followRepository.existsByMemberIdAndFollowMemberId(Long.valueOf(memberId), followMember.getId());
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isFollower(String followerMemberUsername){
+        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
+        final Member followMember = memberRepository.findByUsername(followerMemberUsername)
+                                                .orElseThrow(MemberDoesNotExistException::new);
+        return followRepository.existsByMemberIdAndFollowMemberId(followMember.getId(), Long.valueOf(memberId));
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isFollowing(Long memberId, Long followMemberId){
+        return followRepository.existsByMemberIdAndFollowMemberId(memberId, followMemberId);
     }
 
     private FollowerInfo convertMemberToFollowerInfo(Member member){

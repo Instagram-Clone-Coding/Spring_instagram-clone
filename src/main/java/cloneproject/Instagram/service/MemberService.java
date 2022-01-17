@@ -3,9 +3,9 @@ package cloneproject.Instagram.service;
 
 
 import java.io.IOException;
-import java.util.UUID;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import org.hibernate.query.criteria.internal.predicate.MemberOfPredicate;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -19,18 +19,19 @@ import org.springframework.web.multipart.MultipartFile;
 import cloneproject.Instagram.dto.member.*;
 import cloneproject.Instagram.entity.member.Gender;
 import cloneproject.Instagram.entity.member.Member;
+import cloneproject.Instagram.entity.redis.EmailCode;
 import cloneproject.Instagram.exception.AccountDoesNotMatchException;
 import cloneproject.Instagram.exception.InvalidJwtException;
 import cloneproject.Instagram.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.exception.UploadProfileImageFailException;
 import cloneproject.Instagram.exception.UseridAlreadyExistException;
 import cloneproject.Instagram.repository.MemberRepository;
-import cloneproject.Instagram.util.ImageUtil;
+import cloneproject.Instagram.repository.specs.MemberSpecification;
 import cloneproject.Instagram.util.JwtUtil;
 import cloneproject.Instagram.util.S3Uploader;
 import cloneproject.Instagram.vo.Image;
-import cloneproject.Instagram.vo.ImageType;
 import cloneproject.Instagram.vo.RefreshToken;
+import cloneproject.Instagram.vo.SearchedMemberInfo;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,7 @@ public class MemberService {
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtUtil jwtUtil;
+    private final EmailCodeService emailCodeService;
 
     private final MemberRepository memberRepository;
     private final FollowService followService;
@@ -49,15 +51,37 @@ public class MemberService {
     
     private final S3Uploader s3Uploader;
 
+    @Transactional(readOnly = true)
+    public boolean checkUsername(String username){
+        if(memberRepository.existsByUsername(username)){
+            return false;
+        }
+        return true;
+    }
+
     @Transactional
-    public void register(RegisterRequest registerRequest){
-        if(memberRepository.findByUsername(registerRequest.getUsername()).isPresent()){
+    public boolean register(RegisterRequest registerRequest){
+        if(memberRepository.existsByUsername(registerRequest.getUsername())){
             throw new UseridAlreadyExistException();
         }
+        String username = registerRequest.getUsername();
+        EmailCode emailCode = emailCodeService.findByUsername(username);
+        if(emailCode == null || !emailCode.getCode().equals(registerRequest.getCode())){
+            return false;
+        }
+        emailCodeService.deleteEmailCode(emailCode);
         Member member = registerRequest.convert();
         String encryptedPassword = bCryptPasswordEncoder.encode(member.getPassword());
         member.setEncryptedPassword(encryptedPassword);
         memberRepository.save(member);
+        return true;
+    }
+
+    public void sendEmailConfirmation(String username, String email){
+        if(memberRepository.existsByUsername(username)){
+            throw new UseridAlreadyExistException();
+        }
+        emailCodeService.sendEmailConfirmationCode(username, email);
     }
 
     @Transactional
@@ -82,15 +106,13 @@ public class MemberService {
     }
 
     @Transactional
-    public JwtDto reisuue(ReissueRequest reissueRequest){
-        String accessTokenString = reissueRequest.getAccessToken();
-        String refreshTokenString = reissueRequest.getRefreshToken();
+    public JwtDto reisuue(String refreshTokenString){
         if(!jwtUtil.validateRefeshJwt(refreshTokenString)){
             throw new InvalidJwtException();
         }
         Authentication authentication;
         try{
-            authentication = jwtUtil.getAuthentication(accessTokenString);
+            authentication = jwtUtil.getAuthentication(refreshTokenString, false);
         } catch(JwtException e){
             throw new InvalidJwtException();
         }
@@ -112,11 +134,23 @@ public class MemberService {
     @Transactional(readOnly = true)
     public UserProfileResponse getUserProfile(String username){
         final Member member = memberRepository.findByUsername(username)
-                                        .orElseThrow(MemberDoesNotExistException::new);
+        .orElseThrow(MemberDoesNotExistException::new);
+        boolean isFollowing, isFollower;
+        try{
+            final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
+            isFollowing = followService.isFollowing(Long.valueOf(memberId), member.getId());
+            isFollower = followService.isFollowing(member.getId(), Long.valueOf(memberId));
+        }catch(Exception e){
+            isFollower = false;
+            isFollowing = false;
+        }
+
         return UserProfileResponse.builder()
                                 .memberUsername(member.getUsername())
                                 .memberName(member.getName())
                                 .memberImage(member.getImage())
+                                .isFollowing(isFollowing)
+                                .isFollower(isFollower)
                                 .memberFollowersCount(followService.getFollowersCount(username))
                                 .memberFollowingsCount(followService.getFollowingsCount(username))
                                 .memberIntroduce(member.getIntroduce())
@@ -127,12 +161,15 @@ public class MemberService {
     public MiniProfileResponse getMiniProfile(String username){
         final Member member = memberRepository.findByUsername(username)
                                         .orElseThrow(MemberDoesNotExistException::new);
+
         return MiniProfileResponse.builder()
                                 .memberUsername(member.getUsername())
                                 .memberImage(member.getImage())
                                 .memberName(member.getName())
                                 .memberWebsite(member.getWebsite())
                                 .memberPostCount(0) // TODO 추후에 수정
+                                .isFollowing(followService.isFollowing(username))
+                                .isFollower(followService.isFollower(username))
                                 .memberFollowersCount(followService.getFollowersCount(username))
                                 .memberFollowingsCount(followService.getFollowingsCount(username))
                                 .build();
@@ -199,6 +236,7 @@ public class MemberService {
                                 .build();
     }
 
+    // TODO 변경시 이메일 인증 로직은?
     public void editProfile(EditProfileRequest editProfileRequest){
         final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findById(Long.valueOf(memberId))
@@ -219,4 +257,20 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+    public SearchedMemberInfo convertMemberToSearchedMemberInfo(Member member){
+        return SearchedMemberInfo.builder()
+                                .username(member.getUsername())
+                                .name(member.getName())
+                                .image(member.getImage())
+                                .isFollwing(followService.isFollowing(member.getUsername()))
+                                .build();
+    }
+
+    public List<SearchedMemberInfo> searchMember(String text){
+        List<Member> memberList = memberRepository.findAll(MemberSpecification.containsTextInUsernameOrName(text));
+        List<SearchedMemberInfo> result = memberList.stream()
+                                                    .map(this::convertMemberToSearchedMemberInfo)
+                                                    .collect(Collectors.toList());
+        return result;
+    }
 }

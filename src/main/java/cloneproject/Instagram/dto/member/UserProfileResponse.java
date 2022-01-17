@@ -22,6 +22,12 @@ public class UserProfileResponse {
     @ApiModelProperty(value = "프로필사진")
     Image memberImage;
 
+    @ApiModelProperty(value = "팔로잉 여부", example = "true")
+    boolean isFollowing;
+
+    @ApiModelProperty(value = "팔로워 여부", example = "false")
+    boolean isFollower;
+
     @ApiModelProperty(value = "소개", example = "안녕하세요")
     String memberIntroduce;
 

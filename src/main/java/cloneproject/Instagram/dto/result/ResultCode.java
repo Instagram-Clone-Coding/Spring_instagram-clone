@@ -18,6 +18,11 @@ public enum ResultCode {
     GET_EDIT_PROFILE_SUCCESS(200, "M008", "회원 프로필 수정정보 조회"),
     EDIT_PROFILE_SUCCESS(200, "M009", "회원 프로필 수정 완료"),
     UPDATE_PASSWORD_SUCCESS(200, "M010", "회원 비밀번호 변경 완료"),
+    CHECK_USERNAME_GOOD(200, "M011", "사용가능한 username"),
+    CHECK_USERNAME_BAD(200, "M012", "사용불가능한 username"),
+    CONFIRM_EMAIL_FAIL(200, "M013", "이메일 인증을 완료할 수 없습니다. 인증코드를 다시확인 해주세요"),
+    SEND_CONFIRM_EMAIL_SUCCESS(200, "M014", "인증코드 이메일 전송 완료"),
+    SEARCH_MEMBER_SUCCESS(200, "M015", "회원 검색 완료"),
 
     //Follow
     FOLLOW_SUCCESS(200, "F001", "회원 팔로우 완료"),
