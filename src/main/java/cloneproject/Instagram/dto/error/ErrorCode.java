@@ -38,7 +38,10 @@ public enum ErrorCode {
     NOT_SUPPORTED_IMAGE_TYPE(400, "P003", "지원하지 않는 이미지 타입입니다."),
     POST_IMAGE_NOT_FOUND(400, "P004", "존재하지 않는 게시물 이미지입니다."),
     NO_POST_IMAGE_TAG(400, "P005", "게시물 이미지 태그는 필수입니다."),
-    INVALID_TAG_LOCATION(400, "P006", "게시물 이미지 태그 위치가 유효하지 않습니다."),
+    INVALID_POST_IMAGE_TAG(400, "P006", "게시물 이미지 태그가 유효하지 않습니다."),
+    INVALID_TAG_POSITION(400, "P007", "태그 좌표는 0 ~ 100 사이로 입력해주세요."),
+    INVALID_IMAGE_SEQUENCE(400, "P008", "이미지 순번이 유효하지 않습니다."),
+    INVALID_POST_IMAGE(400, "P009", "게시물 이미지는 필수입니다."),
 
     // FILE
     CANT_CONVERT_FILE(401, "FI001", "파일을 변환할수 없습니다");

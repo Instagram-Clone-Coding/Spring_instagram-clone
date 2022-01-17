@@ -4,19 +4,22 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import java.util.List;
+import lombok.Setter;
 
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PostImageTagRequest {
 
-    @ApiModelProperty(value = "게시물 이미지 PK", example = "3", required = true)
-    @NotNull(message = "게시물 이미지 PK는 필수입니다.")
+    @ApiModelProperty(value = "게시물 이미지 순번", example = "1", required = true)
     private Long id;
 
-    @NotEmpty(message = "게시물 이미지 태그는 필수입니다.")
-    private List<PostImageTagDTO> postImageTagDTOs;
+    @ApiModelProperty(value = "게시물 이미지 태그 x좌표", example = "50", required = true)
+    private Long tagX;
+
+    @ApiModelProperty(value = "게시물 이미지 태그 y좌표", example = "50", required = true)
+    private Long tagY;
+
+    @ApiModelProperty(value = "게시물 이미지 태그 사용자 아이디", example = "dlwlrma", required = true)
+    private String username;
 }
