@@ -1,5 +1,6 @@
 package cloneproject.Instagram.dto.member;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
@@ -35,18 +36,23 @@ public class RegisterRequest {
                 message = "비밀번호는 8자 이상, 최소 하나의 문자와 숫자가 필요합니다")
     @Length(max = 20, message = "비밀번호는 20문자 이하여야 합니다")
     private String password;
+    
+    @ApiModelProperty(value = "이메일", example = "aaa@gmail.com", required = true)
+    @NotBlank(message = "이메일을 입력해주세요")
+    @Email(message = "이메일의 형식이 맞지 않습니다")
+    String email;
 
-    @ApiModelProperty(value = "휴대폰 번호", example = "010-0000-0000", required = true)
-    @NotBlank(message = "휴대폰 번호를 입력해주세요")
-    @Pattern(regexp = "^\\d{3}-\\d{3,4}-\\d{4}$", message = "휴대폰 번호 양식이 맞지 않습니다")
-    private String phone;
+    @ApiModelProperty(value = "이메일 인증코드", example = "ABC123", required = true)
+    @NotBlank(message = "이메일 인증코드를 입력해주세요")
+    @Length(max = 6, min = 6, message = "인증코드는 6자리 입니다.")
+    String code;
     
     public Member convert(){
         return Member.builder()
                     .username(getUsername())
                     .name(getName())
                     .password(getPassword())
-                    .phone(getPhone())
+                    .email(getEmail())
                     .build();
     }    
 

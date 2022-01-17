@@ -12,7 +12,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -125,17 +124,17 @@ public class Member {
         this.image = Image.builder()
                 .imageName("base")
                 .imageType(ImageType.PNG)
-                .imageUrl("https://drive.google.com/file/d/1Gu0DcGCJNs4Vo0bz2U9U6v01d_VwKijs/view?usp=sharing")
+                .imageUrl("https://bluetifulc-spring-bucket.s3.ap-northeast-2.amazonaws.com/member/base-UUID_base.PNG")
                 .imageUUID("base-UUID")
                 .build();
     }
 
     @Builder
-    public Member(String username, String name, String password, String phone){
+    public Member(String username, String name, String password, String email){
         this.username = username;
         this.name = name;
         this.password = password;
-        this.phone = phone;
+        this.email = email;
         
         // 자동 초기화
         this.role = MemberRole.ROLE_USER;
@@ -143,7 +142,7 @@ public class Member {
         this.image = Image.builder()
                 .imageName("base")
                 .imageType(ImageType.PNG)
-                .imageUrl("https://drive.google.com/file/d/1Gu0DcGCJNs4Vo0bz2U9U6v01d_VwKijs/view?usp=sharing")
+                .imageUrl("https://bluetifulc-spring-bucket.s3.ap-northeast-2.amazonaws.com/member/base-UUID_base.PNG")
                 .imageUUID("base-UUID")
                 .build();
     }
