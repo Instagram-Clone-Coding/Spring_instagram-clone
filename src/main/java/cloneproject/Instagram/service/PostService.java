@@ -5,13 +5,16 @@ import cloneproject.Instagram.dto.post.PostDTO;
 import cloneproject.Instagram.dto.post.PostImageTagRequest;
 import cloneproject.Instagram.dto.post.PostResponse;
 import cloneproject.Instagram.entity.member.Member;
+import cloneproject.Instagram.entity.post.Bookmark;
 import cloneproject.Instagram.entity.post.Post;
 import cloneproject.Instagram.entity.post.PostImage;
+import cloneproject.Instagram.entity.post.PostLike;
 import cloneproject.Instagram.exception.*;
+import cloneproject.Instagram.repository.BookmarkRepository;
 import cloneproject.Instagram.repository.MemberRepository;
 import cloneproject.Instagram.repository.PostImageRepository;
-import cloneproject.Instagram.repository.PostRepository;
-import cloneproject.Instagram.repository.PostTagRepository;
+import cloneproject.Instagram.repository.PostLikeRepository;
+import cloneproject.Instagram.repository.post.PostRepository;
 import cloneproject.Instagram.util.S3Uploader;
 import cloneproject.Instagram.vo.Image;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +39,8 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final PostImageRepository postImageRepository;
-    private final PostTagRepository postTagRepository;
+    private final PostLikeRepository postLikeRepository;
+    private final BookmarkRepository bookmarkRepository;
     private final MemberRepository memberRepository;
     private final S3Uploader uploader;
 
@@ -128,5 +132,47 @@ public class PostService {
                     throw new PostImageTagInvalidException(INVALID_INPUT_VALUE, errors);
             }
         }
+    }
+
+    @Transactional
+    public boolean likePost(Long postId) {
+        final Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
+        final Long memberId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
+        if (postLikeRepository.findByMemberIdAndPostId(memberId, postId).isPresent())
+            throw new PostLikeAlreadyExistException();
+        postLikeRepository.save(new PostLike(member, post));
+        return true;
+    }
+
+    @Transactional
+    public boolean unlikePost(Long postId) {
+        final Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
+        final Long memberId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
+        final PostLike postLike = postLikeRepository.findByMemberIdAndPostId(memberId, postId).orElseThrow(PostLikeNotFoundException::new);
+        postLikeRepository.delete(postLike);
+        return true;
+    }
+
+    @Transactional
+    public boolean savePost(Long postId) {
+        final Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
+        final Long memberId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
+        if (bookmarkRepository.findByMemberIdAndPostId(memberId, postId).isPresent())
+            throw new BookmarkAlreadyExistException();
+        bookmarkRepository.save(new Bookmark(member, post));
+        return true;
+    }
+
+    @Transactional
+    public boolean unsavePost(Long postId) {
+        final Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
+        final Long memberId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
+        final Bookmark bookmark = bookmarkRepository.findByMemberIdAndPostId(memberId, postId).orElseThrow(BookmarkNotFoundException::new);
+        bookmarkRepository.delete(bookmark);
+        return true;
     }
 }
