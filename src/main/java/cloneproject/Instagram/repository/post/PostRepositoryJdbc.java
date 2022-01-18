@@ -1,4 +1,4 @@
-package cloneproject.Instagram.repository;
+package cloneproject.Instagram.repository.post;
 
 import cloneproject.Instagram.dto.post.PostImageTagRequest;
 import cloneproject.Instagram.vo.Image;

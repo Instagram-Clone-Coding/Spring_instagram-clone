@@ -1,4 +1,4 @@
-package cloneproject.Instagram.repository;
+package cloneproject.Instagram.repository.post;
 
 import cloneproject.Instagram.dto.comment.CommentDTO;
 import cloneproject.Instagram.dto.comment.QCommentDTO;
