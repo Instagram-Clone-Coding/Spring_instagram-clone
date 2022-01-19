@@ -1,5 +1,6 @@
 package cloneproject.Instagram.controller;
 
+import cloneproject.Instagram.dto.StatusResponse;
 import cloneproject.Instagram.dto.post.*;
 import cloneproject.Instagram.dto.result.ResultResponse;
 import cloneproject.Instagram.service.PostService;
@@ -73,5 +74,49 @@ public class PostController {
         final PostResponse response = postService.getPost(postId);
 
         return ResponseEntity.ok(ResultResponse.of(FIND_POST_SUCCESS, response));
+    }
+
+    @ApiOperation(value = "게시물 좋아요")
+    @ApiImplicitParam(name = "postId", value = "게시물 PK", example = "1", required = true)
+    @PostMapping("/posts/like")
+    public ResponseEntity<ResultResponse> likePost(
+            @Validated @NotNull(message = "좋아요할 게시물 PK는 필수입니다.") @RequestParam Long postId) {
+        final boolean status = postService.likePost(postId);
+        final StatusResponse response = new StatusResponse(status);
+
+        return ResponseEntity.ok(ResultResponse.of(LIKE_POST_SUCCESS, response));
+    }
+
+    @ApiOperation(value = "게시물 좋아요 취소")
+    @ApiImplicitParam(name = "postId", value = "게시물 PK", example = "1", required = true)
+    @DeleteMapping("/posts/like")
+    public ResponseEntity<ResultResponse> unlikePost(
+            @Validated @NotNull(message = "좋아요 취소할 게시물 PK는 필수입니다.") @RequestParam Long postId){
+        final boolean status = postService.unlikePost(postId);
+        final StatusResponse response = new StatusResponse(status);
+
+        return ResponseEntity.ok(ResultResponse.of(UNLIKE_POST_SUCCESS, response));
+    }
+
+    @ApiOperation(value = "게시물 저장")
+    @ApiImplicitParam(name = "postId", value = "게시물 PK", example = "1", required = true)
+    @PostMapping("/posts/save")
+    public ResponseEntity<ResultResponse> savePost(
+            @Validated @NotNull(message = "저장할 게시물 PK는 필수입니다.") @RequestParam Long postId) {
+        final boolean status = postService.savePost(postId);
+        final StatusResponse response = new StatusResponse(status);
+
+        return ResponseEntity.ok(ResultResponse.of(SAVE_POST_SUCCESS, response));
+    }
+
+    @ApiOperation(value = "게시물 저장 취소")
+    @ApiImplicitParam(name = "postId", value = "게시물 PK", example = "1", required = true)
+    @DeleteMapping("/posts/save")
+    public ResponseEntity<ResultResponse> unsavePost(
+            @Validated @NotNull(message = "저장 취소할 게시물 PK는 필수입니다.") @RequestParam Long postId) {
+        final boolean status = postService.unsavePost(postId);
+        final StatusResponse response = new StatusResponse(status);
+
+        return ResponseEntity.ok(ResultResponse.of(UNSAVE_POST_SUCCESS, response));
     }
 }
