@@ -12,6 +12,7 @@ import cloneproject.Instagram.vo.Image;
 import cloneproject.Instagram.vo.ImageType;
 
 public class ImageUtil {
+
     public static Image convertMultipartToImage(MultipartFile file){
         
         String originalName = file.getOriginalFilename();
@@ -29,4 +30,14 @@ public class ImageUtil {
 
         return image;
     }
+
+    public static Image getBaseImage(){
+        return Image.builder()
+                .imageName("base")
+                .imageType(ImageType.PNG)
+                .imageUrl("https://bluetifulc-spring-bucket.s3.ap-northeast-2.amazonaws.com/member/base-UUID_base.PNG")
+                .imageUUID("base-UUID")
+                .build();
+    }
+
 }

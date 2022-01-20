@@ -1,5 +1,8 @@
 package cloneproject.Instagram.dto.member;
 
+import java.util.List;
+
+import cloneproject.Instagram.dto.post.MemberPostDTO;
 import cloneproject.Instagram.vo.Image;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -31,8 +34,14 @@ public class MiniProfileResponse {
     @ApiModelProperty(value = "팔로워 여부", example = "false")
     boolean isFollower;
 
+    @ApiModelProperty(value = "차단 여부", example = "false")
+    boolean isBlocking;
+
+    @ApiModelProperty(value = "차단당한 여부", example = "false")
+    boolean isBlocked;
+
     @ApiModelProperty(value = "포스팅 수", example = "90")
-    Integer memberPostCount;
+    Integer memberPostsCount;
 
     @ApiModelProperty(value = "팔로워 수", example = "100")
     Integer memberFollowersCount;
@@ -40,5 +49,12 @@ public class MiniProfileResponse {
     @ApiModelProperty(value = "팔로잉 수", example = "100")
     Integer memberFollowingsCount;
 
+    @ApiModelProperty(value = "최근 게시물 3개")
+    List<MemberPostDTO> memberPosts;
+
+    public void blockedProfile(){
+        this.memberFollowersCount = 0;
+        this.memberFollowingsCount = 0;
+    }
     
 }

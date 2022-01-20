@@ -28,13 +28,27 @@ public class UserProfileResponse {
     @ApiModelProperty(value = "팔로워 여부", example = "false")
     boolean isFollower;
 
+    @ApiModelProperty(value = "차단 여부", example = "false")
+    boolean isBlocking;
+
+    @ApiModelProperty(value = "차단당한 여부", example = "false")
+    boolean isBlocked;
+
     @ApiModelProperty(value = "소개", example = "안녕하세요")
     String memberIntroduce;
+    
+    @ApiModelProperty(value = "포스팅 수", example = "90")
+    Integer memberPostsCount;
 
     @ApiModelProperty(value = "팔로워 수", example = "100")
     Integer memberFollowersCount;
 
     @ApiModelProperty(value = "팔로잉 수", example = "100")
     Integer memberFollowingsCount;
+
+    public void blockedProfile(){
+        this.memberFollowersCount = 0;
+        this.memberFollowingsCount = 0;
+    }
 
 }

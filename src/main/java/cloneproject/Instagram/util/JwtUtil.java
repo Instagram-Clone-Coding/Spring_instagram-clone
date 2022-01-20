@@ -64,6 +64,7 @@ public class JwtUtil {
         Date accessTokenExpiresIn = new Date(currentTime + ACCESS_TOKEN_EXPIRES);
         Date refreshTokenExpiresIn = new Date(currentTime + REFRESH_TOKEN_EXPIRES);
 
+        String accessTokenExpiresString = DateUtil.convertDateToString(accessTokenExpiresIn);
         String refreshTokenExpiresInString = DateUtil.convertDateToString(refreshTokenExpiresIn);
 
         String accessToken = Jwts.builder()
@@ -84,7 +85,8 @@ public class JwtUtil {
                 .type(BEARER_TYPE)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .accessTokenExpires(refreshTokenExpiresInString)
+                .accessTokenExpires(accessTokenExpiresString)
+                .refreshTokenExpires(refreshTokenExpiresInString)
                 .build();
     }
     

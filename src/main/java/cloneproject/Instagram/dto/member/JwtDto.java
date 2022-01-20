@@ -15,12 +15,20 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class JwtDto {
+
     @ApiModelProperty(value = "토큰 타입", example = "Bearer")
     private String type;
+
     @ApiModelProperty(value = "Access 토큰", example = "AAA.BBB.CCC")
     private String accessToken;
+
     @ApiModelProperty(value = "Refresh 토큰", example = "AAA.BBB.CCC")
     private String refreshToken;
-    @ApiModelProperty(value = "Access 토큰 만료시간", example = "2021-12-26 10:00")
+
+    @ApiModelProperty(value = "Access 토큰 만료시간", example = "2021-12-24 10:10")
     private String accessTokenExpires;
+
+    @ApiModelProperty(value = "Refresh 토큰 만료시간", example = "2021-12-31 10:00")
+    private String refreshTokenExpires;
+    
 }

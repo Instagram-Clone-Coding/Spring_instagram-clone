@@ -30,6 +30,15 @@ public enum ResultCode {
     GET_FOLLOWINGS_SUCCESS(200, "F003", "회원 팔로우 목록"),
     GET_FOLLOWERS_SUCCESS(200, "F004", "회원 팔로워 목록"),
 
+    //Block
+    BLOCK_SUCCESS(200, "B001", "회원 차단 완료"),
+    UNBLOCK_SUCCESS(200, "B002", "회원 차단해제 완료"),
+
+    // MemberPost
+    FIND_RECENT15_MEMBER_POSTS_SUCCESS(200, "MP001", "회원의 최근 게시물 15개 조회 성공"),
+    FIND_MEMBER_POSTS_SUCCESS(200, "MP002", "회원의 게시물 조회 성공"),
+
+
     // POST
     CREATE_POST_SUCCESS(200, "P001", "게시물 생성 성공"),
     UPLOAD_POST_IMAGES_SUCCESS(200, "P002", "게시물 이미지 업로드 성공"),
