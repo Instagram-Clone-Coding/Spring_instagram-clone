@@ -9,11 +9,6 @@ import io.swagger.annotations.ApiOperation;
 
 import java.util.List;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
-
-import org.hibernate.validator.constraints.Length;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -26,7 +21,6 @@ import cloneproject.Instagram.dto.member.JwtDto;
 import cloneproject.Instagram.dto.member.LoginRequest;
 import cloneproject.Instagram.dto.member.MiniProfileResponse;
 import cloneproject.Instagram.dto.member.RegisterRequest;
-import cloneproject.Instagram.dto.member.ReissueRequest;
 import cloneproject.Instagram.dto.member.UpdatePasswordRequest;
 import cloneproject.Instagram.dto.member.UserProfileResponse;
 import cloneproject.Instagram.dto.result.ResultCode;

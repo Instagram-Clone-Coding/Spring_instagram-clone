@@ -31,4 +31,8 @@ public class JwtDto {
     @ApiModelProperty(value = "Refresh 토큰 만료시간", example = "2021-12-31 10:00")
     private String refreshTokenExpires;
     
+    public void blindRefreshToken(){
+        this.refreshToken = "";
+    }
+
 }
