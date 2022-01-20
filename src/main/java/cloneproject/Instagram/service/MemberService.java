@@ -21,7 +21,7 @@ import cloneproject.Instagram.exception.UploadProfileImageFailException;
 import cloneproject.Instagram.exception.UseridAlreadyExistException;
 import cloneproject.Instagram.repository.FollowRepository;
 import cloneproject.Instagram.repository.MemberRepository;
-import cloneproject.Instagram.repository.PostRepository;
+import cloneproject.Instagram.repository.post.PostRepository;
 import cloneproject.Instagram.repository.specs.MemberSpecification;
 import cloneproject.Instagram.util.PostUtil;
 import cloneproject.Instagram.util.S3Uploader;

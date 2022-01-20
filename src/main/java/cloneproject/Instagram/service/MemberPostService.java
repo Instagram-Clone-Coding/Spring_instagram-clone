@@ -11,7 +11,7 @@ import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.entity.post.Post;
 import cloneproject.Instagram.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.repository.MemberRepository;
-import cloneproject.Instagram.repository.PostRepository;
+import cloneproject.Instagram.repository.post.PostRepository;
 import cloneproject.Instagram.util.PostUtil;
 import lombok.RequiredArgsConstructor;
 
