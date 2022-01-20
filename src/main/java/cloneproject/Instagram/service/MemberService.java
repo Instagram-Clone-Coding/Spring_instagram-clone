@@ -6,33 +6,27 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import cloneproject.Instagram.dto.member.*;
+import cloneproject.Instagram.dto.post.MemberPostDTO;
 import cloneproject.Instagram.entity.member.Gender;
 import cloneproject.Instagram.entity.member.Member;
-import cloneproject.Instagram.entity.redis.EmailCode;
-import cloneproject.Instagram.exception.AccountDoesNotMatchException;
-import cloneproject.Instagram.exception.InvalidJwtException;
+import cloneproject.Instagram.entity.post.Post;
 import cloneproject.Instagram.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.exception.UploadProfileImageFailException;
 import cloneproject.Instagram.exception.UseridAlreadyExistException;
+import cloneproject.Instagram.repository.FollowRepository;
 import cloneproject.Instagram.repository.MemberRepository;
+import cloneproject.Instagram.repository.post.PostRepository;
 import cloneproject.Instagram.repository.specs.MemberSpecification;
-import cloneproject.Instagram.util.JwtUtil;
+import cloneproject.Instagram.util.PostUtil;
 import cloneproject.Instagram.util.S3Uploader;
 import cloneproject.Instagram.vo.Image;
-import cloneproject.Instagram.vo.RefreshToken;
 import cloneproject.Instagram.vo.SearchedMemberInfo;
-import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,120 +35,53 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class MemberService {
 
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private final JwtUtil jwtUtil;
-    private final EmailCodeService emailCodeService;
 
     private final MemberRepository memberRepository;
+    private final FollowRepository followRepository;
     private final FollowService followService;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final BlockService blockService;
+    private final PostRepository postRepository;
     
     private final S3Uploader s3Uploader;
-
-    @Transactional(readOnly = true)
-    public boolean checkUsername(String username){
-        if(memberRepository.existsByUsername(username)){
-            return false;
-        }
-        return true;
-    }
-
-    @Transactional
-    public boolean register(RegisterRequest registerRequest){
-        if(memberRepository.existsByUsername(registerRequest.getUsername())){
-            throw new UseridAlreadyExistException();
-        }
-        String username = registerRequest.getUsername();
-        EmailCode emailCode = emailCodeService.findByUsername(username);
-        if(emailCode == null || !emailCode.getCode().equals(registerRequest.getCode())){
-            return false;
-        }
-        emailCodeService.deleteEmailCode(emailCode);
-        Member member = registerRequest.convert();
-        String encryptedPassword = bCryptPasswordEncoder.encode(member.getPassword());
-        member.setEncryptedPassword(encryptedPassword);
-        memberRepository.save(member);
-        return true;
-    }
-
-    public void sendEmailConfirmation(String username, String email){
-        if(memberRepository.existsByUsername(username)){
-            throw new UseridAlreadyExistException();
-        }
-        emailCodeService.sendEmailConfirmationCode(username, email);
-    }
-
-    @Transactional
-    public JwtDto login(LoginRequest loginRequest){
-        try{
-            UsernamePasswordAuthenticationToken authenticationToken = 
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
-            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-            JwtDto jwtDto = jwtUtil.generateTokenDto(authentication);
-            RefreshToken refreshToken = RefreshToken.builder()
-                                                .value(jwtDto.getRefreshToken())
-                                                .build();
-            Member member = memberRepository.findById(Long.valueOf(authentication.getName()))
-                                            .orElseThrow(MemberDoesNotExistException::new);
-            member.setRefreshToken(refreshToken);
-            memberRepository.save(member);
-            
-            return jwtDto;
-        }catch(BadCredentialsException e){
-            throw new AccountDoesNotMatchException();
-        }
-    }
-
-    @Transactional
-    public JwtDto reisuue(String refreshTokenString){
-        if(!jwtUtil.validateRefeshJwt(refreshTokenString)){
-            throw new InvalidJwtException();
-        }
-        Authentication authentication;
-        try{
-            authentication = jwtUtil.getAuthentication(refreshTokenString, false);
-        } catch(JwtException e){
-            throw new InvalidJwtException();
-        }
-        Member member = memberRepository.findById(Long.valueOf(authentication.getName()))
-                                        .orElseThrow(MemberDoesNotExistException::new);
-        RefreshToken refreshToken = member.getRefreshToken();
-        if(!refreshToken.getValue().equals(refreshTokenString)){
-            throw new InvalidJwtException();
-        }
-        
-        JwtDto jwtDto = jwtUtil.generateTokenDto(authentication);
-
-        refreshToken.updateTokenValue(jwtDto.getRefreshToken());
-        memberRepository.save(member);
-
-        return jwtDto;
-    }
 
     @Transactional(readOnly = true)
     public UserProfileResponse getUserProfile(String username){
         final Member member = memberRepository.findByUsername(username)
         .orElseThrow(MemberDoesNotExistException::new);
-        boolean isFollowing, isFollower;
+        boolean isFollowing, isFollower, isBlocking, isBlocked;
         try{
             final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
             isFollowing = followService.isFollowing(Long.valueOf(memberId), member.getId());
             isFollower = followService.isFollowing(member.getId(), Long.valueOf(memberId));
+            isBlocking = blockService.isBlocking(Long.valueOf(memberId), member.getId());
+            isBlocked = blockService.isBlocking(member.getId(), Long.valueOf(memberId));
         }catch(Exception e){
             isFollower = false;
             isFollowing = false;
+            isBlocking = false;
+            isBlocked = false;
         }
-
-        return UserProfileResponse.builder()
+        
+        UserProfileResponse result = UserProfileResponse.builder()
                                 .memberUsername(member.getUsername())
                                 .memberName(member.getName())
                                 .memberImage(member.getImage())
                                 .isFollowing(isFollowing)
                                 .isFollower(isFollower)
-                                .memberFollowersCount(followService.getFollowersCount(username))
-                                .memberFollowingsCount(followService.getFollowingsCount(username))
+                                .isBlocking(isBlocking)
+                                .isBlocked(isBlocked)
+                                .memberPostsCount(postRepository.countByMemberId(member.getId()))
+                                .memberFollowersCount(followRepository.countByFollowMemberId(member.getId()))
+                                .memberFollowingsCount(followRepository.countByMemberId(member.getId()))
                                 .memberIntroduce(member.getIntroduce())
                                 .build();
+        
+        if(isBlocked || isBlocking){
+            result.blockedProfile();
+        }
+
+        return result;
+
     }
 
     @Transactional(readOnly = true)
@@ -162,17 +89,34 @@ public class MemberService {
         final Member member = memberRepository.findByUsername(username)
                                         .orElseThrow(MemberDoesNotExistException::new);
 
-        return MiniProfileResponse.builder()
+        boolean isBlocked = blockService.isBlocked(username);
+        boolean isBlocking = blockService.isBlocking(username);
+        
+        List<Post> posts = postRepository.findTop3ByMemberIdOrderByUploadDateDesc(member.getId());
+        List<MemberPostDTO> postDTOs = posts.stream().map(PostUtil::convertPostToMemberPostDTO)
+                                                    .collect(Collectors.toList());
+
+        MiniProfileResponse result = MiniProfileResponse.builder()
                                 .memberUsername(member.getUsername())
                                 .memberImage(member.getImage())
                                 .memberName(member.getName())
                                 .memberWebsite(member.getWebsite())
-                                .memberPostCount(0) // TODO 추후에 수정
                                 .isFollowing(followService.isFollowing(username))
                                 .isFollower(followService.isFollower(username))
-                                .memberFollowersCount(followService.getFollowersCount(username))
-                                .memberFollowingsCount(followService.getFollowingsCount(username))
+                                .isBlocking(isBlocking)
+                                .isBlocked(isBlocked)
+                                .memberPostsCount(postRepository.countByMemberId(member.getId()))
+                                .memberFollowersCount(followRepository.countByFollowMemberId(member.getId()))
+                                .memberFollowingsCount(followRepository.countByMemberId(member.getId()))
+                                .memberPosts(postDTOs)
                                 .build();
+
+        if(isBlocked || isBlocking){
+            result.blockedProfile();
+        }
+
+        return result;
+            
     }
 
     @Transactional
@@ -203,21 +147,6 @@ public class MemberService {
         Image image = member.getImage();
         s3Uploader.deleteImage("member", image);
         member.deleteImage();
-        memberRepository.save(member);
-    }
-
-    @Transactional
-    public void updatePassword(UpdatePasswordRequest updatePasswordRequest){
-        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findById(Long.valueOf(memberId))
-                                    .orElseThrow(MemberDoesNotExistException::new);
-        boolean oldPasswordCorrect = bCryptPasswordEncoder.matches(updatePasswordRequest.getOldPassword()
-                                                                , member.getPassword());
-        if(!oldPasswordCorrect){
-            throw new AccountDoesNotMatchException();
-        }
-        String encryptedPassword = bCryptPasswordEncoder.encode(updatePasswordRequest.getNewPassword());
-        member.setEncryptedPassword(encryptedPassword);              
         memberRepository.save(member);
     }
 
