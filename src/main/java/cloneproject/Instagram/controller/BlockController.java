@@ -37,7 +37,7 @@ public class BlockController {
 
     @ApiOperation(value = "차단해제")
     @PostMapping("/{blockMemberUsername}/unblock")
-    @ApiImplicitParam(name = "blockMemberUsername", value = "언팔로우할 계정의 username", required = true, example = "dlwlrma")
+    @ApiImplicitParam(name = "blockMemberUsername", value = "차단해제할 계정의 username", required = true, example = "dlwlrma")
     public ResponseEntity<ResultResponse> unblock(@PathVariable("blockMemberUsername") @Validated
                                                 @NotBlank(message = "username이 필요합니다") String blockMemberUsername){
         boolean success = blockService.unblock(blockMemberUsername);
