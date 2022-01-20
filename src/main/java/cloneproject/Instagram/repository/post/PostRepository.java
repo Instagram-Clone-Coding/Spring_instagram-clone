@@ -1,4 +1,4 @@
-package cloneproject.Instagram.repository;
+package cloneproject.Instagram.repository.post;
 
 import cloneproject.Instagram.entity.post.Post;
 

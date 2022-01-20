@@ -48,6 +48,10 @@ public enum ErrorCode {
     INVALID_TAG_POSITION(400, "P007", "태그 좌표는 0 ~ 100 사이로 입력해주세요."),
     INVALID_IMAGE_SEQUENCE(400, "P008", "이미지 순번이 유효하지 않습니다."),
     INVALID_POST_IMAGE(400, "P009", "게시물 이미지는 필수입니다."),
+    POST_LIKE_NOT_FOUND(400, "P010", "해당 게시물에 좋아요를 누르지 않은 회원입니다."),
+    POST_LIKE_ALREADY_EXIST(400, "P011", "해당 게시물에 이미 좋아요를 누른 회원입니다."),
+    BOOKMARK_ALREADY_EXIST(400, "P012", "이미 해당 게시물을 저장하였습니다."),
+    BOOKMARK_NOT_FOUND(400, "P013", "아직 해당 게시물을 저장하지 않았습니다."),
 
     // FILE
     CANT_CONVERT_FILE(401, "FI001", "파일을 변환할수 없습니다");
