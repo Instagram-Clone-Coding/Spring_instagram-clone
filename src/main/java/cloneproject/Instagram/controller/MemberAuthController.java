@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import cloneproject.Instagram.dto.member.JwtDto;
+import cloneproject.Instagram.dto.member.JwtResponse;
 import cloneproject.Instagram.dto.member.LoginRequest;
 import cloneproject.Instagram.dto.member.RegisterRequest;
 import cloneproject.Instagram.dto.member.SendConfirmationEmailRequest;
@@ -92,17 +93,22 @@ public class MemberAuthController {
         JwtDto jwt = memberAuthService.login(loginRequest);
 
         Cookie cookie = new Cookie("refreshToken", jwt.getRefreshToken());
-        jwt.blindRefreshToken();
 
         cookie.setMaxAge(REFRESH_TOKEN_EXPIRES);
 
-        cookie.setSecure(true);
+        // cookie.setSecure(true); https 미지원
         cookie.setHttpOnly(true);
         cookie.setPath("/");
     
         response.addCookie(cookie);
+
+        JwtResponse jwtResponse = JwtResponse.builder()
+                                            .type(jwt.getType())
+                                            .accessToken(jwt.getAccessToken())
+                                            .build();
+
         
-        ResultResponse result = ResultResponse.of(ResultCode.LOGIN_SUCCESS, jwt);
+        ResultResponse result = ResultResponse.of(ResultCode.LOGIN_SUCCESS, jwtResponse);
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
@@ -116,17 +122,21 @@ public class MemberAuthController {
         JwtDto jwt = memberAuthService.reisuue(refreshCookie.getValue());
 
         Cookie cookie = new Cookie("refreshToken", jwt.getRefreshToken());
-        jwt.blindRefreshToken();
 
         cookie.setMaxAge(REFRESH_TOKEN_EXPIRES);
 
-        cookie.setSecure(true);
+        // cookie.setSecure(true); https 미지원
         cookie.setHttpOnly(true);
         cookie.setPath("/");
     
         response.addCookie(cookie);
 
-        ResultResponse result = ResultResponse.of(ResultCode.REISSUE_SUCCESS, jwt);
+        JwtResponse jwtResponse = JwtResponse.builder()
+                                            .type(jwt.getType())
+                                            .accessToken(jwt.getAccessToken())
+                                            .build();
+
+        ResultResponse result = ResultResponse.of(ResultCode.REISSUE_SUCCESS, jwtResponse);
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
     
