@@ -27,6 +27,12 @@ public enum ErrorCode {
     CANT_FOLLOW_MYSELF(401, "F003", "자기자신을 팔로우 할 수 없습니다"),
     CANT_UNFOLLOW_MYSELF(401, "F004", "자기자신을 언팔로우 할 수 없습니다"),
 
+    // BLOCK
+    ALREADY_BLOCK(400, "B001", "이미 차단한 유저입니다."),
+    CANT_UNBLOCK(400, "B002", "차단하지 않을 유저는 차단해제 할 수 없습니다"),
+    CANT_BLOCK_MYSELF(400, "B003", "자기자신을 차단 할 수 없습니다"),
+    CANT_UNBLOCK_MYSELF(400, "B004", "자기자신을 차단해제 할 수 없습니다"),
+
     // Jwt
     INVALID_JWT(401, "J001", "유효하지 않은 토큰입니다."),
     EXPIRED_ACCESS_TOKEN(401, "J002", "만료된 ACCESS 토큰입니다. REISSUE 해주십시오."),
