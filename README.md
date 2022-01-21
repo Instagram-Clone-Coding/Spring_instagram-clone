@@ -56,6 +56,8 @@
       <a href="#getting-started">Getting Started</a>
       <ul>
         <li><a href="#convention">Convention</a></li>
+        <li><a href="#database-convention">Database Convention</a></li>
+        <li><a href="#directory-structure">Directory Structure</a></li>
         <li><a href="#commit-convention">Commit Convention</a></li>
       </ul>
     </li>
@@ -342,42 +344,44 @@ Use the `BLANK_README.md` to get started.
       ```java
       public ResponseEntity<ResultResponse> createPost(@Validated @ModelAttribute PostUploadRequest request) { ... }
       ```
-8.  데이터베이스 명명 전략
-    - Common
-      1. 소문자 사용
-      2. 단어를 임의로 축약 x
-      3. 동사는 능동태 사용
-    - Table
-      1. 복수형 사용
-      2. 교차 테이블(Many to Many): 각 테이블 이름을 _(underscore)로 연결 -> Snake case
-        > ex) vip_members
-    - Column
-      1. PK, FK는 해당 테이블의 단수명_id으로 사용
-      2. boolean 유형은 _flag 접미어 사용
-      3. datetime 유형은 _date 접미어 사용
-9.  프로젝트 폴더 구조
+      
+###  Database Convention
+- Common
+  1. 소문자 사용
+  2. 단어를 임의로 축약 x
+  3. 동사는 능동태 사용
+- Table
+  1. 복수형 사용
+  2. 교차 테이블(Many to Many): 각 테이블 이름을 _(underscore)로 연결 -> Snake case
+    > ex) vip_members
+- Column
+  1. PK, FK는 해당 테이블의 단수명_id으로 사용
+  2. boolean 유형은 _flag 접미어 사용
+  3. datetime 유형은 _date 접미어 사용
+  
+###  Directory Structure
 
-    ```txt
-    /src.main.java.cloneproject.instagram
-    ├── /advice
-    │ ├── GlobalExceptionHandler.java
-    ├── /config
-    ├── /controller
-    ├── /dto
-    │ ├── /error
-    │ │ ├── ErrorCode.java
-    │ │ └── ErrorResponse.java
-    │ ├── /result
-    │ │ ├── ResultCode.java
-    │ │ └── ResultResponse.java
-    ├── /entity
-    ├── /exception
-    ├── /repository
-    ├── /service
-    ├── /util
-    ├── /vo
-    │ InstagramApplication.java
-    ```
+```txt
+/src.main.java.cloneproject.instagram
+├── /advice
+│ ├── GlobalExceptionHandler.java
+├── /config
+├── /controller
+├── /dto
+│ ├── /error
+│ │ ├── ErrorCode.java
+│ │ └── ErrorResponse.java
+│ ├── /result
+│ │ ├── ResultCode.java
+│ │ └── ResultResponse.java
+├── /entity
+├── /exception
+├── /repository
+├── /service
+├── /util
+├── /vo
+│ InstagramApplication.java
+```
 
 ### Commit Convention
 
