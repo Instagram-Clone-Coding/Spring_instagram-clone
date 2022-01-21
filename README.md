@@ -492,7 +492,7 @@ Use this space to list resources you find helpful and would like to give credit 
 [stars-url]: https://github.com/Instagram-Clone-Coding/Spring_instagram-clone/stargazers
 [issues-shield]: https://img.shields.io/github/issues/Instagram-Clone-Coding/Spring_instagram-clone.svg?style=for-the-badge
 [issues-url]: https://github.com/Instagram-Clone-Coding/Spring_instagram-clone/issues
-[license-shield]: https://img.shields.io/github/license/Instagram-Clone-Coding/Spring_instagram-clone.svg?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/Instagram-Clone-Coding/Spring_instagram-clone?style=for-the-badge
 [license-url]: https://github.com/Instagram-Clone-Coding/Spring_instagram-clone/blob/develop/LICENSE.txt
 [pr-shield]: https://img.shields.io/github/issues-pr/Instagram-Clone-Coding/Spring_instagram-clone?style=for-the-badge
 [pr-url]: https://github.com/Instagram-Clone-Coding/Spring_instagram-clone/pulls
