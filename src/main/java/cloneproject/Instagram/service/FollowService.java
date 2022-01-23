@@ -2,12 +2,12 @@ package cloneproject.Instagram.service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import cloneproject.Instagram.dto.member.FollowerDTO;
 import cloneproject.Instagram.entity.member.Block;
 import cloneproject.Instagram.entity.member.Follow;
 import cloneproject.Instagram.entity.member.Member;
@@ -19,12 +19,10 @@ import cloneproject.Instagram.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.repository.BlockRepository;
 import cloneproject.Instagram.repository.FollowRepository;
 import cloneproject.Instagram.repository.MemberRepository;
-import cloneproject.Instagram.vo.FollowerInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 
-// TODO N+1 문제
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -81,86 +79,25 @@ public class FollowService {
     }
 
     @Transactional(readOnly = true)
-    public List<FollowerInfo> getFollowings(String memberUsername){ 
-        final Member member = memberRepository.findByUsername(memberUsername)
-                                                .orElseThrow(MemberDoesNotExistException::new);
-        final List<Follow> follows = followRepository.findAllByMemberId(member.getId());
-        final List<Member> followingMembers = follows.stream()
-                                                .map(follow->follow.getFollowMember())
-                                                .collect(Collectors.toList());
-        final List<FollowerInfo> result = followingMembers.stream()
-                                                .map(this::convertMemberToFollowerInfo)
-                                                .collect(Collectors.toList());
-        return result;
-    }
-
-    @Transactional(readOnly = true)
-    public List<FollowerInfo> getFollowers(String memberUsername){ 
-        final Member member = memberRepository.findByUsername(memberUsername)
-                                                .orElseThrow(MemberDoesNotExistException::new);
-        final List<Follow> follows = followRepository.findAllByFollowMemberId(member.getId());
-        final List<Member> followingMembers = follows.stream()
-                                                .map(follow->follow.getMember())
-                                                .collect(Collectors.toList());
-        final List<FollowerInfo> result = followingMembers.stream()
-                                                .map(this::convertMemberToFollowerInfo)
-                                                .collect(Collectors.toList());
-        return result;
-    }
-
-    /**
-     * member_id(pk)만을 담은 팔로잉 목록
-     * 메인화면(포스트목록) 구현 때 사용
-     * @return List<Long>: 로그인한 사용자가 팔로우중인 멤버들의 id 목록
-     */
-    @Transactional(readOnly = true)
-    public List<Long> getOnlyFollowingsMemberId(){
+    public List<FollowerDTO> getFollowings(String memberUsername){ 
         final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-        final List<Follow> follows = followRepository.findAllByMemberId(Long.valueOf(memberId));
-        final List<Long> result = follows.stream()
-                                        .map(follow->follow.getFollowMember().getId())
-                                        .collect(Collectors.toList());
-        return result;
-
-    }
-
-    /**
-     * 프로필, 게시물에서 팔로우 여부를 판단하기 위한 메서드
-     * @param memberId 멤버ID (현재 로그인 중인 사용자의 PK)
-     * @param followMemberUsername 대상의 username
-     * @return boolean: 팔로우 여부
-     */
-    @Transactional(readOnly = true)
-    public boolean isFollowing(String followMemberUsername){
-        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-        final Member followMember = memberRepository.findByUsername(followMemberUsername)
+        
+        final Member toMember = memberRepository.findByUsername(memberUsername)
                                                 .orElseThrow(MemberDoesNotExistException::new);
-        return followRepository.existsByMemberIdAndFollowMemberId(Long.valueOf(memberId), followMember.getId());
-    }
 
-    @Transactional(readOnly = true)
-    public boolean isFollower(String followerMemberUsername){
-        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-        final Member followMember = memberRepository.findByUsername(followerMemberUsername)
-                                                .orElseThrow(MemberDoesNotExistException::new);
-        return followRepository.existsByMemberIdAndFollowMemberId(followMember.getId(), Long.valueOf(memberId));
-    }
-
-    @Transactional(readOnly = true)
-    public boolean isFollowing(Long memberId, Long followMemberId){
-        return followRepository.existsByMemberIdAndFollowMemberId(memberId, followMemberId);
-    }
-
-    private FollowerInfo convertMemberToFollowerInfo(Member member){
-        final FollowerInfo result = FollowerInfo.builder()
-                                    .username(member.getUsername())
-                                    .name(member.getName())
-                                    .image(member.getImage())
-                                    .isFollowing(isFollowing(member.getUsername()))
-                                    //TODO story 여부 판단함수
-                                    .hasStory(false)
-                                    .build();
+        final List<FollowerDTO> result = followRepository.getFollwings(Long.valueOf(memberId), toMember.getId());
         return result;
     }
 
+    @Transactional(readOnly = true)
+    public List<FollowerDTO> getFollowers(String memberUsername){ 
+        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        final Member toMember = memberRepository.findByUsername(memberUsername)
+                                                .orElseThrow(MemberDoesNotExistException::new);
+
+        final List<FollowerDTO> result = followRepository.getFollwers(Long.valueOf(memberId), toMember.getId());
+        return result;
+    }
+    
 }

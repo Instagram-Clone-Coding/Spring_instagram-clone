@@ -1,16 +1,16 @@
 package cloneproject.Instagram.dto.member;
 
+import com.querydsl.core.annotations.QueryProjection;
+
 import cloneproject.Instagram.vo.Image;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @ApiModel("유저 프로필 조회 응답 모델")
 @Getter
-@Builder
-@AllArgsConstructor
+@Setter
 public class UserProfileResponse {
     
     @ApiModelProperty(value = "유저네임", example = "dlwlrma")
@@ -18,6 +18,9 @@ public class UserProfileResponse {
 
     @ApiModelProperty(value = "이름", example = "이지금")
     String memberName;
+
+    @ApiModelProperty(value = "웹사이트", example = "http://localhost:8080")
+    String memberWebsite;
 
     @ApiModelProperty(value = "프로필사진")
     Image memberImage;
@@ -38,17 +41,50 @@ public class UserProfileResponse {
     String memberIntroduce;
     
     @ApiModelProperty(value = "포스팅 수", example = "90")
-    Integer memberPostsCount;
-
-    @ApiModelProperty(value = "팔로워 수", example = "100")
-    Integer memberFollowersCount;
+    Long memberPostsCount;
 
     @ApiModelProperty(value = "팔로잉 수", example = "100")
-    Integer memberFollowingsCount;
+    Long memberFollowingsCount;
 
-    public void blockedProfile(){
-        this.memberFollowersCount = 0;
-        this.memberFollowingsCount = 0;
+    @ApiModelProperty(value = "팔로워 수", example = "100")
+    Long memberFollowersCount;
+
+    @ApiModelProperty(value = "내 팔로잉 중 해당 유저를 팔로우 하는 사람", example = "dlwlrma")
+    String followingMemberFollow;
+
+    @ApiModelProperty(value = "본인 여부", example = "false")
+    boolean isMe;
+    
+
+    @QueryProjection
+    public UserProfileResponse(String username, String name, String website,Image image,boolean isFollowing, boolean isFollower, 
+                                boolean isBlocking, boolean isBlocked, String introduce, Long postsCount,
+                                Long followingsCount, Long followersCount, boolean isMe){
+        this.memberUsername = username;
+        this.memberName = name;
+        this.memberWebsite = website;
+        this.memberImage = image;
+        this.isFollowing = isFollowing;
+        this.isFollower = isFollower;
+        this.isBlocking = isBlocking;
+        this.isBlocked = isBlocked;
+        this.memberIntroduce = introduce;
+        this.memberPostsCount = postsCount;
+        this.memberFollowingsCount = followingsCount;
+        this.memberFollowersCount = followersCount;
+        this.isMe = isMe;
+
     }
 
+    public void checkBlock(){
+        if(this.isBlocked || this.isBlocking){
+            this.memberPostsCount = 0L;
+            this.memberFollowingsCount = 0L;
+            this.memberFollowersCount = 0L;
+        }
+    }
+
+    public void setFollowingMemberFollow(String followingMemberFollow){
+        this.followingMemberFollow = followingMemberFollow;
+    }
 }

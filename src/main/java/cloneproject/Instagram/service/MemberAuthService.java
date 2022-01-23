@@ -52,7 +52,7 @@ public class MemberAuthService {
         }
         String username = registerRequest.getUsername();
         EmailCode emailCode = emailCodeService.findByUsername(username);
-        if(emailCode == null || !emailCode.getCode().equals(registerRequest.getCode())){
+        if(emailCode == null || !emailCode.getCode().equals(registerRequest.getCode()) || !emailCode.getEmail().equals(registerRequest.getEmail())){
             return false;
         }
         emailCodeService.deleteEmailCode(emailCode);
