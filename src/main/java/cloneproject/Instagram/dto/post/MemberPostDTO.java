@@ -1,7 +1,8 @@
 package cloneproject.Instagram.dto.post;
 
 
-import cloneproject.Instagram.vo.Image;
+import com.querydsl.core.annotations.QueryProjection;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,17 +15,22 @@ import lombok.Setter;
 public class MemberPostDTO {
 
     private Long postId;
-    private Image postImage;
+    private String postImageUrl;
     private boolean hasManyPosts;
     private int postCommentsCount;
     private int postLikesCount;
 
     @Builder
-    public MemberPostDTO(Long postId, Image postImage, boolean hasManyPosts, int postCommentsCount, int postLikesCount) {
+    @QueryProjection
+    public MemberPostDTO(Long postId, boolean hasManyPosts, int postCommentsCount, int postLikesCount) {
         this.postId = postId;
-        this.postImage = postImage;
         this.hasManyPosts = hasManyPosts;
         this.postCommentsCount = postCommentsCount;
         this.postLikesCount = postLikesCount;
     }
+
+    public void setImageUrl(String imageUrl){
+        this.postImageUrl = imageUrl;
+    }
+    
 }

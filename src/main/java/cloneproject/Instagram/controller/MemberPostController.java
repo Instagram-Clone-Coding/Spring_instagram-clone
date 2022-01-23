@@ -1,5 +1,7 @@
 package cloneproject.Instagram.controller;
 
+import java.util.List;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -36,7 +38,7 @@ public class MemberPostController {
     @GetMapping("/accounts/{username}/posts/recent")
     public ResponseEntity<ResultResponse> getRecent10Posts(
             @PathVariable("username") @Validated @NotBlank(message="username은 필수입니다") String username) {
-        final Page<MemberPostDTO> postList = memberPostService.getRecent15PostDTOs(username);
+        final List<MemberPostDTO> postList = memberPostService.getRecent15PostDTOs(username);
 
         return ResponseEntity.ok(ResultResponse.of(ResultCode.FIND_RECENT15_MEMBER_POSTS_SUCCESS, postList));
     }
@@ -51,7 +53,7 @@ public class MemberPostController {
     public ResponseEntity<ResultResponse> getPostPage(
             @PathVariable("username") @Validated @NotBlank(message="username은 필수입니다") String username,
             @Validated @NotNull(message = "조회할 게시물 page는 필수입니다.") @RequestParam int page) {
-        final Page<MemberPostDTO> postPage = memberPostService.getPostDtoPage(username,3, page);
+        final Page<MemberPostDTO> postPage = memberPostService.getMemberPostDto(username,3, page);
 
         return ResponseEntity.ok(ResultResponse.of(ResultCode.FIND_MEMBER_POSTS_SUCCESS, postPage));
     }

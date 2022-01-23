@@ -74,35 +74,4 @@ public class BlockService {
         return true;
     }
 
-    @Transactional(readOnly = true)
-    public List<Long> getOnlyBlockMemberId(){
-        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-        final List<Block> blocks = blockRepository.findAllByMemberId(Long.valueOf(memberId));
-        final List<Long> result = blocks.stream()
-                                        .map(block->block.getBlockMember().getId())
-                                        .collect(Collectors.toList());
-        return result;
-
-    }
-
-    @Transactional(readOnly = true)
-    public boolean isBlocking(String blockMemberUsername){
-        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-        final Member blockMember = memberRepository.findByUsername(blockMemberUsername)
-                                                .orElseThrow(MemberDoesNotExistException::new);
-        return blockRepository.existsByMemberIdAndBlockMemberId(Long.valueOf(memberId), blockMember.getId());
-    }
-
-    @Transactional(readOnly = true)
-    public boolean isBlocked(String blockerMemberUsername){
-        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-        final Member blockMember = memberRepository.findByUsername(blockerMemberUsername)
-                                                .orElseThrow(MemberDoesNotExistException::new);
-        return blockRepository.existsByMemberIdAndBlockMemberId(blockMember.getId(), Long.valueOf(memberId));
-    }
-
-    @Transactional(readOnly = true)
-    public boolean isBlocking(Long memberId, Long blockMemberId){
-        return blockRepository.existsByMemberIdAndBlockMemberId(memberId, blockMemberId);
-    }
 }
