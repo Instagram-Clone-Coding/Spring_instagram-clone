@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import cloneproject.Instagram.entity.member.Follow;
 
-public interface FollowRepository extends JpaRepository<Follow, Long>{
+public interface FollowRepository extends JpaRepository<Follow, Long>, FollowRepositoryQuerydsl{
 
     public boolean existsByMemberIdAndFollowMemberId(Long memberId, Long followMemberId);
     public Optional<Follow> findByMemberIdAndFollowMemberId(Long memberId, Long followMemberId);

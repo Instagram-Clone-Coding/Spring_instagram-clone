@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import cloneproject.Instagram.dto.member.FollowerDTO;
 import cloneproject.Instagram.dto.result.ResultCode;
 import cloneproject.Instagram.dto.result.ResultResponse;
 import cloneproject.Instagram.service.FollowService;
-import cloneproject.Instagram.vo.FollowerInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -55,7 +55,7 @@ public class FollowController {
     @ApiImplicitParam(name = "memberUsername", value = "조회 할 계정의 username", required = true, example = "dlwlrma")
     public ResponseEntity<ResultResponse> getFollowings(@PathVariable("memberUsername") @Validated
                                                 @NotBlank(message = "username이 필요합니다") String memberUsername){
-        List<FollowerInfo> followings = followService.getFollowings(memberUsername);
+        List<FollowerDTO> followings = followService.getFollowings(memberUsername);
         
         ResultResponse result = ResultResponse.of(ResultCode.GET_FOLLOWINGS_SUCCESS, followings);
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
@@ -66,7 +66,7 @@ public class FollowController {
     @ApiImplicitParam(name = "memberUsername", value = "조회 할 계정의 username", required = true, example = "dlwlrma")
     public ResponseEntity<ResultResponse> getFollowers(@PathVariable("memberUsername") @Validated
                                                 @NotBlank(message = "username이 필요합니다") String memberUsername){
-        List<FollowerInfo> followings = followService.getFollowers(memberUsername);
+        List<FollowerDTO> followings = followService.getFollowers(memberUsername);
         
         ResultResponse result = ResultResponse.of(ResultCode.GET_FOLLOWERS_SUCCESS, followings);
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
