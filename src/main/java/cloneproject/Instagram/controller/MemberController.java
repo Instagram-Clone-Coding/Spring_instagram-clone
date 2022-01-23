@@ -17,12 +17,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import cloneproject.Instagram.dto.member.EditProfileRequest;
 import cloneproject.Instagram.dto.member.EditProfileResponse;
-import cloneproject.Instagram.dto.member.JwtDto;
-import cloneproject.Instagram.dto.member.LoginRequest;
+import cloneproject.Instagram.dto.member.MenuMemberDTO;
 import cloneproject.Instagram.dto.member.MiniProfileResponse;
-import cloneproject.Instagram.dto.member.RegisterRequest;
 import cloneproject.Instagram.dto.member.SearchedMemberDTO;
-import cloneproject.Instagram.dto.member.UpdatePasswordRequest;
 import cloneproject.Instagram.dto.member.UserProfileResponse;
 import cloneproject.Instagram.dto.result.ResultCode;
 import cloneproject.Instagram.dto.result.ResultResponse;
@@ -45,6 +42,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class MemberController {
     
     private final MemberService memberService;
+
+    @ApiOperation(value = "상단 메뉴 로그인한 유저 프로필 조회")
+    @GetMapping(value = "/menu/profile")
+    public ResponseEntity<ResultResponse> getMenuMemberProfile(){
+        MenuMemberDTO menuMemberProfile = memberService.getMenuMemberProfile();
+
+        ResultResponse result = ResultResponse.of(ResultCode.GET_MENU_MEMBER_SUCCESS, menuMemberProfile);
+        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
+    }
 
     @ApiOperation(value = "유저 프로필 조회")
     @ApiImplicitParams({

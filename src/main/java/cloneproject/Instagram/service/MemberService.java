@@ -34,6 +34,22 @@ public class MemberService {
     private final S3Uploader s3Uploader;
 
     @Transactional(readOnly = true)
+    public MenuMemberDTO getMenuMemberProfile(){
+        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        final Member member = memberRepository.findById(Long.valueOf(memberId))
+                                .orElseThrow(MemberDoesNotExistException::new);
+        
+        return MenuMemberDTO.builder()
+                            .memberId(member.getId())
+                            .memberUsername(member.getUsername())
+                            .memberName(member.getName())
+                            .memberImageUrl(member.getImage().getImageUrl())
+                            .build();
+        
+    }
+
+    @Transactional(readOnly = true)
     public UserProfileResponse getUserProfile(String username){
         final Long memberId = AuthUtil.getLoginedMemberIdOrNull();
         
