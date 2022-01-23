@@ -7,7 +7,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
+import cloneproject.Instagram.dto.member.FollowDTO;
 import cloneproject.Instagram.dto.member.MiniProfileResponse;
+import cloneproject.Instagram.dto.member.QFollowDTO;
 import cloneproject.Instagram.dto.member.QMiniProfileResponse;
 import cloneproject.Instagram.dto.member.QSearchedMemberDTO;
 import cloneproject.Instagram.dto.member.QUserProfileResponse;
@@ -37,6 +39,13 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl{
     @Override
     public UserProfileResponse getUserProfile(Long loginedUserId, String username){
         
+        final String followingMemberFollow = queryFactory
+                                                .select(follow.member.username)
+                                                .from(follow)
+                                                .where(follow.followMember.username.eq(username)
+                                                        .and(follow.member.id.ne(loginedUserId)))
+                                                .fetchFirst();
+
         final UserProfileResponse result = queryFactory.select(new QUserProfileResponse(
                                             member.username,
                                             member.name,
@@ -70,18 +79,27 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl{
                                             JPAExpressions
                                                 .select(follow.count())
                                                 .from(follow)
-                                                .where(follow.followMember.username.eq(username))
+                                                .where(follow.followMember.username.eq(username)),
+                                            member.id.eq(loginedUserId)
                                         ))
                                         .from(member)
                                         .where(member.username.eq(username))
                                         .fetchOne();
         result.checkBlock();
+        result.setFollowingMemberFollow(followingMemberFollow);
         return result;
     }
 
     @Override
     public MiniProfileResponse getMiniProfile(Long loginedUserId, String username){
         
+        final String followingMemberFollow = queryFactory
+                                                .select(follow.member.username)
+                                                .from(follow)
+                                                .where(follow.followMember.username.eq(username)
+                                                            .and(follow.member.id.ne(loginedUserId)))
+                                                .fetchFirst();
+
         final MiniProfileResponse result = queryFactory.select(new QMiniProfileResponse(
                                             member.username,
                                             member.name,
@@ -113,7 +131,8 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl{
                                             JPAExpressions
                                                 .select(follow.count())
                                                 .from(follow)
-                                                .where(follow.followMember.username.eq(username))
+                                                .where(follow.followMember.username.eq(username)),
+                                            member.id.eq(loginedUserId)
                                         ))
                                         .from(member)
                                         .where(member.username.eq(username))
@@ -138,8 +157,8 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl{
                                                     .fetch();
 
         result.setMemberPosts(postImageDTOs);
-
         result.checkBlock();
+        result.setFollowingMemberFollow(followingMemberFollow);
         return result;
 
     }
@@ -175,6 +194,23 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl{
                                                                                         .from(block)
                                                                                         .where(block.blockMember.id.eq(loginedUserId))))))
                                                 .fetch();
+        final List<String> resultUsernames = result.stream().map(SearchedMemberDTO::getUsername)
+                                            .collect(Collectors.toList());
+        final List<FollowDTO> follows = queryFactory
+                                            .select(new QFollowDTO(
+                                                follow.member.username,
+                                                follow.followMember.username
+                                            ))
+                                            .from(follow)
+                                            .where(follow.followMember.username.in(resultUsernames)
+                                                        .and(follow.member.id.ne(loginedUserId)))
+                                            .fetch();
+        if(follows.isEmpty()){
+            return result;
+        }
+        final Map<String, List<FollowDTO>> followsMap = follows.stream()
+                                            .collect(Collectors.groupingBy(FollowDTO::getFollowMemberUsername));
+        result.forEach(r -> r.setFollowingMemberFollow(followsMap.get(r.getUsername())));
 
         return result;
     }

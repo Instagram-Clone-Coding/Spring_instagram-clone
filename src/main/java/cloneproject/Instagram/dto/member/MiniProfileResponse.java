@@ -58,11 +58,17 @@ public class MiniProfileResponse {
 
     @ApiModelProperty(value = "최근 게시물 3개")
     List<MiniProfilePostDTO> memberPosts;
+
+    @ApiModelProperty(value = "내 팔로잉 중 해당 유저를 팔로우 하는 사람", example = "dlwlrma")
+    public String followingMemberFollow;
+
+    @ApiModelProperty(value = "본인 여부", example = "false")
+    boolean isMe;
     
     @QueryProjection
     public MiniProfileResponse(String username, String name, Image image,boolean isFollowing, boolean isFollower, 
                                 boolean isBlocking, boolean isBlocked, Long postsCount,
-                                Long followingsCount, Long followersCount){
+                                Long followingsCount, Long followersCount, boolean isMe){
         this.memberUsername = username;
         this.memberName = name;
         this.memberImage = image;
@@ -73,6 +79,7 @@ public class MiniProfileResponse {
         this.memberPostsCount = postsCount;
         this.memberFollowingsCount = followingsCount;
         this.memberFollowersCount = followersCount;
+        this.isMe = isMe;
 
     }
 
@@ -96,6 +103,10 @@ public class MiniProfileResponse {
             this.memberFollowingsCount = 0L;
             this.memberPosts = null;
         }
+    }
+
+    public void setFollowingMemberFollow(String followingMemberFollow){
+        this.followingMemberFollow = followingMemberFollow;
     }
     
 }

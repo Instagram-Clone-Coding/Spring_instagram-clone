@@ -49,10 +49,17 @@ public class UserProfileResponse {
     @ApiModelProperty(value = "팔로워 수", example = "100")
     Long memberFollowersCount;
 
+    @ApiModelProperty(value = "내 팔로잉 중 해당 유저를 팔로우 하는 사람", example = "dlwlrma")
+    String followingMemberFollow;
+
+    @ApiModelProperty(value = "본인 여부", example = "false")
+    boolean isMe;
+    
+
     @QueryProjection
     public UserProfileResponse(String username, String name, String website,Image image,boolean isFollowing, boolean isFollower, 
                                 boolean isBlocking, boolean isBlocked, String introduce, Long postsCount,
-                                Long followingsCount, Long followersCount){
+                                Long followingsCount, Long followersCount, boolean isMe){
         this.memberUsername = username;
         this.memberName = name;
         this.memberWebsite = website;
@@ -65,6 +72,7 @@ public class UserProfileResponse {
         this.memberPostsCount = postsCount;
         this.memberFollowingsCount = followingsCount;
         this.memberFollowersCount = followersCount;
+        this.isMe = isMe;
 
     }
 
@@ -76,4 +84,7 @@ public class UserProfileResponse {
         }
     }
 
+    public void setFollowingMemberFollow(String followingMemberFollow){
+        this.followingMemberFollow = followingMemberFollow;
+    }
 }
