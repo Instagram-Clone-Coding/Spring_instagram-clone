@@ -1,8 +1,15 @@
 package cloneproject.Instagram.dto.member;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.querydsl.core.annotations.QueryProjection;
 
 import cloneproject.Instagram.dto.post.MemberPostDTO;
+import cloneproject.Instagram.dto.post.MiniProfilePostDTO;
+import cloneproject.Instagram.dto.post.PostImageDTO;
 import cloneproject.Instagram.vo.Image;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -41,20 +48,54 @@ public class MiniProfileResponse {
     boolean isBlocked;
 
     @ApiModelProperty(value = "포스팅 수", example = "90")
-    Integer memberPostsCount;
+    Long memberPostsCount;
 
     @ApiModelProperty(value = "팔로워 수", example = "100")
-    Integer memberFollowersCount;
+    Long memberFollowersCount;
 
     @ApiModelProperty(value = "팔로잉 수", example = "100")
-    Integer memberFollowingsCount;
+    Long memberFollowingsCount;
 
     @ApiModelProperty(value = "최근 게시물 3개")
-    List<MemberPostDTO> memberPosts;
+    List<MiniProfilePostDTO> memberPosts;
+    
+    @QueryProjection
+    public MiniProfileResponse(String username, String name, Image image,boolean isFollowing, boolean isFollower, 
+                                boolean isBlocking, boolean isBlocked, Long postsCount,
+                                Long followingsCount, Long followersCount){
+        this.memberUsername = username;
+        this.memberName = name;
+        this.memberImage = image;
+        this.isFollowing = isFollowing;
+        this.isFollower = isFollower;
+        this.isBlocking = isBlocking;
+        this.isBlocked = isBlocked;
+        this.memberPostsCount = postsCount;
+        this.memberFollowingsCount = followingsCount;
+        this.memberFollowersCount = followersCount;
 
-    public void blockedProfile(){
-        this.memberFollowersCount = 0;
-        this.memberFollowingsCount = 0;
+    }
+
+    public void setMemberPosts(List<PostImageDTO> postImageDTOs){
+        final Map<Long, List<PostImageDTO>> postDTOMap = postImageDTOs.stream()
+                .collect(Collectors.groupingBy(PostImageDTO::getPostId));
+        List<MiniProfilePostDTO> results = new ArrayList<MiniProfilePostDTO>();
+        postDTOMap.forEach((id, p) -> results.add(
+            MiniProfilePostDTO.builder()
+                        .postId(id)
+                        .postImageUrl(p.get(0).getPostImageUrl())
+                        .build()
+        ));
+        this.memberPosts = results;
+    }
+
+    public void checkBlock(){
+        if(this.isBlocked || this.isBlocking){
+            this.memberPostsCount = 0L;
+            this.memberFollowersCount = 0L;
+            this.memberFollowingsCount = 0L;
+            this.memberPosts = null;
+        }
     }
     
 }

@@ -21,12 +21,12 @@ import cloneproject.Instagram.dto.member.JwtDto;
 import cloneproject.Instagram.dto.member.LoginRequest;
 import cloneproject.Instagram.dto.member.MiniProfileResponse;
 import cloneproject.Instagram.dto.member.RegisterRequest;
+import cloneproject.Instagram.dto.member.SearchedMemberDTO;
 import cloneproject.Instagram.dto.member.UpdatePasswordRequest;
 import cloneproject.Instagram.dto.member.UserProfileResponse;
 import cloneproject.Instagram.dto.result.ResultCode;
 import cloneproject.Instagram.dto.result.ResultResponse;
 import cloneproject.Instagram.service.MemberService;
-import cloneproject.Instagram.vo.SearchedMemberInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -111,7 +111,7 @@ public class MemberController {
     @ApiImplicitParam(name = "text", value = "검색내용", required = true, example = "dlwl")
     @PostMapping(value = "/search")
     public ResponseEntity<ResultResponse> searchMember(@RequestParam String text) {
-        List<SearchedMemberInfo> memberInfos = memberService.searchMember(text);
+        List<SearchedMemberDTO> memberInfos = memberService.searchMember(text);
 
         ResultResponse result = ResultResponse.of(ResultCode.SEARCH_MEMBER_SUCCESS, memberInfos);
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
