@@ -56,17 +56,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
                         JPAExpressions
                                 .selectFrom(postLike)
                                 .where(postLike.post.eq(post).and(postLike.member.eq(member)))
-                                .exists(),
-                        JPAExpressions
-                                .select(postLike.member.username)
-                                .from(postLike)
-                                .where(postLike.post.eq(post)
-                                        .and(postLike.member
-                                                .in(JPAExpressions
-                                                        .select(follow.followMember)
-                                                        .from(follow)
-                                                        .where(follow.member.eq(member)))))
-                                .limit(1)
+                                .exists()
                 ))
                 .from(post)
                 .join(QMember.member)
@@ -85,6 +75,23 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
         final List<Long> postIds = postDTOs.stream()
                 .map(PostDTO::getPostId)
                 .collect(Collectors.toList());
+
+        final List<PostLikeDTO> postLikeDTOs = queryFactory
+                .select(new QPostLikeDTO(
+                        postLike.post.id,
+                        postLike.member.username
+                ))
+                .from(postLike)
+                .where(postLike.post.id.in(postIds)
+                        .and(postLike.member.in(
+                                JPAExpressions
+                                        .select(follow.followMember)
+                                        .from(follow)
+                                        .where(follow.member.eq(member))
+                        ))).fetch();
+        final Map<Long, List<PostLikeDTO>> postLikeDTOMap = postLikeDTOs.stream()
+                .collect(Collectors.groupingBy(PostLikeDTO::getPostId));
+        postDTOs.forEach(p -> p.setFollowingMemberUsernameLikedPost(postLikeDTOMap.containsKey(p.getPostId()) ? postLikeDTOMap.get(p.getPostId()).get(0).getUsername() : ""));
 
         final List<PostImageDTO> postImageDTOs = queryFactory
                 .select(new QPostImageDTO(
@@ -140,17 +147,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
                         JPAExpressions
                                 .selectFrom(postLike)
                                 .where(postLike.post.eq(post).and(postLike.member.id.eq(memberId)))
-                                .exists(),
-                        JPAExpressions
-                                .select(postLike.member.username)
-                                .from(postLike)
-                                .where(postLike.post.eq(post)
-                                        .and(postLike.member
-                                                .in(JPAExpressions
-                                                        .select(follow.followMember)
-                                                        .from(follow)
-                                                        .where(follow.member.id.eq(memberId)))))
-                                .limit(1)
+                                .exists()
                 ))
                 .from(post)
                 .join(post.member, QMember.member)
@@ -167,6 +164,23 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
         final List<Long> postIds = postDTOs.stream()
                 .map(PostDTO::getPostId)
                 .collect(Collectors.toList());
+
+        final List<PostLikeDTO> postLikeDTOs = queryFactory
+                .select(new QPostLikeDTO(
+                        postLike.post.id,
+                        postLike.member.username
+                ))
+                .from(postLike)
+                .where(postLike.post.id.in(postIds)
+                        .and(postLike.member.in(
+                                JPAExpressions
+                                        .select(follow.followMember)
+                                        .from(follow)
+                                        .where(follow.member.id.eq(memberId))
+                        ))).fetch();
+        final Map<Long, List<PostLikeDTO>> postLikeDTOMap = postLikeDTOs.stream()
+                .collect(Collectors.groupingBy(PostLikeDTO::getPostId));
+        postDTOs.forEach(p -> p.setFollowingMemberUsernameLikedPost(postLikeDTOMap.containsKey(p.getPostId()) ? postLikeDTOMap.get(p.getPostId()).get(0).getUsername() : ""));
 
         final List<PostImageDTO> postImageDTOs = queryFactory
                 .select(new QPostImageDTO(
@@ -221,17 +235,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
                         JPAExpressions
                                 .selectFrom(postLike)
                                 .where(postLike.post.eq(post).and(postLike.member.id.eq(memberId)))
-                                .exists(),
-                        JPAExpressions
-                                .select(postLike.member.username)
-                                .from(postLike)
-                                .where(postLike.post.eq(post)
-                                        .and(postLike.member
-                                                .in(JPAExpressions
-                                                        .select(follow.followMember)
-                                                        .from(follow)
-                                                        .where(follow.member.id.eq(memberId)))))
-                                .limit(1)
+                                .exists()
                 ))
                 .from(post)
                 .where(post.id.eq(postId))
@@ -239,6 +243,21 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 
         if (response.isEmpty())
             return Optional.empty();
+
+        final List<PostLikeDTO> postLikeDTOs = queryFactory
+                .select(new QPostLikeDTO(
+                        postLike.post.id,
+                        postLike.member.username
+                ))
+                .from(postLike)
+                .where(postLike.post.id.eq(postId)
+                        .and(postLike.member.in(
+                                JPAExpressions
+                                        .select(follow.followMember)
+                                        .from(follow)
+                                        .where(follow.member.id.eq(memberId))
+                        ))).fetch();
+        response.get().setFollowingMemberUsernameLikedPost(postLikeDTOs.isEmpty() ? "" : postLikeDTOs.get(0).getUsername());
 
         final List<PostImageDTO> postImageDTOs = queryFactory
                 .select(new QPostImageDTO(
