@@ -31,7 +31,7 @@ public class PostResponse {
     private List<CommentDTO> commentDTOs = new ArrayList<>();
 
     @QueryProjection
-    public PostResponse(Long postId, String postContent, LocalDateTime postUploadDate, String memberUsername, String memberNickname, String memberImageUrl, int postLikesCount, boolean postBookmarkFlag, boolean postLikeFlag, String followingMemberUsernameLikedPost) {
+    public PostResponse(Long postId, String postContent, LocalDateTime postUploadDate, String memberUsername, String memberNickname, String memberImageUrl, int postLikesCount, boolean postBookmarkFlag, boolean postLikeFlag) {
         this.postId = postId;
         this.postContent = postContent;
         this.postUploadDate = postUploadDate;
@@ -41,6 +41,5 @@ public class PostResponse {
         this.postLikesCount = postLikesCount;
         this.postBookmarkFlag = postBookmarkFlag;
         this.postLikeFlag = postLikeFlag;
-        this.followingMemberUsernameLikedPost = followingMemberUsernameLikedPost;
     }
 }
