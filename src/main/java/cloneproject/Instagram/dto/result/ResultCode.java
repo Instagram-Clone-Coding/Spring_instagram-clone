@@ -24,6 +24,9 @@ public enum ResultCode {
     SEND_CONFIRM_EMAIL_SUCCESS(200, "M014", "인증코드 이메일 전송 완료"),
     SEARCH_MEMBER_SUCCESS(200, "M015", "회원 검색 완료"),
     GET_MENU_MEMBER_SUCCESS(200, "M016", "상단 메뉴 프로필 조회 완료"),
+    
+    // Alarm
+    GET_ALARMS_SUCCESS(200, "A001", "알림 조회 완료"),
 
     //Follow
     FOLLOW_SUCCESS(200, "F001", "회원 팔로우 완료"),

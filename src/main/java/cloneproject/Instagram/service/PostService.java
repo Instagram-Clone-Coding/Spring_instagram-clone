@@ -1,5 +1,6 @@
 package cloneproject.Instagram.service;
 
+import cloneproject.Instagram.dto.alarm.AlarmType;
 import cloneproject.Instagram.dto.error.ErrorResponse.FieldError;
 import cloneproject.Instagram.dto.post.PostDTO;
 import cloneproject.Instagram.dto.post.PostImageTagRequest;
@@ -43,6 +44,7 @@ public class PostService {
     private final BookmarkRepository bookmarkRepository;
     private final MemberRepository memberRepository;
     private final S3Uploader uploader;
+    private final AlarmService alarmService;
 
     public Page<PostDTO> getPostDtoPage(int size, int page) {
         page = (page == 0 ? 0 : page - 1) + 10;
@@ -105,6 +107,11 @@ public class PostService {
             postImageTag.setId(postImageIds.get(idx - 1));
         }
 
+        List<String> taggedMemberUsernames = postImageTags.stream().map(PostImageTagRequest::getUsername).collect(Collectors.toList());
+        List<Member> taggedMembers = memberRepository.findAllByUsernames(taggedMemberUsernames);
+        for(Member taggedMember: taggedMembers){
+            alarmService.alert(AlarmType.MEMBER_TAGGED_ALARM, taggedMember, post.getId());
+        }
         postRepository.savePostTags(postImageTags);
 
         return post.getId();
@@ -142,6 +149,7 @@ public class PostService {
         if (postLikeRepository.findByMemberIdAndPostId(memberId, postId).isPresent())
             throw new PostLikeAlreadyExistException();
         postLikeRepository.save(new PostLike(member, post));
+        alarmService.alert(AlarmType.POST_LIKES_ALARM, post.getMember(), post.getId());
         return true;
     }
 

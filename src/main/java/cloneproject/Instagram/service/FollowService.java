@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import cloneproject.Instagram.dto.alarm.AlarmType;
 import cloneproject.Instagram.dto.member.FollowerDTO;
 import cloneproject.Instagram.entity.member.Block;
 import cloneproject.Instagram.entity.member.Follow;
@@ -31,6 +32,7 @@ public class FollowService {
     private final FollowRepository followRepository;
     private final MemberRepository memberRepository;
     private final BlockRepository blockRepository;
+    private final AlarmService alarmService;
 
     @Transactional
     public boolean follow(String followMemberUsername){
@@ -60,6 +62,9 @@ public class FollowService {
 
         Follow follow = new Follow(member, followMember);
         followRepository.save(follow);
+
+        alarmService.alert(AlarmType.MEMBER_FOLLOW_ALARM, followMember, follow.getId());
+
         return true;
         
     }
