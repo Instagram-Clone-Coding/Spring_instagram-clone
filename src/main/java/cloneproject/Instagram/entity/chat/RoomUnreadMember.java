@@ -5,22 +5,18 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Getter
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "join_rooms")
-public class JoinRoom {
+@Table(name = "room_unread_members")
+public class RoomUnreadMember {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "join_room_id")
+    @Column(name = "room_unread_member_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,12 +27,8 @@ public class JoinRoom {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @CreatedDate
-    @Column(name = "join_room_created_date")
-    private LocalDateTime createdDate;
-
     @Builder
-    public JoinRoom(Room room, Member member) {
+    public RoomUnreadMember(Room room, Member member) {
         this.room = room;
         this.member = member;
     }

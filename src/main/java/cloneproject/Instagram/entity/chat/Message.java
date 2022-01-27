@@ -23,13 +23,13 @@ public class Message {
     @Column(name = "message_id")
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "join_room_id")
-    private JoinRoom joinRoom;
+    private Room room;
 
     @Lob
     @Column(name = "message_content")
@@ -43,9 +43,9 @@ public class Message {
     private MessageType type;
 
     @Builder
-    public Message(Member member, JoinRoom joinRoom, String content, MessageType type) {
+    public Message(Member member, Room room, String content, MessageType type) {
         this.member = member;
-        this.joinRoom = joinRoom;
+        this.room = room;
         this.content = content;
         this.type = type;
     }
