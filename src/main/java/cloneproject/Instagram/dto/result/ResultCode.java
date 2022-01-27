@@ -52,6 +52,12 @@ public enum ResultCode {
     UNLIKE_POST_SUCCESS(200, "P009", "게시물 좋아요 취소 성공"),
     SAVE_POST_SUCCESS(200, "P010", "게시물 저장 성공"),
     UNSAVE_POST_SUCCESS(200, "P011", "게시물 저장 취소 성공"),
+
+    // CHAT
+    CREATE_CHAT_ROOM_SUCCESS(200, "C001", "채팅방 생성 성공"),
+    INQUIRE_CHAT_ROOM_SUCCESS(200, "C002", "채팅방 조회 성공"),
+    DELETE_JOIN_ROOM_SUCCESS(200, "C003", "참여 중인 채팅방 삭제 성공"),
+    GET_JOIN_ROOMS_SUCCESS(200, "C004", "채팅방 목록 조회 성공"),
     ;
 
     private int status;
