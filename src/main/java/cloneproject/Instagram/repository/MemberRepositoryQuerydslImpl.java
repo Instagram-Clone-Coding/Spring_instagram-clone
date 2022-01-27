@@ -19,6 +19,7 @@ import cloneproject.Instagram.dto.post.MemberPostDTO;
 import cloneproject.Instagram.dto.post.PostImageDTO;
 import cloneproject.Instagram.dto.post.QMemberPostDTO;
 import cloneproject.Instagram.dto.post.QPostImageDTO;
+import cloneproject.Instagram.entity.member.Member;
 import lombok.RequiredArgsConstructor;
 
 import static cloneproject.Instagram.entity.member.QFollow.follow;
@@ -212,6 +213,15 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl{
                                             .collect(Collectors.groupingBy(FollowDTO::getFollowMemberUsername));
         result.forEach(r -> r.setFollowingMemberFollow(followsMap.get(r.getUsername())));
 
+        return result;
+    }
+
+    @Override
+    public List<Member> findAllByUsernames(List<String> usernames){
+        List<Member> result = queryFactory
+                                .selectFrom(member)
+                                .where(member.username.in(usernames))
+                                .fetch();
         return result;
     }
 

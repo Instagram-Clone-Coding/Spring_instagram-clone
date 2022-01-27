@@ -26,7 +26,7 @@ public enum ResultCode {
     GET_MENU_MEMBER_SUCCESS(200, "M016", "상단 메뉴 프로필 조회 완료"),
     
     // Alarm
-    GET_ALARMS_SUCCESS(200, "A016", "알림 조회 완료"),
+    GET_ALARMS_SUCCESS(200, "A001", "알림 조회 완료"),
 
     //Follow
     FOLLOW_SUCCESS(200, "F001", "회원 팔로우 완료"),

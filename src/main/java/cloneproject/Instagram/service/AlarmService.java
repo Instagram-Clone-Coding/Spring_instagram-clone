@@ -29,6 +29,7 @@ public class AlarmService {
         List<AlarmDTO> result = alarmRepository.getAlarms(Long.valueOf(memberId));
         // alarmRepository.deleteAllByTargetId(Long.valueOf(memberId));
         Collections.sort(result);
+        Collections.reverse(result);
         return result;
     }
 

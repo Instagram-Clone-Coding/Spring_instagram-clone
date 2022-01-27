@@ -105,12 +105,13 @@ public class PostService {
             if (idx != postImageTag.getId())
                 idx = postImageTag.getId().intValue();
             postImageTag.setId(postImageIds.get(idx - 1));
-        
-            Member taggedMember = memberRepository.findByUsername(postImageTag.getUsername())
-                                        .orElseThrow(MemberDoesNotExistException::new);
-            alarmService.alert(AlarmType.MEMBER_TAGGED_ALARM, taggedMember, post.getId());
         }
 
+        List<String> taggedMemberUsernames = postImageTags.stream().map(PostImageTagRequest::getUsername).collect(Collectors.toList());
+        List<Member> taggedMembers = memberRepository.findAllByUsernames(taggedMemberUsernames);
+        for(Member taggedMember: taggedMembers){
+            alarmService.alert(AlarmType.MEMBER_TAGGED_ALARM, taggedMember, post.getId());
+        }
         postRepository.savePostTags(postImageTags);
 
         return post.getId();
