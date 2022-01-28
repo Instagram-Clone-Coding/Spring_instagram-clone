@@ -18,7 +18,5 @@ public interface MemberRepositoryQuerydsl {
     MiniProfileResponse getMiniProfile(Long loginedUserId, String username);
     List<SearchedMemberDTO> searchMember(Long loginedUserId, String text);
     List<Member> findAllByUsernames(List<String> usernames);
-    List<MemberPostDTO> getRecent15PostDTOs(Long loginedUserId, String username);
-    Page<MemberPostDTO> getMemberPostDto(Long loginedUserId, String username, Pageable pageable);
 
 }

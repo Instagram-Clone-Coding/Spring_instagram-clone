@@ -3,10 +3,6 @@ package cloneproject.Instagram.repository;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-
 import cloneproject.Instagram.dto.member.FollowDTO;
 import cloneproject.Instagram.dto.member.MiniProfileResponse;
 import cloneproject.Instagram.dto.member.QFollowDTO;
@@ -15,9 +11,7 @@ import cloneproject.Instagram.dto.member.QSearchedMemberDTO;
 import cloneproject.Instagram.dto.member.QUserProfileResponse;
 import cloneproject.Instagram.dto.member.SearchedMemberDTO;
 import cloneproject.Instagram.dto.member.UserProfileResponse;
-import cloneproject.Instagram.dto.post.MemberPostDTO;
 import cloneproject.Instagram.dto.post.PostImageDTO;
-import cloneproject.Instagram.dto.post.QMemberPostDTO;
 import cloneproject.Instagram.dto.post.QPostImageDTO;
 import cloneproject.Instagram.entity.member.Member;
 import lombok.RequiredArgsConstructor;
@@ -223,81 +217,6 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl{
                                 .where(member.username.in(usernames))
                                 .fetch();
         return result;
-    }
-
-    @Override
-    public List<MemberPostDTO> getRecent15PostDTOs(Long loginedUserId, String username){
-        final List<MemberPostDTO> posts = queryFactory
-                                            .select(new QMemberPostDTO(
-                                                post.id, 
-                                                post.postImages.size().gt(1), 
-                                                post.comments.size(), 
-                                                post.postLikes.size()))
-                                            .from(post, member)
-                                            .where(post.member.username.eq(username))
-                                            .limit(15)
-                                            .orderBy(post.id.desc())
-                                            .distinct()
-                                            .fetch();
-        
-        final List<Long> postIds = posts.stream()
-                                    .map(MemberPostDTO::getPostId)
-                                    .collect(Collectors.toList());
-
-        final List<PostImageDTO> postImageDTOs = queryFactory
-                                    .select(new QPostImageDTO(
-                                            postImage.post.id,
-                                            postImage.id,
-                                            postImage.image.imageUrl
-                                    ))
-                                    .from(postImage)
-                                    .where(postImage.post.id.in(postIds))
-                                    .fetch();
-
-        final Map<Long, List<PostImageDTO>> postImageDTOMap = postImageDTOs.stream()
-                                                                .collect(Collectors.groupingBy(PostImageDTO::getPostId));
-                                        
-        posts.forEach(p->p.setImageUrl(postImageDTOMap.get(p.getPostId()).get(0).getPostImageUrl()));
-        return posts;
-    }
-    
-    @Override
-    public Page<MemberPostDTO> getMemberPostDto(Long loginedUserId, String username, Pageable pageable){
-        final List<MemberPostDTO> posts = queryFactory
-                                            .select(new QMemberPostDTO(
-                                                post.id, 
-                                                post.postImages.size().gt(1), 
-                                                post.comments.size(), 
-                                                post.postLikes.size()))
-                                            .from(post)
-                                            .where(post.member.username.eq(username))
-                                            .offset(pageable.getOffset())
-                                            .limit(pageable.getPageSize())
-                                            .orderBy(post.id.desc())
-                                            .distinct()
-                                            .fetch();
-        
-        final List<Long> postIds = posts.stream()
-                                    .map(MemberPostDTO::getPostId)
-                                    .collect(Collectors.toList());
-
-        final List<PostImageDTO> postImageDTOs = queryFactory
-                                    .select(new QPostImageDTO(
-                                            postImage.post.id,
-                                            postImage.id,
-                                            postImage.image.imageUrl
-                                    ))
-                                    .from(postImage)
-                                    .where(postImage.post.id.in(postIds))
-                                    .fetch();
-
-        final Map<Long, List<PostImageDTO>> postImageDTOMap = postImageDTOs.stream()
-                                                                .collect(Collectors.groupingBy(PostImageDTO::getPostId));
-    
-        posts.forEach(p->p.setImageUrl(postImageDTOMap.get(p.getPostId()).get(0).getPostImageUrl()));    
-                            
-        
-        return new PageImpl<>(posts, pageable, posts.size());
     }
 
 }
