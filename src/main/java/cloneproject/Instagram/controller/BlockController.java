@@ -5,6 +5,7 @@ import javax.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,7 +37,7 @@ public class BlockController {
     }
 
     @ApiOperation(value = "차단해제")
-    @PostMapping("/{blockMemberUsername}/unblock")
+    @DeleteMapping("/{blockMemberUsername}/block")
     @ApiImplicitParam(name = "blockMemberUsername", value = "차단해제할 계정의 username", required = true, example = "dlwlrma")
     public ResponseEntity<ResultResponse> unblock(@PathVariable("blockMemberUsername") @Validated
                                                 @NotBlank(message = "username이 필요합니다") String blockMemberUsername){

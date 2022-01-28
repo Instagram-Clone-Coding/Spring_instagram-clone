@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import cloneproject.Instagram.dto.post.MemberPostDTO;
@@ -57,4 +58,57 @@ public class MemberPostService {
         return posts;
     }
 
+    public Page<MemberPostDTO> getMemberSavedPostDto(int size, int page) {
+        page = (page == 0 ? 0 : page - 1)+5;
+        final String loginedMemberId = SecurityContextHolder.getContext().getAuthentication().getName();
+
+
+        final Pageable pageable = PageRequest.of(page, size);
+        Page<MemberPostDTO> posts = memberRepository.getMemberSavedPostDto(Long.valueOf(loginedMemberId), pageable);
+        return posts;
+
+
+    }
+    
+    public List<MemberPostDTO> getRecent15SavedPostDTOs() {
+        final String loginedMemberId = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        List<MemberPostDTO> posts = memberRepository.getRecent15SavedPostDTOs(Long.valueOf(loginedMemberId));
+        return posts;
+    }
+
+    public Page<MemberPostDTO> getMemberTaggedPostDto(String username, int size, int page) {
+        page = (page == 0 ? 0 : page - 1)+5;
+        final Long loginedMemberId = AuthUtil.getLoginedMemberIdOrNull();
+
+        final Member member = memberRepository.findByUsername(username)
+                                                .orElseThrow(MemberDoesNotExistException::new);
+
+        if(blockRepository.existsByMemberIdAndBlockMemberId(loginedMemberId, member.getId()) ||
+            blockRepository.existsByMemberIdAndBlockMemberId(member.getId(), loginedMemberId)){
+            return null;
+        }
+
+        final Pageable pageable = PageRequest.of(page, size);
+        Page<MemberPostDTO> posts = memberRepository.getMemberTaggedPostDto(loginedMemberId, username, pageable);
+        return posts;
+
+
+    }
+    
+    public List<MemberPostDTO> getRecent15TaggedPostDTOs(String username) {
+        final Long loginedMemberId = AuthUtil.getLoginedMemberIdOrNull();
+
+        final Member member = memberRepository.findByUsername(username)
+                                                .orElseThrow(MemberDoesNotExistException::new);
+
+        if(blockRepository.existsByMemberIdAndBlockMemberId(loginedMemberId, member.getId()) ||
+            blockRepository.existsByMemberIdAndBlockMemberId(member.getId(), loginedMemberId)){
+            return null;
+        }
+        
+        List<MemberPostDTO> posts = memberRepository.getRecent15TaggedPostDTOs(loginedMemberId, username);
+        return posts;
+    }
+    
 }

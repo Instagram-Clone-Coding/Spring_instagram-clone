@@ -7,6 +7,7 @@ import javax.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,7 +41,7 @@ public class FollowController {
     }
 
     @ApiOperation(value = "언팔로우")
-    @PostMapping("/{followMemberUsername}/unfollow")
+    @DeleteMapping("/{followMemberUsername}/follow")
     @ApiImplicitParam(name = "followMemberUsername", value = "언팔로우할 계정의 username", required = true, example = "dlwlrma")
     public ResponseEntity<ResultResponse> unfollow(@PathVariable("followMemberUsername") @Validated
                                                 @NotBlank(message = "username이 필요합니다") String followMemberUsername){
