@@ -53,6 +53,10 @@ public enum ErrorCode {
     BOOKMARK_ALREADY_EXIST(400, "P012", "이미 해당 게시물을 저장하였습니다."),
     BOOKMARK_NOT_FOUND(400, "P013", "아직 해당 게시물을 저장하지 않았습니다."),
 
+    // Chat
+    CHAT_ROOM_NOT_FOUND(400, "C001", "존재하지 않는 채팅방입니다."),
+    JOIN_ROOM_NOT_FOUND(400, "C002", "해당 채팅방에 참여하지 않은 회원입니다."),
+
     // FILE
     CANT_CONVERT_FILE(401, "FI001", "파일을 변환할수 없습니다");
     ;
