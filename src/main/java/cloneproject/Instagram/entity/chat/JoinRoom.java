@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -34,6 +35,10 @@ public class JoinRoom {
     @CreatedDate
     @Column(name = "join_room_created_date")
     private LocalDateTime createdDate;
+
+    @LastModifiedDate
+    @Column(name = "join_room_last_message_date")
+    private LocalDateTime lastMessageDate;
 
     @Builder
     public JoinRoom(Room room, Member member) {
