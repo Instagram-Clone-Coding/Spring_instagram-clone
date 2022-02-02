@@ -6,20 +6,24 @@ import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @NoArgsConstructor
 public class MessageDTO {
 
     private Long messageId;
     private MessageType messageType;
+    private LocalDateTime messageDate;
+    private Long senderId;
     private String content;
-    private Long userId;
 
     @QueryProjection
     public MessageDTO(Message message) {
         this.messageId = message.getId();
         this.messageType = message.getType();
         this.content = message.getContent();
-        this.userId = message.getMember().getId();
+        this.senderId = message.getMember().getId();
+        this.messageDate = message.getCreatedDate();
     }
 }

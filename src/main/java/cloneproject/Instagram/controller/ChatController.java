@@ -1,9 +1,6 @@
 package cloneproject.Instagram.controller;
 
-import cloneproject.Instagram.dto.chat.ChatRoomCreateResponse;
-import cloneproject.Instagram.dto.chat.ChatRoomInquireResponse;
-import cloneproject.Instagram.dto.chat.JoinRoomDTO;
-import cloneproject.Instagram.dto.chat.JoinRoomDeleteResponse;
+import cloneproject.Instagram.dto.chat.*;
 import cloneproject.Instagram.dto.result.ResultResponse;
 import cloneproject.Instagram.service.ChatService;
 import io.swagger.annotations.Api;
@@ -12,6 +9,8 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +25,7 @@ import static cloneproject.Instagram.dto.result.ResultCode.*;
 public class ChatController {
 
     private final ChatService chatService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @ApiOperation(value = "채팅방 생성")
     @ApiImplicitParam(name = "username", value = "상대방 username", example = "dlwlrma1", required = true)
@@ -61,5 +61,11 @@ public class ChatController {
         final Page<JoinRoomDTO> response = chatService.getJoinRooms(page);
 
         return ResponseEntity.ok(ResultResponse.of(GET_JOIN_ROOMS_SUCCESS, response));
+    }
+
+    @MessageMapping("/messages")
+    public void chat(@Validated MessageRequest request) {
+        chatService.sendMessage(request);
+        messagingTemplate.convertAndSend("/sub/rooms/" + request.getRoomId(), request);
     }
 }

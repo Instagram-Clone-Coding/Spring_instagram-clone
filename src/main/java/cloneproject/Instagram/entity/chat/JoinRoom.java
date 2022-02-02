@@ -45,4 +45,8 @@ public class JoinRoom {
         this.room = room;
         this.member = member;
     }
+
+    public void update() {
+        this.lastMessageDate = LocalDateTime.now();
+    }
 }

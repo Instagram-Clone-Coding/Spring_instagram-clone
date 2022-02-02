@@ -1,8 +1,10 @@
 package cloneproject.Instagram.service;
 
 import cloneproject.Instagram.dto.chat.*;
+import cloneproject.Instagram.entity.chat.JoinRoom;
 import cloneproject.Instagram.entity.chat.Room;
 import cloneproject.Instagram.entity.chat.RoomMember;
+import cloneproject.Instagram.entity.chat.RoomUnreadMember;
 import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.exception.JoinRoomNotFoundException;
 import cloneproject.Instagram.exception.MemberDoesNotExistException;
@@ -18,7 +20,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
@@ -60,7 +64,7 @@ public class ChatService {
         return new ChatRoomCreateResponse(true, room.getId(), new MemberSimpleInfo(inviter), List.of(new MemberSimpleInfo(invitee)));
     }
 
-
+    @Transactional
     public ChatRoomInquireResponse inquireRoom(Long roomId) {
         final Room room = roomRepository.findById(roomId).orElseThrow(ChatRoomNotFoundException::new);
         final Long memberId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
@@ -74,6 +78,7 @@ public class ChatService {
         return new ChatRoomInquireResponse(true, unseenCount - 1);
     }
 
+    @Transactional
     public JoinRoomDeleteResponse deleteJoinRoom(Long roomId) {
         final Room room = roomRepository.findById(roomId).orElseThrow(ChatRoomNotFoundException::new);
         final Long memberId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
@@ -93,5 +98,22 @@ public class ChatService {
         page = (page == 0 ? 0 : page - 1);
         Pageable pageable = PageRequest.of(page, 10, Sort.by(DESC, "id"));
         return joinRoomRepository.findJoinRoomDTOPagebyMemberId(member.getId(), pageable);
+    }
+
+    @Transactional
+    public void sendMessage(MessageRequest request) {
+        final Room room = roomRepository.findById(request.getRoomId()).orElseThrow(ChatRoomNotFoundException::new);
+        final List<RoomMember> roomMembers = roomMemberRepository.findAllByRoomId(request.getRoomId());
+
+        // TODO: refactor: bulk insert
+        for (RoomMember roomMember : roomMembers) {
+            final Member member = roomMember.getMember();
+            roomUnreadMemberRepository.save(new RoomUnreadMember(room, member));
+            final Optional<JoinRoom> joinRoom = joinRoomRepository.findByMemberIdAndRoomId(room.getId(), member.getId());
+            if (joinRoom.isPresent())
+                joinRoom.get().update();
+            else
+                joinRoomRepository.save(new JoinRoom(room, member));
+        }
     }
 }
