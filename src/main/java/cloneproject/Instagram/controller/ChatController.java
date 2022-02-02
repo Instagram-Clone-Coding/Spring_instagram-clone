@@ -1,8 +1,8 @@
 package cloneproject.Instagram.controller;
 
 import cloneproject.Instagram.dto.chat.ChatRoomCreateResponse;
-import cloneproject.Instagram.dto.chat.JoinRoomDTO;
 import cloneproject.Instagram.dto.chat.ChatRoomInquireResponse;
+import cloneproject.Instagram.dto.chat.JoinRoomDTO;
 import cloneproject.Instagram.dto.chat.JoinRoomDeleteResponse;
 import cloneproject.Instagram.dto.result.ResultResponse;
 import cloneproject.Instagram.service.ChatService;
@@ -54,12 +54,12 @@ public class ChatController {
         return ResponseEntity.ok(ResultResponse.of(DELETE_JOIN_ROOM_SUCCESS, response));
     }
 
-    /*@ApiOperation(value = "채팅방 목록 페이징 조회", notes = "1페이지당 10개씩 조회할 수 있습니다.")
+    @ApiOperation(value = "채팅방 목록 페이징 조회", notes = "1페이지당 10개씩 조회할 수 있습니다.")
     @GetMapping("/chat/rooms")
     public ResponseEntity<ResultResponse> getJoinRooms(
             @Validated @NotNull(message = "페이지는 필수입니다.") @RequestParam Integer page) {
         final Page<JoinRoomDTO> response = chatService.getJoinRooms(page);
 
         return ResponseEntity.ok(ResultResponse.of(GET_JOIN_ROOMS_SUCCESS, response));
-    }*/
+    }
 }
