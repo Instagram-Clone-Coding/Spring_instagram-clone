@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -21,6 +23,12 @@ public class Room {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    @OneToMany(mappedBy = "room")
+    private List<RoomUnreadMember> roomUnreadMembers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "room")
+    private List<RoomMember> roomMembers = new ArrayList<>();
 
     public Room(Member member) {
         this.member = member;

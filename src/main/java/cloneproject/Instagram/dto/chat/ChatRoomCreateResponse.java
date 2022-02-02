@@ -1,6 +1,5 @@
 package cloneproject.Instagram.dto.chat;
 
-import cloneproject.Instagram.entity.member.Member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,5 +14,6 @@ public class ChatRoomCreateResponse {
 
     private boolean status;
     private Long chatRoomId;
-    private List<Opponent> opponents = new ArrayList<>();
+    private MemberSimpleInfo inviter;
+    private List<MemberSimpleInfo> invitees = new ArrayList<>();
 }

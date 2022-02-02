@@ -40,16 +40,24 @@ public class ChatService {
     public ChatRoomCreateResponse createRoom(String username) {
         final Long memberId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
         final Member inviter = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
-        final Member guest = memberRepository.findByUsername(username).orElseThrow(MemberDoesNotExistException::new);
+        // TODO: List<Member> invitees
+        final Member invitee = memberRepository.findByUsername(username).orElseThrow(MemberDoesNotExistException::new);
 
-        // TODO: feat(대상과 이미 존재하는 채팅방이 있는지 검증)
+        final List<RoomMember> inviterRooms = roomMemberRepository.findAllByMemberId(inviter.getId());
+        final List<RoomMember> inviteeRooms = roomMemberRepository.findAllByMemberId(invitee.getId());
+        for (RoomMember inviterRoom : inviterRooms) {
+            for (RoomMember inviteeRoom : inviteeRooms) {
+                if (inviterRoom.getRoom().getId().equals(inviteeRoom.getRoom().getId()))
+                    return new ChatRoomCreateResponse(true, inviterRoom.getRoom().getId(), new MemberSimpleInfo(inviter), List.of(new MemberSimpleInfo(invitee)));
+            }
+        }
 
         final Room room = roomRepository.save(new Room(inviter));
         // TODO: refactor(batch insert)
         roomMemberRepository.save(new RoomMember(inviter, room));
-        roomMemberRepository.save(new RoomMember(guest, room));
+        roomMemberRepository.save(new RoomMember(invitee, room));
 
-        return new ChatRoomCreateResponse(true, room.getId(), List.of(new Opponent(inviter)));
+        return new ChatRoomCreateResponse(true, room.getId(), new MemberSimpleInfo(inviter), List.of(new MemberSimpleInfo(invitee)));
     }
 
 
@@ -78,12 +86,12 @@ public class ChatService {
         return new JoinRoomDeleteResponse(true);
     }
 
-    /*public Page<JoinRoomDTO> getJoinRooms(int page) {
+    public Page<JoinRoomDTO> getJoinRooms(int page) {
         final Long memberId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
         final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
 
         page = (page == 0 ? 0 : page - 1);
         Pageable pageable = PageRequest.of(page, 10, Sort.by(DESC, "id"));
-        return JoinRoomRepository.findJoinRoomDTOPagebyMemberId(member.getId(), pageable);
-    }*/
+        return joinRoomRepository.findJoinRoomDTOPagebyMemberId(member.getId(), pageable);
+    }
 }
