@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static cloneproject.Instagram.entity.chat.QJoinRoom.joinRoom;
+import static cloneproject.Instagram.entity.chat.QMessage.message;
 import static cloneproject.Instagram.entity.chat.QRoom.room;
 import static cloneproject.Instagram.entity.chat.QRoomMember.roomMember;
 import static cloneproject.Instagram.entity.chat.QRoomUnreadMember.roomUnreadMember;
@@ -32,6 +33,7 @@ public class JoinRoomRepositoryQuerydslImpl implements JoinRoomRepositoryQueryds
         final List<JoinRoomDTO> joinRoomDTOs = queryFactory
                 .select(new QJoinRoomDTO(
                         joinRoom.room.id,
+                        joinRoom.room.message,
                         JPAExpressions
                                 .selectFrom(roomUnreadMember)
                                 .where(roomUnreadMember.member.id.eq(memberId))
@@ -40,7 +42,8 @@ public class JoinRoomRepositoryQuerydslImpl implements JoinRoomRepositoryQueryds
                 ))
                 .from(joinRoom)
                 .innerJoin(joinRoom.room, room)
-                .innerJoin(room.member, member)
+                .innerJoin(joinRoom.room.message, message)
+                .innerJoin(joinRoom.room.member, member)
                 .where(joinRoom.member.id.eq(memberId))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -48,7 +51,7 @@ public class JoinRoomRepositoryQuerydslImpl implements JoinRoomRepositoryQueryds
                 .fetch();
 
         final List<Long> roomIds = joinRoomDTOs.stream()
-                .map(JoinRoomDTO::getChatRoomId)
+                .map(JoinRoomDTO::getRoomId)
                 .collect(Collectors.toList());
 
         final List<RoomMember> roomMembers = queryFactory
@@ -60,7 +63,7 @@ public class JoinRoomRepositoryQuerydslImpl implements JoinRoomRepositoryQueryds
                 .collect(Collectors.groupingBy(r -> r.getRoom().getId()));
 
         joinRoomDTOs.forEach(j -> j.setInvitees(
-                roomMemberMap.get(j.getChatRoomId())
+                roomMemberMap.get(j.getRoomId())
                         .stream()
                         .map(r -> new MemberSimpleInfo(r.getMember()))
                         .collect(Collectors.toList())));
