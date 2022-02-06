@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +24,6 @@ import static cloneproject.Instagram.dto.result.ResultCode.*;
 public class ChatController {
 
     private final ChatService chatService;
-    private final SimpMessagingTemplate messagingTemplate;
 
     @ApiOperation(value = "채팅방 생성")
     @ApiImplicitParam(name = "username", value = "상대방 username", example = "dlwlrma1", required = true)
@@ -64,8 +62,12 @@ public class ChatController {
     }
 
     @MessageMapping("/messages")
-    public void chat(@Validated MessageRequest request) {
+    public void sendChatMessage(@Validated @RequestBody MessageRequest request) {
         chatService.sendMessage(request);
-        messagingTemplate.convertAndSend("/sub/rooms/" + request.getRoomId(), request);
+    }
+
+    @MessageMapping("/messages/indicate")
+    public void indicate(@Validated @RequestBody IndicateRequest request) {
+        chatService.indicate(request);
     }
 }

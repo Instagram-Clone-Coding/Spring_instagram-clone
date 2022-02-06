@@ -1,10 +1,7 @@
 package cloneproject.Instagram.service;
 
 import cloneproject.Instagram.dto.chat.*;
-import cloneproject.Instagram.entity.chat.JoinRoom;
-import cloneproject.Instagram.entity.chat.Room;
-import cloneproject.Instagram.entity.chat.RoomMember;
-import cloneproject.Instagram.entity.chat.RoomUnreadMember;
+import cloneproject.Instagram.entity.chat.*;
 import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.exception.JoinRoomNotFoundException;
 import cloneproject.Instagram.exception.MemberDoesNotExistException;
@@ -16,11 +13,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +37,7 @@ public class ChatService {
     private final MessageImageRepository messageImageRepository;
     private final MemberRepository memberRepository;
     private final JoinRoomRepository joinRoomRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional
     public ChatRoomCreateResponse createRoom(String username) {
@@ -74,6 +73,14 @@ public class ChatService {
         if (roomUnreadMemberRepository.findByRoomIdAndMemberId(room.getId(), member.getId()).isEmpty())
             return new ChatRoomInquireResponse(false, unseenCount);
 
+        final List<JoinRoom> joinRooms = joinRoomRepository.findAllByRoomId(roomId);
+        final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_ACK, new MessageSeenDTO(room.getId(), memberId, LocalDateTime.now()));
+        joinRooms.forEach(j -> {
+            if (!j.getMember().getId().equals(memberId)) {
+                messagingTemplate.convertAndSend("/sub/" + j.getMember().getUsername(), response);
+            }
+        });
+
         roomUnreadMemberRepository.deleteByRoomIdAndMemberId(room.getId(), member.getId());
         return new ChatRoomInquireResponse(true, unseenCount - 1);
     }
@@ -105,6 +112,10 @@ public class ChatService {
         final Room room = roomRepository.findById(request.getRoomId()).orElseThrow(ChatRoomNotFoundException::new);
         final List<RoomMember> roomMembers = roomMemberRepository.findAllByRoomId(request.getRoomId());
 
+        final Member sender = memberRepository.findById(request.getSenderId()).orElseThrow(MemberDoesNotExistException::new);
+        final Message message = messageRepository.save(new Message(sender, room, request.getContent(), request.getMessageType()));
+        room.updateLastMessage(message);
+
         // TODO: refactor: bulk insert
         for (RoomMember roomMember : roomMembers) {
             final Member member = roomMember.getMember();
@@ -115,5 +126,20 @@ public class ChatService {
             else
                 joinRoomRepository.save(new JoinRoom(room, member));
         }
+
+        final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_GET, new MessageDTO(message));
+        roomMembers.forEach(r -> messagingTemplate.convertAndSend("/sub/" + r.getMember().getUsername(), response));
+    }
+
+    public void indicate(IndicateRequest request) {
+        final Room room = roomRepository.findById(request.getRoomId()).orElseThrow(ChatRoomNotFoundException::new);
+        final List<JoinRoom> joinRooms = joinRoomRepository.findAllByRoomId(room.getId());
+        final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_ACK, new IndicateDTO(room.getId(), request.getSenderId(), 12000L));
+
+        joinRooms.forEach(j -> {
+            if (!j.getMember().getId().equals(request.getSenderId())) {
+                messagingTemplate.convertAndSend("/sub/" + j.getMember().getUsername(), response);
+            }
+        });
     }
 }
