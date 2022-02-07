@@ -52,13 +52,23 @@ public class ChatController {
         return ResponseEntity.ok(ResultResponse.of(DELETE_JOIN_ROOM_SUCCESS, response));
     }
 
-    @ApiOperation(value = "채팅방 목록 페이징 조회", notes = "1페이지당 10개씩 조회할 수 있습니다.")
+    @ApiOperation(value = "채팅방 목록 페이징 조회", notes = "페이지당 10개씩 조회할 수 있습니다.")
     @GetMapping("/chat/rooms")
     public ResponseEntity<ResultResponse> getJoinRooms(
             @Validated @NotNull(message = "페이지는 필수입니다.") @RequestParam Integer page) {
         final Page<JoinRoomDTO> response = chatService.getJoinRooms(page);
 
         return ResponseEntity.ok(ResultResponse.of(GET_JOIN_ROOMS_SUCCESS, response));
+    }
+
+    @ApiOperation(value = "채팅방 메시지 목록 페이징 조회", notes = "페이지당 10개씩 조회할 수 있습니다.")
+    @GetMapping("/chat/rooms/{roomId}/messages")
+    public ResponseEntity<ResultResponse> getChatMessages(
+            @NotNull(message = "채팅방 PK는 필수입니다.") @PathVariable Long roomId,
+            @NotNull(message = "페이지는 필수입니다.") @RequestParam Integer page) {
+        final Page<MessageDTO> response = chatService.getChatMessages(roomId, page);
+
+        return ResponseEntity.ok(ResultResponse.of(GET_CHAT_MESSAGES_SUCCESS, response));
     }
 
     @MessageMapping("/messages")

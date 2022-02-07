@@ -2,6 +2,7 @@ package cloneproject.Instagram.dto.chat;
 
 import cloneproject.Instagram.entity.chat.Message;
 import cloneproject.Instagram.entity.chat.MessageType;
+import com.querydsl.core.annotations.QueryProjection;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ public class MessageDTO {
     private MessageType messageType;
     private LocalDateTime messageDate;
 
+    @QueryProjection
     public MessageDTO(Message message) {
         this.roomId = message.getRoom().getId();
         this.messageId = message.getId();
