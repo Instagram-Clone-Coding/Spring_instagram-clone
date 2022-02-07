@@ -142,4 +142,12 @@ public class ChatService {
             }
         });
     }
+
+    public Page<MessageDTO> getChatMessages(Long roomId, Integer page) {
+        final Long memberId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+
+        page = (page == 0 ? 0 : page - 1);
+        Pageable pageable = PageRequest.of(page, 10);
+        return messageRepository.findMessageDTOPageByMemberIdAndRoomId(memberId, roomId, pageable);
+    }
 }

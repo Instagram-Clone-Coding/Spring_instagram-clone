@@ -67,7 +67,6 @@ public class JoinRoomRepositoryQuerydslImpl implements JoinRoomRepositoryQueryds
                         .stream()
                         .map(r -> new MemberSimpleInfo(r.getMember()))
                         .collect(Collectors.toList())));
-        // TODO: lastMessage 주입
 
         return new PageImpl<>(joinRoomDTOs, pageable, joinRoomDTOs.size());
     }
