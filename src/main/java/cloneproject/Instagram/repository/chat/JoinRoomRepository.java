@@ -11,6 +11,6 @@ import java.util.Optional;
 public interface JoinRoomRepository extends JpaRepository<JoinRoom, Long>, JoinRoomRepositoryQuerydsl {
     Optional<JoinRoom> findByMemberIdAndRoomId(Long memberId, Long roomId);
     void deleteByMemberIdAndRoomId(Long memberId, Long roomId);
-    @Query(value = "select j from JoinRoom j where j.room.id = :id join fetch f.member", nativeQuery = true)
+    @Query(value = "select j from JoinRoom j join fetch j.member where j.room.id = :id")
     List<JoinRoom> findAllByRoomId(@Param("id") Long id);
 }
