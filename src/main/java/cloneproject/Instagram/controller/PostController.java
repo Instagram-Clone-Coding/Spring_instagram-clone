@@ -1,11 +1,15 @@
 package cloneproject.Instagram.controller;
 
 import cloneproject.Instagram.dto.StatusResponse;
+import cloneproject.Instagram.dto.comment.CommentCreateRequest;
+import cloneproject.Instagram.dto.comment.CommentCreateResponse;
+import cloneproject.Instagram.dto.comment.CommentDTO;
 import cloneproject.Instagram.dto.post.*;
 import cloneproject.Instagram.dto.result.ResultResponse;
 import cloneproject.Instagram.service.PostService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -106,7 +110,7 @@ public class PostController {
         final boolean status = postService.savePost(postId);
         final StatusResponse response = new StatusResponse(status);
 
-        return ResponseEntity.ok(ResultResponse.of(SAVE_POST_SUCCESS, response));
+        return ResponseEntity.ok(ResultResponse.of(SAVE_POST_SUCCESS, response)); // TODO: status_response 제거
     }
 
     @ApiOperation(value = "게시물 저장 취소")
@@ -118,5 +122,52 @@ public class PostController {
         final StatusResponse response = new StatusResponse(status);
 
         return ResponseEntity.ok(ResultResponse.of(UNSAVE_POST_SUCCESS, response));
+    }
+
+    @ApiOperation(value = "게시물 댓글 작성", notes = "parentId는 댓글인 경우 0, 답글인 경우 댓글 부모 PK를 입력해주세요.")
+    @PostMapping("/comments")
+    public ResponseEntity<ResultResponse> createComment(@Validated @RequestBody CommentCreateRequest request) {
+        final CommentCreateResponse response = postService.saveComment(request);
+
+        return ResponseEntity.ok(ResultResponse.of(CREATE_COMMENT_SUCCESS, response));
+    }
+
+    @ApiOperation(value = "게시물 댓글 삭제")
+    @ApiImplicitParam(name = "commentId", value = "댓글 PK", example = "1", required = true)
+    @DeleteMapping("/comments/{commentId}")
+    public ResponseEntity<ResultResponse> deleteComment(@NotNull(message = "댓글 PK는 필수입니다.") @PathVariable Long commentId) {
+        final StatusResponse response = postService.deleteComment(commentId);
+
+        return ResponseEntity.ok(ResultResponse.of(DELETE_COMMENT_SUCCESS, response));
+    }
+
+    @ApiOperation(value = "게시물 댓글 페이징 조회",
+            notes = "게시물 조회에서 최근 댓글 10개를 응답하므로, 2페이지부터 조회해주세요." +
+                    "조회 중간에 새 댓글이 추가되면, 추가 조회 시 중복 데이터가 발생할 수 있으므로, 중복 데이터는 걸러서 뷰에 표현해주시면 됩니다.")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "postId", value = "게시물 PK", example = "1", required = true),
+            @ApiImplicitParam(name = "page", value = "댓글 page", example = "1", required = true)
+    })
+    @GetMapping("/posts/{postId}/comments")
+    public ResponseEntity<ResultResponse> getCommentPage(
+            @NotNull(message = "게시물 PK는 필수입니다.") @PathVariable Long postId,
+            @NotNull(message = "조회할 댓글 page는 필수입니다.") @RequestParam int page) {
+        final Page<CommentDTO> response = postService.getCommentDtoPage(postId, page);
+
+        return ResponseEntity.ok(ResultResponse.of(GET_COMMENT_PAGE_SUCCESS, response));
+    }
+
+    @ApiOperation(value = "게시물 답글 페이징 조회")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "commentId", value = "부모 댓글 PK", example = "1", required = true),
+            @ApiImplicitParam(name = "page", value = "댓글 page", example = "1", required = true)
+    })
+    @GetMapping("/comments/{commentId}")
+    public ResponseEntity<ResultResponse> getReplyPage(
+            @NotNull(message = "부모 댓글 PK는 필수입니다.") @PathVariable Long commentId,
+            @NotNull(message = "조회할 댓글 page는 필수입니다.") @RequestParam int page) {
+        final Page<CommentDTO> response = postService.getReplyDtoPage(commentId, page);
+
+        return ResponseEntity.ok(ResultResponse.of(GET_REPLY_PAGE_SUCCESS, response));
     }
 }

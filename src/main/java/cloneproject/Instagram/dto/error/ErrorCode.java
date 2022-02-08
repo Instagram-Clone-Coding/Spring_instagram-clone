@@ -52,6 +52,8 @@ public enum ErrorCode {
     POST_LIKE_ALREADY_EXIST(400, "P011", "해당 게시물에 이미 좋아요를 누른 회원입니다."),
     BOOKMARK_ALREADY_EXIST(400, "P012", "이미 해당 게시물을 저장하였습니다."),
     BOOKMARK_NOT_FOUND(400, "P013", "아직 해당 게시물을 저장하지 않았습니다."),
+    COMMENT_NOT_FOUND(400, "P014", "존재하지 않는 댓글입니다."),
+    COMMENT_CANT_DELETE(400, "P015", "타인이 작성한 댓글은 삭제할 수 없습니다."),
 
     // Chat
     CHAT_ROOM_NOT_FOUND(400, "C001", "존재하지 않는 채팅방입니다."),

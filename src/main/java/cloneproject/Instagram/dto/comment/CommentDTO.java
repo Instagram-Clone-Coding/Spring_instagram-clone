@@ -1,5 +1,7 @@
 package cloneproject.Instagram.dto.comment;
 
+import cloneproject.Instagram.dto.member.MenuMemberDTO;
+import cloneproject.Instagram.entity.member.Member;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
@@ -14,7 +16,7 @@ public class CommentDTO {
     @JsonIgnore
     private Long postId;
     private Long id;
-    private String username;
+    private MenuMemberDTO member;
     private String content;
     private LocalDateTime uploadDate;
     private int commentLikesCount;
@@ -22,10 +24,10 @@ public class CommentDTO {
     private int repliesCount;
 
     @QueryProjection
-    public CommentDTO(Long postId, Long id, String username, String content, LocalDateTime uploadDate, int commentLikesCount, boolean commentLikeFlag, int repliesCount) {
+    public CommentDTO(Long postId, Long id, Member member, String content, LocalDateTime uploadDate, int commentLikesCount, boolean commentLikeFlag, int repliesCount) {
         this.postId = postId;
         this.id = id;
-        this.username = username;
+        this.member = new MenuMemberDTO(member);
         this.content = content;
         this.uploadDate = uploadDate;
         this.commentLikesCount = commentLikesCount;
