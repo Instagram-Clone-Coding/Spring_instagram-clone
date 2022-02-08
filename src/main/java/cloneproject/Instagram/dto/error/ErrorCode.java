@@ -14,18 +14,18 @@ public enum ErrorCode {
     INVALID_TYPE_VALUE(400, "U004", "입력 타입이 유효하지 않습니다."),
 
     // Member
-    MEMBER_DOES_NOT_EXIST(401, "M001", "존재 하지 않는 유저입니다."),
-    USERNAME_ALREADY_EXISTS(401, "M002", "이미 존재하는 사용자 이름입니다."),
+    MEMBER_DOES_NOT_EXIST(400, "M001", "존재 하지 않는 유저입니다."),
+    USERNAME_ALREADY_EXISTS(400, "M002", "이미 존재하는 사용자 이름입니다."),
     NEED_LOGIN(401, "M003", "로그인이 필요한 화면입니다."),
     NO_AUTHORITY(403, "M004", "권한이 없습니다."),
     ACCOUNT_DOES_NOT_MATCH(401, "M005", "계정정보가 일치하지 않습니다."),
     UPLOAD_PROFILE_IMAGE_FAIL(400, "M006", "회원 이미지를 업로드 하는 중 실패했습니다."),
     
     // FOLLOW
-    ALREADY_FOLLOW(401, "F001", "이미 팔로우한 유저입니다."),
-    CANT_UNFOLLOW(401, "F002", "팔로우하지 않을 유저는 언팔로우 할 수 없습니다"),
-    CANT_FOLLOW_MYSELF(401, "F003", "자기자신을 팔로우 할 수 없습니다"),
-    CANT_UNFOLLOW_MYSELF(401, "F004", "자기자신을 언팔로우 할 수 없습니다"),
+    ALREADY_FOLLOW(400, "F001", "이미 팔로우한 유저입니다."),
+    CANT_UNFOLLOW(400, "F002", "팔로우하지 않을 유저는 언팔로우 할 수 없습니다"),
+    CANT_FOLLOW_MYSELF(400, "F003", "자기자신을 팔로우 할 수 없습니다"),
+    CANT_UNFOLLOW_MYSELF(400, "F004", "자기자신을 언팔로우 할 수 없습니다"),
 
     // BLOCK
     ALREADY_BLOCK(400, "B001", "이미 차단한 유저입니다."),
@@ -58,7 +58,7 @@ public enum ErrorCode {
     JOIN_ROOM_NOT_FOUND(400, "C002", "해당 채팅방에 참여하지 않은 회원입니다."),
 
     // FILE
-    CANT_CONVERT_FILE(401, "FI001", "파일을 변환할수 없습니다");
+    CANT_CONVERT_FILE(500, "FI001", "파일을 변환할수 없습니다");
     ;
 
     private int status;
