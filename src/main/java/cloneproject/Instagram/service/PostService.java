@@ -1,10 +1,15 @@
 package cloneproject.Instagram.service;
 
+import cloneproject.Instagram.dto.StatusResponse;
 import cloneproject.Instagram.dto.alarm.AlarmType;
+import cloneproject.Instagram.dto.comment.CommentCreateRequest;
+import cloneproject.Instagram.dto.comment.CommentCreateResponse;
+import cloneproject.Instagram.dto.comment.CommentDTO;
 import cloneproject.Instagram.dto.error.ErrorResponse.FieldError;
 import cloneproject.Instagram.dto.post.PostDTO;
 import cloneproject.Instagram.dto.post.PostImageTagRequest;
 import cloneproject.Instagram.dto.post.PostResponse;
+import cloneproject.Instagram.entity.comment.Comment;
 import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.entity.post.Bookmark;
 import cloneproject.Instagram.entity.post.Post;
@@ -15,6 +20,7 @@ import cloneproject.Instagram.repository.BookmarkRepository;
 import cloneproject.Instagram.repository.MemberRepository;
 import cloneproject.Instagram.repository.PostImageRepository;
 import cloneproject.Instagram.repository.PostLikeRepository;
+import cloneproject.Instagram.repository.post.CommentRepository;
 import cloneproject.Instagram.repository.post.PostRepository;
 import cloneproject.Instagram.util.S3Uploader;
 import cloneproject.Instagram.vo.Image;
@@ -45,6 +51,7 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final S3Uploader uploader;
     private final AlarmService alarmService;
+    private final CommentRepository commentRepository;
 
     public Page<PostDTO> getPostDtoPage(int size, int page) {
         page = (page == 0 ? 0 : page - 1) + 10;
@@ -182,5 +189,42 @@ public class PostService {
         final Bookmark bookmark = bookmarkRepository.findByMemberIdAndPostId(memberId, postId).orElseThrow(BookmarkNotFoundException::new);
         bookmarkRepository.delete(bookmark);
         return true;
+    }
+
+    @Transactional
+    public CommentCreateResponse saveComment(CommentCreateRequest request) {
+        final Post post = postRepository.findById(request.getPostId()).orElseThrow(PostNotFoundException::new);
+        final Long memberId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
+        final Optional<Comment> parent = commentRepository.findById(request.getParentId());
+        final Comment comment = new Comment(parent.isEmpty() ? null : parent.get(), member, post, request.getContent());
+        commentRepository.save(comment);
+
+        return new CommentCreateResponse(comment.getId());
+    }
+
+    @Transactional
+    public StatusResponse deleteComment(Long commentId) {
+        final Long memberId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        final Comment comment = commentRepository.findWithMemberById(commentId).orElseThrow(CommentNotFoundException::new);
+        if (!comment.getMember().getId().equals(memberId))
+            throw new CommentCantDeleteException();
+        commentRepository.delete(comment);
+
+        return new StatusResponse(true);
+    }
+
+    public Page<CommentDTO> getCommentDtoPage(Long postId, int page) {
+        final Long memberId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        page = (page == 0 ? 0 : page - 1);
+        final Pageable pageable = PageRequest.of(page, 10);
+        return commentRepository.findCommentDtoPage(memberId, postId, pageable);
+    }
+
+    public Page<CommentDTO> getReplyDtoPage(Long commentId, int page) {
+        final Long memberId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        page = (page == 0 ? 0 : page - 1);
+        final Pageable pageable = PageRequest.of(page, 10);
+        return commentRepository.findReplyDtoPage(memberId, commentId, pageable);
     }
 }

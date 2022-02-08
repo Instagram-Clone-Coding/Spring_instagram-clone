@@ -303,7 +303,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
                 .select(new QCommentDTO(
                         comment.post.id,
                         comment.id,
-                        comment.member.username,
+                        comment.member,
                         comment.content,
                         comment.uploadDate,
                         comment.commentLikes.size(),
@@ -314,7 +314,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
                         comment.children.size()
                 ))
                 .from(comment)
-                .where(comment.post.id.eq(postId))
+                .where(comment.post.id.eq(postId).and(comment.id.eq(comment.parent.id)))
+                .innerJoin(comment.member, QMember.member)
                 .orderBy(comment.id.desc())
                 .limit(10)
                 .fetch();

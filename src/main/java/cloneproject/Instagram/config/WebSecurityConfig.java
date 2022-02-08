@@ -80,8 +80,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
                 .antMatchers("/login", "/accounts", "/swagger-resources/**", "/swagger-ui/**").permitAll()
 
                 //게시물
-                .antMatchers("/posts", "/posts/**").hasAuthority("ROLE_USER")
-                .antMatchers("/posts/like", "/posts/recent", "/posts/save").hasAuthority("ROLE_USER")
+                .antMatchers("/posts", "/posts/**", "/comments/**").hasAuthority("ROLE_USER")
 
                 // 유저 포스트
                 .antMatchers("/accounts/**/posts", "/accounts/**/posts/recent", "/accounts/**/posts/tagged", "/accounts/**/posts/tagged/recent").permitAll()
@@ -99,7 +98,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
                 .antMatchers("/**/block").hasAuthority("ROLE_USER")
 
                 // DM
-                .antMatchers("/chat/rooms", "/chat/rooms/**").hasAuthority("ROLE_USER");
+                .antMatchers("/chat/rooms/**").hasAuthority("ROLE_USER");
 
     }
 
