@@ -25,13 +25,16 @@ import cloneproject.Instagram.dto.member.SendConfirmationEmailRequest;
 import cloneproject.Instagram.dto.member.UpdatePasswordRequest;
 import cloneproject.Instagram.dto.result.ResultCode;
 import cloneproject.Instagram.dto.result.ResultResponse;
+import cloneproject.Instagram.exception.InvalidJwtException;
 import cloneproject.Instagram.service.MemberAuthService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Api(tags = "멤버 인증 API")
 @RestController
 @RequiredArgsConstructor
@@ -116,11 +119,13 @@ public class MemberAuthController {
     @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " ")
     @PostMapping(value = "/reissue")
     public ResponseEntity<ResultResponse> reissue(
-                                @CookieValue(value="refreshToken", required = true)
+                                @CookieValue(value="refreshToken", required = false)
                                 Cookie refreshCookie, HttpServletResponse response
                             ) {
+        if(refreshCookie == null){
+            throw new InvalidJwtException();
+        }
         JwtDto jwt = memberAuthService.reisuue(refreshCookie.getValue());
-
         Cookie cookie = new Cookie("refreshToken", jwt.getRefreshToken());
 
         cookie.setMaxAge(REFRESH_TOKEN_EXPIRES);
