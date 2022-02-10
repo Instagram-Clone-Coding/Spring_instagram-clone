@@ -120,7 +120,7 @@ public class ChatService {
         for (RoomMember roomMember : roomMembers) {
             final Member member = roomMember.getMember();
             roomUnreadMemberRepository.save(new RoomUnreadMember(room, member));
-            final Optional<JoinRoom> joinRoom = joinRoomRepository.findByMemberIdAndRoomId(room.getId(), member.getId());
+            final Optional<JoinRoom> joinRoom = joinRoomRepository.findByMemberIdAndRoomId(member.getId(), room.getId());
             if (joinRoom.isPresent())
                 joinRoom.get().update();
             else
