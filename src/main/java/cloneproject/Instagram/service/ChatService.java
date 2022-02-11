@@ -104,13 +104,13 @@ public class ChatService {
 
         page = (page == 0 ? 0 : page - 1);
         Pageable pageable = PageRequest.of(page, 10, Sort.by(DESC, "id"));
-        return joinRoomRepository.findJoinRoomDTOPagebyMemberId(member.getId(), pageable);
+        return joinRoomRepository.findJoinRoomDTOPageByMemberId(member.getId(), pageable);
     }
 
     @Transactional
     public void sendMessage(MessageRequest request) {
         final Room room = roomRepository.findById(request.getRoomId()).orElseThrow(ChatRoomNotFoundException::new);
-        final List<RoomMember> roomMembers = roomMemberRepository.findAllByRoomId(request.getRoomId());
+        final List<RoomMember> roomMembers = roomMemberRepository.findAllByRoomId(request.getRoomId()); // TODO: withMember
 
         final Member sender = memberRepository.findById(request.getSenderId()).orElseThrow(MemberDoesNotExistException::new);
         final Message message = messageRepository.save(new Message(sender, room, request.getContent(), request.getMessageType()));
@@ -119,7 +119,8 @@ public class ChatService {
         // TODO: refactor: bulk insert
         for (RoomMember roomMember : roomMembers) {
             final Member member = roomMember.getMember();
-            roomUnreadMemberRepository.save(new RoomUnreadMember(room, member));
+            if (roomUnreadMemberRepository.findByRoomIdAndMemberId(room.getId(), member.getId()).isEmpty())
+                roomUnreadMemberRepository.save(new RoomUnreadMember(room, member));
             final Optional<JoinRoom> joinRoom = joinRoomRepository.findByMemberIdAndRoomId(member.getId(), room.getId());
             if (joinRoom.isPresent())
                 joinRoom.get().update();
