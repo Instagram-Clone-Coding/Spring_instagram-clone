@@ -28,7 +28,7 @@ public class JoinRoomRepositoryQuerydslImpl implements JoinRoomRepositoryQueryds
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<JoinRoomDTO> findJoinRoomDTOPagebyMemberId(Long memberId, Pageable pageable) {
+    public Page<JoinRoomDTO> findJoinRoomDTOPageByMemberId(Long memberId, Pageable pageable) {
         // TODO: WebSocket 이용 메시지 송/수신하는 시점부터 쿼리 확인 필요
         final List<JoinRoomDTO> joinRoomDTOs = queryFactory
                 .select(new QJoinRoomDTO(
