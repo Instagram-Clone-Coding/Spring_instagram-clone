@@ -39,6 +39,7 @@ public class Message {
     @Column(name = "message_created_date")
     private LocalDateTime createdDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "message_type")
     private MessageType type;
 
