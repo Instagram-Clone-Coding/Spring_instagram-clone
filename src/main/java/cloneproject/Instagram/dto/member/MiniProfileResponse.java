@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import com.querydsl.core.annotations.QueryProjection;
 
-import cloneproject.Instagram.dto.post.MemberPostDTO;
 import cloneproject.Instagram.dto.post.MiniProfilePostDTO;
 import cloneproject.Instagram.dto.post.PostImageDTO;
 import cloneproject.Instagram.vo.Image;

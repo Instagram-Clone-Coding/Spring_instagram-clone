@@ -3,12 +3,10 @@ package cloneproject.Instagram.dto.member;
 import com.querydsl.core.annotations.QueryProjection;
 
 import cloneproject.Instagram.vo.Image;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-// @AllArgsConstructor
 @NoArgsConstructor
 public class FollowerDTO {
     
