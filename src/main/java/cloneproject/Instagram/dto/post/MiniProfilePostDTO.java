@@ -3,7 +3,6 @@ package cloneproject.Instagram.dto.post;
 
 import com.querydsl.core.annotations.QueryProjection;
 
-import cloneproject.Instagram.vo.Image;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

@@ -38,7 +38,12 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl{
                                                 .select(follow.member.username)
                                                 .from(follow)
                                                 .where(follow.followMember.username.eq(username)
-                                                        .and(follow.member.id.ne(loginedUserId)))
+                                                        .and(follow.member.id.in(
+                                                            JPAExpressions
+                                                                .select(follow.followMember.id)
+                                                                .from(follow)
+                                                                .where(follow.member.id.eq(loginedUserId))
+                                                        )))
                                                 .fetchFirst();
 
         final UserProfileResponse result = queryFactory.select(new QUserProfileResponse(
@@ -92,7 +97,12 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl{
                                                 .select(follow.member.username)
                                                 .from(follow)
                                                 .where(follow.followMember.username.eq(username)
-                                                            .and(follow.member.id.ne(loginedUserId)))
+                                                        .and(follow.member.id.in(
+                                                            JPAExpressions
+                                                                .select(follow.followMember.id)
+                                                                .from(follow)
+                                                                .where(follow.member.id.eq(loginedUserId))
+                                                        )))
                                                 .fetchFirst();
 
         final MiniProfileResponse result = queryFactory.select(new QMiniProfileResponse(
@@ -198,7 +208,12 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl{
                                             ))
                                             .from(follow)
                                             .where(follow.followMember.username.in(resultUsernames)
-                                                        .and(follow.member.id.ne(loginedUserId)))
+                                                        .and(follow.member.id.in(
+                                                            JPAExpressions
+                                                                .select(follow.followMember.id)
+                                                                .from(follow)
+                                                                .where(follow.member.id.eq(loginedUserId))
+                                                        )))
                                             .fetch();
         if(follows.isEmpty()){
             return result;
