@@ -1,5 +1,7 @@
 package cloneproject.Instagram.service;
 
+import java.util.Optional;
+
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -18,13 +20,16 @@ import cloneproject.Instagram.entity.redis.EmailCode;
 import cloneproject.Instagram.exception.AccountDoesNotMatchException;
 import cloneproject.Instagram.exception.InvalidJwtException;
 import cloneproject.Instagram.exception.MemberDoesNotExistException;
+import cloneproject.Instagram.exception.NoConfirmEmailException;
 import cloneproject.Instagram.exception.UseridAlreadyExistException;
 import cloneproject.Instagram.repository.MemberRepository;
 import cloneproject.Instagram.util.JwtUtil;
 import cloneproject.Instagram.vo.RefreshToken;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberAuthService {
@@ -51,10 +56,18 @@ public class MemberAuthService {
             throw new UseridAlreadyExistException();
         }
         String username = registerRequest.getUsername();
-        EmailCode emailCode = emailCodeService.findByUsername(username);
-        if(emailCode == null || !emailCode.getCode().equals(registerRequest.getCode()) || !emailCode.getEmail().equals(registerRequest.getEmail())){
+        Optional<EmailCode> optionalEmailCode = emailCodeService.findByUsername(username);
+
+        if(optionalEmailCode.isEmpty()){
+            throw new NoConfirmEmailException();
+        }
+
+        EmailCode emailCode = optionalEmailCode.get();
+
+        if(!emailCode.getCode().equals(registerRequest.getCode()) || !emailCode.getEmail().equals(registerRequest.getEmail())){
             return false;
         }
+
         emailCodeService.deleteEmailCode(emailCode);
         Member member = registerRequest.convert();
         String encryptedPassword = bCryptPasswordEncoder.encode(member.getPassword());

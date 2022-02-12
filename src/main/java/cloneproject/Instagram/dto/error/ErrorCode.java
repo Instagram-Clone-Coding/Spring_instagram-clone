@@ -20,6 +20,7 @@ public enum ErrorCode {
     NO_AUTHORITY(403, "M004", "권한이 없습니다."),
     ACCOUNT_DOES_NOT_MATCH(401, "M005", "계정정보가 일치하지 않습니다."),
     UPLOAD_PROFILE_IMAGE_FAIL(400, "M006", "회원 이미지를 업로드 하는 중 실패했습니다."),
+    NO_CONFIRM_EMAIL(400, "M007", "인증 이메일 전송을 먼저 해야합니다."),
     
     // FOLLOW
     ALREADY_FOLLOW(400, "F001", "이미 팔로우한 유저입니다."),

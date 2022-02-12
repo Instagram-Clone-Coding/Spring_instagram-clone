@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 import cloneproject.Instagram.entity.redis.EmailCode;
 import cloneproject.Instagram.repository.EmailCodeRedisRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor 
 @Service
 public class EmailCodeService {
@@ -38,9 +40,9 @@ public class EmailCodeService {
         return true;
     }
 
-    public EmailCode findByUsername(String username){
+    public Optional<EmailCode> findByUsername(String username){
         Optional<EmailCode> emailCode = emailCodeRedisRepository.findByUsername(username);
-        return emailCode.orElseThrow(null);
+        return emailCode;
     }
 
     public void deleteEmailCode(EmailCode emailCode){
