@@ -18,7 +18,7 @@ public class PostRepositoryJdbcImpl implements PostRepositoryJdbc {
     @Override
     public void savePostImages(List<Image> images, Long postId) {
         final String sql =
-                "INSERT INTO POST_IMAGES (`post_image_name`, `post_image_type`, `post_image_uuid`, `post_image_url`, `post_id`) " +
+                "INSERT INTO post_images (`post_image_name`, `post_image_type`, `post_image_uuid`, `post_image_url`, `post_id`) " +
                         "VALUES(?, ?, ?, ?, ?)";
 
         jdbcTemplate.batchUpdate(
@@ -43,7 +43,7 @@ public class PostRepositoryJdbcImpl implements PostRepositoryJdbc {
     @Override
     public void savePostTags(List<PostImageTagRequest> postImageTags) {
         final String sql =
-                "INSERT INTO POST_TAGS (`post_tag_username`, `post_tag_x`, `post_tag_y`, `post_image_id`) " +
+                "INSERT INTO post_tags (`post_tag_username`, `post_tag_x`, `post_tag_y`, `post_image_id`) " +
                         "VALUES(?, ?, ?, ?)";
 
         jdbcTemplate.batchUpdate(
