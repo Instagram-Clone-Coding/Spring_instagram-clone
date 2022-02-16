@@ -51,7 +51,7 @@ public class ChatService {
         for (RoomMember inviterRoom : inviterRooms) {
             for (RoomMember inviteeRoom : inviteeRooms) {
                 if (inviterRoom.getRoom().getId().equals(inviteeRoom.getRoom().getId()))
-                    return new ChatRoomCreateResponse(true, inviterRoom.getRoom().getId(), new MemberSimpleInfo(inviter), List.of(new MemberSimpleInfo(invitee)));
+                    return new ChatRoomCreateResponse(true, inviterRoom.getRoom().getId(), new MemberSimpleInfo(inviter), List.of(new MemberSimpleInfo(inviter), new MemberSimpleInfo(invitee)));
             }
         }
 
@@ -60,7 +60,7 @@ public class ChatService {
         roomMemberRepository.save(new RoomMember(inviter, room));
         roomMemberRepository.save(new RoomMember(invitee, room));
 
-        return new ChatRoomCreateResponse(true, room.getId(), new MemberSimpleInfo(inviter), List.of(new MemberSimpleInfo(invitee)));
+        return new ChatRoomCreateResponse(true, room.getId(), new MemberSimpleInfo(inviter), List.of(new MemberSimpleInfo(inviter), new MemberSimpleInfo(invitee)));
     }
 
     @Transactional

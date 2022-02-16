@@ -19,7 +19,7 @@ public class JoinRoomDTO {
     private MessageDTO lastMessage;
     private boolean unreadFlag;
     private MemberSimpleInfo inviter;
-    private List<MemberSimpleInfo> invitees = new ArrayList<>();
+    private List<MemberSimpleInfo> members = new ArrayList<>();
 
     @QueryProjection
     public JoinRoomDTO(Long roomId, Message message, boolean unreadFlag, Member member) {
