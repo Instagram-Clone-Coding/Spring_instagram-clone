@@ -15,5 +15,5 @@ public class ChatRoomCreateResponse {
     private boolean status;
     private Long chatRoomId;
     private MemberSimpleInfo inviter;
-    private List<MemberSimpleInfo> invitees = new ArrayList<>();
+    private List<MemberSimpleInfo> members = new ArrayList<>();
 }

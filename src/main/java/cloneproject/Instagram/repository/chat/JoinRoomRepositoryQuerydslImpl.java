@@ -62,7 +62,7 @@ public class JoinRoomRepositoryQuerydslImpl implements JoinRoomRepositoryQueryds
         final Map<Long, List<RoomMember>> roomMemberMap = roomMembers.stream()
                 .collect(Collectors.groupingBy(r -> r.getRoom().getId()));
 
-        joinRoomDTOs.forEach(j -> j.setInvitees(
+        joinRoomDTOs.forEach(j -> j.setMembers(
                 roomMemberMap.get(j.getRoomId())
                         .stream()
                         .map(r -> new MemberSimpleInfo(r.getMember()))

@@ -15,6 +15,7 @@ public class CommentDTO {
 
     @JsonIgnore
     private Long postId;
+
     private Long id;
     private MenuMemberDTO member;
     private String content;
