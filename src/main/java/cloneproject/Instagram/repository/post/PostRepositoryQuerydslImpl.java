@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 import static cloneproject.Instagram.entity.comment.QComment.comment;
 import static cloneproject.Instagram.entity.comment.QCommentLike.commentLike;
+import static cloneproject.Instagram.entity.comment.QRecentComment.recentComment;
 import static cloneproject.Instagram.entity.member.QFollow.follow;
 import static cloneproject.Instagram.entity.post.QBookmark.bookmark;
 import static cloneproject.Instagram.entity.post.QPost.post;
@@ -38,7 +39,6 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
         if (member.getFollowings().isEmpty())
             return null;
 
-        // TODO: 최신 댓글 2개 추가 -> 댓글 API 구현할 때 업데이트
         final List<PostDTO> postDTOs = queryFactory
                 .select(new QPostDTO(
                         post.id,
@@ -59,8 +59,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
                                 .exists()
                 ))
                 .from(post)
-                .join(QMember.member)
-                .on(post.member.username.in(
+                .innerJoin(post.member, QMember.member)
+                .where(post.member.username.in(
                         JPAExpressions
                                 .select(follow.followMember.username)
                                 .from(follow)
@@ -72,9 +72,42 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
                 .distinct()
                 .fetch();
 
+        final long total = queryFactory
+                .selectFrom(post)
+                .innerJoin(post.member, QMember.member).fetchJoin()
+                .where(post.member.username.in(
+                        JPAExpressions
+                                .select(follow.followMember.username)
+                                .from(follow)
+                                .where(follow.member.eq(member))))
+                .fetchCount();
+
         final List<Long> postIds = postDTOs.stream()
                 .map(PostDTO::getPostId)
                 .collect(Collectors.toList());
+
+        final Map<Long, List<CommentDTO>> recentCommentMap = queryFactory
+                .select(new QCommentDTO(
+                        recentComment.post.id,
+                        recentComment.comment.id,
+                        recentComment.member,
+                        recentComment.comment.content,
+                        recentComment.comment.uploadDate,
+                        recentComment.comment.commentLikes.size(),
+                        JPAExpressions
+                                .selectFrom(commentLike)
+                                .where(commentLike.comment.eq(comment).and(commentLike.member.id.eq(member.getId())))
+                                .exists(),
+                        recentComment.comment.children.size()
+                ))
+                .from(recentComment)
+                .innerJoin(recentComment.comment, comment)
+                .innerJoin(recentComment.member, QMember.member)
+                .where(recentComment.post.id.in(postIds))
+                .fetch()
+                .stream()
+                .collect(Collectors.groupingBy(CommentDTO::getPostId));
+        postDTOs.forEach(p -> p.setRecentComments(recentCommentMap.get(p.getPostId())));
 
         final List<PostLikeDTO> postLikeDTOs = queryFactory
                 .select(new QPostLikeDTO(
@@ -128,7 +161,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
                 .collect(Collectors.groupingBy(PostImageDTO::getPostId));
         postDTOs.forEach(p -> p.setPostImageDTOs(postDTOMap.get(p.getPostId())));
 
-        return new PageImpl<>(postDTOs, pageable, postDTOs.size());
+        return new PageImpl<>(postDTOs, pageable, total);
     }
 
     @Override
@@ -167,6 +200,29 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
         final List<Long> postIds = postDTOs.stream()
                 .map(PostDTO::getPostId)
                 .collect(Collectors.toList());
+
+        final Map<Long, List<CommentDTO>> recentCommentMap = queryFactory
+                .select(new QCommentDTO(
+                        recentComment.post.id,
+                        recentComment.comment.id,
+                        recentComment.member,
+                        recentComment.comment.content,
+                        recentComment.comment.uploadDate,
+                        recentComment.comment.commentLikes.size(),
+                        JPAExpressions
+                                .selectFrom(commentLike)
+                                .where(commentLike.comment.eq(comment).and(commentLike.member.id.eq(memberId)))
+                                .exists(),
+                        recentComment.comment.children.size()
+                ))
+                .from(recentComment)
+                .innerJoin(recentComment.comment, comment)
+                .innerJoin(recentComment.member, QMember.member)
+                .where(recentComment.post.id.in(postIds))
+                .fetch()
+                .stream()
+                .collect(Collectors.groupingBy(CommentDTO::getPostId));
+        postDTOs.forEach(p -> p.setRecentComments(recentCommentMap.get(p.getPostId())));
 
         final List<PostLikeDTO> postLikeDTOs = queryFactory
                 .select(new QPostLikeDTO(

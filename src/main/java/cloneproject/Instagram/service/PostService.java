@@ -10,6 +10,7 @@ import cloneproject.Instagram.dto.post.PostDTO;
 import cloneproject.Instagram.dto.post.PostImageTagRequest;
 import cloneproject.Instagram.dto.post.PostResponse;
 import cloneproject.Instagram.entity.comment.Comment;
+import cloneproject.Instagram.entity.comment.RecentComment;
 import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.entity.post.Bookmark;
 import cloneproject.Instagram.entity.post.Post;
@@ -22,6 +23,7 @@ import cloneproject.Instagram.repository.PostImageRepository;
 import cloneproject.Instagram.repository.PostLikeRepository;
 import cloneproject.Instagram.repository.post.CommentRepository;
 import cloneproject.Instagram.repository.post.PostRepository;
+import cloneproject.Instagram.repository.post.RecentCommentRepository;
 import cloneproject.Instagram.util.S3Uploader;
 import cloneproject.Instagram.vo.Image;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +54,7 @@ public class PostService {
     private final S3Uploader uploader;
     private final AlarmService alarmService;
     private final CommentRepository commentRepository;
+    private final RecentCommentRepository recentCommentRepository;
 
     public Page<PostDTO> getPostDtoPage(int size, int page) {
         page = (page == 0 ? 0 : page - 1) + 10;
@@ -114,9 +117,10 @@ public class PostService {
             postImageTag.setId(postImageIds.get(idx - 1));
         }
 
+        // TODO: refactor batch insert
         List<String> taggedMemberUsernames = postImageTags.stream().map(PostImageTagRequest::getUsername).collect(Collectors.toList());
         List<Member> taggedMembers = memberRepository.findAllByUsernames(taggedMemberUsernames);
-        for(Member taggedMember: taggedMembers){
+        for (Member taggedMember : taggedMembers) {
             alarmService.alert(AlarmType.MEMBER_TAGGED_ALARM, taggedMember, post.getId());
         }
         postRepository.savePostTags(postImageTags);
@@ -134,6 +138,7 @@ public class PostService {
                 final long tagY = postImageTag.getTagY() == null ? -1L : postImageTag.getTagY();
                 final long postImageId = postImageTag.getId() == null ? -1L : postImageTag.getId();
 
+                // TODO: 한 번에 조회
                 if (username.isBlank() || memberRepository.findByUsername(username).isEmpty())
                     errors.add(new FieldError("username", username, MEMBER_DOES_NOT_EXIST.getMessage()));
                 if (tagX < 0 || tagX > 100)
@@ -199,6 +204,13 @@ public class PostService {
         final Optional<Comment> parent = commentRepository.findById(request.getParentId());
         final Comment comment = new Comment(parent.isEmpty() ? null : parent.get(), member, post, request.getContent());
         commentRepository.save(comment);
+
+        final List<RecentComment> recentComments = recentCommentRepository.findAllByPostId(post.getId());
+        if (recentComments.size() == 2) {
+            final RecentComment recentComment = recentComments.get(0).getId() < recentComments.get(1).getId() ? recentComments.get(0) : recentComments.get(1);
+            recentCommentRepository.delete(recentComment);
+        }
+        recentCommentRepository.save(new RecentComment(member, post, comment));
 
         return new CommentCreateResponse(comment.getId());
     }

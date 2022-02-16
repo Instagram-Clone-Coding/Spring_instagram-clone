@@ -1,5 +1,6 @@
 package cloneproject.Instagram.dto.post;
 
+import cloneproject.Instagram.dto.comment.CommentDTO;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -27,6 +28,7 @@ public class PostDTO {
     private boolean postBookmarkFlag;
     private boolean postLikeFlag;
     private String followingMemberUsernameLikedPost;
+    private List<CommentDTO> recentComments = new ArrayList<>();
 
     @QueryProjection
     public PostDTO(Long postId, String postContent, LocalDateTime postUploadDate, String memberUsername, String memberNickname, String memberImageUrl, int postCommentsCount, int postLikesCount, boolean postBookmarkFlag, boolean postLikeFlag) {
