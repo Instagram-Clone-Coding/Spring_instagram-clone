@@ -54,7 +54,7 @@ public class MemberPostRepositoryTest {
     private Member savedMemberTwo;
     private Post savedPostOne;
     private Post savedPostTwo;
-    private static Long loginedId;
+    private Long loginedId;
     
     @BeforeEach
     void prepare(){
@@ -117,7 +117,7 @@ public class MemberPostRepositoryTest {
             @Test
             @DisplayName("정상적인 결과를 반환한다")
             void it_returns_well(){
-                List<MemberPostDTO> memberPostDTOs = memberRepository.getRecent15PostDTOs(savedMemberOne.getId(), savedMemberOne.getUsername());
+                List<MemberPostDTO> memberPostDTOs = memberRepository.getRecent15PostDTOs(loginedId, savedMemberOne.getUsername());
                 assertEquals(2, memberPostDTOs.size());
                 assertEquals(2, memberPostDTOs.get(1).getPostLikesCount());
                 assertEquals(2, memberPostDTOs.get(1).getPostCommentsCount());
@@ -155,7 +155,7 @@ public class MemberPostRepositoryTest {
             @Test
             @DisplayName("정상적인 결과를 반환한다")
             void it_returns_well(){
-                List<MemberPostDTO> memberPostDTOs = memberRepository.getRecent15SavedPostDTOs(savedMemberOne.getId());
+                List<MemberPostDTO> memberPostDTOs = memberRepository.getRecent15SavedPostDTOs(loginedId);
                 assertEquals(2, memberPostDTOs.size());
                 assertEquals(2, memberPostDTOs.get(1).getPostLikesCount());
                 assertEquals(2, memberPostDTOs.get(1).getPostCommentsCount());
@@ -207,7 +207,7 @@ public class MemberPostRepositoryTest {
             @Test
             @DisplayName("정상적인 결과를 반환한다")
             void it_returns_well(){
-                List<MemberPostDTO> memberPostDTOs = memberRepository.getRecent15TaggedPostDTOs(savedMemberOne.getId(), savedMemberOne.getUsername());
+                List<MemberPostDTO> memberPostDTOs = memberRepository.getRecent15TaggedPostDTOs(loginedId, savedMemberOne.getUsername());
                 assertEquals(2, memberPostDTOs.size());
                 assertEquals(2, memberPostDTOs.get(1).getPostLikesCount());
                 assertEquals(2, memberPostDTOs.get(1).getPostCommentsCount());

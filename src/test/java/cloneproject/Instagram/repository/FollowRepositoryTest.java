@@ -36,7 +36,6 @@ public class FollowRepositoryTest {
     
     @BeforeEach
     void prepare(){
-        memberRepository.deleteAll();
         final Member givenMemberOne =  Member.builder()
                                         .username("dlwlrma")
                                         .name("이지금")
