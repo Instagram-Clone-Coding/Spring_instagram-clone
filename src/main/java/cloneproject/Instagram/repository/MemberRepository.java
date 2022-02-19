@@ -9,9 +9,15 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import cloneproject.Instagram.entity.member.Member;
 
-public interface MemberRepository extends JpaRepository<Member, Long>, JpaSpecificationExecutor<Member>, MemberPostRepositoryQuerydsl,MemberRepositoryQuerydsl{
-    public Optional<Member> findByUsername(String username);
-    public Optional<Member> findById(Long id);
-    public List<Member> findAll(Specification<Member> spec);
-    public boolean existsByUsername(String username);
+public interface MemberRepository extends JpaRepository<Member, Long>, JpaSpecificationExecutor<Member>, MemberPostRepositoryQuerydsl, MemberRepositoryQuerydsl {
+
+    Optional<Member> findByUsername(String username);
+
+    Optional<Member> findById(Long id);
+
+    List<Member> findAll(Specification<Member> spec);
+
+    boolean existsByUsername(String username);
+
+    List<Member> findAllByUsernameIn(List<String> usernames);
 }

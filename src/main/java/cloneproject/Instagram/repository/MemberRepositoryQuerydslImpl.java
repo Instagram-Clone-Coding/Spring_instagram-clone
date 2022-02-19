@@ -1,16 +1,9 @@
 package cloneproject.Instagram.repository;
 
+import cloneproject.Instagram.dto.member.*;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import cloneproject.Instagram.dto.member.FollowDTO;
-import cloneproject.Instagram.dto.member.MiniProfileResponse;
-import cloneproject.Instagram.dto.member.QFollowDTO;
-import cloneproject.Instagram.dto.member.QMiniProfileResponse;
-import cloneproject.Instagram.dto.member.QSearchedMemberDTO;
-import cloneproject.Instagram.dto.member.QUserProfileResponse;
-import cloneproject.Instagram.dto.member.SearchedMemberDTO;
-import cloneproject.Instagram.dto.member.UserProfileResponse;
 import cloneproject.Instagram.dto.post.PostImageDTO;
 import cloneproject.Instagram.dto.post.QPostImageDTO;
 import cloneproject.Instagram.entity.member.Member;

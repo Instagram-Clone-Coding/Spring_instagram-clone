@@ -80,7 +80,12 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
                                             .orderBy(post.id.desc())
                                             .distinct()
                                             .fetch();
-        
+
+        final long total = queryFactory
+                .selectFrom(post)
+                .where(post.member.username.eq(username))
+                .fetchCount();
+
         final List<Long> postIds = posts.stream()
                                     .map(MemberPostDTO::getPostId)
                                     .collect(Collectors.toList());
@@ -101,7 +106,7 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
         posts.forEach(p->p.setImageUrl(postImageDTOMap.get(p.getPostId()).get(0).getPostImageUrl()));    
                             
         
-        return new PageImpl<>(posts, pageable, posts.size());
+        return new PageImpl<>(posts, pageable, total);
     }
 
     @Override
@@ -118,7 +123,7 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
                                             .orderBy(bookmark.post.id.desc())
                                             .distinct()
                                             .fetch();
-        
+
         final List<Long> postIds = posts.stream()
                                     .map(MemberPostDTO::getPostId)
                                     .collect(Collectors.toList());
@@ -155,7 +160,12 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
                                             .orderBy(bookmark.post.id.desc())
                                             .distinct()
                                             .fetch();
-        
+
+        final long total = queryFactory
+                .selectFrom(bookmark)
+                .where(bookmark.member.id.eq(loginedUserId))
+                .fetchCount();
+
         final List<Long> postIds = posts.stream()
                                     .map(MemberPostDTO::getPostId)
                                     .collect(Collectors.toList());
@@ -176,7 +186,7 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
         posts.forEach(p->p.setImageUrl(postImageDTOMap.get(p.getPostId()).get(0).getPostImageUrl()));    
                             
         
-        return new PageImpl<>(posts, pageable, posts.size());
+        return new PageImpl<>(posts, pageable, total);
     }
 
     @Override
@@ -230,7 +240,12 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
                                             .orderBy(postTag.postImage.post.id.desc())
                                             .distinct()
                                             .fetch();
-        
+
+        final long total = queryFactory
+                .selectFrom(postTag)
+                .where(postTag.tag.username.eq(username))
+                .fetchCount();
+
         final List<Long> postIds = posts.stream()
                                     .map(MemberPostDTO::getPostId)
                                     .collect(Collectors.toList());
@@ -251,7 +266,7 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
         posts.forEach(p->p.setImageUrl(postImageDTOMap.get(p.getPostId()).get(0).getPostImageUrl()));    
                             
         
-        return new PageImpl<>(posts, pageable, posts.size());
+        return new PageImpl<>(posts, pageable, total);
     }
     
 }

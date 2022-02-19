@@ -22,38 +22,42 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Component
 public class S3Uploader {
-    
+
     private final AmazonS3Client amazonS3Client;
 
     @Value("${cloud.aws.s3.bucket}")
     public String bucket;
 
     public String upload(MultipartFile multipartFile, String dirName, String UUID, String name, String type) throws IOException {
-        File uploadFile = convert(multipartFile) 
+        File uploadFile = convert(multipartFile)
                 .orElseThrow(CantConvertFileException::new);
 
         return upload(uploadFile, dirName, UUID, name, type);
     }
 
-    public Image uploadImage(MultipartFile multipartFile, String dirName) throws IOException{
-        Image image = ImageUtil.convertMultipartToImage(multipartFile);
-        String url = upload(multipartFile, dirName, image.getImageUUID(),
-                                     image.getImageName(), image.getImageType().toString());
-        image.setUrl(url);
-        return image;
+    public Image uploadImage(MultipartFile multipartFile, String dirName) {
+        try {
+            final Image image = ImageUtil.convertMultipartToImage(multipartFile);
+            final String url = upload(multipartFile, dirName, image.getImageUUID(),
+                    image.getImageName(), image.getImageType().toString());
+            image.setUrl(url);
+            return image;
+        } catch (IOException e) {
+            throw new RuntimeException();
+        }
     }
 
-    public void delete(String dirName, String UUID, String name){
+    public void delete(String dirName, String UUID, String name) {
         String filename = dirName + "/" + UUID + "_" + name;
         deleteS3(filename);
     }
 
-    public void deleteImage(String dirName, Image image){
-        if(image.getImageUUID().equals("base-UUID")){
+    public void deleteImage(String dirName, Image image) {
+        if (image.getImageUUID().equals("base-UUID")) {
             return;
         }
-        String filename = dirName + "/" + image.getImageUUID() + "_" + image.getImageName() 
-                                                + "." + image.getImageType().toString();
+        String filename = dirName + "/" + image.getImageUUID() + "_" + image.getImageName()
+                + "." + image.getImageType().toString();
         deleteS3(filename);
     }
 
@@ -70,7 +74,7 @@ public class S3Uploader {
         return amazonS3Client.getUrl(bucket, fileName).toString();
     }
 
-    private void deleteS3(String filename){
+    private void deleteS3(String filename) {
         amazonS3Client.deleteObject(bucket, filename);
     }
 

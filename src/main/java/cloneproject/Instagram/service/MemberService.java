@@ -1,8 +1,5 @@
 package cloneproject.Instagram.service;
 
-
-
-import java.io.IOException;
 import java.util.List;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,7 +11,6 @@ import cloneproject.Instagram.dto.member.*;
 import cloneproject.Instagram.entity.member.Gender;
 import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.exception.MemberDoesNotExistException;
-import cloneproject.Instagram.exception.UploadProfileImageFailException;
 import cloneproject.Instagram.exception.UseridAlreadyExistException;
 import cloneproject.Instagram.repository.MemberRepository;
 import cloneproject.Instagram.util.AuthUtil;
@@ -84,12 +80,7 @@ public class MemberService {
         Image originalImage = member.getImage();
         s3Uploader.deleteImage("member", originalImage);
 
-        Image image;
-        try{
-            image = s3Uploader.uploadImage(uploadedImage, "member");
-        }catch(IOException e){
-            throw new UploadProfileImageFailException();
-        }
+        Image image = s3Uploader.uploadImage(uploadedImage, "member");
         member.uploadImage(image);
         memberRepository.save(member);
     }
