@@ -6,14 +6,16 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum AlarmType {
-    
-    POST_LIKES_ALARM("agentUsername이 targetUsername(나)의 postId인 포스트를 좋아합니다", "postId"),
-    POST_COMMENT_ALARM("agentUsername이 targetUsername(나)의 postId인 포스트에 댓글을 남겼습니다.", "postId"),
-    COMMENT_LIKES_ALARM("agentUsername이 targetUsername(나)의 postId인 포스트에 댓글을 남겼습니다.", "postId"),
-    MEMBER_FOLLOW_ALARM("agentUsername이 targetUsername(나)를 팔로우 합니다", "followId"),
-    MEMBER_TAGGED_ALARM("agentUsername이 postId인 포스트에서 targetUsername(나)를 태그했습니다", "postId");
 
-    private String alarmMesasge;
-    private String firstItemType;
+    FOLLOW("{agent.username}님이 회원님을 팔로우하기 시작했습니다."),
 
+    LIKE_POST("{agent.username}님이 회원님의 사진을 좋아합니다."),
+    MENTION_POST("{agent.username}님이 게시물에서 회원님을 언급했습니다: {post.content}"),
+
+    COMMENT("{agent.username}님이 댓글을 남겼습니다: {comment.content}"),
+    LIKE_COMMENT("{agent.username}님이 회원님의 댓글을 좋아합니다: {comment.content}"),
+    MENTION_COMMENT("{agent.username}님이 댓글에서 회원님을 언급했습니다: {comment.content}"),
+    ;
+
+    private String message;
 }
