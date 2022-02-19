@@ -4,6 +4,7 @@ import cloneproject.Instagram.dto.StatusResponse;
 import cloneproject.Instagram.dto.comment.CommentCreateRequest;
 import cloneproject.Instagram.dto.comment.CommentCreateResponse;
 import cloneproject.Instagram.dto.comment.CommentDTO;
+import cloneproject.Instagram.dto.member.LikeMembersDTO;
 import cloneproject.Instagram.dto.post.*;
 import cloneproject.Instagram.dto.result.ResultResponse;
 import cloneproject.Instagram.service.PostService;
@@ -27,6 +28,7 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 @Api(tags = "게시물 API")
 @Slf4j
+@Validated
 @RestController
 @RequiredArgsConstructor
 public class PostController {
@@ -35,7 +37,7 @@ public class PostController {
 
     @ApiOperation(value = "게시물 업로드", consumes = MULTIPART_FORM_DATA_VALUE)
     @PostMapping("/posts")
-    public ResponseEntity<ResultResponse> createPost(@Validated @ModelAttribute PostUploadRequest request) {
+    public ResponseEntity<ResultResponse> createPost(@ModelAttribute PostUploadRequest request) {
         final Long postId = postService.upload(request.getContent(), request.getPostImages(), request.getPostImageTags());
         final PostCreateResponse response = new PostCreateResponse(postId);
 
@@ -45,8 +47,7 @@ public class PostController {
     @ApiOperation(value = "게시물 페이징 조회(무한스크롤)")
     @ApiImplicitParam(name = "page", value = "게시물 page", example = "1", required = true)
     @GetMapping("/posts")
-    public ResponseEntity<ResultResponse> getPostPage(
-            @Validated @NotNull(message = "조회할 게시물 page는 필수입니다.") @RequestParam int page) {
+    public ResponseEntity<ResultResponse> getPostPage(@NotNull(message = "조회할 게시물 page는 필수입니다.") @RequestParam int page) {
         final Page<PostDTO> postPage = postService.getPostDtoPage(1, page);
 
         return ResponseEntity.ok(ResultResponse.of(FIND_POST_PAGE_SUCCESS, postPage));
@@ -63,8 +64,7 @@ public class PostController {
     @ApiOperation(value = "게시물 삭제")
     @ApiImplicitParam(name = "postId", value = "게시물 PK", example = "1", required = true)
     @DeleteMapping("/posts")
-    public ResponseEntity<ResultResponse> deletePost(
-            @Validated @NotNull(message = "삭제할 게시물 PK는 필수입니다.") @RequestParam Long postId) {
+    public ResponseEntity<ResultResponse> deletePost(@NotNull(message = "삭제할 게시물 PK는 필수입니다.") @RequestParam Long postId) {
         postService.delete(postId);
 
         return ResponseEntity.ok(ResultResponse.of(DELETE_POST_SUCCESS, null));
@@ -73,8 +73,7 @@ public class PostController {
     @ApiOperation(value = "게시물 조회")
     @ApiImplicitParam(name = "postId", value = "게시물 PK", example = "1", required = true)
     @GetMapping("/posts/{postId}")
-    public ResponseEntity<ResultResponse> getPost(
-            @Validated @NotNull(message = "조회할 게시물 PK는 필수입니다.") @PathVariable Long postId) {
+    public ResponseEntity<ResultResponse> getPost(@NotNull(message = "조회할 게시물 PK는 필수입니다.") @PathVariable Long postId) {
         final PostResponse response = postService.getPost(postId);
 
         return ResponseEntity.ok(ResultResponse.of(FIND_POST_SUCCESS, response));
@@ -83,30 +82,79 @@ public class PostController {
     @ApiOperation(value = "게시물 좋아요")
     @ApiImplicitParam(name = "postId", value = "게시물 PK", example = "1", required = true)
     @PostMapping("/posts/like")
-    public ResponseEntity<ResultResponse> likePost(
-            @Validated @NotNull(message = "좋아요할 게시물 PK는 필수입니다.") @RequestParam Long postId) {
+    public ResponseEntity<ResultResponse> likePost(@NotNull(message = "좋아요할 게시물 PK는 필수입니다.") @RequestParam Long postId) {
         final boolean status = postService.likePost(postId);
         final StatusResponse response = new StatusResponse(status);
 
         return ResponseEntity.ok(ResultResponse.of(LIKE_POST_SUCCESS, response));
     }
 
+    @ApiOperation(value = "댓글 좋아요")
+    @ApiImplicitParam(name = "commentId", value = "댓글 PK", example = "1", required = true)
+    @PostMapping("/comments/like")
+    public ResponseEntity<ResultResponse> likeComment(@NotNull(message = "좋아요할 댓글 PK는 필수입니다.") @RequestParam Long commentId) {
+        final boolean status = postService.likeComment(commentId);
+        final StatusResponse response = new StatusResponse(status);
+
+        return ResponseEntity.ok(ResultResponse.of(LIKE_COMMENT_SUCCESS, response));
+    }
+
     @ApiOperation(value = "게시물 좋아요 취소")
     @ApiImplicitParam(name = "postId", value = "게시물 PK", example = "1", required = true)
     @DeleteMapping("/posts/like")
-    public ResponseEntity<ResultResponse> unlikePost(
-            @Validated @NotNull(message = "좋아요 취소할 게시물 PK는 필수입니다.") @RequestParam Long postId){
+    public ResponseEntity<ResultResponse> unlikePost(@NotNull(message = "좋아요 취소할 게시물 PK는 필수입니다.") @RequestParam Long postId){
         final boolean status = postService.unlikePost(postId);
         final StatusResponse response = new StatusResponse(status);
 
         return ResponseEntity.ok(ResultResponse.of(UNLIKE_POST_SUCCESS, response));
     }
 
+    @ApiOperation(value = "댓글 좋아요 취소")
+    @ApiImplicitParam(name = "commentId", value = "댓글 PK", example = "1", required = true)
+    @DeleteMapping("/comments/like")
+    public ResponseEntity<ResultResponse> unlikeComment(@NotNull(message = "좋아요 취소할 댓글 PK는 필수입니다.") @RequestParam Long commentId){
+        final boolean status = postService.unlikeComment(commentId);
+        final StatusResponse response = new StatusResponse(status);
+
+        return ResponseEntity.ok(ResultResponse.of(UNLIKE_COMMENT_SUCCESS, response));
+    }
+
+    @ApiOperation(value = "게시물 좋아요한 사람 목록 페이징 조회")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "postId", value = "게시물 PK", example = "1", required = true),
+            @ApiImplicitParam(name = "page", value = "페이지", example = "1", required = true),
+            @ApiImplicitParam(name = "size", value = "페이지당 개수", example = "10", required = true)
+    })
+    @GetMapping("/posts/{postId}/likes")
+    public ResponseEntity<ResultResponse> getPostLikes(
+            @NotNull(message = "게시물 좋아요한 사람 목록 조회할 게시물 PK는 필수입니다.") @PathVariable Long postId,
+            @NotNull(message = "page는 필수입니다.") @RequestParam int page,
+            @NotNull(message = "size는 필수입니다.") @RequestParam int size) {
+        final Page<LikeMembersDTO> response = postService.getPostLikeMembersDtoPage(postId, page, size);
+
+        return ResponseEntity.ok(ResultResponse.of(GET_POST_LIKES_SUCCESS, response));
+    }
+
+    @ApiOperation(value = "댓글 좋아요한 사람 목록 페이징 조회")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "commentId", value = "댓글 PK", example = "1", required = true),
+            @ApiImplicitParam(name = "page", value = "페이지", example = "1", required = true),
+            @ApiImplicitParam(name = "size", value = "페이지당 개수", example = "10", required = true)
+    })
+    @GetMapping("/comments/{commentId}/likes")
+    public ResponseEntity<ResultResponse> getCommentLikes(
+            @NotNull(message = "댓글 좋아요한 사람 목록 조회할 게시물 PK는 필수입니다.") @PathVariable Long commentId,
+            @NotNull(message = "page는 필수입니다.") @RequestParam int page,
+            @NotNull(message = "size는 필수입니다.") @RequestParam int size) {
+        final Page<LikeMembersDTO> response = postService.getCommentLikeMembersDtoPage(commentId, page, size);
+
+        return ResponseEntity.ok(ResultResponse.of(GET_COMMENT_LIKES_SUCCESS, response));
+    }
+
     @ApiOperation(value = "게시물 저장")
     @ApiImplicitParam(name = "postId", value = "게시물 PK", example = "1", required = true)
     @PostMapping("/posts/save")
-    public ResponseEntity<ResultResponse> savePost(
-            @Validated @NotNull(message = "저장할 게시물 PK는 필수입니다.") @RequestParam Long postId) {
+    public ResponseEntity<ResultResponse> savePost(@NotNull(message = "저장할 게시물 PK는 필수입니다.") @RequestParam Long postId) {
         final boolean status = postService.savePost(postId);
         final StatusResponse response = new StatusResponse(status);
 
@@ -116,8 +164,7 @@ public class PostController {
     @ApiOperation(value = "게시물 저장 취소")
     @ApiImplicitParam(name = "postId", value = "게시물 PK", example = "1", required = true)
     @DeleteMapping("/posts/save")
-    public ResponseEntity<ResultResponse> unsavePost(
-            @Validated @NotNull(message = "저장 취소할 게시물 PK는 필수입니다.") @RequestParam Long postId) {
+    public ResponseEntity<ResultResponse> unsavePost(@NotNull(message = "저장 취소할 게시물 PK는 필수입니다.") @RequestParam Long postId) {
         final boolean status = postService.unsavePost(postId);
         final StatusResponse response = new StatusResponse(status);
 
@@ -126,8 +173,8 @@ public class PostController {
 
     @ApiOperation(value = "게시물 댓글 작성", notes = "parentId는 댓글인 경우 0, 답글인 경우 댓글 부모 PK를 입력해주세요.")
     @PostMapping("/comments")
-    public ResponseEntity<ResultResponse> createComment(@Validated @RequestBody CommentCreateRequest request) {
-        final CommentCreateResponse response = postService.saveComment(request);
+    public ResponseEntity<ResultResponse> createComment(@RequestBody CommentCreateRequest request) {
+        final CommentCreateResponse response = postService.createComment(request);
 
         return ResponseEntity.ok(ResultResponse.of(CREATE_COMMENT_SUCCESS, response));
     }
