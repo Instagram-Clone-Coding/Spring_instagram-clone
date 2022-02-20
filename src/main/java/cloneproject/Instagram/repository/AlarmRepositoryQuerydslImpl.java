@@ -22,6 +22,7 @@ import static cloneproject.Instagram.entity.member.QFollow.follow;
 import static cloneproject.Instagram.entity.member.QMember.member;
 import static cloneproject.Instagram.entity.post.QPost.post;
 import static cloneproject.Instagram.entity.post.QPostImage.postImage;
+import static com.querydsl.core.group.GroupBy.groupBy;
 
 @RequiredArgsConstructor
 public class AlarmRepositoryQuerydslImpl implements AlarmRepositoryQuerydsl {
@@ -46,15 +47,13 @@ public class AlarmRepositoryQuerydslImpl implements AlarmRepositoryQuerydsl {
                 .map(a -> a.getAgent().getId())
                 .collect(Collectors.toList());
         final Map<Long, Follow> followMap = queryFactory
-                .selectFrom(follow)
+                .from(follow)
                 .where(
                         follow.member.id.eq(memberId).and(
                                 follow.followMember.id.in(agentIds)
                         )
                 )
-                .fetch()
-                .stream()
-                .collect(Collectors.toMap(f -> f.getFollowMember().getId(), f -> f));
+                .transform(groupBy(follow.followMember.id).as(follow));
 
         final List<AlarmDTO> content = alarms.stream()
                 .map(a -> {
