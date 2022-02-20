@@ -27,8 +27,8 @@ public class MessageRepositoryQuerydslImpl implements MessageRepositoryQuerydsl 
         final JoinRoom findJoinRoom = queryFactory
                 .selectFrom(joinRoom)
                 .where(joinRoom.member.id.eq(memberId).and(joinRoom.room.id.eq(roomId)))
-                .innerJoin(joinRoom.room, room)
-                .innerJoin(joinRoom.member, member)
+                .innerJoin(joinRoom.room, room).fetchJoin()
+                .innerJoin(joinRoom.member, member).fetchJoin()
                 .fetchOne();
 
         if (findJoinRoom == null)
@@ -37,19 +37,25 @@ public class MessageRepositoryQuerydslImpl implements MessageRepositoryQuerydsl 
         final List<MessageDTO> messageDTOs = queryFactory
                 .select(new QMessageDTO(message))
                 .from(message)
-                .innerJoin(message.member, member)
-                .innerJoin(message.room, room)
                 .where(
-                        message.member.id.eq(findJoinRoom.getMember().getId()).and(
-                                message.room.id.eq(findJoinRoom.getRoom().getId()).and(
-                                        message.createdDate.after(findJoinRoom.getCreatedDate())
-                                )
-                        ))
+                        message.room.id.eq(findJoinRoom.getRoom().getId()).and(
+                                message.createdDate.after(findJoinRoom.getCreatedDate())
+                        )
+                )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(message.createdDate.desc())
+                .orderBy(message.id.desc())
                 .fetch();
 
-        return new PageImpl<>(messageDTOs, pageable, messageDTOs.size());
+        final long total = queryFactory
+                .selectFrom(message)
+                .where(
+                        message.room.id.eq(findJoinRoom.getRoom().getId()).and(
+                                message.createdDate.after(findJoinRoom.getCreatedDate())
+                        )
+                )
+                .fetchCount();
+
+        return new PageImpl<>(messageDTOs, pageable, total);
     }
 }

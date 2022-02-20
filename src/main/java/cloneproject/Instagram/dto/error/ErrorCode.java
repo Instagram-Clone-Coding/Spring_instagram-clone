@@ -55,13 +55,19 @@ public enum ErrorCode {
     BOOKMARK_NOT_FOUND(400, "P013", "아직 해당 게시물을 저장하지 않았습니다."),
     COMMENT_NOT_FOUND(400, "P014", "존재하지 않는 댓글입니다."),
     COMMENT_CANT_DELETE(400, "P015", "타인이 작성한 댓글은 삭제할 수 없습니다."),
+    COMMENT_LIKE_ALREADY_EXIST(400, "P016", "해당 댓글에 이미 좋아요를 누른 회원입니다."),
+    COMMENT_LIKE_NOT_FOUND(400, "P017", "해당 댓글에 좋아요를 누르지 않은 회원입니다."),
 
     // Chat
     CHAT_ROOM_NOT_FOUND(400, "C001", "존재하지 않는 채팅방입니다."),
     JOIN_ROOM_NOT_FOUND(400, "C002", "해당 채팅방에 참여하지 않은 회원입니다."),
 
     // FILE
-    CANT_CONVERT_FILE(500, "FI001", "파일을 변환할수 없습니다");
+    CANT_CONVERT_FILE(500, "FI001", "파일을 변환할수 없습니다"),
+
+    // Alarm
+    MISMATCHED_ALARM_TYPE(400, "A001", "알람 형식이 올바르지 않습니다.")
+    ;
     ;
 
     private int status;

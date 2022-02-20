@@ -35,6 +35,7 @@ public class Post {
     private String content;
 
     @CreatedDate
+    @Column(name = "post_upload_date")
     private LocalDateTime uploadDate;
 
     @OneToMany(mappedBy = "post", orphanRemoval = true)

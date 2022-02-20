@@ -1,20 +1,12 @@
 package cloneproject.Instagram.entity.alarms;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
+import cloneproject.Instagram.entity.comment.Comment;
+import cloneproject.Instagram.entity.member.Follow;
+import cloneproject.Instagram.entity.post.Post;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -49,19 +41,29 @@ public class Alarm {
     @JoinColumn(name = "alarm_target_id")
     private Member target;
 
-    @Column(name = "alarm_item_id")
-    private Long itemId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    private Post post;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "comment_id")
+    private Comment comment;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "follow_id")
+    private Follow follow;
 
     @CreatedDate
-    @Column(name = "alarm_created_at")
-    private Date createdAt;
+    @Column(name = "alarm_created_date")
+    private LocalDateTime createdDate;
     
     @Builder
-    public Alarm(AlarmType type, Member agent, Member target, Long itemId){
+    public Alarm(AlarmType type, Member agent, Member target, Post post, Comment comment, Follow follow) {
         this.type = type;
         this.agent = agent;
         this.target = target;
-        this.itemId = itemId;
+        this.post = post;
+        this.comment = comment;
+        this.follow = follow;
     }
-
 }

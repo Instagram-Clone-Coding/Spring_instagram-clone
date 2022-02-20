@@ -44,7 +44,12 @@ public class CommentRepositoryQuerydslImpl implements CommentRepositoryQuerydsl 
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        return new PageImpl<>(commentDTOs, pageable, commentDTOs.size());
+        final long total = queryFactory
+                .selectFrom(comment)
+                .where(comment.post.id.eq(postId).and(comment.id.eq(comment.parent.id)))
+                .fetchCount();
+
+        return new PageImpl<>(commentDTOs, pageable, total);
     }
 
     @Override
@@ -71,6 +76,11 @@ public class CommentRepositoryQuerydslImpl implements CommentRepositoryQuerydsl 
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        return new PageImpl<>(commentDTOs, pageable, commentDTOs.size());
+        final long total = queryFactory
+                .selectFrom(comment)
+                .where(comment.parent.id.eq(commentId))
+                .fetchCount();
+
+        return new PageImpl<>(commentDTOs, pageable, total);
     }
 }

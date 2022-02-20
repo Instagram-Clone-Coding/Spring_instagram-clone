@@ -1,62 +1,74 @@
 package cloneproject.Instagram.repository;
 
-import java.util.List;
+import cloneproject.Instagram.dto.alarm.AlarmContentDTO;
+import cloneproject.Instagram.dto.alarm.AlarmFollowDTO;
+import cloneproject.Instagram.dto.alarm.AlarmType;
+import cloneproject.Instagram.entity.alarms.Alarm;
+import cloneproject.Instagram.entity.member.Follow;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import cloneproject.Instagram.dto.alarm.AlarmDTO;
-import cloneproject.Instagram.dto.alarm.QAlarmDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import static cloneproject.Instagram.entity.alarms.QAlarm.alarm;
+import static cloneproject.Instagram.entity.member.QFollow.follow;
+import static cloneproject.Instagram.entity.member.QMember.member;
+import static cloneproject.Instagram.entity.post.QPost.post;
+import static cloneproject.Instagram.entity.post.QPostImage.postImage;
+import static com.querydsl.core.group.GroupBy.groupBy;
 
 @RequiredArgsConstructor
-public class AlarmRepositoryQuerydslImpl implements AlarmRepositoryQuerydsl{
-    
+public class AlarmRepositoryQuerydslImpl implements AlarmRepositoryQuerydsl {
+
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<AlarmDTO> getAlarms(Long loginedMemberId){
+    public Page<AlarmDTO> getAlarmDtoPageByMemberId(Pageable pageable, Long memberId) {
+        final List<Alarm> alarms = queryFactory
+                .selectFrom(alarm)
+                .innerJoin(alarm.agent, member).fetchJoin()
+                .leftJoin(alarm.post, post).fetchJoin()
+                .leftJoin(post.postImages, postImage).fetchJoin()
+                .where(alarm.target.id.eq(memberId))
+                .orderBy(alarm.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
 
+        final List<Long> agentIds = alarms.stream()
+                .filter(a -> a.getType().equals(AlarmType.FOLLOW))
+                .map(a -> a.getAgent().getId())
+                .collect(Collectors.toList());
+        final Map<Long, Follow> followMap = queryFactory
+                .from(follow)
+                .where(
+                        follow.member.id.eq(memberId).and(
+                                follow.followMember.id.in(agentIds)
+                        )
+                )
+                .transform(groupBy(follow.followMember.id).as(follow));
 
-        // * 주석 처리한 부분은 로직이 복잡해 보류됨 참고 : Issue #76
-        // Map<Long, AlarmDTO> resultAboutComment = queryFactory
-        //                             .from(alarm)
-        //                             .where(alarm.target.id.eq(loginedMemberId).and(alarm.type.eq(AlarmType.POST_COMMENT_ALARM)))
-        //                             .transform(GroupBy.groupBy(alarm.id).as(new QAlarmDTO(
-        //                                 alarm.id,
-        //                                 alarm.type, 
-        //                                 alarm.agent.username, 
-        //                                 alarm.target.username, 
-        //                                 alarm.itemId, 
-        //                                 alarm.createdAt)));
+        final List<AlarmDTO> content = alarms.stream()
+                .map(a -> {
+                    if (a.getType().equals(AlarmType.FOLLOW))
+                        return new AlarmFollowDTO(a, followMap.containsKey(a.getAgent().getId()));
+                    else
+                        return new AlarmContentDTO(a);
+                })
+                .collect(Collectors.toList());
 
-        // Map<Long, Long> postIds = queryFactory
-        //                             .from(alarm)
-        //                             .where(alarm.target.id.eq(loginedMemberId).and(alarm.type.eq(AlarmType.POST_COMMENT_ALARM)))
-        //                             .transform(GroupBy.groupBy(alarm.id).as(
-        //                                 JPAExpressions
-        //                                     .select(comment.post.id)
-        //                                     .from(comment)
-        //                                     .where(comment.id.eq(alarm.itemId))        
-        //                             ));
-        
-        // resultAboutComment.forEach((key, alarm)->alarm.getItemIds().put("postId", postIds.get(key)));
+        final long total = queryFactory
+                .selectFrom(alarm)
+                .where(alarm.target.id.eq(memberId))
+                .fetchCount();
 
-        List<AlarmDTO> result = queryFactory
-                                    .select(new QAlarmDTO(
-                                        alarm.id,
-                                        alarm.type, 
-                                        alarm.agent.username, 
-                                        alarm.target.username, 
-                                        alarm.itemId, 
-                                        alarm.createdAt))
-
-                                    .from(alarm)
-                                    .where(alarm.target.id.eq(loginedMemberId))
-                                    // .where(alarm.target.id.eq(loginedMemberId).and(alarm.type.ne(AlarmType.POST_COMMENT_ALARM)))
-                                    .fetch();
-
-        // result.addAll(resultAboutComment.values());
-        return result;
+        return new PageImpl<>(content, pageable, total);
     }
-
 }

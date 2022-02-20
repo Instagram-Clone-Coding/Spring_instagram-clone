@@ -1,11 +1,10 @@
 package cloneproject.Instagram.repository;
 
-import java.util.List;
-
 import cloneproject.Instagram.dto.alarm.AlarmDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface AlarmRepositoryQuerydsl {
     
-    public List<AlarmDTO> getAlarms(Long loginedMemberId);
-
+    Page<AlarmDTO> getAlarmDtoPageByMemberId(Pageable pageable, Long memberId);
 }

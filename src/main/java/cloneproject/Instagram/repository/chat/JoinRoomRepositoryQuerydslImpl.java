@@ -29,14 +29,17 @@ public class JoinRoomRepositoryQuerydslImpl implements JoinRoomRepositoryQueryds
 
     @Override
     public Page<JoinRoomDTO> findJoinRoomDTOPageByMemberId(Long memberId, Pageable pageable) {
-        // TODO: WebSocket 이용 메시지 송/수신하는 시점부터 쿼리 확인 필요
         final List<JoinRoomDTO> joinRoomDTOs = queryFactory
                 .select(new QJoinRoomDTO(
                         joinRoom.room.id,
                         joinRoom.room.message,
                         JPAExpressions
                                 .selectFrom(roomUnreadMember)
-                                .where(roomUnreadMember.member.id.eq(memberId))
+                                .where(
+                                        roomUnreadMember.member.id.eq(memberId).and(
+                                                roomUnreadMember.room.eq(joinRoom.room)
+                                        )
+                                )
                                 .exists(),
                         joinRoom.room.member
                 ))
@@ -47,8 +50,13 @@ public class JoinRoomRepositoryQuerydslImpl implements JoinRoomRepositoryQueryds
                 .where(joinRoom.member.id.eq(memberId))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(joinRoom.lastMessageDate.desc()) // TODO: DB에 메시지 저장하는 시점부터 테스트 필요
+                .orderBy(joinRoom.lastMessageDate.desc())
                 .fetch();
+
+        final long total = queryFactory
+                .selectFrom(joinRoom)
+                .where(joinRoom.member.id.eq(memberId))
+                .fetchCount();
 
         final List<Long> roomIds = joinRoomDTOs.stream()
                 .map(JoinRoomDTO::getRoomId)
@@ -63,11 +71,11 @@ public class JoinRoomRepositoryQuerydslImpl implements JoinRoomRepositoryQueryds
                 .collect(Collectors.groupingBy(r -> r.getRoom().getId()));
 
         joinRoomDTOs.forEach(j -> j.setMembers(
-                roomMemberMap.get(j.getRoomId())
-                        .stream()
+                roomMemberMap.get(j.getRoomId()).stream()
                         .map(r -> new MemberSimpleInfo(r.getMember()))
-                        .collect(Collectors.toList())));
+                        .collect(Collectors.toList()))
+        );
 
-        return new PageImpl<>(joinRoomDTOs, pageable, joinRoomDTOs.size());
+        return new PageImpl<>(joinRoomDTOs, pageable, total);
     }
 }
