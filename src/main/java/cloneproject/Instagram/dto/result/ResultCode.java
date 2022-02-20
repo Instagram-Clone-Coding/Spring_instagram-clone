@@ -65,8 +65,8 @@ public enum ResultCode {
     GET_REPLY_PAGE_SUCCESS(200, "P014", "게시물 답글 페이지 조회 성공"),
     GET_POST_LIKES_SUCCESS(200, "P015", "게시물 좋아요한 사람 목록 페이지 조회 성공"),
     LIKE_COMMENT_SUCCESS(200, "P016", "댓글 좋아요 성공"),
-    UNLIKE_COMMENT_SUCCESS(200, "P016", "댓글 좋아요 취소 성공"),
-    GET_COMMENT_LIKES_SUCCESS(200, "P017", "댓글 좋아요한 사람 목록 페이지 조회 성공"),
+    UNLIKE_COMMENT_SUCCESS(200, "P017", "댓글 좋아요 취소 성공"),
+    GET_COMMENT_LIKES_SUCCESS(200, "P018", "댓글 좋아요한 사람 목록 페이지 조회 성공"),
 
     // CHAT
     CREATE_CHAT_ROOM_SUCCESS(200, "C001", "채팅방 생성 성공"),
