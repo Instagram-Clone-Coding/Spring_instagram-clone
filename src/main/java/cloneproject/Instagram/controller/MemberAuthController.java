@@ -101,6 +101,7 @@ public class MemberAuthController {
         // cookie.setSecure(true); https 미지원
         cookie.setHttpOnly(true);
         cookie.setPath("/");
+        cookie.setDomain("bullien.com");
     
         response.addCookie(cookie);
 
@@ -132,6 +133,7 @@ public class MemberAuthController {
         // cookie.setSecure(true); https 미지원
         cookie.setHttpOnly(true);
         cookie.setPath("/");
+        cookie.setDomain("bullien.com");
     
         response.addCookie(cookie);
 
