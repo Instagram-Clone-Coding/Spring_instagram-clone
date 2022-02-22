@@ -40,7 +40,6 @@ public class EditProfileRequest {
     String memberEmail;
 
     @ApiModelProperty(value = "전화번호", example = "010-0000-0000", required = false)
-    @NotBlank(message = "휴대폰 번호를 입력해주세요")
     @Pattern(regexp = "^\\d{3}-\\d{3,4}-\\d{4}$", message = "휴대폰 번호 양식이 맞지 않습니다")
     String memberPhone;
 
