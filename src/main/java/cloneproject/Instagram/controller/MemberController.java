@@ -128,7 +128,6 @@ public class MemberController {
     @GetMapping(value = "/search")
     public ResponseEntity<ResultResponse> searchMember(
         @RequestParam
-        @NotBlank(message = "text를 입력해주세요") 
         String text) {
         List<SearchedMemberDTO> memberInfos = memberService.searchMember(text);
 
