@@ -126,9 +126,7 @@ public class MemberController {
     @ApiOperation(value = "멤버 검색")
     @ApiImplicitParam(name = "text", value = "검색내용", required = true, example = "dlwl")
     @GetMapping(value = "/search")
-    public ResponseEntity<ResultResponse> searchMember(
-        @RequestParam
-        String text) {
+    public ResponseEntity<ResultResponse> searchMember(@RequestParam String text) {
         List<SearchedMemberDTO> memberInfos = memberService.searchMember(text);
 
         ResultResponse result = ResultResponse.of(ResultCode.SEARCH_MEMBER_SUCCESS, memberInfos);
