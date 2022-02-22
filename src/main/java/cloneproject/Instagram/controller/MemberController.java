@@ -62,10 +62,7 @@ public class MemberController {
         @ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma")
     })
     @GetMapping(value = "/accounts/{username}")
-    public ResponseEntity<ResultResponse> getUserProfile(
-        @PathVariable("username")
-        @Length(min = 4, max = 12, message = "사용자 이름은 4문자 이상 12문자 이하여야 합니다")
-        String username){
+    public ResponseEntity<ResultResponse> getUserProfile(@PathVariable("username") String username){
         UserProfileResponse userProfileResponse = memberService.getUserProfile(username);
 
         ResultResponse result = ResultResponse.of(ResultCode.GET_USERPROFILE_SUCCESS, userProfileResponse);
@@ -77,10 +74,7 @@ public class MemberController {
         @ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma")
     })
     @GetMapping(value = "/accounts/{username}/mini")
-    public ResponseEntity<ResultResponse> getMiniProfile(
-        @PathVariable("username")
-        @Length(min = 4, max = 12, message = "사용자 이름은 4문자 이상 12문자 이하여야 합니다")
-        String username){
+    public ResponseEntity<ResultResponse> getMiniProfile(@PathVariable("username") String username){
         MiniProfileResponse miniProfileResponse = memberService.getMiniProfile(username);
 
         ResultResponse result = ResultResponse.of(ResultCode.GET_MINIPROFILE_SUCCESS, miniProfileResponse);
