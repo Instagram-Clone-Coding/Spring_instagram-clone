@@ -9,6 +9,9 @@ import io.swagger.annotations.ApiOperation;
 
 import java.util.List;
 
+import javax.validation.constraints.NotBlank;
+
+import org.hibernate.validator.constraints.Length;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -36,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Slf4j
+@Validated
 @Api(tags = "멤버 API")
 @RestController
 @RequiredArgsConstructor
@@ -58,7 +62,10 @@ public class MemberController {
         @ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma")
     })
     @GetMapping(value = "/accounts/{username}")
-    public ResponseEntity<ResultResponse> getUserProfile(@PathVariable("username") String username){
+    public ResponseEntity<ResultResponse> getUserProfile(
+        @PathVariable("username")
+        @Length(min = 4, max = 12, message = "사용자 이름은 4문자 이상 12문자 이하여야 합니다")
+        String username){
         UserProfileResponse userProfileResponse = memberService.getUserProfile(username);
 
         ResultResponse result = ResultResponse.of(ResultCode.GET_USERPROFILE_SUCCESS, userProfileResponse);
@@ -70,7 +77,10 @@ public class MemberController {
         @ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma")
     })
     @GetMapping(value = "/accounts/{username}/mini")
-    public ResponseEntity<ResultResponse> getMiniProfile(@PathVariable("username") String username){
+    public ResponseEntity<ResultResponse> getMiniProfile(
+        @PathVariable("username")
+        @Length(min = 4, max = 12, message = "사용자 이름은 4문자 이상 12문자 이하여야 합니다")
+        String username){
         MiniProfileResponse miniProfileResponse = memberService.getMiniProfile(username);
 
         ResultResponse result = ResultResponse.of(ResultCode.GET_MINIPROFILE_SUCCESS, miniProfileResponse);
@@ -115,8 +125,11 @@ public class MemberController {
 
     @ApiOperation(value = "멤버 검색")
     @ApiImplicitParam(name = "text", value = "검색내용", required = true, example = "dlwl")
-    @PostMapping(value = "/search")
-    public ResponseEntity<ResultResponse> searchMember(@RequestParam String text) {
+    @GetMapping(value = "/search")
+    public ResponseEntity<ResultResponse> searchMember(
+        @RequestParam
+        @NotBlank(message = "text를 입력해주세요") 
+        String text) {
         List<SearchedMemberDTO> memberInfos = memberService.searchMember(text);
 
         ResultResponse result = ResultResponse.of(ResultCode.SEARCH_MEMBER_SUCCESS, memberInfos);
