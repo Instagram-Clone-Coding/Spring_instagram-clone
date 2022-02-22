@@ -2,14 +2,17 @@ package cloneproject.Instagram.controller;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Length;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,6 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Api(tags = "멤버 인증 API")
+@Validated
 @RestController
 @RequiredArgsConstructor
 public class MemberAuthController {
@@ -47,11 +51,9 @@ public class MemberAuthController {
         @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " "),
         @ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma")
     })
-    @PostMapping(value = "/accounts/check")
+    @GetMapping(value = "/accounts/check")
     public ResponseEntity<ResultResponse> checkUsername(
                             @RequestParam
-                            @Validated  
-                            @NotBlank(message = "username을 입력해주세요")
                             @Length(min = 4, max = 12, message = "사용자 이름은 4문자 이상 12문자 이하여야 합니다")
                             @Pattern(regexp = "^[0-9a-zA-Z]+$", message = "username엔 대소문자, 숫자만 사용할 수 있습니다.") 
                             String username) {

@@ -9,6 +9,9 @@ import io.swagger.annotations.ApiOperation;
 
 import java.util.List;
 
+import javax.validation.constraints.NotBlank;
+
+import org.hibernate.validator.constraints.Length;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -36,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Slf4j
+@Validated
 @Api(tags = "멤버 API")
 @RestController
 @RequiredArgsConstructor
@@ -115,7 +119,7 @@ public class MemberController {
 
     @ApiOperation(value = "멤버 검색")
     @ApiImplicitParam(name = "text", value = "검색내용", required = true, example = "dlwl")
-    @PostMapping(value = "/search")
+    @GetMapping(value = "/search")
     public ResponseEntity<ResultResponse> searchMember(@RequestParam String text) {
         List<SearchedMemberDTO> memberInfos = memberService.searchMember(text);
 

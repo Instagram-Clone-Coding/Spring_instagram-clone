@@ -8,7 +8,10 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.validation.ConstraintViolation;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -35,6 +38,14 @@ public class ErrorResponse {
 
     public static ErrorResponse of(final ErrorCode code, final BindingResult bindingResult) {
         return new ErrorResponse(code, FieldError.of(bindingResult));
+    }
+
+    public static ErrorResponse of(final ErrorCode code, final Set<ConstraintViolation<?>> constraintViolations) {
+        return new ErrorResponse(code, FieldError.of(constraintViolations));
+    }
+
+    public static ErrorResponse of(final ErrorCode code, final String missingParameterName) {
+        return new ErrorResponse(code, FieldError.of(missingParameterName, "", "parameter가 필요합니다"));
     }
 
     public static ErrorResponse of(final ErrorCode code) {
@@ -77,6 +88,16 @@ public class ErrorResponse {
                             error.getField(),
                             error.getRejectedValue() == null ? "" : error.getRejectedValue().toString(),
                             error.getDefaultMessage()))
+                    .collect(Collectors.toList());
+        }
+
+        private static List<FieldError> of(final Set<ConstraintViolation<?>> constraintViolations) {
+            List<ConstraintViolation<?>> lists = new ArrayList<>(constraintViolations);
+            return lists.stream()
+                    .map(error -> new FieldError(
+                            error.getPropertyPath().toString(),
+                            "" ,
+                            error.getMessageTemplate()))
                     .collect(Collectors.toList());
         }
     }
