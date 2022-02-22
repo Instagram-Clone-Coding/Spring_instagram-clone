@@ -36,6 +36,7 @@ public class EditProfileRequest {
     String memberIntroduce;
 
     @ApiModelProperty(value = "이메일", example = "aaa@gmail.com", required = true)
+    @NotBlank(message = "이메일은 필수입니다")
     @Email(message = "이메일의 형식이 맞지 않습니다")
     String memberEmail;
 
