@@ -14,8 +14,10 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+
+import java.util.List;
 
 import static cloneproject.Instagram.dto.result.ResultCode.*;
 
@@ -28,10 +30,9 @@ public class ChatController {
     private final ChatService chatService;
 
     @ApiOperation(value = "채팅방 생성")
-    @ApiImplicitParam(name = "username", value = "상대방 username", example = "dlwlrma1", required = true)
     @PostMapping("/chat/rooms")
-    public ResponseEntity<ResultResponse> createChatRoom(@NotBlank(message = "상대방 username은 필수입니다.") @RequestParam String username) {
-        final ChatRoomCreateResponse response = chatService.createRoom(username);
+    public ResponseEntity<ResultResponse> createChatRoom(@NotEmpty(message = "상대방 username은 필수입니다.") @RequestParam List<String> usernames) {
+        final ChatRoomCreateResponse response = chatService.createRoom(usernames);
 
         return ResponseEntity.ok(ResultResponse.of(CREATE_CHAT_ROOM_SUCCESS, response));
     }
