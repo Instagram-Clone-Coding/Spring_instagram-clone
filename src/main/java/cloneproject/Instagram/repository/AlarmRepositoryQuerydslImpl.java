@@ -21,7 +21,6 @@ import static cloneproject.Instagram.entity.alarms.QAlarm.alarm;
 import static cloneproject.Instagram.entity.member.QFollow.follow;
 import static cloneproject.Instagram.entity.member.QMember.member;
 import static cloneproject.Instagram.entity.post.QPost.post;
-import static cloneproject.Instagram.entity.post.QPostImage.postImage;
 import static com.querydsl.core.group.GroupBy.groupBy;
 
 @RequiredArgsConstructor
@@ -35,7 +34,6 @@ public class AlarmRepositoryQuerydslImpl implements AlarmRepositoryQuerydsl {
                 .selectFrom(alarm)
                 .innerJoin(alarm.agent, member).fetchJoin()
                 .leftJoin(alarm.post, post).fetchJoin()
-                .leftJoin(post.postImages, postImage).fetchJoin()
                 .where(alarm.target.id.eq(memberId))
                 .orderBy(alarm.id.desc())
                 .offset(pageable.getOffset())
@@ -53,6 +51,8 @@ public class AlarmRepositoryQuerydslImpl implements AlarmRepositoryQuerydsl {
                                 follow.followMember.id.in(agentIds)
                         )
                 )
+                .innerJoin(follow.member, member).fetchJoin()
+                .innerJoin(follow.followMember, member).fetchJoin()
                 .transform(groupBy(follow.followMember.id).as(follow));
 
         final List<AlarmDTO> content = alarms.stream()
