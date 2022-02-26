@@ -1,5 +1,6 @@
 package cloneproject.Instagram.repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,5 +20,5 @@ public interface MemberRepository extends JpaRepository<Member, Long>, JpaSpecif
 
     boolean existsByUsername(String username);
 
-    List<Member> findAllByUsernameIn(List<String> usernames);
+    List<Member> findAllByUsernameIn(Collection<String> usernames);
 }

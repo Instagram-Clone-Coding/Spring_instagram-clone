@@ -2,6 +2,9 @@ package cloneproject.Instagram.service;
 
 import cloneproject.Instagram.dto.StatusResponse;
 import cloneproject.Instagram.dto.alarm.AlarmType;
+import cloneproject.Instagram.dto.chat.MessageAction;
+import cloneproject.Instagram.dto.chat.MessageDTO;
+import cloneproject.Instagram.dto.chat.MessageResponse;
 import cloneproject.Instagram.dto.comment.CommentCreateRequest;
 import cloneproject.Instagram.dto.comment.CommentCreateResponse;
 import cloneproject.Instagram.dto.comment.CommentDTO;
@@ -11,6 +14,7 @@ import cloneproject.Instagram.dto.post.PostDTO;
 import cloneproject.Instagram.dto.post.PostImageTagRequest;
 import cloneproject.Instagram.dto.post.PostResponse;
 import cloneproject.Instagram.entity.alarms.Alarm;
+import cloneproject.Instagram.entity.chat.*;
 import cloneproject.Instagram.entity.comment.Comment;
 import cloneproject.Instagram.entity.comment.CommentLike;
 import cloneproject.Instagram.entity.comment.RecentComment;
@@ -19,6 +23,7 @@ import cloneproject.Instagram.entity.mention.Mention;
 import cloneproject.Instagram.entity.post.*;
 import cloneproject.Instagram.exception.*;
 import cloneproject.Instagram.repository.*;
+import cloneproject.Instagram.repository.chat.*;
 import cloneproject.Instagram.repository.post.CommentRepository;
 import cloneproject.Instagram.repository.post.PostRepository;
 import cloneproject.Instagram.repository.post.RecentCommentRepository;
@@ -28,6 +33,7 @@ import cloneproject.Instagram.vo.Image;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,6 +66,13 @@ public class PostService {
     private final MentionRepository mentionRepository;
     private final AlarmRepository alarmRepository;
     private final PostTagRepository postTagRepository;
+    private final SimpMessagingTemplate messagingTemplate;
+    private final RoomMemberRepository roomMemberRepository;
+    private final RoomRepository roomRepository;
+    private final MessageRepository messageRepository;
+    private final MessagePostRepository messagePostRepository;
+    private final RoomUnreadMemberRepository roomUnreadMemberRepository;
+    private final JoinRoomRepository joinRoomRepository;
 
     public Page<PostDTO> getPostDtoPage(int size, int page) {
         page = (page == 0 ? 0 : page - 1) + 10;
@@ -130,19 +143,77 @@ public class PostService {
                 .map(pi -> uploader.uploadImage(pi, "post"))
                 .collect(Collectors.toList());
         postRepository.savePostImages(images, post.getId());
+        images.forEach(i -> post.getPostImages().add(new PostImage(post, i)));
 
         final List<Long> postImageIds = postImageRepository.findAllByPost(post).stream()
                 .map(PostImage::getId)
                 .collect(Collectors.toList());
         linkImageWithTags(postImageTags, postImageIds);
-
-        // TODO: DM 전송 로직 추가
-        List<String> taggedMemberUsernames = postImageTags.stream().map(PostImageTagRequest::getUsername).collect(Collectors.toList());
-        List<Member> taggedMembers = memberRepository.findAllByUsernames(taggedMemberUsernames);
-
         postRepository.savePostTags(postImageTags);
 
+        sendMessageToTaggedMembers(postImageTags, member, post);
         return post.getId();
+    }
+
+    private void sendMessageToTaggedMembers(List<PostImageTagRequest> postImageTags, Member inviter, Post post) {
+        final Set<String> taggedMemberUsernames = postImageTags.stream()
+                .map(PostImageTagRequest::getUsername)
+                .collect(Collectors.toSet());
+        taggedMemberUsernames.remove(inviter.getUsername());
+        final List<Member> taggedMembers = memberRepository.findAllByUsernameIn(taggedMemberUsernames);
+        final List<Member> members = new ArrayList<>();
+        members.add(inviter);
+        members.addAll(taggedMembers);
+
+        final List<RoomMember> roomMembers = roomMemberRepository.findAllByMemberIn(members);
+        final Map<Member, List<RoomMember>> roomMemberMapGroupByMember = roomMembers.stream()
+                .collect(Collectors.groupingBy(RoomMember::getMember));
+        final Map<Room, List<RoomMember>> roomMemberMapGroupByRoom = roomMembers.stream()
+                .collect(Collectors.groupingBy(RoomMember::getRoom));
+
+        taggedMembers.forEach(taggedMember -> {
+            Room room = null;
+
+            if (roomMemberMapGroupByMember.containsKey(taggedMember)) {
+                for (RoomMember taggedRoomMember : roomMemberMapGroupByMember.get(taggedMember)) {
+                    if (!roomMemberMapGroupByMember.containsKey(inviter))
+                        continue;
+
+                    for (RoomMember roomMember : roomMemberMapGroupByMember.get(inviter)) {
+                        if (taggedRoomMember.getRoom().getId().equals(roomMember.getRoom().getId())
+                                && roomMemberMapGroupByRoom.get(roomMember.getRoom()).size() == 2) {
+                            room = roomMember.getRoom();
+                            break;
+                        }
+                    }
+                    if (room != null)
+                        break;
+                }
+            }
+
+            if (room == null) {
+                room = roomRepository.save(new Room(inviter));
+                roomMemberRepository.save(new RoomMember(inviter, room));
+                roomMemberRepository.save(new RoomMember(taggedMember, room));
+            }
+
+            final MessagePost message = messagePostRepository.save(new MessagePost(post, inviter, room));
+            room.updateLastMessage(message);
+            if (roomUnreadMemberRepository.findByRoomAndMember(room, taggedMember).isEmpty())
+                roomUnreadMemberRepository.save(new RoomUnreadMember(room, taggedMember));
+
+            final List<Member> privateRoomMembers = List.of(inviter, taggedMember);
+            for (Member member : privateRoomMembers) {
+                final Optional<JoinRoom> joinRoom = joinRoomRepository.findByMemberAndRoom(member, room);
+                if (joinRoom.isPresent())
+                    joinRoom.get().update();
+                else
+                    joinRoomRepository.save(new JoinRoom(room, member));
+            }
+
+            final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_GET, new MessageDTO(message));
+            messagingTemplate.convertAndSend("/sub/" + taggedMember.getUsername(), response);
+        });
     }
 
     private void linkImageWithTags(List<PostImageTagRequest> postImageTags, List<Long> postImageIds) {
