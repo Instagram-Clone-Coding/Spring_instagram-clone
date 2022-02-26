@@ -29,14 +29,14 @@ public class Member {
 
     @Column(name = "member_username", nullable = false, length = 20, unique = true)
     private String username;
-    
+
     @Column(name = "member_role")
     @Enumerated(EnumType.STRING)
     private MemberRole role;
 
     @Column(name = "member_password", nullable = false)
     private String password;
-    
+
     @Column(name = "member_name", nullable = false, length = 20)
     private String name;
 
@@ -59,7 +59,7 @@ public class Member {
 
     @OneToMany(mappedBy = "member")
     private List<Follow> followings = new ArrayList<>();
-    
+
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "value", column = @Column(name = "member_refresh_token_value")),
@@ -76,49 +76,49 @@ public class Member {
     })
     private Image image;
 
-    public void updateUsername(String username){
+    public void updateUsername(String username) {
         this.username = username;
     }
 
-    public void updateName(String name){
+    public void updateName(String name) {
         this.name = name;
     }
 
-    public void updateWebsite(String website){
+    public void updateWebsite(String website) {
         this.website = website;
     }
 
-    public void updateIntroduce(String introduce){
+    public void updateIntroduce(String introduce) {
         this.introduce = introduce;
     }
 
-    public void updatePhone(String phone){
+    public void updatePhone(String phone) {
         this.phone = phone;
     }
 
-    public void updateEmail(String email){
+    public void updateEmail(String email) {
         this.email = email;
     }
 
-    public void updateGender(Gender gender){
+    public void updateGender(Gender gender) {
         this.gender = gender;
     }
 
-    public void setRefreshToken(RefreshToken refreshToken){
+    public void setRefreshToken(RefreshToken refreshToken) {
         this.refreshToken = refreshToken;
     }
 
-    public void setEncryptedPassword(String encryptedPassword){
+    public void setEncryptedPassword(String encryptedPassword) {
         this.password = encryptedPassword;
     }
 
-    public void uploadImage(Image image){
+    public void uploadImage(Image image) {
         deleteImage();
         this.image = image;
     }
 
-    public void deleteImage(){
-        if(this.image.getImageUUID().equals("base-UUID"))
+    public void deleteImage() {
+        if (this.image.getImageUUID().equals("base-UUID"))
             return;
 
         this.image = Image.builder()
@@ -130,12 +130,12 @@ public class Member {
     }
 
     @Builder
-    public Member(String username, String name, String password, String email){
+    public Member(String username, String name, String password, String email) {
         this.username = username;
         this.name = name;
         this.password = password;
         this.email = email;
-        
+
         // 자동 초기화
         this.role = MemberRole.ROLE_USER;
         this.gender = Gender.PRIVATE;
@@ -146,5 +146,5 @@ public class Member {
                 .imageUUID("base-UUID")
                 .build();
     }
-    
+
 }
