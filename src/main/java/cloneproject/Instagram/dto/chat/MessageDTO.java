@@ -29,13 +29,19 @@ public class MessageDTO {
         this.senderImage = message.getMember().getImage();
         this.messageDate = message.getCreatedDate();
         this.messageType = message.getDtype();
-        this.content = MessagePostDTO.builder()
-                .status(message.getPost() == null ? "DELETED" : "UPLOADED")
-                .postId(message.getPost().getId())
-                .postImage(message.getPost().getPostImages().get(0).getImage())
-                .postImageCount(message.getPost().getPostImages().size())
-                .uploader(new MenuMemberDTO(message.getMember()))
-                .build();
+        try {
+            this.content = MessagePostDTO.builder()
+                    .status("UPLOADED")
+                    .postId(message.getPost().getId())
+                    .postImage(message.getPost().getPostImages().get(0).getImage())
+                    .postImageCount(message.getPost().getPostImages().size())
+                    .uploader(new MenuMemberDTO(message.getMember()))
+                    .build();
+        } catch (Exception e) {
+            this.content = MessagePostDTO.builder()
+                    .status("DELETED")
+                    .build();
+        }
     }
 
     public MessageDTO(MessageText message) {

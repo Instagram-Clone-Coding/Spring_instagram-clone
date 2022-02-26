@@ -57,7 +57,7 @@ public class MessageRepositoryQuerydslImpl implements MessageRepositoryQuerydsl 
 
         final Map<Long, MessagePost> messagePostMap = queryFactory
                 .from(messagePost)
-                .innerJoin(messagePost.post, post).fetchJoin()
+                .leftJoin(messagePost.post, post).fetchJoin()
                 .where(messagePost.id.in(messageIds))
                 .transform(groupBy(messagePost.id).as(messagePost));
 
