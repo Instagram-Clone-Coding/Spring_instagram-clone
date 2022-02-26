@@ -1,6 +1,5 @@
 package cloneproject.Instagram.dto.chat;
 
-import cloneproject.Instagram.entity.chat.MessageType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -19,7 +18,4 @@ public class MessageRequest {
 
     @NotEmpty(message = "채팅 메시지는 필수입니다.")
     private String content;
-
-    @NotNull(message = "채팅 메시지 타입은 필수입니다.")
-    private MessageType messageType;
 }
