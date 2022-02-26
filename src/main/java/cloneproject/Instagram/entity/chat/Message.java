@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn
 @Table(name = "messages")
 public class Message {
 
@@ -28,26 +30,19 @@ public class Message {
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "join_room_id")
+    @JoinColumn(name = "room_id")
     private Room room;
-
-    @Lob
-    @Column(name = "message_content")
-    private String content;
 
     @CreatedDate
     @Column(name = "message_created_date")
     private LocalDateTime createdDate;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "message_type")
-    private MessageType type;
+    @Column(insertable=false, updatable=false)
+    private String dtype;
 
     @Builder
-    public Message(Member member, Room room, String content, MessageType type) {
+    public Message(Member member, Room room) {
         this.member = member;
         this.room = room;
-        this.content = content;
-        this.type = type;
     }
 }

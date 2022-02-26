@@ -1,6 +1,5 @@
 package cloneproject.Instagram.dto.chat;
 
-import cloneproject.Instagram.entity.chat.Message;
 import cloneproject.Instagram.entity.member.Member;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
@@ -22,9 +21,8 @@ public class JoinRoomDTO {
     private List<MemberSimpleInfo> members = new ArrayList<>();
 
     @QueryProjection
-    public JoinRoomDTO(Long roomId, Message message, boolean unreadFlag, Member member) {
+    public JoinRoomDTO(Long roomId, boolean unreadFlag, Member member) {
         this.roomId = roomId;
-        this.lastMessage = new MessageDTO(message);
         this.unreadFlag = unreadFlag;
         this.inviter = new MemberSimpleInfo(member);
     }
