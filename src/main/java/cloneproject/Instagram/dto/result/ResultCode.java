@@ -69,7 +69,7 @@ public enum ResultCode {
     GET_COMMENT_LIKES_SUCCESS(200, "P018", "댓글 좋아요한 사람 목록 페이지 조회 성공"),
 
     // CHAT
-    CREATE_CHAT_ROOM_SUCCESS(200, "C001", "채팅방 생성 성공"),
+    CREATE_CHAT_ROOM_SUCCESS(200, "C001", "채팅방 생성 요청 성공"),
     INQUIRE_CHAT_ROOM_SUCCESS(200, "C002", "채팅방 조회 성공"),
     DELETE_JOIN_ROOM_SUCCESS(200, "C003", "참여 중인 채팅방 삭제 성공"),
     GET_JOIN_ROOMS_SUCCESS(200, "C004", "채팅방 목록 조회 성공"),

@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
@@ -40,27 +40,46 @@ public class ChatService {
     private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional
-    public ChatRoomCreateResponse createRoom(String username) {
+    public ChatRoomCreateResponse createRoom(List<String> usernames) {
         final Long memberId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
         final Member inviter = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
-        // TODO: List<Member> invitees
-        final Member invitee = memberRepository.findByUsername(username).orElseThrow(MemberDoesNotExistException::new);
+        usernames.add(inviter.getUsername());
+        final List<Member> members = memberRepository.findAllByUsernameIn(usernames);
 
-        final List<RoomMember> inviterRooms = roomMemberRepository.findAllByMemberId(inviter.getId());
-        final List<RoomMember> inviteeRooms = roomMemberRepository.findAllByMemberId(invitee.getId());
-        for (RoomMember inviterRoom : inviterRooms) {
-            for (RoomMember inviteeRoom : inviteeRooms) {
-                if (inviterRoom.getRoom().getId().equals(inviteeRoom.getRoom().getId()))
-                    return new ChatRoomCreateResponse(true, inviterRoom.getRoom().getId(), new MemberSimpleInfo(inviter), List.of(new MemberSimpleInfo(inviter), new MemberSimpleInfo(invitee)));
-            }
+        boolean status = false;
+        Room room = getRoomByMembers(members);
+        if (room == null) {
+            status = true;
+            room = roomRepository.save(new Room(inviter));
+            roomMemberRepository.saveAllBatch(room, members);
         }
 
-        final Room room = roomRepository.save(new Room(inviter));
-        // TODO: refactor(batch insert)
-        roomMemberRepository.save(new RoomMember(inviter, room));
-        roomMemberRepository.save(new RoomMember(invitee, room));
+        final List<MemberSimpleInfo> memberSimpleInfos = members.stream()
+                .map(MemberSimpleInfo::new)
+                .collect(Collectors.toList());
+        return new ChatRoomCreateResponse(status, room.getId(), new MemberSimpleInfo(inviter), memberSimpleInfos);
+    }
 
-        return new ChatRoomCreateResponse(true, room.getId(), new MemberSimpleInfo(inviter), List.of(new MemberSimpleInfo(inviter), new MemberSimpleInfo(invitee)));
+    private Room getRoomByMembers(List<Member> members) {
+        Room room = null;
+        final Map<Long, List<RoomMember>> roomMembersMap = roomMemberRepository.findAllByMemberIn(members).stream()
+                .collect(Collectors.groupingBy(r -> r.getRoom().getId()));
+
+        final List<Long> roomIds = new ArrayList<>();
+        roomMembersMap.forEach((rid, rms) -> {
+            if (rms.size() == members.size())
+                roomIds.add(rid);
+        });
+        final Map<Long, List<RoomMember>> roomMemberMapGroupByRoomId = roomMemberRepository.findAllByRoomIdIn(roomIds).stream()
+                .collect(Collectors.groupingBy(r -> r.getRoom().getId()));
+
+        for (Long roomId : roomMemberMapGroupByRoomId.keySet()) {
+            if (roomMemberMapGroupByRoomId.get(roomId).size() == members.size()) {
+                room = roomMemberMapGroupByRoomId.get(roomId).get(0).getRoom();
+                break;
+            }
+        }
+        return room;
     }
 
     @Transactional
