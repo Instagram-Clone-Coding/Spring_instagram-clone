@@ -97,6 +97,7 @@ public class PostService {
         postLikeRepository.deleteAllInBatch(postLikes);
 
         final List<PostImage> postImages = postImageRepository.findAllByPost(post);
+        postImages.forEach(pi -> uploader.deleteImage("post", pi.getImage()));
         final List<PostTag> postTags = postTagRepository.findAllByPostImageIn(postImages);
         postTagRepository.deleteAllInBatch(postTags);
         postImageRepository.deleteAllInBatch(postImages);
@@ -198,17 +199,15 @@ public class PostService {
             }
 
             final MessagePost message = messagePostRepository.save(new MessagePost(post, inviter, room));
-            room.updateLastMessage(message);
-            if (roomUnreadMemberRepository.findByRoomAndMember(room, taggedMember).isEmpty())
-                roomUnreadMemberRepository.save(new RoomUnreadMember(room, taggedMember));
+            roomUnreadMemberRepository.save(new RoomUnreadMember(room, message, taggedMember));
 
             final List<Member> privateRoomMembers = List.of(inviter, taggedMember);
             for (Member member : privateRoomMembers) {
                 final Optional<JoinRoom> joinRoom = joinRoomRepository.findByMemberAndRoom(member, room);
                 if (joinRoom.isPresent())
-                    joinRoom.get().update();
+                    joinRoom.get().updateMessage(message);
                 else
-                    joinRoomRepository.save(new JoinRoom(room, member));
+                    joinRoomRepository.save(new JoinRoom(room, member, message));
             }
 
             final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_GET, new MessageDTO(message));

@@ -24,12 +24,17 @@ public class RoomUnreadMember {
     private Room room;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "message_id")
+    private Message message;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
     @Builder
-    public RoomUnreadMember(Room room, Member member) {
+    public RoomUnreadMember(Room room, Message message, Member member) {
         this.room = room;
+        this.message = message;
         this.member = member;
     }
 }

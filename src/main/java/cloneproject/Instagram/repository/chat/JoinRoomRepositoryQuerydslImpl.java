@@ -50,22 +50,21 @@ public class JoinRoomRepositoryQuerydslImpl implements JoinRoomRepositoryQueryds
                 ))
                 .from(joinRoom)
                 .innerJoin(joinRoom.room, room)
-                .innerJoin(joinRoom.room.message, message)
+                .innerJoin(joinRoom.message, message)
                 .innerJoin(joinRoom.room.member, member)
                 .where(joinRoom.member.id.eq(memberId))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(joinRoom.lastMessageDate.desc())
+                .orderBy(joinRoom.message.createdDate.desc())
                 .fetch();
-
         final List<Long> roomIds = joinRoomDTOs.stream()
                 .map(JoinRoomDTO::getRoomId)
                 .collect(Collectors.toList());
         final List<Message> messages = queryFactory
-                .select(room.message)
-                .from(room)
-                .innerJoin(room.message, message)
-                .where(room.id.in(roomIds))
+                .select(joinRoom.message)
+                .from(joinRoom)
+                .innerJoin(joinRoom.message, message)
+                .where(joinRoom.member.id.eq(memberId))
                 .fetch();
         final List<Long> messageIds = messages.stream()
                 .map(Message::getId)

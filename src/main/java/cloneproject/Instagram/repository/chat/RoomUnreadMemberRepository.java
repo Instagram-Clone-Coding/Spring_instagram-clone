@@ -1,22 +1,18 @@
 package cloneproject.Instagram.repository.chat;
 
+import cloneproject.Instagram.entity.chat.Message;
 import cloneproject.Instagram.entity.chat.Room;
 import cloneproject.Instagram.entity.chat.RoomUnreadMember;
 import cloneproject.Instagram.entity.member.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface RoomUnreadMemberRepository extends JpaRepository<RoomUnreadMember, Long>, RoomUnreadMemberRepositoryJdbc {
 
-    void deleteByRoomIdAndMemberId(Long roomId, Long memberId);
+    List<RoomUnreadMember> findAllByRoomAndMember(Room room, Member member);
 
-    Optional<RoomUnreadMember> findByRoomIdAndMemberId(Long roomId, Long memberId);
+    List<RoomUnreadMember> findAllByMessage(Message message);
 
-    long countByRoomId(Long roomId);
-
-    Optional<RoomUnreadMember> findByRoomAndMember(Room room, Member member);
-
-    List<RoomUnreadMember> findByRoomAndMemberIn(Room room, List<Member> members);
+    List<RoomUnreadMember> findAllByRoom(Room room);
 }

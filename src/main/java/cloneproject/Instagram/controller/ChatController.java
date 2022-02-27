@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -78,8 +79,37 @@ public class ChatController {
         return ResponseEntity.ok(ResultResponse.of(GET_CHAT_MESSAGES_SUCCESS, response));
     }
 
+    @MessageMapping("/messages/like")
+    public void likeMessage(
+            @NotNull(message = "좋아요할 메시지 PK는 필수입니다.") @RequestParam Long messageId,
+            @NotNull(message = "회원 PK는 필수입니다.") @RequestParam Long memberId) {
+        chatService.likeMessage(messageId, memberId);
+    }
+
+    @MessageMapping("/messages/unlike")
+    public void unlikeMessage(
+            @NotNull(message = "좋아요 취소할 메시지 PK는 필수입니다.") @RequestParam Long messageId,
+            @NotNull(message = "회원 PK는 필수입니다.") @RequestParam Long memberId) {
+        chatService.unlikeMessage(messageId, memberId);
+    }
+
+    @MessageMapping("/messages/delete")
+    public void deleteMessage(
+            @NotNull(message = "삭제할 메시지 PK는 필수입니다.") @RequestParam Long messageId,
+            @NotNull(message = "회원 PK는 필수입니다.") @RequestParam Long memberId) {
+        chatService.deleteMessage(messageId, memberId);
+    }
+
+    @MessageMapping("/messages/images")
+    public void sendImageMessage(
+            @NotNull(message = "채팅방 PK는 필수입니다.") @RequestParam Long roomId,
+            @NotNull(message = "메시지를 전송하는 회원 PK는 필수입니다.") @RequestParam Long senderId,
+            @RequestParam MultipartFile image) {
+        chatService.sendImage(roomId, senderId, image);
+    }
+
     @MessageMapping("/messages")
-    public void sendChatMessage(@RequestBody MessageRequest request) {
+    public void sendTextMessage(@RequestBody MessageRequest request) {
         chatService.sendMessage(request);
     }
 

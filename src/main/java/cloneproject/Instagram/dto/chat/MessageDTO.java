@@ -8,8 +8,11 @@ import cloneproject.Instagram.vo.Image;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class MessageDTO {
@@ -21,6 +24,7 @@ public class MessageDTO {
     private Object content;
     private String messageType;
     private LocalDateTime messageDate;
+    private List<MenuMemberDTO> likeMembers = new ArrayList<>();
 
     public MessageDTO(MessagePost message) {
         this.roomId = message.getRoom().getId();

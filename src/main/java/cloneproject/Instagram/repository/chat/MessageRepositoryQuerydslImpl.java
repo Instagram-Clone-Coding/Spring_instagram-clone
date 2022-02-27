@@ -1,6 +1,7 @@
 package cloneproject.Instagram.repository.chat;
 
 import cloneproject.Instagram.dto.chat.MessageDTO;
+import cloneproject.Instagram.dto.member.MenuMemberDTO;
 import cloneproject.Instagram.entity.chat.*;
 import cloneproject.Instagram.exception.JoinRoomNotFoundException;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -16,12 +17,13 @@ import java.util.stream.Collectors;
 import static cloneproject.Instagram.entity.chat.QJoinRoom.joinRoom;
 import static cloneproject.Instagram.entity.chat.QMessage.message;
 import static cloneproject.Instagram.entity.chat.QMessageImage.messageImage;
+import static cloneproject.Instagram.entity.chat.QMessageLike.messageLike;
 import static cloneproject.Instagram.entity.chat.QMessagePost.messagePost;
 import static cloneproject.Instagram.entity.chat.QMessageText.messageText;
 import static cloneproject.Instagram.entity.chat.QRoom.room;
 import static cloneproject.Instagram.entity.member.QMember.member;
 import static cloneproject.Instagram.entity.post.QPost.post;
-import static com.querydsl.core.group.GroupBy.groupBy;
+import static com.querydsl.core.group.GroupBy.*;
 
 @RequiredArgsConstructor
 public class MessageRepositoryQuerydslImpl implements MessageRepositoryQuerydsl {
@@ -55,6 +57,7 @@ public class MessageRepositoryQuerydslImpl implements MessageRepositoryQuerydsl 
                 .map(Message::getId)
                 .collect(Collectors.toList());
 
+
         final Map<Long, MessagePost> messagePostMap = queryFactory
                 .from(messagePost)
                 .leftJoin(messagePost.post, post).fetchJoin()
@@ -84,6 +87,21 @@ public class MessageRepositoryQuerydslImpl implements MessageRepositoryQuerydsl 
                     return null;
                 })
                 .collect(Collectors.toList());
+
+        final Map<Long, List<MessageLike>> messageLikeMap = queryFactory
+                .from(messageLike)
+                .where(messageLike.message.id.in(messageIds))
+                .innerJoin(messageLike.member, member).fetchJoin()
+                .transform(groupBy(messageLike.message.id).as(list(messageLike)));
+
+        messageDTOs.forEach(m -> {
+            if (messageLikeMap.containsKey(m.getMessageId())) {
+                final List<MenuMemberDTO> likeMembers = messageLikeMap.get(m.getMessageId()).stream()
+                        .map(ml -> new MenuMemberDTO(ml.getMember()))
+                        .collect(Collectors.toList());
+                m.setLikeMembers(likeMembers);
+            }
+        });
 
         final long total = queryFactory
                 .selectFrom(message)

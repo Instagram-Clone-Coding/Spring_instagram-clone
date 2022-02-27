@@ -61,6 +61,11 @@ public enum ErrorCode {
     // Chat
     CHAT_ROOM_NOT_FOUND(400, "C001", "존재하지 않는 채팅방입니다."),
     JOIN_ROOM_NOT_FOUND(400, "C002", "해당 채팅방에 참여하지 않은 회원입니다."),
+    MESSAGE_IMAGE_INVALID(400, "C003", "메시지로 전송할 이미지는 필수입니다."),
+    MESSAGE_NOT_FOUND(400, "C004", "존재하지 않는 메시지입니다."),
+    MESSAGE_SENDER_MISMATCH(400, "C005", "해당 메시지를 전송한 회원이 아닙니다."),
+    MESSAGE_LIKE_ALREADY_EXIST(400, "C006", "해당 메시지를 이미 좋아요한 회원입니다."),
+    MESSAGE_LIKE_NOT_FOUND(400, "C007", "해당 메시지를 좋아요하지 않은 회원입니다."),
 
     // FILE
     CANT_CONVERT_FILE(500, "FI001", "파일을 변환할수 없습니다"),
