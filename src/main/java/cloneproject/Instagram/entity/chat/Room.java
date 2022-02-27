@@ -38,7 +38,7 @@ public class Room {
         this.member = member;
     }
 
-    public void updateLastMessage(Message message){
+    public void updateLastMessage(Message message) {
         this.message = message;
     }
 }

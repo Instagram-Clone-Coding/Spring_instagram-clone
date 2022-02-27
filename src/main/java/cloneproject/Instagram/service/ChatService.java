@@ -38,6 +38,7 @@ public class ChatService {
     private final MemberRepository memberRepository;
     private final JoinRoomRepository joinRoomRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final MessageTextRepository messageTextRepository;
 
     @Transactional
     public ChatRoomCreateResponse createRoom(List<String> usernames) {
@@ -128,24 +129,36 @@ public class ChatService {
 
     @Transactional
     public void sendMessage(MessageRequest request) {
-        final Room room = roomRepository.findById(request.getRoomId()).orElseThrow(ChatRoomNotFoundException::new);
-        final List<RoomMember> roomMembers = roomMemberRepository.findAllByRoomId(request.getRoomId()); // TODO: withMember
-
         final Member sender = memberRepository.findById(request.getSenderId()).orElseThrow(MemberDoesNotExistException::new);
-        final Message message = messageRepository.save(new Message(sender, room, request.getContent(), request.getMessageType()));
+        final Room room = roomRepository.findById(request.getRoomId()).orElseThrow(ChatRoomNotFoundException::new);
+        final List<RoomMember> roomMembers = roomMemberRepository.findAllWithMemberByRoomId(room.getId());
+
+        final MessageText message = messageTextRepository.save(new MessageText(request.getContent(), sender, room));
         room.updateLastMessage(message);
 
-        // TODO: refactor: bulk insert
+        final List<Member> members = roomMembers.stream()
+                .map(RoomMember::getMember)
+                .collect(Collectors.toList());
+        final Map<Long, RoomUnreadMember> roomUnreadMemberMap = roomUnreadMemberRepository.findByRoomAndMemberIn(room, members).stream()
+                .collect(Collectors.toMap(r -> r.getMember().getId(), r -> r));
+        final Map<Long, JoinRoom> joinRoomMap = joinRoomRepository.findByRoomAndMemberIn(room, members).stream()
+                .collect(Collectors.toMap(j -> j.getMember().getId(), j -> j));
+
+        final List<RoomUnreadMember> newRoomUnreadMembers = new ArrayList<>();
+        final List<JoinRoom> newJoinRooms = new ArrayList<>();
+        final List<JoinRoom> updateJoinRooms = new ArrayList<>();
         for (RoomMember roomMember : roomMembers) {
             final Member member = roomMember.getMember();
-            if (roomUnreadMemberRepository.findByRoomIdAndMemberId(room.getId(), member.getId()).isEmpty())
-                roomUnreadMemberRepository.save(new RoomUnreadMember(room, member));
-            final Optional<JoinRoom> joinRoom = joinRoomRepository.findByMemberIdAndRoomId(member.getId(), room.getId());
-            if (joinRoom.isPresent())
-                joinRoom.get().update();
+            if (!member.getId().equals(request.getSenderId()) && !roomUnreadMemberMap.containsKey(member.getId()))
+                newRoomUnreadMembers.add(new RoomUnreadMember(room, member));
+            if (joinRoomMap.containsKey(member.getId()))
+                updateJoinRooms.add(joinRoomMap.get(member.getId()));
             else
-                joinRoomRepository.save(new JoinRoom(room, member));
+                newJoinRooms.add(new JoinRoom(room, member));
         }
+        roomUnreadMemberRepository.saveAllBatch(newRoomUnreadMembers);
+        joinRoomRepository.saveAllBatch(newJoinRooms);
+        joinRoomRepository.updateAllBatch(updateJoinRooms);
 
         final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_GET, new MessageDTO(message));
         roomMembers.forEach(r -> messagingTemplate.convertAndSend("/sub/" + r.getMember().getUsername(), response));

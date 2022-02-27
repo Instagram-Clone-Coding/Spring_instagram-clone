@@ -17,19 +17,18 @@ public class Block {
     @Column(name = "block_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    @ManyToOne
-    @JoinColumn(name="member_id")
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
     private Member member;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "block_member_id")
     private Member blockMember;
 
     @Builder
-    public Block(Member member, Member blockMember){
+    public Block(Member member, Member blockMember) {
         this.member = member;
         this.blockMember = blockMember;
     }
-    
 }
