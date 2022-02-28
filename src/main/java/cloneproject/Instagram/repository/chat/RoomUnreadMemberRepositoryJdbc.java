@@ -1,10 +1,11 @@
 package cloneproject.Instagram.repository.chat;
 
+import cloneproject.Instagram.entity.chat.Message;
 import cloneproject.Instagram.entity.chat.RoomUnreadMember;
 
 import java.util.List;
 
 public interface RoomUnreadMemberRepositoryJdbc {
 
-    void saveAllBatch(List<RoomUnreadMember> roomUnreadMembers);
+    void saveAllBatch(List<RoomUnreadMember> roomUnreadMembers, Message message);
 }

@@ -1,5 +1,6 @@
 package cloneproject.Instagram.repository.chat;
 
+import cloneproject.Instagram.entity.chat.Room;
 import cloneproject.Instagram.entity.chat.RoomMember;
 import cloneproject.Instagram.entity.member.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,4 +17,6 @@ public interface RoomMemberRepository extends JpaRepository<RoomMember, Long>, R
 
     @Query("select r from RoomMember r join fetch r.member where r.room.id = :roomId")
     List<RoomMember> findAllWithMemberByRoomId(@Param("roomId") Long roomId);
+
+    List<RoomMember> findAllByRoom(Room room);
 }

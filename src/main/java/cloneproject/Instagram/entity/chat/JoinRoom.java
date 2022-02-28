@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -36,17 +35,18 @@ public class JoinRoom {
     @Column(name = "join_room_created_date")
     private LocalDateTime createdDate;
 
-    @LastModifiedDate
-    @Column(name = "join_room_last_message_date")
-    private LocalDateTime lastMessageDate;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "message_id")
+    private Message message;
 
     @Builder
-    public JoinRoom(Room room, Member member) {
+    public JoinRoom(Room room, Member member, Message message) {
         this.room = room;
         this.member = member;
+        this.message = message;
     }
 
-    public void update() {
-        this.lastMessageDate = LocalDateTime.now();
+    public void updateMessage(Message message){
+        this.message = message;
     }
 }

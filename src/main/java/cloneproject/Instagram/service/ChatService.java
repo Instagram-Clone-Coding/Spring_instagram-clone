@@ -1,13 +1,15 @@
 package cloneproject.Instagram.service;
 
 import cloneproject.Instagram.dto.chat.*;
+import cloneproject.Instagram.dto.error.ErrorCode;
+import cloneproject.Instagram.dto.error.ErrorResponse;
 import cloneproject.Instagram.entity.chat.*;
 import cloneproject.Instagram.entity.member.Member;
-import cloneproject.Instagram.exception.JoinRoomNotFoundException;
-import cloneproject.Instagram.exception.MemberDoesNotExistException;
-import cloneproject.Instagram.exception.ChatRoomNotFoundException;
+import cloneproject.Instagram.exception.*;
 import cloneproject.Instagram.repository.MemberRepository;
 import cloneproject.Instagram.repository.chat.*;
+import cloneproject.Instagram.util.S3Uploader;
+import cloneproject.Instagram.vo.Image;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +19,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -39,6 +42,7 @@ public class ChatService {
     private final JoinRoomRepository joinRoomRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final MessageTextRepository messageTextRepository;
+    private final S3Uploader uploader;
 
     @Transactional
     public ChatRoomCreateResponse createRoom(List<String> usernames) {
@@ -89,19 +93,27 @@ public class ChatService {
         final Long memberId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
         final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
 
-        final long unseenCount = roomUnreadMemberRepository.countByRoomId(room.getId());
-        if (roomUnreadMemberRepository.findByRoomIdAndMemberId(room.getId(), member.getId()).isEmpty())
+        final Map<Long, List<RoomUnreadMember>> roomUnreadMemberMap = roomUnreadMemberRepository.findAllByRoom(room).stream()
+                .collect(Collectors.groupingBy(r -> r.getMember().getId()));
+        long unseenCount = 0;
+        for (Long id : roomUnreadMemberMap.keySet()) {
+            if (roomUnreadMemberMap.get(id).isEmpty())
+                continue;
+            unseenCount++;
+        }
+        if (roomUnreadMemberRepository.findAllByRoomAndMember(room, member).isEmpty())
             return new ChatRoomInquireResponse(false, unseenCount);
 
         final List<JoinRoom> joinRooms = joinRoomRepository.findAllByRoomId(roomId);
-        final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_ACK, new MessageSeenDTO(room.getId(), memberId, LocalDateTime.now()));
+        final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_SEEN, new MessageSeenDTO(room.getId(), memberId, LocalDateTime.now()));
         joinRooms.forEach(j -> {
             if (!j.getMember().getId().equals(memberId)) {
                 messagingTemplate.convertAndSend("/sub/" + j.getMember().getUsername(), response);
             }
         });
 
-        roomUnreadMemberRepository.deleteByRoomIdAndMemberId(room.getId(), member.getId());
+        final List<RoomUnreadMember> roomUnreadMembers = roomUnreadMemberRepository.findAllByRoomAndMember(room, member);
+        roomUnreadMemberRepository.deleteAllInBatch(roomUnreadMembers);
         return new ChatRoomInquireResponse(true, unseenCount - 1);
     }
 
@@ -111,9 +123,9 @@ public class ChatService {
         final Long memberId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
         final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
 
-        if (joinRoomRepository.findByMemberIdAndRoomId(member.getId(), room.getId()).isEmpty())
+        if (joinRoomRepository.findByMemberAndRoom(member, room).isEmpty())
             throw new JoinRoomNotFoundException();
-        joinRoomRepository.deleteByMemberIdAndRoomId(member.getId(), room.getId());
+        joinRoomRepository.deleteByMemberAndRoom(member, room);
 
         return new JoinRoomDeleteResponse(true);
     }
@@ -132,33 +144,11 @@ public class ChatService {
         final Member sender = memberRepository.findById(request.getSenderId()).orElseThrow(MemberDoesNotExistException::new);
         final Room room = roomRepository.findById(request.getRoomId()).orElseThrow(ChatRoomNotFoundException::new);
         final List<RoomMember> roomMembers = roomMemberRepository.findAllWithMemberByRoomId(room.getId());
+        if (roomMembers.stream().noneMatch(r -> r.getMember().getId().equals(sender.getId())))
+            throw new JoinRoomNotFoundException();
 
         final MessageText message = messageTextRepository.save(new MessageText(request.getContent(), sender, room));
-        room.updateLastMessage(message);
-
-        final List<Member> members = roomMembers.stream()
-                .map(RoomMember::getMember)
-                .collect(Collectors.toList());
-        final Map<Long, RoomUnreadMember> roomUnreadMemberMap = roomUnreadMemberRepository.findByRoomAndMemberIn(room, members).stream()
-                .collect(Collectors.toMap(r -> r.getMember().getId(), r -> r));
-        final Map<Long, JoinRoom> joinRoomMap = joinRoomRepository.findByRoomAndMemberIn(room, members).stream()
-                .collect(Collectors.toMap(j -> j.getMember().getId(), j -> j));
-
-        final List<RoomUnreadMember> newRoomUnreadMembers = new ArrayList<>();
-        final List<JoinRoom> newJoinRooms = new ArrayList<>();
-        final List<JoinRoom> updateJoinRooms = new ArrayList<>();
-        for (RoomMember roomMember : roomMembers) {
-            final Member member = roomMember.getMember();
-            if (!member.getId().equals(request.getSenderId()) && !roomUnreadMemberMap.containsKey(member.getId()))
-                newRoomUnreadMembers.add(new RoomUnreadMember(room, member));
-            if (joinRoomMap.containsKey(member.getId()))
-                updateJoinRooms.add(joinRoomMap.get(member.getId()));
-            else
-                newJoinRooms.add(new JoinRoom(room, member));
-        }
-        roomUnreadMemberRepository.saveAllBatch(newRoomUnreadMembers);
-        joinRoomRepository.saveAllBatch(newJoinRooms);
-        joinRoomRepository.updateAllBatch(updateJoinRooms);
+        updateRoom(request.getSenderId(), room, roomMembers, message);
 
         final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_GET, new MessageDTO(message));
         roomMembers.forEach(r -> messagingTemplate.convertAndSend("/sub/" + r.getMember().getUsername(), response));
@@ -182,5 +172,124 @@ public class ChatService {
         page = (page == 0 ? 0 : page - 1);
         Pageable pageable = PageRequest.of(page, 10);
         return messageRepository.findMessageDTOPageByMemberIdAndRoomId(memberId, roomId, pageable);
+    }
+
+    @Transactional
+    public void sendImage(Long roomId, Long senderId, MultipartFile multipartFile) {
+        if (multipartFile.isEmpty()) {
+            final List<ErrorResponse.FieldError> errors = new ArrayList<>();
+            errors.add(new ErrorResponse.FieldError("image", "null", ErrorCode.MESSAGE_IMAGE_INVALID.getMessage()));
+            throw new InvalidInputException(errors);
+        }
+
+        final Member sender = memberRepository.findById(senderId).orElseThrow(MemberDoesNotExistException::new);
+        final Room room = roomRepository.findById(roomId).orElseThrow(ChatRoomNotFoundException::new);
+        final List<RoomMember> roomMembers = roomMemberRepository.findAllWithMemberByRoomId(room.getId());
+        if (roomMembers.stream().noneMatch(r -> r.getMember().getId().equals(sender.getId())))
+            throw new JoinRoomNotFoundException();
+
+        final Image image = uploader.uploadImage(multipartFile, "chat");
+        final MessageImage message = messageImageRepository.save(new MessageImage(image, sender, room));
+        updateRoom(senderId, room, roomMembers, message);
+
+        final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_GET, new MessageDTO(message));
+        roomMembers.forEach(r -> messagingTemplate.convertAndSend("/sub/" + r.getMember().getUsername(), response));
+    }
+
+    private void updateRoom(Long senderId, Room room, List<RoomMember> roomMembers, Message message) {
+        final List<Member> members = roomMembers.stream()
+                .map(RoomMember::getMember)
+                .collect(Collectors.toList());
+        final Map<Long, JoinRoom> joinRoomMap = joinRoomRepository.findByRoomAndMemberIn(room, members).stream()
+                .collect(Collectors.toMap(j -> j.getMember().getId(), j -> j));
+
+        final List<RoomUnreadMember> newRoomUnreadMembers = new ArrayList<>();
+        final List<JoinRoom> newJoinRooms = new ArrayList<>();
+        final List<JoinRoom> updateJoinRooms = new ArrayList<>();
+        for (RoomMember roomMember : roomMembers) {
+            final Member member = roomMember.getMember();
+            if (!member.getId().equals(senderId))
+                newRoomUnreadMembers.add(new RoomUnreadMember(room, message, member));
+            if (joinRoomMap.containsKey(member.getId()))
+                updateJoinRooms.add(joinRoomMap.get(member.getId()));
+            else
+                newJoinRooms.add(new JoinRoom(room, member, message));
+        }
+        roomUnreadMemberRepository.saveAllBatch(newRoomUnreadMembers, message);
+        joinRoomRepository.saveAllBatch(newJoinRooms, message);
+        joinRoomRepository.updateAllBatch(updateJoinRooms, message);
+    }
+
+    @Transactional
+    public void deleteMessage(Long messageId, Long memberId) {
+        final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
+        final Message message = messageRepository.findWithRoomById(messageId).orElseThrow(MessageNotFoundException::new);
+        if (!message.getMember().getId().equals(member.getId())) {
+            final List<ErrorResponse.FieldError> errors = new ArrayList<>();
+            errors.add(new ErrorResponse.FieldError("memberId", memberId.toString(), ErrorCode.MESSAGE_SENDER_MISMATCH.getMessage()));
+            throw new InvalidInputException(errors);
+        }
+
+        final List<RoomUnreadMember> roomUnreadMembers = roomUnreadMemberRepository.findAllByMessage(message);
+        roomUnreadMemberRepository.deleteAllInBatch(roomUnreadMembers);
+
+        final List<JoinRoom> updateJoinRooms = new ArrayList<>();
+        final List<JoinRoom> deleteJoinRooms = new ArrayList<>();
+
+        final Room room = message.getRoom();
+        final List<JoinRoom> joinRooms = joinRoomRepository.findAllByRoom(room);
+        final Pageable pageable = PageRequest.of(1, 1, Sort.by(DESC, "id"));
+        final Page<Message> messagePage = messageRepository.findAllByRoom(room, pageable);
+        if (messagePage.getContent().isEmpty()) {
+            deleteJoinRooms.addAll(joinRooms);
+        } else {
+            final Message lastMessage = messagePage.getContent().get(0);
+            joinRooms.forEach(j -> {
+                if (j.getCreatedDate().isAfter(lastMessage.getCreatedDate()))
+                    deleteJoinRooms.add(j);
+                else
+                    updateJoinRooms.add(j);
+            });
+            joinRoomRepository.updateAllBatch(updateJoinRooms, lastMessage);
+        }
+        joinRoomRepository.deleteAllInBatch(deleteJoinRooms);
+
+        final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_DELETE, new MessageSimpleDTO(message, member));
+        messageRepository.delete(message);
+        final List<RoomMember> roomMembers = roomMemberRepository.findAllByRoom(room);
+        roomMembers.forEach(r -> messagingTemplate.convertAndSend("/sub/" + r.getMember().getUsername(), response));
+    }
+
+    @Transactional
+    public void likeMessage(Long messageId, Long memberId) {
+        final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
+        final Message message = messageRepository.findWithRoomById(messageId).orElseThrow(MessageNotFoundException::new);
+        final List<RoomMember> roomMembers = roomMemberRepository.findAllWithMemberByRoomId(message.getRoom().getId());
+        if (roomMembers.stream().noneMatch(r -> r.getMember().getId().equals(member.getId())))
+            throw new JoinRoomNotFoundException();
+
+        if (messageLikeRepository.findByMemberAndMessage(member, message).isPresent())
+            throw new MessageLikeAlreadyExistException();
+        messageLikeRepository.save(new MessageLike(member, message));
+
+        final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_LIKE, new MessageSimpleDTO(message, member));
+        roomMembers.forEach(r -> messagingTemplate.convertAndSend("/sub/" + r.getMember().getUsername(), response));
+    }
+
+    @Transactional
+    public void unlikeMessage(Long messageId, Long memberId) {
+        final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
+        final Message message = messageRepository.findWithRoomById(messageId).orElseThrow(MessageNotFoundException::new);
+        final List<RoomMember> roomMembers = roomMemberRepository.findAllWithMemberByRoomId(message.getRoom().getId());
+        if (roomMembers.stream().noneMatch(r -> r.getMember().getId().equals(member.getId())))
+            throw new JoinRoomNotFoundException();
+
+        final Optional<MessageLike> findMessageLike = messageLikeRepository.findByMemberAndMessage(member, message);
+        if (findMessageLike.isEmpty())
+            throw new MessageLikeNotFoundException();
+        messageLikeRepository.delete(findMessageLike.get());
+
+        final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_UNLIKE, new MessageSimpleDTO(message, member));
+        roomMembers.forEach(r -> messagingTemplate.convertAndSend("/sub/" + r.getMember().getUsername(), response));
     }
 }

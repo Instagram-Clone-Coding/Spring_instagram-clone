@@ -37,7 +37,7 @@ public class Message {
     @Column(name = "message_created_date")
     private LocalDateTime createdDate;
 
-    @Column(insertable=false, updatable=false)
+    @Column(insertable = false, updatable = false)
     private String dtype;
 
     @Builder

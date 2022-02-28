@@ -1,5 +1,6 @@
 package cloneproject.Instagram.repository.chat;
 
+import cloneproject.Instagram.entity.chat.Message;
 import cloneproject.Instagram.entity.chat.RoomUnreadMember;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
@@ -15,8 +16,8 @@ public class RoomUnreadMemberRepositoryJdbcImpl implements RoomUnreadMemberRepos
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public void saveAllBatch(List<RoomUnreadMember> roomUnreadMembers) {
-        final String sql = "INSERT INTO room_unread_members (`member_id`, `room_id`) VALUES(?, ?)";
+    public void saveAllBatch(List<RoomUnreadMember> roomUnreadMembers, Message message) {
+        final String sql = "INSERT INTO room_unread_members (`member_id`, `room_id`, `message_id`) VALUES(?, ?, ?)";
 
         jdbcTemplate.batchUpdate(
                 sql,
@@ -25,6 +26,7 @@ public class RoomUnreadMemberRepositoryJdbcImpl implements RoomUnreadMemberRepos
                     public void setValues(PreparedStatement ps, int i) throws SQLException {
                         ps.setString(1, roomUnreadMembers.get(i).getMember().getId().toString());
                         ps.setString(2, roomUnreadMembers.get(i).getRoom().getId().toString());
+                        ps.setString(3, message.getId().toString());
                     }
 
                     @Override

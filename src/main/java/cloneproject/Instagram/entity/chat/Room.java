@@ -24,10 +24,6 @@ public class Room {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "message_id")
-    private Message message;
-
     @OneToMany(mappedBy = "room")
     private List<RoomUnreadMember> roomUnreadMembers = new ArrayList<>();
 
@@ -36,9 +32,5 @@ public class Room {
 
     public Room(Member member) {
         this.member = member;
-    }
-
-    public void updateLastMessage(Message message) {
-        this.message = message;
     }
 }
