@@ -50,9 +50,13 @@ public class Post {
     @OneToMany(mappedBy = "post", orphanRemoval = true)
     private List<PostImage> postImages = new ArrayList<>();
 
+    @Column(name = "post_comment_flag")
+    private boolean commentFlag;
+
     @Builder
-    public Post(Member member, String content) {
+    public Post(Member member, String content, boolean commentFlag) {
         this.member = member;
         this.content = content;
+        this.commentFlag = commentFlag;
     }
 }
