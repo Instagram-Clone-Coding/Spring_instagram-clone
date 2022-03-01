@@ -133,7 +133,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
                 .select(new QPostImageDTO(
                         postImage.post.id,
                         postImage.id,
-                        postImage.image.imageUrl
+                        postImage.image.imageUrl,
+                        postImage.altText
                 ))
                 .from(postImage)
                 .where(postImage.post.id.in(postIds))
@@ -248,7 +249,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
                 .select(new QPostImageDTO(
                         postImage.post.id,
                         postImage.id,
-                        postImage.image.imageUrl
+                        postImage.image.imageUrl,
+                        postImage.altText
                 ))
                 .from(postImage)
                 .where(postImage.post.id.in(postIds))
@@ -329,7 +331,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
                 .select(new QPostImageDTO(
                         postImage.post.id,
                         postImage.id,
-                        postImage.image.imageUrl
+                        postImage.image.imageUrl,
+                        postImage.altText
                 ))
                 .from(postImage)
                 .where(postImage.post.id.eq(postId))

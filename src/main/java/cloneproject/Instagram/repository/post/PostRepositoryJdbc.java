@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface PostRepositoryJdbc {
 
-    void savePostImages(List<Image> images, Long postId);
+    void savePostImages(List<Image> images, Long postId, List<String> altTexts);
     void savePostTags(List<PostImageTagRequest> postImageTagMap);
 }

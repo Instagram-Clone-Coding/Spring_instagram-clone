@@ -67,6 +67,7 @@ public enum ResultCode {
     LIKE_COMMENT_SUCCESS(200, "P016", "댓글 좋아요 성공"),
     UNLIKE_COMMENT_SUCCESS(200, "P017", "댓글 좋아요 취소 성공"),
     GET_COMMENT_LIKES_SUCCESS(200, "P018", "댓글 좋아요한 사람 목록 페이지 조회 성공"),
+    SHARE_POST_SUCCESS(200, "P019", "게시물 DM 공유 성공"),
 
     // CHAT
     CREATE_CHAT_ROOM_SUCCESS(200, "C001", "채팅방 생성 요청 성공"),

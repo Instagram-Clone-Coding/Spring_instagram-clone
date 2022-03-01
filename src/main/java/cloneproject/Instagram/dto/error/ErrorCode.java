@@ -57,6 +57,8 @@ public enum ErrorCode {
     COMMENT_CANT_DELETE(400, "P015", "타인이 작성한 댓글은 삭제할 수 없습니다."),
     COMMENT_LIKE_ALREADY_EXIST(400, "P016", "해당 댓글에 이미 좋아요를 누른 회원입니다."),
     COMMENT_LIKE_NOT_FOUND(400, "P017", "해당 댓글에 좋아요를 누르지 않은 회원입니다."),
+    CANT_COMMENT_CREATE(400, "P018", "댓글 기능이 해제된 게시물에는 댓글을 작성할 수 없습니다."),
+    POST_IMAGES_AND_ALT_TEXTS_MISMATCH(400, "P019", "게시물 이미지마다 대체 텍스트를 추가해주세요."),
 
     // Chat
     CHAT_ROOM_NOT_FOUND(400, "C001", "존재하지 않는 채팅방입니다."),

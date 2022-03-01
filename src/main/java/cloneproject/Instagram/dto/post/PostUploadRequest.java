@@ -22,6 +22,12 @@ public class PostUploadRequest {
     @ApiModelProperty(value = "게시물 이미지", required = true)
     private List<MultipartFile> postImages = new ArrayList<>();
 
+    @ApiModelProperty(value = "게시물 이미지 대체 텍스트", required = true)
+    private List<String> altTexts;
+
     @ApiModelProperty(value = "게시물 이미지 사용자 태그")
     private List<PostImageTagRequest> postImageTags  = new ArrayList<>();
+
+    @ApiModelProperty(value = "댓글 기능 여부", required = true)
+    private boolean commentFlag;
 }
