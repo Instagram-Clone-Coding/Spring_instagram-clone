@@ -36,12 +36,16 @@ public class PostImage {
     })
     private Image image;
 
+    @Column(name = "post_image_alt_text")
+    private String altText;
+
     @OneToMany(mappedBy = "postImage", orphanRemoval = true)
     private List<PostTag> postTags = new ArrayList<>();
 
     @Builder
-    public PostImage(Post post, Image image) {
+    public PostImage(Post post, Image image, String altText) {
         this.post = post;
         this.image = image;
+        this.altText = altText;
     }
 }

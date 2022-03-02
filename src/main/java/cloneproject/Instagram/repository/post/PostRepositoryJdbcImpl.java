@@ -16,10 +16,10 @@ public class PostRepositoryJdbcImpl implements PostRepositoryJdbc {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public void savePostImages(List<Image> images, Long postId) {
+    public void savePostImages(List<Image> images, Long postId, List<String> altTexts) {
         final String sql =
-                "INSERT INTO post_images (`post_image_name`, `post_image_type`, `post_image_uuid`, `post_image_url`, `post_id`) " +
-                        "VALUES(?, ?, ?, ?, ?)";
+                "INSERT INTO post_images (`post_image_name`, `post_image_type`, `post_image_uuid`, `post_image_url`, `post_id`, `post_image_alt_text`) " +
+                        "VALUES(?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.batchUpdate(
                 sql,
@@ -31,6 +31,7 @@ public class PostRepositoryJdbcImpl implements PostRepositoryJdbc {
                         ps.setString(3, images.get(i).getImageUUID());
                         ps.setString(4, images.get(i).getImageUrl());
                         ps.setString(5, postId.toString());
+                        ps.setString(6, altTexts.get(i));
                     }
 
                     @Override

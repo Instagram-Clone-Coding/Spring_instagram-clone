@@ -1,6 +1,8 @@
 package cloneproject.Instagram.entity.hashtag;
 
+import cloneproject.Instagram.entity.post.Post;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -19,10 +21,28 @@ public class Hashtag {
     @Column(name = "hashtag_id")
     private Long id;
 
-    @Column(name = "hashtag_tagname")
-    private String tagname;
+    @Column(name = "hashtag_name")
+    private String name;
 
-    public Hashtag(String tagname) {
-        this.tagname = tagname;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    private Post post;
+
+    @Column(name = "hashtag_count")
+    private Integer count;
+
+    @Builder
+    public Hashtag(String name, Post post) {
+        this.name = name;
+        this.post = post;
+        this.count = 1;
+    }
+
+    public void upCount() {
+        this.count++;
+    }
+
+    public void downCount() {
+        this.count--;
     }
 }

@@ -18,6 +18,7 @@ import cloneproject.Instagram.entity.chat.*;
 import cloneproject.Instagram.entity.comment.Comment;
 import cloneproject.Instagram.entity.comment.CommentLike;
 import cloneproject.Instagram.entity.comment.RecentComment;
+import cloneproject.Instagram.entity.hashtag.Hashtag;
 import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.entity.mention.Mention;
 import cloneproject.Instagram.entity.post.*;
@@ -73,6 +74,7 @@ public class PostService {
     private final MessagePostRepository messagePostRepository;
     private final RoomUnreadMemberRepository roomUnreadMemberRepository;
     private final JoinRoomRepository joinRoomRepository;
+    private final HashtagRepository hashtagRepository;
 
     public Page<PostDTO> getPostDtoPage(int size, int page) {
         page = (page == 0 ? 0 : page - 1) + 10;
@@ -90,6 +92,8 @@ public class PostService {
         final List<Alarm> alarms = alarmRepository.findAllByPost(post);
         alarmRepository.deleteAllInBatch(alarms);
 
+        unregisterHashtags(post);
+
         final List<Mention> mentions = mentionRepository.findAllByPost(post);
         mentionRepository.deleteAllInBatch(mentions);
 
@@ -104,10 +108,26 @@ public class PostService {
 
         final List<Comment> comments = commentRepository.findAllByPost(post);
         final List<CommentLike> commentLikes = commentLikeRepository.findAllByCommentIn(comments);
+        final List<RecentComment> recentComments = recentCommentRepository.findAllByPost(post);
+        recentCommentRepository.deleteAllInBatch(recentComments);
         commentLikeRepository.deleteAllInBatch(commentLikes);
         commentRepository.deleteAllInBatch(comments);
 
         postRepository.delete(post);
+    }
+
+    private void unregisterHashtags(Post post) {
+        final Set<String> names = new HashSet<>(stringExtractUtil.extractHashtags(post.getContent()));
+        final Map<String, Hashtag> hashtagMap = hashtagRepository.findAllByPostAndNameIn(post, names).stream()
+                .collect(Collectors.toMap(Hashtag::getName, h -> h));
+        final List<Hashtag> deleteHashtags = new ArrayList<>();
+        names.forEach(name -> {
+            if (hashtagMap.get(name).getCount() == 1)
+                deleteHashtags.add(hashtagMap.get(name));
+            else
+                hashtagMap.get(name).downCount();
+        });
+        hashtagRepository.deleteAllInBatch(deleteHashtags);
     }
 
     public List<PostDTO> getRecent10PostDTOs() {
@@ -121,9 +141,11 @@ public class PostService {
     }
 
     @Transactional
-    public Long upload(String content, List<MultipartFile> postImages, List<PostImageTagRequest> postImageTags) {
+    public Long upload(String content, List<MultipartFile> postImages, List<String> altTexts, List<PostImageTagRequest> postImageTags, boolean commentFlag) {
         if (postImages.isEmpty())
             throw new PostImageInvalidException();
+        if (postImages.size() != altTexts.size())
+            throw new PostImagesAndAltTextsMismatchException();
         validatePostImageTags(postImages, postImageTags);
 
         final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -132,8 +154,11 @@ public class PostService {
         final Post post = Post.builder()
                 .content(content)
                 .member(member)
+                .commentFlag(commentFlag)
                 .build();
         postRepository.save(post);
+
+        registerHashtags(post, content);
 
         final List<String> mentions = stringExtractUtil.extractMentions(content, List.of(member.getUsername()));
         final List<Member> mentionedMembers = memberRepository.findAllByUsernameIn(mentions);
@@ -143,8 +168,10 @@ public class PostService {
         final List<Image> images = postImages.stream()
                 .map(pi -> uploader.uploadImage(pi, "post"))
                 .collect(Collectors.toList());
-        postRepository.savePostImages(images, post.getId());
-        images.forEach(i -> post.getPostImages().add(new PostImage(post, i)));
+        postRepository.savePostImages(images, post.getId(), altTexts);
+        for (int i = 0; i < images.size(); i++) {
+            post.getPostImages().add(new PostImage(post, images.get(i), altTexts.get(i)));
+        }
 
         final List<Long> postImageIds = postImageRepository.findAllByPost(post).stream()
                 .map(PostImage::getId)
@@ -324,10 +351,15 @@ public class PostService {
     @Transactional
     public CommentCreateResponse createComment(CommentCreateRequest request) {
         final Post post = postRepository.findWithMemberById(request.getPostId()).orElseThrow(PostNotFoundException::new);
+        if (!post.isCommentFlag())
+            throw new CantCreateCommentException();
+
         final Long memberId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
         final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
         final Optional<Comment> parent = commentRepository.findById(request.getParentId());
         final Comment comment = commentRepository.save(new Comment(parent.isEmpty() ? null : parent.get(), member, post, request.getContent()));
+
+        registerHashtags(post, request.getContent());
 
         final List<String> mentions = stringExtractUtil.extractMentions(comment.getContent(), List.of(member.getUsername(), post.getMember().getUsername()));
         final List<Member> mentionedMembers = memberRepository.findAllByUsernameIn(mentions);
@@ -344,7 +376,6 @@ public class PostService {
 
         return new CommentCreateResponse(comment.getId());
     }
-
 
     @Transactional
     public StatusResponse deleteComment(Long commentId) {
@@ -365,6 +396,8 @@ public class PostService {
         final List<Alarm> alarms = alarmRepository.findAllByCommentAndTypeIn(comment, alarmTypes);
         alarmRepository.deleteAllInBatch(alarms);
 
+        unregisterHashtags(comment.getPost());
+
         final List<Mention> mentions = mentionRepository.findAllByComment(comment);
         mentionRepository.deleteAllInBatch(mentions);
 
@@ -374,6 +407,20 @@ public class PostService {
         commentRepository.delete(comment);
 
         return new StatusResponse(true);
+    }
+
+    private void registerHashtags(Post post, String content) {
+        final Set<String> names = new HashSet<>(stringExtractUtil.extractHashtags(content));
+        final Map<String, Hashtag> hashtagMap = hashtagRepository.findAllByPostAndNameIn(post, names).stream()
+                .collect(Collectors.toMap(Hashtag::getName, h -> h));
+        final List<Hashtag> hashtags = new ArrayList<>();
+        names.forEach(name -> {
+            if (hashtagMap.containsKey(name))
+                hashtagMap.get(name).upCount();
+            else
+                hashtags.add(new Hashtag(name, post));
+        });
+        hashtagRepository.saveAllBatch(hashtags, post);
     }
 
     public Page<CommentDTO> getCommentDtoPage(Long postId, int page) {
@@ -402,5 +449,67 @@ public class PostService {
         page = (page == 0 ? 0 : page - 1);
         final Pageable pageable = PageRequest.of(page, size);
         return postLikeRepository.findLikeMembersDtoPageByCommentIdAndMemberId(pageable, commentId, memberId);
+    }
+
+    @Transactional
+    public StatusResponse sharePost(Long postId, List<String> usernames) {
+        final Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
+        final Long memberId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        final Member inviter = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
+        final List<Member> members = memberRepository.findAllByUsernameIn(usernames);
+
+        final List<Member> all = new ArrayList<>();
+        all.add(inviter);
+        all.addAll(members);
+
+        final List<RoomMember> roomMembers = roomMemberRepository.findAllByMemberIn(all);
+        final Map<Member, List<RoomMember>> roomMemberMapGroupByMember = roomMembers.stream()
+                .collect(Collectors.groupingBy(RoomMember::getMember));
+        final Map<Room, List<RoomMember>> roomMemberMapGroupByRoom = roomMembers.stream()
+                .collect(Collectors.groupingBy(RoomMember::getRoom));
+
+        members.forEach(member -> {
+            Room room = null;
+
+            if (roomMemberMapGroupByMember.containsKey(member)) {
+                for (RoomMember taggedRoomMember : roomMemberMapGroupByMember.get(member)) {
+                    if (!roomMemberMapGroupByMember.containsKey(inviter))
+                        continue;
+
+                    for (RoomMember roomMember : roomMemberMapGroupByMember.get(inviter)) {
+                        if (taggedRoomMember.getRoom().getId().equals(roomMember.getRoom().getId())
+                                && roomMemberMapGroupByRoom.get(roomMember.getRoom()).size() == 2) {
+                            room = roomMember.getRoom();
+                            break;
+                        }
+                    }
+                    if (room != null)
+                        break;
+                }
+            }
+
+            if (room == null) {
+                room = roomRepository.save(new Room(inviter));
+                roomMemberRepository.save(new RoomMember(inviter, room));
+                roomMemberRepository.save(new RoomMember(member, room));
+            }
+
+            final MessagePost message = messagePostRepository.save(new MessagePost(post, inviter, room));
+            roomUnreadMemberRepository.save(new RoomUnreadMember(room, message, member));
+
+            final List<Member> privateRoomMembers = List.of(inviter, member);
+            for (Member m : privateRoomMembers) {
+                final Optional<JoinRoom> joinRoom = joinRoomRepository.findByMemberAndRoom(m, room);
+                if (joinRoom.isPresent())
+                    joinRoom.get().updateMessage(message);
+                else
+                    joinRoomRepository.save(new JoinRoom(room, m, message));
+            }
+
+            final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_GET, new MessageDTO(message));
+            messagingTemplate.convertAndSend("/sub/" + member.getUsername(), response);
+        });
+
+        return new StatusResponse(true);
     }
 }

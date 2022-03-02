@@ -148,7 +148,8 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl{
                                                     .select(new QPostImageDTO(
                                                             postImage.post.id,
                                                             postImage.id,
-                                                            postImage.image.imageUrl
+                                                            postImage.image.imageUrl,
+                                                            postImage.altText
                                                     ))
                                                     .from(postImage)
                                                     .where(postImage.post.id.in(postIds))

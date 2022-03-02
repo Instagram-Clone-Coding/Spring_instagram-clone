@@ -35,10 +35,11 @@ public class PostController {
 
     private final PostService postService;
 
-    @ApiOperation(value = "게시물 업로드", consumes = MULTIPART_FORM_DATA_VALUE)
+    @ApiOperation(value = "게시물 업로드", consumes = MULTIPART_FORM_DATA_VALUE,
+            notes = "사용자가 이미지 대체 텍스트를 입력하지 않은 경우에는, 각각 \"\" 으로 요청해주세요.")
     @PostMapping("/posts")
     public ResponseEntity<ResultResponse> createPost(@ModelAttribute PostUploadRequest request) {
-        final Long postId = postService.upload(request.getContent(), request.getPostImages(), request.getPostImageTags());
+        final Long postId = postService.upload(request.getContent(), request.getPostImages(), request.getAltTexts(), request.getPostImageTags(), request.isCommentFlag());
         final PostCreateResponse response = new PostCreateResponse(postId);
 
         return ResponseEntity.ok(ResultResponse.of(CREATE_POST_SUCCESS, response));
@@ -216,5 +217,19 @@ public class PostController {
         final Page<CommentDTO> response = postService.getReplyDtoPage(commentId, page);
 
         return ResponseEntity.ok(ResultResponse.of(GET_REPLY_PAGE_SUCCESS, response));
+    }
+
+    @ApiOperation(value = "게시물 DM 공유")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "postId", value = "게시물 PK", example = "1", required = true),
+            @ApiImplicitParam(name = "usernames", value = "공유할 회원 usernames", required = true)
+    })
+    @PostMapping("/posts/share")
+    public ResponseEntity<ResultResponse> sharePost(
+            @NotNull(message = "공유할 게시물 PK는 필수입니다.") @RequestParam Long postId,
+            @RequestParam List<String> usernames) {
+        final StatusResponse response = postService.sharePost(postId, usernames);
+
+        return ResponseEntity.ok(ResultResponse.of(SHARE_POST_SUCCESS, response));
     }
 }
