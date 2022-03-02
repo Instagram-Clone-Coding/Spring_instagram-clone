@@ -18,21 +18,21 @@ public enum ErrorCode {
     USERNAME_ALREADY_EXISTS(400, "M002", "이미 존재하는 사용자 이름입니다."),
     NEED_LOGIN(401, "M003", "로그인이 필요한 화면입니다."),
     NO_AUTHORITY(403, "M004", "권한이 없습니다."),
-    ACCOUNT_DOES_NOT_MATCH(401, "M005", "계정정보가 일치하지 않습니다."),
+    ACCOUNT_DOES_NOT_MATCH(401, "M005", "계정 정보가 일치하지 않습니다."),
     UPLOAD_PROFILE_IMAGE_FAIL(400, "M006", "회원 이미지를 업로드 하는 중 실패했습니다."),
     NO_CONFIRM_EMAIL(400, "M007", "인증 이메일 전송을 먼저 해야합니다."),
     
     // FOLLOW
     ALREADY_FOLLOW(400, "F001", "이미 팔로우한 유저입니다."),
-    CANT_UNFOLLOW(400, "F002", "팔로우하지 않을 유저는 언팔로우 할 수 없습니다"),
-    CANT_FOLLOW_MYSELF(400, "F003", "자기자신을 팔로우 할 수 없습니다"),
-    CANT_UNFOLLOW_MYSELF(400, "F004", "자기자신을 언팔로우 할 수 없습니다"),
+    CANT_UNFOLLOW(400, "F002", "팔로우하지 않은 유저는 언팔로우 할 수 없습니다."),
+    CANT_FOLLOW_MYSELF(400, "F003", "자기 자신을 팔로우 할 수 없습니다."),
+    CANT_UNFOLLOW_MYSELF(400, "F004", "자기 자신을 언팔로우 할 수 없습니다."),
 
     // BLOCK
     ALREADY_BLOCK(400, "B001", "이미 차단한 유저입니다."),
-    CANT_UNBLOCK(400, "B002", "차단하지 않을 유저는 차단해제 할 수 없습니다"),
-    CANT_BLOCK_MYSELF(400, "B003", "자기자신을 차단 할 수 없습니다"),
-    CANT_UNBLOCK_MYSELF(400, "B004", "자기자신을 차단해제 할 수 없습니다"),
+    CANT_UNBLOCK(400, "B002", "차단하지 않은 유저는 차단해제 할 수 없습니다."),
+    CANT_BLOCK_MYSELF(400, "B003", "자기 자신을 차단 할 수 없습니다."),
+    CANT_UNBLOCK_MYSELF(400, "B004", "자기 자신을 차단해제 할 수 없습니다."),
 
     // Jwt
     INVALID_JWT(401, "J001", "유효하지 않은 토큰입니다."),
@@ -57,7 +57,7 @@ public enum ErrorCode {
     COMMENT_CANT_DELETE(400, "P015", "타인이 작성한 댓글은 삭제할 수 없습니다."),
     COMMENT_LIKE_ALREADY_EXIST(400, "P016", "해당 댓글에 이미 좋아요를 누른 회원입니다."),
     COMMENT_LIKE_NOT_FOUND(400, "P017", "해당 댓글에 좋아요를 누르지 않은 회원입니다."),
-    CANT_COMMENT_CREATE(400, "P018", "댓글 기능이 해제된 게시물에는 댓글을 작성할 수 없습니다."),
+    COMMENT_CANT_CREATE(400, "P018", "댓글 기능이 해제된 게시물에는 댓글을 작성할 수 없습니다."),
     POST_IMAGES_AND_ALT_TEXTS_MISMATCH(400, "P019", "게시물 이미지마다 대체 텍스트를 추가해주세요."),
 
     // Chat
@@ -70,11 +70,10 @@ public enum ErrorCode {
     MESSAGE_LIKE_NOT_FOUND(400, "C007", "해당 메시지를 좋아요하지 않은 회원입니다."),
 
     // FILE
-    CANT_CONVERT_FILE(500, "FI001", "파일을 변환할수 없습니다"),
+    CANT_CONVERT_FILE(500, "FI001", "파일을 변환할 수 없습니다."),
 
     // Alarm
     MISMATCHED_ALARM_TYPE(400, "A001", "알람 형식이 올바르지 않습니다.")
-    ;
     ;
 
     private int status;
