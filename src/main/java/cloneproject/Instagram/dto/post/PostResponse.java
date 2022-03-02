@@ -26,12 +26,13 @@ public class PostResponse {
     private int postLikesCount;
     private boolean postBookmarkFlag;
     private boolean postLikeFlag;
+    private boolean commentFlag;
     private String followingMemberUsernameLikedPost;
     private List<PostImageDTO> postImageDTOs = new ArrayList<>();
     private List<CommentDTO> commentDTOs = new ArrayList<>();
 
     @QueryProjection
-    public PostResponse(Long postId, String postContent, LocalDateTime postUploadDate, String memberUsername, String memberNickname, String memberImageUrl, int postLikesCount, boolean postBookmarkFlag, boolean postLikeFlag) {
+    public PostResponse(Long postId, String postContent, LocalDateTime postUploadDate, String memberUsername, String memberNickname, String memberImageUrl, int postLikesCount, boolean postBookmarkFlag, boolean postLikeFlag, boolean commentFlag) {
         this.postId = postId;
         this.postContent = postContent;
         this.postUploadDate = postUploadDate;
@@ -41,5 +42,6 @@ public class PostResponse {
         this.postLikesCount = postLikesCount;
         this.postBookmarkFlag = postBookmarkFlag;
         this.postLikeFlag = postLikeFlag;
+        this.commentFlag = commentFlag;
     }
 }

@@ -56,7 +56,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
                         JPAExpressions
                                 .selectFrom(postLike)
                                 .where(postLike.post.eq(post).and(postLike.member.eq(member)))
-                                .exists()
+                                .exists(),
+                        post.commentFlag
                 ))
                 .from(post)
                 .innerJoin(post.member, QMember.member)
@@ -184,7 +185,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
                         JPAExpressions
                                 .selectFrom(postLike)
                                 .where(postLike.post.eq(post).and(postLike.member.id.eq(memberId)))
-                                .exists()
+                                .exists(),
+                        post.commentFlag
                 ))
                 .from(post)
                 .join(post.member, QMember.member)
@@ -299,7 +301,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
                         JPAExpressions
                                 .selectFrom(postLike)
                                 .where(postLike.post.eq(post).and(postLike.member.id.eq(memberId)))
-                                .exists()
+                                .exists(),
+                        post.commentFlag
                 ))
                 .from(post)
                 .where(post.id.eq(postId))

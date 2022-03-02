@@ -27,11 +27,12 @@ public class PostDTO {
     private int postLikesCount;
     private boolean postBookmarkFlag;
     private boolean postLikeFlag;
+    private boolean commentFlag;
     private String followingMemberUsernameLikedPost;
     private List<CommentDTO> recentComments = new ArrayList<>();
 
     @QueryProjection
-    public PostDTO(Long postId, String postContent, LocalDateTime postUploadDate, String memberUsername, String memberNickname, String memberImageUrl, int postCommentsCount, int postLikesCount, boolean postBookmarkFlag, boolean postLikeFlag) {
+    public PostDTO(Long postId, String postContent, LocalDateTime postUploadDate, String memberUsername, String memberNickname, String memberImageUrl, int postCommentsCount, int postLikesCount, boolean postBookmarkFlag, boolean postLikeFlag, boolean commentFlag) {
         this.postId = postId;
         this.postContent = postContent;
         this.postUploadDate = postUploadDate;
@@ -42,5 +43,6 @@ public class PostDTO {
         this.postLikesCount = postLikesCount;
         this.postBookmarkFlag = postBookmarkFlag;
         this.postLikeFlag = postLikeFlag;
+        this.commentFlag = commentFlag;
     }
 }
