@@ -1,7 +1,5 @@
 package cloneproject.Instagram.service;
 
-import java.util.Optional;
-
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -14,13 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
 import cloneproject.Instagram.dto.member.JwtDto;
 import cloneproject.Instagram.dto.member.LoginRequest;
 import cloneproject.Instagram.dto.member.RegisterRequest;
+import cloneproject.Instagram.dto.member.ResetPasswordRequest;
 import cloneproject.Instagram.dto.member.UpdatePasswordRequest;
 import cloneproject.Instagram.entity.member.Member;
-import cloneproject.Instagram.entity.redis.EmailCode;
 import cloneproject.Instagram.exception.AccountDoesNotMatchException;
+import cloneproject.Instagram.exception.CantResetPasswordException;
 import cloneproject.Instagram.exception.InvalidJwtException;
 import cloneproject.Instagram.exception.MemberDoesNotExistException;
-import cloneproject.Instagram.exception.NoConfirmEmailException;
 import cloneproject.Instagram.exception.UseridAlreadyExistException;
 import cloneproject.Instagram.repository.MemberRepository;
 import cloneproject.Instagram.util.JwtUtil;
@@ -56,19 +54,11 @@ public class MemberAuthService {
             throw new UseridAlreadyExistException();
         }
         String username = registerRequest.getUsername();
-        Optional<EmailCode> optionalEmailCode = emailCodeService.findByUsername(username);
-
-        if(optionalEmailCode.isEmpty()){
-            throw new NoConfirmEmailException();
-        }
-
-        EmailCode emailCode = optionalEmailCode.get();
-
-        if(!emailCode.getCode().equals(registerRequest.getCode()) || !emailCode.getEmail().equals(registerRequest.getEmail())){
+        
+        if(!emailCodeService.checkEmailCode(username, registerRequest.getEmail(), registerRequest.getCode())){
             return false;
         }
-
-        emailCodeService.deleteEmailCode(emailCode);
+        
         Member member = registerRequest.convert();
         String encryptedPassword = bCryptPasswordEncoder.encode(member.getPassword());
         member.setEncryptedPassword(encryptedPassword);
@@ -136,13 +126,53 @@ public class MemberAuthService {
         Member member = memberRepository.findById(Long.valueOf(memberId))
                                     .orElseThrow(MemberDoesNotExistException::new);
         boolean oldPasswordCorrect = bCryptPasswordEncoder.matches(updatePasswordRequest.getOldPassword()
-                                                                , member.getPassword());
+            , member.getPassword());
         if(!oldPasswordCorrect){
             throw new AccountDoesNotMatchException();
         }
         String encryptedPassword = bCryptPasswordEncoder.encode(updatePasswordRequest.getNewPassword());
         member.setEncryptedPassword(encryptedPassword);              
         memberRepository.save(member);
+    }
+
+    @Transactional
+    public boolean sendResetPasswordCode(String username){
+        if(!memberRepository.existsByUsername(username)){
+            throw new MemberDoesNotExistException();
+        }
+        return emailCodeService.sendResetPasswordCode(username);
+    }
+
+
+    @Transactional
+    public JwtDto resetPassword(ResetPasswordRequest resetPasswordRequest){
+        Member member = memberRepository.findByUsername(resetPasswordRequest.getUsername())
+                                    .orElseThrow(MemberDoesNotExistException::new);
+        if(!emailCodeService.checkResetPasswordCode(resetPasswordRequest.getUsername(), resetPasswordRequest.getCode())){
+            throw new CantResetPasswordException();
+        }
+        String encryptedPassword = bCryptPasswordEncoder.encode(resetPasswordRequest.getNewPassword());
+        member.setEncryptedPassword(encryptedPassword);              
+        memberRepository.save(member);
+        JwtDto jwtDto = login(new LoginRequest(resetPasswordRequest.getUsername(), resetPasswordRequest.getNewPassword()));
+        emailCodeService.deleteResetPasswordCode(resetPasswordRequest.getUsername());
+        return jwtDto;
+    }
+
+    @Transactional
+    public JwtDto loginWithCode(String username, String code){
+        Member member = memberRepository.findByUsername(username)
+                                    .orElseThrow(MemberDoesNotExistException::new);
+        if(!emailCodeService.checkResetPasswordCode(username, code)){
+            throw new CantResetPasswordException();
+        }
+        JwtDto jwtDto = jwtUtil.generateTokenDto(jwtUtil.getAuthenticationWithMember(member.getId().toString()));
+        return jwtDto;
+    }
+
+    @Transactional
+    public void expireResetPasswordCode(String username){
+        emailCodeService.deleteResetPasswordCode(username);
     }
 
 }
