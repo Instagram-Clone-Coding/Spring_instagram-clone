@@ -3,8 +3,6 @@ package cloneproject.Instagram.entity.redis;
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
-
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
