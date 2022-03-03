@@ -75,6 +75,7 @@ public class PostService {
     private final RoomUnreadMemberRepository roomUnreadMemberRepository;
     private final JoinRoomRepository joinRoomRepository;
     private final HashtagRepository hashtagRepository;
+    private final HashtagPostRepository hashtagPostRepository;
 
     public Page<PostDTO> getPostDtoPage(int size, int page) {
         page = (page == 0 ? 0 : page - 1) + 10;
@@ -114,20 +115,6 @@ public class PostService {
         commentRepository.deleteAllInBatch(comments);
 
         postRepository.delete(post);
-    }
-
-    private void unregisterHashtags(Post post) {
-        final Set<String> names = new HashSet<>(stringExtractUtil.extractHashtags(post.getContent()));
-        final Map<String, Hashtag> hashtagMap = hashtagRepository.findAllByNameIn(names).stream()
-                .collect(Collectors.toMap(Hashtag::getName, h -> h));
-        final List<Hashtag> deleteHashtags = new ArrayList<>();
-        names.forEach(name -> {
-            if (hashtagMap.get(name).getCount() == 1)
-                deleteHashtags.add(hashtagMap.get(name));
-            else
-                hashtagMap.get(name).downCount();
-        });
-        hashtagRepository.deleteAllInBatch(deleteHashtags);
     }
 
     public List<PostDTO> getRecent10PostDTOs() {
@@ -413,14 +400,34 @@ public class PostService {
         final Set<String> names = new HashSet<>(stringExtractUtil.extractHashtags(content));
         final Map<String, Hashtag> hashtagMap = hashtagRepository.findAllByNameIn(names).stream()
                 .collect(Collectors.toMap(Hashtag::getName, h -> h));
-        final List<Hashtag> hashtags = new ArrayList<>();
+        final List<HashtagPost> newHashtagPost = new ArrayList<>();
         names.forEach(name -> {
-            if (hashtagMap.containsKey(name))
-                hashtagMap.get(name).upCount();
+            Hashtag hashtag;
+            if (hashtagMap.containsKey(name)) {
+                hashtag = hashtagMap.get(name);
+                hashtag.upCount();
+            }
             else
-                hashtags.add(new Hashtag(name, post));
+                hashtag = hashtagRepository.save(new Hashtag(name));
+            newHashtagPost.add(new HashtagPost(hashtag, post));
         });
-        hashtagRepository.saveAllBatch(hashtags, post);
+        hashtagPostRepository.saveAllBatch(newHashtagPost);
+    }
+
+    private void unregisterHashtags(Post post) {
+        final Set<String> names = new HashSet<>(stringExtractUtil.extractHashtags(post.getContent()));
+        final Map<String, Hashtag> hashtagMap = hashtagRepository.findAllByNameIn(names).stream()
+                .collect(Collectors.toMap(Hashtag::getName, h -> h));
+        final List<Hashtag> deleteHashtags = new ArrayList<>();
+        names.forEach(name -> {
+            if (hashtagMap.get(name).getCount() == 1)
+                deleteHashtags.add(hashtagMap.get(name));
+            else
+                hashtagMap.get(name).downCount();
+        });
+        final List<HashtagPost> hashtagPosts = hashtagPostRepository.findAllByHashtagIn(deleteHashtags);
+        hashtagPostRepository.deleteAllInBatch(hashtagPosts);
+        hashtagRepository.deleteAllInBatch(deleteHashtags);
     }
 
     public Page<CommentDTO> getCommentDtoPage(Long postId, int page) {

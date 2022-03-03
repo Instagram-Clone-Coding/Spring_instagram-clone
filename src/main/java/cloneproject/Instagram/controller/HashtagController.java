@@ -58,7 +58,7 @@ public class HashtagController {
             @NotNull(message = "page는 필수입니다.") @RequestParam int page,
             @NotNull(message = "size는 필수입니다.") @RequestParam int size,
             @NotBlank(message = "hashtag는 필수입니다.") @RequestParam String hashtag) {
-        final Page<HashtagDTO> response = hashtagService.getHashTags(page, size, hashtag.substring(1));
+        final Page<HashtagDTO> response = hashtagService.getHashTagsLikeName(page, size, hashtag.substring(1));
 
         return ResponseEntity.ok(ResultResponse.of(GET_HASHTAGS_SUCCESS, response));
     }

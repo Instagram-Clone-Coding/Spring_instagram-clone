@@ -3,7 +3,7 @@ package cloneproject.Instagram.repository.post;
 import cloneproject.Instagram.dto.comment.CommentDTO;
 import cloneproject.Instagram.dto.comment.QCommentDTO;
 import cloneproject.Instagram.dto.post.*;
-import cloneproject.Instagram.entity.hashtag.QHashtag;
+import cloneproject.Instagram.entity.hashtag.Hashtag;
 import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.entity.member.QMember;
 import com.querydsl.jpa.JPAExpressions;
@@ -25,6 +25,7 @@ import static cloneproject.Instagram.entity.comment.QRecentComment.recentComment
 import static cloneproject.Instagram.entity.hashtag.QHashtag.hashtag;
 import static cloneproject.Instagram.entity.member.QFollow.follow;
 import static cloneproject.Instagram.entity.post.QBookmark.bookmark;
+import static cloneproject.Instagram.entity.post.QHashtagPost.hashtagPost;
 import static cloneproject.Instagram.entity.post.QPost.post;
 import static cloneproject.Instagram.entity.post.QPostImage.postImage;
 import static cloneproject.Instagram.entity.post.QPostLike.postLike;
@@ -390,12 +391,12 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
     }
 
     @Override
-    public Page<PostDTO> findPostDtoPageByHashtag(Pageable pageable, Member member, String hashtagName) {
+    public Page<PostDTO> findPostDtoPageByHashtag(Pageable pageable, Member member, Hashtag tag) {
         final List<Long> ids = queryFactory
-                .select(hashtag.post.id)
-                .from(hashtag)
-                .where(hashtag.name.eq(hashtagName))
-                .orderBy(hashtag.post.id.desc())
+                .select(hashtagPost.post.id)
+                .from(hashtagPost)
+                .where(hashtagPost.hashtag.id.eq(tag.getId()))
+                .orderBy(hashtagPost.post.id.desc())
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetch();

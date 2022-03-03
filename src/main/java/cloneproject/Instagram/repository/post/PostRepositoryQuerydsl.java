@@ -2,6 +2,7 @@ package cloneproject.Instagram.repository.post;
 
 import cloneproject.Instagram.dto.post.PostDTO;
 import cloneproject.Instagram.dto.post.PostResponse;
+import cloneproject.Instagram.entity.hashtag.Hashtag;
 import cloneproject.Instagram.entity.member.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,5 +18,5 @@ public interface PostRepositoryQuerydsl {
 
     Optional<PostResponse> findPostResponse(Long postId, Long memberId);
 
-    Page<PostDTO> findPostDtoPageByHashtag(Pageable pageable, Member member, String hashtag);
+    Page<PostDTO> findPostDtoPageByHashtag(Pageable pageable, Member member, Hashtag hashtag);
 }
