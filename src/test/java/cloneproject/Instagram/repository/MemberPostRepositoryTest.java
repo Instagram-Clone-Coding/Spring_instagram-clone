@@ -91,8 +91,11 @@ public class MemberPostRepositoryTest {
         List<Image> images = new ArrayList<>();
         images.add(ImageUtil.getBaseImage());
         images.add(ImageUtil.getBaseImage());
-        postRepository.savePostImages(images, savedPostOne.getId());
-        postRepository.savePostImages(images, savedPostTwo.getId());
+        List<String> strings = new ArrayList<>();
+        strings.add("alt text1");
+        strings.add("alt text2");
+        postRepository.savePostImages(images, savedPostOne.getId(), strings);
+        postRepository.savePostImages(images, savedPostTwo.getId(), strings);
 
         //post likes
         PostLike postLikeOne = PostLike.builder().member(savedMemberOne).post(savedPostOne).build();
