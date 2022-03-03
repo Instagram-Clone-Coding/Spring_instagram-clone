@@ -1,8 +1,10 @@
 package cloneproject.Instagram.service;
 
+import cloneproject.Instagram.dto.hashtag.HashtagDTO;
 import cloneproject.Instagram.dto.post.PostDTO;
 import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.exception.MemberDoesNotExistException;
+import cloneproject.Instagram.repository.HashtagRepository;
 import cloneproject.Instagram.repository.MemberRepository;
 import cloneproject.Instagram.repository.post.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ public class HashtagService {
 
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final HashtagRepository hashtagRepository;
 
     public Page<PostDTO> getHashTagPosts(int page, int size, String hashtag) {
         page = (page == 0 ? 0 : page - 1);
@@ -27,5 +30,11 @@ public class HashtagService {
         final Long memberId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
         final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
         return postRepository.findPostDtoPageByHashtag(pageable, member, hashtag);
+    }
+
+    public Page<HashtagDTO> getHashTags(int page, int size, String name) {
+        page = (page == 0 ? 0 : page - 1);
+        final Pageable pageable = PageRequest.of(page, size);
+        return hashtagRepository.findHashtagDtoPageLikeName(pageable, name);
     }
 }

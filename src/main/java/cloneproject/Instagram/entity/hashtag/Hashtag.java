@@ -24,7 +24,7 @@ public class Hashtag {
     @Column(name = "hashtag_name")
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
 

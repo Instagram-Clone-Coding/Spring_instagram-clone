@@ -118,7 +118,7 @@ public class PostService {
 
     private void unregisterHashtags(Post post) {
         final Set<String> names = new HashSet<>(stringExtractUtil.extractHashtags(post.getContent()));
-        final Map<String, Hashtag> hashtagMap = hashtagRepository.findAllByPostAndNameIn(post, names).stream()
+        final Map<String, Hashtag> hashtagMap = hashtagRepository.findAllByNameIn(names).stream()
                 .collect(Collectors.toMap(Hashtag::getName, h -> h));
         final List<Hashtag> deleteHashtags = new ArrayList<>();
         names.forEach(name -> {
@@ -411,7 +411,7 @@ public class PostService {
 
     private void registerHashtags(Post post, String content) {
         final Set<String> names = new HashSet<>(stringExtractUtil.extractHashtags(content));
-        final Map<String, Hashtag> hashtagMap = hashtagRepository.findAllByPostAndNameIn(post, names).stream()
+        final Map<String, Hashtag> hashtagMap = hashtagRepository.findAllByNameIn(names).stream()
                 .collect(Collectors.toMap(Hashtag::getName, h -> h));
         final List<Hashtag> hashtags = new ArrayList<>();
         names.forEach(name -> {
