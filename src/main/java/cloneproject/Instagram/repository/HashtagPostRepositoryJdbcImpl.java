@@ -1,7 +1,6 @@
 package cloneproject.Instagram.repository;
 
-import cloneproject.Instagram.entity.hashtag.Hashtag;
-import cloneproject.Instagram.entity.post.Post;
+import cloneproject.Instagram.entity.post.HashtagPost;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,30 +10,30 @@ import java.sql.SQLException;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class HashtagRepositoryJdbcImpl implements HashtagRepositoryJdbc {
+public class HashtagPostRepositoryJdbcImpl implements HashtagPostRepositoryJdbc {
 
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public void saveAllBatch(List<Hashtag> hashtags, Post post) {
+    public void saveAllBatch(List<HashtagPost> newHashtagPost) {
         final String sql =
-                "INSERT INTO hashtags (`hashtag_name`, `post_id`, `hashtag_count`) " +
-                        "VALUES(?, ?, ?)";
+                "INSERT INTO hashtag_posts (`hashtag_id`, `post_id`) " +
+                        "VALUES(?, ?)";
 
         jdbcTemplate.batchUpdate(
                 sql,
                 new BatchPreparedStatementSetter() {
                     @Override
                     public void setValues(PreparedStatement ps, int i) throws SQLException {
-                        ps.setString(1, hashtags.get(i).getName());
-                        ps.setString(2, post.getId().toString());
-                        ps.setString(3, "1");
+                        ps.setString(1, newHashtagPost.get(i).getHashtag().getId().toString());
+                        ps.setString(2, newHashtagPost.get(i).getPost().getId().toString());
                     }
 
                     @Override
                     public int getBatchSize() {
-                        return hashtags.size();
+                        return newHashtagPost.size();
                     }
-                });
+                }
+        );
     }
 }
