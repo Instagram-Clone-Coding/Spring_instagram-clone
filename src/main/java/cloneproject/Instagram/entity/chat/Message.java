@@ -45,4 +45,9 @@ public class Message {
         this.member = member;
         this.room = room;
     }
+
+    @Transient
+    public void setDtype() {
+        this.dtype = getClass().getAnnotation(DiscriminatorValue.class).value();
+    }
 }

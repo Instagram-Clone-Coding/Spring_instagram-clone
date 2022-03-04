@@ -148,6 +148,7 @@ public class ChatService {
             throw new JoinRoomNotFoundException();
 
         final MessageText message = messageTextRepository.save(new MessageText(request.getContent(), sender, room));
+        message.setDtype();
         updateRoom(request.getSenderId(), room, roomMembers, message);
 
         final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_GET, new MessageDTO(message));
@@ -190,6 +191,7 @@ public class ChatService {
 
         final Image image = uploader.uploadImage(multipartFile, "chat");
         final MessageImage message = messageImageRepository.save(new MessageImage(image, sender, room));
+        message.setDtype();
         updateRoom(senderId, room, roomMembers, message);
 
         final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_GET, new MessageDTO(message));

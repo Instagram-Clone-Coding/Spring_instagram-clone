@@ -213,6 +213,7 @@ public class PostService {
             }
 
             final MessagePost message = messagePostRepository.save(new MessagePost(post, inviter, room));
+            message.setDtype();
             roomUnreadMemberRepository.save(new RoomUnreadMember(room, message, taggedMember));
 
             final List<Member> privateRoomMembers = List.of(inviter, taggedMember);
@@ -502,6 +503,7 @@ public class PostService {
             }
 
             final MessagePost message = messagePostRepository.save(new MessagePost(post, inviter, room));
+            message.setDtype();
             roomUnreadMemberRepository.save(new RoomUnreadMember(room, message, member));
 
             final List<Member> privateRoomMembers = List.of(inviter, member);
