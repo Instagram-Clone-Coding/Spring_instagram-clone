@@ -36,6 +36,7 @@ import javax.servlet.http.Cookie;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+// TODO 비밀번호 리셋 추가
 @ExtendWith(SpringExtension.class)
 @DisplayName("Member Auth Controller Test")
 public class MemberAuthControllerTest {
