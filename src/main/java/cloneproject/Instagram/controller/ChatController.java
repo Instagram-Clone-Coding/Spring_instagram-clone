@@ -1,5 +1,6 @@
 package cloneproject.Instagram.controller;
 
+import cloneproject.Instagram.dto.StatusResponse;
 import cloneproject.Instagram.dto.chat.*;
 import cloneproject.Instagram.dto.result.ResultResponse;
 import cloneproject.Instagram.service.ChatService;
@@ -9,6 +10,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.validation.annotation.Validated;
@@ -80,32 +82,32 @@ public class ChatController {
     }
 
     @MessageMapping("/messages/like")
-    public void likeMessage(
-            @NotNull(message = "좋아요할 메시지 PK는 필수입니다.") @RequestParam Long messageId,
-            @NotNull(message = "회원 PK는 필수입니다.") @RequestParam Long memberId) {
-        chatService.likeMessage(messageId, memberId);
+    public void likeMessage(@RequestBody MessageSimpleRequest request) {
+        chatService.likeMessage(request.getMessageId(), request.getMemberId());
     }
 
     @MessageMapping("/messages/unlike")
-    public void unlikeMessage(
-            @NotNull(message = "좋아요 취소할 메시지 PK는 필수입니다.") @RequestParam Long messageId,
-            @NotNull(message = "회원 PK는 필수입니다.") @RequestParam Long memberId) {
-        chatService.unlikeMessage(messageId, memberId);
+    public void unlikeMessage(@RequestBody MessageSimpleRequest request) {
+        chatService.unlikeMessage(request.getMessageId(), request.getMemberId());
     }
 
     @MessageMapping("/messages/delete")
-    public void deleteMessage(
-            @NotNull(message = "삭제할 메시지 PK는 필수입니다.") @RequestParam Long messageId,
-            @NotNull(message = "회원 PK는 필수입니다.") @RequestParam Long memberId) {
-        chatService.deleteMessage(messageId, memberId);
+    public void deleteMessage(@RequestBody MessageSimpleRequest request) {
+        chatService.deleteMessage(request.getMessageId(), request.getMemberId());
     }
 
-    @MessageMapping("/messages/images")
-    public void sendImageMessage(
+    @ApiOperation(value = "이미지 전송")
+    @ApiImplicitParams({
+            @ApiImplicitParam(value = "채팅방 PK", required = true, example = "1"),
+            @ApiImplicitParam(value = "이미지", required = true)
+    })
+    @PostMapping(value = "/messages/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ResultResponse> sendImageMessage(
             @NotNull(message = "채팅방 PK는 필수입니다.") @RequestParam Long roomId,
-            @NotNull(message = "메시지를 전송하는 회원 PK는 필수입니다.") @RequestParam Long senderId,
             @RequestParam MultipartFile image) {
-        chatService.sendImage(roomId, senderId, image);
+        final StatusResponse response = chatService.sendImage(roomId, image);
+
+        return ResponseEntity.ok(ResultResponse.of(SEND_IMAGE_SUCCESS, response));
     }
 
     @MessageMapping("/messages")
