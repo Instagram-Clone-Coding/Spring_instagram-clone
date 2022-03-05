@@ -1,5 +1,6 @@
 package cloneproject.Instagram.service;
 
+import cloneproject.Instagram.dto.StatusResponse;
 import cloneproject.Instagram.dto.chat.*;
 import cloneproject.Instagram.dto.error.ErrorCode;
 import cloneproject.Instagram.dto.error.ErrorResponse;
@@ -176,13 +177,14 @@ public class ChatService {
     }
 
     @Transactional
-    public void sendImage(Long roomId, Long senderId, MultipartFile multipartFile) {
+    public StatusResponse sendImage(Long roomId, MultipartFile multipartFile) {
         if (multipartFile.isEmpty()) {
             final List<ErrorResponse.FieldError> errors = new ArrayList<>();
             errors.add(new ErrorResponse.FieldError("image", "null", ErrorCode.MESSAGE_IMAGE_INVALID.getMessage()));
             throw new InvalidInputException(errors);
         }
 
+        final Long senderId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
         final Member sender = memberRepository.findById(senderId).orElseThrow(MemberDoesNotExistException::new);
         final Room room = roomRepository.findById(roomId).orElseThrow(ChatRoomNotFoundException::new);
         final List<RoomMember> roomMembers = roomMemberRepository.findAllWithMemberByRoomId(room.getId());
@@ -196,6 +198,7 @@ public class ChatService {
 
         final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_GET, new MessageDTO(message));
         roomMembers.forEach(r -> messagingTemplate.convertAndSend("/sub/" + r.getMember().getUsername(), response));
+        return new StatusResponse(true);
     }
 
     private void updateRoom(Long senderId, Room room, List<RoomMember> roomMembers, Message message) {
