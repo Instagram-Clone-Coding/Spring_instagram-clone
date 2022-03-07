@@ -17,6 +17,7 @@ import cloneproject.Instagram.advice.GlobalExceptionHandler;
 import cloneproject.Instagram.dto.member.JwtDto;
 import cloneproject.Instagram.dto.member.LoginRequest;
 import cloneproject.Instagram.dto.member.RegisterRequest;
+import cloneproject.Instagram.dto.member.ResetPasswordRequest;
 import cloneproject.Instagram.dto.member.SendConfirmationEmailRequest;
 import cloneproject.Instagram.dto.member.UpdatePasswordRequest;
 import cloneproject.Instagram.dto.result.ResultCode;
@@ -50,7 +51,7 @@ public class MemberAuthControllerTest {
     private ObjectMapper objectMapper;
 
     private MockMvc mockMvc;
-
+    private String mockCode;
 
 	@BeforeEach
 	private void setup() {
@@ -59,6 +60,7 @@ public class MemberAuthControllerTest {
 			.addFilter(new CharacterEncodingFilter(StandardCharsets.UTF_8.name(), true))
             .setControllerAdvice(new GlobalExceptionHandler())
 			.build();
+        mockCode = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 	}
 
     
@@ -119,6 +121,25 @@ public class MemberAuthControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(content().string(objectMapper.writeValueAsString(
                         ResultResponse.of(ResultCode.REGISTER_SUCCESS, true))));
+            }
+        }
+
+        @Nested
+        @DisplayName("이메일코드 인증에 실패한경우")
+        class Context_eamilcode_fail{
+            @Test
+            @DisplayName("실패 ResultCode를 반환한다")
+            void it_return_failure() throws Exception{
+                RegisterRequest registerRequest = new RegisterRequest("dlwlrma", "이지금", "a12341234", "aaa@gmail.com", "ABC123");
+                when(memberAuthService.register(any())).thenReturn(false);
+
+                mockMvc.perform(post("/accounts")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(registerRequest))
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(content().string(objectMapper.writeValueAsString(
+                        ResultResponse.of(ResultCode.CONFIRM_EMAIL_FAIL, false))));
             }
         }
 
@@ -280,6 +301,122 @@ public class MemberAuthControllerTest {
                             .content(objectMapper.writeValueAsString(updatePasswordRequest))
                         )
                         .andExpect(status().isBadRequest());
+            }
+        }
+
+    }
+    @Nested
+    @DisplayName("비밀번호 변경 이메일 전송은")
+    class Describe_sendResetPasswordCode{
+
+        @Nested
+        @DisplayName("올바른 parameters가 주어지면")
+        class Context_correct_params{
+            @Test
+            @DisplayName("성공 ResultCode를 반환한다")
+            void it_return_success() throws Exception{
+                mockMvc.perform(post("/accounts/password/email")
+                        .param("username", "dlwlrma")
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(content().string(objectMapper.writeValueAsString(
+                        ResultResponse.of(ResultCode.SEND_RESET_PASSWORD_EMAIL_SUCCESS, null))));
+            }
+        }
+
+    }
+    
+    @Nested
+    @DisplayName("비밀번호 재설정은")
+    class Describe_resetPassword{
+
+        @Nested
+        @DisplayName("올바른 parameters가 주어지면")
+        class Context_correct_params{
+            @Test
+            @DisplayName("성공 ResultCode를 반환한다")
+            void it_return_success() throws Exception{
+                ResetPasswordRequest resetPasswordRequest = 
+                    new ResetPasswordRequest("dlwlrma", mockCode, "a12341234");
+                JwtDto jwtDto = JwtDto.builder()
+                    .type("Bearer")
+                    .accessToken("AAA.BBB.CCC")
+                    .refreshToken("CCC.BBB.AAA")
+                    .build();
+                when(memberAuthService.resetPassword(any())).thenReturn(jwtDto);
+    
+
+                mockMvc.perform(put("/accounts/password/reset")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(resetPasswordRequest))
+                    )
+                    .andExpect(cookie().value("refreshToken", jwtDto.getRefreshToken()))
+                    .andExpect(status().isOk());
+            }
+        }
+
+        @Nested
+        @DisplayName("잘못된 parameters가 주어지면")
+        class Context_wrong_params{
+            @Test
+            @DisplayName("400 에러가 발생한다")
+            void it_return_error() throws Exception{
+                ResetPasswordRequest resetPasswordRequest = 
+                    new ResetPasswordRequest("dlwlrma", "AAA123", "a12341234");
+
+                    mockMvc.perform(put("/accounts/password/reset")
+                            .contentType("application/json")
+                            .content(objectMapper.writeValueAsString(resetPasswordRequest))
+                        )
+                        .andExpect(status().isBadRequest());
+            }
+        }
+
+    }
+    @Nested
+    @DisplayName("코드를 이용한 로그인은")
+    class Describe_loginWithCode{
+
+        @Nested
+        @DisplayName("올바른 parameters가 주어지면")
+        class Context_correct_params{
+            @Test
+            @DisplayName("성공 ResultCode를 반환한다")
+            void it_return_success() throws Exception{
+                JwtDto jwtDto = JwtDto.builder()
+                    .type("Bearer")
+                    .accessToken("AAA.BBB.CCC")
+                    .refreshToken("CCC.BBB.AAA")
+                    .build();
+                when(memberAuthService.loginWithCode(any(), any())).thenReturn(jwtDto);
+    
+
+                mockMvc.perform(post("/accounts/login/recovery")
+                        .param("username", "dlwlrma")
+                        .param("code", mockCode)
+                    )
+                    .andExpect(cookie().value("refreshToken", jwtDto.getRefreshToken()))
+                    .andExpect(status().isOk());
+            }
+        }
+
+    }
+    @Nested
+    @DisplayName("비밀번호 재설정 코드 만료시키기는")
+    class Describe_expireResetPasswordCode{
+
+        @Nested
+        @DisplayName("올바른 parameters가 주어지면")
+        class Context_correct_params{
+            @Test
+            @DisplayName("성공 ResultCode를 반환한다")
+            void it_return_success() throws Exception{
+                mockMvc.perform(delete("/accounts/login/recovery")
+                        .param("username", "dlwlrma")
+                    )
+                    .andExpect(status().isOk())
+                    .andExpect(content().string(objectMapper.writeValueAsString(
+                        ResultResponse.of(ResultCode.EXPIRE_RESET_PASSWORD_CODE_SUCCESS, null))));
             }
         }
 
