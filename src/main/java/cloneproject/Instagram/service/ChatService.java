@@ -105,7 +105,7 @@ public class ChatService {
         if (roomUnreadMemberRepository.findAllByRoomAndMember(room, member).isEmpty())
             return new ChatRoomInquireResponse(false, unseenCount);
 
-        final List<JoinRoom> joinRooms = joinRoomRepository.findAllByRoomId(roomId);
+        final List<JoinRoom> joinRooms = joinRoomRepository.findAllWithMemberByRoomId(roomId);
         final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_SEEN, new MessageSeenDTO(room.getId(), memberId, LocalDateTime.now()));
         joinRooms.forEach(j -> {
             if (!j.getMember().getId().equals(memberId)) {
@@ -158,7 +158,7 @@ public class ChatService {
 
     public void indicate(IndicateRequest request) {
         final Room room = roomRepository.findById(request.getRoomId()).orElseThrow(ChatRoomNotFoundException::new);
-        final List<JoinRoom> joinRooms = joinRoomRepository.findAllByRoomId(room.getId());
+        final List<JoinRoom> joinRooms = joinRoomRepository.findAllWithMemberByRoomId(room.getId());
         final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_ACK, new IndicateDTO(room.getId(), request.getSenderId(), 12000L));
 
         joinRooms.forEach(j -> {
@@ -238,26 +238,25 @@ public class ChatService {
         final List<RoomUnreadMember> roomUnreadMembers = roomUnreadMemberRepository.findAllByMessage(message);
         roomUnreadMemberRepository.deleteAllInBatch(roomUnreadMembers);
 
-        final List<JoinRoom> updateJoinRooms = new ArrayList<>();
-        final List<JoinRoom> deleteJoinRooms = new ArrayList<>();
-
         final Room room = message.getRoom();
-        final List<JoinRoom> joinRooms = joinRoomRepository.findAllByRoom(room);
-        final Pageable pageable = PageRequest.of(1, 1, Sort.by(DESC, "id"));
-        final Page<Message> messagePage = messageRepository.findAllByRoom(room, pageable);
-        if (messagePage.getContent().isEmpty()) {
-            deleteJoinRooms.addAll(joinRooms);
-        } else {
-            final Message lastMessage = messagePage.getContent().get(0);
-            joinRooms.forEach(j -> {
-                if (j.getCreatedDate().isAfter(lastMessage.getCreatedDate()))
-                    deleteJoinRooms.add(j);
-                else
-                    updateJoinRooms.add(j);
-            });
-            joinRoomRepository.updateAllBatch(updateJoinRooms, lastMessage);
-        }
-        joinRoomRepository.deleteAllInBatch(deleteJoinRooms);
+        final List<JoinRoom> joinRooms = joinRoomRepository.findAllWithMessageByRoomId(room.getId());
+        joinRooms.forEach(joinRoom -> {
+            final LocalDateTime createdDateOfMessageToDelete = message.getCreatedDate();
+            final LocalDateTime createdDateOfJoinRoom = joinRoom.getCreatedDate();
+            if (!createdDateOfMessageToDelete.isBefore(createdDateOfJoinRoom)) {
+                if (message.equals(joinRoom.getMessage())) {
+                    final LocalDateTime start = createdDateOfJoinRoom.minusSeconds(1L);
+                    final LocalDateTime end = createdDateOfMessageToDelete.plusSeconds(1L);
+                    final Long total = messageRepository.countByCreatedDateBetweenAndRoom(start, end, room);
+                    if (total == 1) {
+                        joinRoomRepository.delete(joinRoom);
+                    } else {
+                        final List<Message> messages = messageRepository.findTop2ByCreatedDateBetweenAndRoomOrderByIdDesc(start, end, room);
+                        joinRoom.updateMessage(messages.get(1));
+                    }
+                }
+            }
+        });
 
         final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_DELETE, new MessageSimpleDTO(message, member));
         messageRepository.delete(message);
