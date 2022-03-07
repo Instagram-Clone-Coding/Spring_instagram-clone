@@ -175,7 +175,7 @@ public class MemberAuthController {
 
     @ApiOperation(value = "코드를 통한 비밀번호 재설정")
     @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " ")
-    @PostMapping(value = "/accounts/password/reset")
+    @PutMapping(value = "/accounts/password/reset")
     public ResponseEntity<ResultResponse> resetPassword(@Validated @RequestBody ResetPasswordRequest resetPasswordRequest, HttpServletResponse response) {
         JwtDto jwt = memberAuthService.resetPassword(resetPasswordRequest);
 
