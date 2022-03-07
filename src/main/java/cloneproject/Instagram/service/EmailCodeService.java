@@ -1,8 +1,11 @@
 package cloneproject.Instagram.service;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.Random;
 
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +13,7 @@ import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.entity.redis.EmailCode;
 import cloneproject.Instagram.entity.redis.ResetPasswordCode;
 import cloneproject.Instagram.exception.CantResetPasswordException;
+import cloneproject.Instagram.exception.CantSendEmailException;
 import cloneproject.Instagram.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.exception.NoConfirmEmailException;
 import cloneproject.Instagram.repository.EmailCodeRedisRepository;
@@ -29,9 +33,15 @@ public class EmailCodeService {
     private final EmailService emailService;
 
     public boolean sendEmailConfirmationCode(String username, String email){
-
+        String text;
         String code = createConfirmationCode(6);
-
+        try{
+            ClassPathResource resource = new ClassPathResource("confirmEmailUI.html");
+            String html = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+            text = String.format(html, email, code, email);
+        }catch(IOException e){
+            throw new CantSendEmailException();
+        }
         EmailCode emailCode = EmailCode.builder()
                                         .username(username)
                                         .email(email)
@@ -39,11 +49,7 @@ public class EmailCodeService {
                                         .build();
         emailCodeRedisRepository.save(emailCode);
 
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(email);
-        mailMessage.setSubject("회원가입 이메일 인증코드");
-        mailMessage.setText(code);
-        emailService.sendEmail(mailMessage);
+        emailService.sendHtmlTextEmail(username+ ", welcome to Instagram." ,text, email);
         
         return true;
     }

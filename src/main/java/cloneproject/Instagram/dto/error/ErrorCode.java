@@ -74,7 +74,10 @@ public enum ErrorCode {
     CANT_CONVERT_FILE(500, "FI001", "파일을 변환할 수 없습니다."),
 
     // Alarm
-    MISMATCHED_ALARM_TYPE(400, "A001", "알람 형식이 올바르지 않습니다.")
+    MISMATCHED_ALARM_TYPE(400, "A001", "알람 형식이 올바르지 않습니다."),
+
+    // Email
+    CANT_SEND_EMAIL(500, "E001", "이메일 전송 중 오류가 발생했습니다.")
     ;
 
     private int status;
