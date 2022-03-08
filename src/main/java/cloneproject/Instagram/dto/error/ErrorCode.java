@@ -77,7 +77,11 @@ public enum ErrorCode {
     MISMATCHED_ALARM_TYPE(400, "A001", "알람 형식이 올바르지 않습니다."),
 
     // Email
-    CANT_SEND_EMAIL(500, "E001", "이메일 전송 중 오류가 발생했습니다.")
+    CANT_SEND_EMAIL(500, "E001", "이메일 전송 중 오류가 발생했습니다."),
+
+    // Story
+    INVALID_STORY_IMAGE(400, "S001", "스토리 이미지는 필수입니다."),
+    STORY_IMAGES_AND_CONTENTS_MISMATCH(400, "S002", "스토리 이미지마다 내용을 추가해주세요."),
     ;
 
     private int status;

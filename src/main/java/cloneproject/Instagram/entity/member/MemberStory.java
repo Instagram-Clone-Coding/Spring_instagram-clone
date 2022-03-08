@@ -32,4 +32,8 @@ public class MemberStory {
         this.member = member;
         this.story = story;
     }
+
+    public void updateStory(Story story) {
+        this.story = story;
+    }
 }
