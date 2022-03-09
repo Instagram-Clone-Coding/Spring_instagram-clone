@@ -27,7 +27,9 @@ public enum ResultCode {
     SEND_RESET_PASSWORD_EMAIL_SUCCESS(200, "M017", "비밀번호 재설정 메일 전송 완료"),
     RESET_PASSWORD_SUCCESS(200, "M018", "비밀번호 재설정 완료"),
     LOGIN_WITH_CODE_SUCCESS(200, "M019", "비밀번호 재설정 코드로 로그인 성공"),
-    EXPIRE_RESET_PASSWORD_CODE_SUCCESS(200, "M020", "비밀번호 재설정 코드 만료 성공"),
+    LOGOUT_SUCCESS(200, "M020", "로그아웃 성공"),
+    CHECK_RESET_PASSWORD_CODE_GOOD(200, "M021", "올바른 비밀번호 재설정 코드"),
+    CHECK_RESET_PASSWORD_CODE_BAD(200, "M022", "올바르지 않은 비밀번호 재설정 코드"),
     
     // Alarm
     GET_ALARMS_SUCCESS(200, "A001", "알림 조회 완료"),

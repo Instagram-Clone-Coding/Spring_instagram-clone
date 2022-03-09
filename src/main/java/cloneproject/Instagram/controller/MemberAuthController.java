@@ -237,20 +237,48 @@ public class MemberAuthController {
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
+    @ApiOperation(value = "로그아웃")
+    @DeleteMapping(value = "/accounts/login")
+    public ResponseEntity<ResultResponse> logout(HttpServletResponse response) {
+        memberAuthService.logout();
 
-    @ApiOperation(value = "비밀번호 재설정 코드 만료시키기")
+        Cookie cookie = new Cookie("refreshToken", null);
+
+        cookie.setMaxAge(0);
+
+        // cookie.setSecure(true); https 미지원
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setDomain("bullien.com");
+    
+        response.addCookie(cookie);
+
+        ResultResponse result = ResultResponse.of(ResultCode.LOGOUT_SUCCESS, null);
+        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
+    }
+
+    @ApiOperation(value = "비밀번호 재설정 코드 검증")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " "),
         @ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma"),
+        @ApiImplicitParam(name = "code", value = "인증코드", required = true, example = "AAABBB")
     })
-    @DeleteMapping(value = "/accounts/login/recovery")
-    public ResponseEntity<ResultResponse> expireResetPasswordCode(
-        @RequestParam
-        @Length(min = 4, max = 12, message = "사용자 이름은 4문자 이상 12문자 이하여야 합니다")
-        @Pattern(regexp = "^[0-9a-zA-Z]+$", message = "username엔 대소문자, 숫자만 사용할 수 있습니다.") 
-        String username) {
-        memberAuthService.expireResetPasswordCode(username);
-        ResultResponse result = ResultResponse.of(ResultCode.EXPIRE_RESET_PASSWORD_CODE_SUCCESS, null);
+    @GetMapping(value = "/accounts/password/reset")
+    public ResponseEntity<ResultResponse> checkResetPasswordCode(
+                            @RequestParam
+                            @Length(min = 4, max = 12, message = "사용자 이름은 4문자 이상 12문자 이하여야 합니다")
+                            @Pattern(regexp = "^[0-9a-zA-Z]+$", message = "username엔 대소문자, 숫자만 사용할 수 있습니다.") 
+                            String username,
+                            @RequestParam
+                            @Length(min = 30, max = 30, message = "인증코드는 30글자 입니다")
+                            String code) {
+        boolean check = memberAuthService.checkResetPasswordCode(username, code);
+        ResultResponse result;
+        if(check){
+            result = ResultResponse.of(ResultCode.CHECK_RESET_PASSWORD_CODE_GOOD, true);
+        }else{
+            result = ResultResponse.of(ResultCode.CHECK_RESET_PASSWORD_CODE_BAD, false);
+        }   
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
