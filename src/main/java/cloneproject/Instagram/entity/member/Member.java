@@ -108,6 +108,10 @@ public class Member {
         this.refreshToken = refreshToken;
     }
 
+    public void deleteRefreshToken() {
+        this.refreshToken = null;
+    }
+
     public void setEncryptedPassword(String encryptedPassword) {
         this.password = encryptedPassword;
     }

@@ -143,7 +143,6 @@ public class MemberAuthService {
         return emailCodeService.sendResetPasswordCode(username);
     }
 
-
     @Transactional
     public JwtDto resetPassword(ResetPasswordRequest resetPasswordRequest){
         Member member = memberRepository.findByUsername(resetPasswordRequest.getUsername())
@@ -167,12 +166,22 @@ public class MemberAuthService {
             throw new CantResetPasswordException();
         }
         JwtDto jwtDto = jwtUtil.generateTokenDto(jwtUtil.getAuthenticationWithMember(member.getId().toString()));
+        emailCodeService.deleteResetPasswordCode(username);
         return jwtDto;
     }
 
     @Transactional
-    public void expireResetPasswordCode(String username){
-        emailCodeService.deleteResetPasswordCode(username);
+    public boolean checkResetPasswordCode(String username, String code){
+        return emailCodeService.checkResetPasswordCode(username, code);
+    }
+
+    @Transactional
+    public void logout(){
+        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member member = memberRepository.findById(Long.valueOf(memberId))
+            .orElseThrow(MemberDoesNotExistException::new);
+        member.deleteRefreshToken();
+        memberRepository.save(member);
     }
 
 }
