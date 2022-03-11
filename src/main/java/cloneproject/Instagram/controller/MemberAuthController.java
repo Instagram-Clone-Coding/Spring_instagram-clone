@@ -168,8 +168,8 @@ public class MemberAuthController {
         @Length(min = 4, max = 12, message = "사용자 이름은 4문자 이상 12문자 이하여야 합니다")
         @Pattern(regexp = "^[0-9a-zA-Z]+$", message = "username엔 대소문자, 숫자만 사용할 수 있습니다.") 
         String username) {
-        memberAuthService.sendResetPasswordCode(username);
-        ResultResponse result = ResultResponse.of(ResultCode.SEND_RESET_PASSWORD_EMAIL_SUCCESS,null);
+        String email = memberAuthService.sendResetPasswordCode(username);
+        ResultResponse result = ResultResponse.of(ResultCode.SEND_RESET_PASSWORD_EMAIL_SUCCESS, email);
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 

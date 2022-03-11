@@ -1,5 +1,7 @@
 package cloneproject.Instagram.service;
 
+import java.util.Optional;
+
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -136,11 +138,11 @@ public class MemberAuthService {
     }
 
     @Transactional
-    public boolean sendResetPasswordCode(String username){
-        if(!memberRepository.existsByUsername(username)){
-            throw new MemberDoesNotExistException();
-        }
-        return emailCodeService.sendResetPasswordCode(username);
+    public String sendResetPasswordCode(String username){
+        Member member = memberRepository.findByUsername(username)
+            .orElseThrow(MemberDoesNotExistException::new);
+        emailCodeService.sendResetPasswordCode(username);
+        return member.getEmail();
     }
 
     @Transactional

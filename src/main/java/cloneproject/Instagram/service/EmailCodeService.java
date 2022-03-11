@@ -71,7 +71,7 @@ public class EmailCodeService {
         return true;
     }
 
-    public boolean sendResetPasswordCode(String username){
+    public void sendResetPasswordCode(String username){
         Member member = memberRepository.findByUsername(username).orElseThrow(MemberDoesNotExistException::new);
         String code = createConfirmationCode(30);
 
@@ -90,8 +90,6 @@ public class EmailCodeService {
         mailMessage.setSubject("비밀번호 재설정 메일입니다");
         mailMessage.setText(emailText);
         emailService.sendEmail(mailMessage);
-        
-        return true;
     }
     
     public boolean checkResetPasswordCode(String username, String code){
