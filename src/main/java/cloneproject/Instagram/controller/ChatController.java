@@ -98,8 +98,8 @@ public class ChatController {
 
     @ApiOperation(value = "이미지 전송")
     @ApiImplicitParams({
-            @ApiImplicitParam(value = "채팅방 PK", required = true, example = "1"),
-            @ApiImplicitParam(value = "이미지", required = true)
+            @ApiImplicitParam(name = "roomId", value = "채팅방 PK", required = true, example = "1"),
+            @ApiImplicitParam(name = "image", value = "이미지", required = true)
     })
     @PostMapping(value = "/messages/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ResultResponse> sendImageMessage(
