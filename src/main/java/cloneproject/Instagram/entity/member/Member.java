@@ -6,7 +6,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import cloneproject.Instagram.vo.Image;
 import cloneproject.Instagram.vo.ImageType;
-import cloneproject.Instagram.vo.RefreshToken;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -60,12 +59,8 @@ public class Member {
     @OneToMany(mappedBy = "member")
     private List<Follow> followings = new ArrayList<>();
 
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "value", column = @Column(name = "member_refresh_token_value")),
-            @AttributeOverride(name = "createdAt", column = @Column(name = "member_refresh_token_created_At")),
-    })
-    private RefreshToken refreshToken;
+    @OneToMany(mappedBy = "member", orphanRemoval = true)
+    private List<RefreshToken> refreshTokens = new ArrayList<>();
 
     @Embedded
     @AttributeOverrides({
@@ -102,14 +97,6 @@ public class Member {
 
     public void updateGender(Gender gender) {
         this.gender = gender;
-    }
-
-    public void setRefreshToken(RefreshToken refreshToken) {
-        this.refreshToken = refreshToken;
-    }
-
-    public void deleteRefreshToken() {
-        this.refreshToken = null;
     }
 
     public void setEncryptedPassword(String encryptedPassword) {

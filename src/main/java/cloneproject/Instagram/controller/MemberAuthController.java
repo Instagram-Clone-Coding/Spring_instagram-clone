@@ -1,5 +1,7 @@
 package cloneproject.Instagram.controller;
 
+import java.util.Optional;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Pattern;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import cloneproject.Instagram.dto.member.JwtDto;
 import cloneproject.Instagram.dto.member.JwtResponse;
 import cloneproject.Instagram.dto.member.LoginRequest;
+import cloneproject.Instagram.dto.member.LoginWithCodeRequest;
 import cloneproject.Instagram.dto.member.RegisterRequest;
 import cloneproject.Instagram.dto.member.ResetPasswordRequest;
 import cloneproject.Instagram.dto.member.SendConfirmationEmailRequest;
@@ -126,24 +129,30 @@ public class MemberAuthController {
         if(refreshCookie == null){
             throw new InvalidJwtException();
         }
-        JwtDto jwt = memberAuthService.reisuue(refreshCookie.getValue());
-        Cookie cookie = new Cookie("refreshToken", jwt.getRefreshToken());
-
-        cookie.setMaxAge(REFRESH_TOKEN_EXPIRES);
-
-        // cookie.setSecure(true); https 미지원
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setDomain("bullien.com");
+        Optional<JwtDto> optionalJwt = memberAuthService.reisuue(refreshCookie.getValue());
+        ResultResponse result;
+        if(optionalJwt.isEmpty()){
+            result = ResultResponse.of(ResultCode.LOGIN_CANCELD, null);
+        }else{
+            JwtDto jwt = optionalJwt.get();
+            Cookie cookie = new Cookie("refreshToken", jwt.getRefreshToken());
     
-        response.addCookie(cookie);
-
-        JwtResponse jwtResponse = JwtResponse.builder()
-                                            .type(jwt.getType())
-                                            .accessToken(jwt.getAccessToken())
-                                            .build();
-
-        ResultResponse result = ResultResponse.of(ResultCode.REISSUE_SUCCESS, jwtResponse);
+            cookie.setMaxAge(REFRESH_TOKEN_EXPIRES);
+    
+            // cookie.setSecure(true); https 미지원
+            cookie.setHttpOnly(true);
+            cookie.setPath("/");
+            cookie.setDomain("bullien.com");
+        
+            response.addCookie(cookie);
+    
+            JwtResponse jwtResponse = JwtResponse.builder()
+                                                .type(jwt.getType())
+                                                .accessToken(jwt.getAccessToken())
+                                                .build();
+    
+            result = ResultResponse.of(ResultCode.REISSUE_SUCCESS, jwtResponse);
+        }
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
     
@@ -200,22 +209,14 @@ public class MemberAuthController {
     }
 
     @ApiOperation(value = "코드를 통한 로그인")
-    @ApiImplicitParams({
-        @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " "),
-        @ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma"),
-        @ApiImplicitParam(name = "code", value = "인증코드", required = true, example = "AAAA1234...")
-    })
+    @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " ")
     @PostMapping(value = "/accounts/login/recovery")
     public ResponseEntity<ResultResponse> loginWithCode(
-        @RequestParam
-        @Length(min = 4, max = 12, message = "사용자 이름은 4문자 이상 12문자 이하여야 합니다")
-        @Pattern(regexp = "^[0-9a-zA-Z]+$", message = "username엔 대소문자, 숫자만 사용할 수 있습니다.") 
-        String username,
-        @RequestParam
-        @Length(max = 30, min = 30, message = "인증코드는 30자리 입니다.")
-        String code,
+        @Validated
+        @RequestBody
+        LoginWithCodeRequest loginWithCodeRequest,
         HttpServletResponse response) {
-        JwtDto jwt = memberAuthService.loginWithCode(username, code);
+        JwtDto jwt = memberAuthService.loginWithCode(loginWithCodeRequest);
 
         Cookie cookie = new Cookie("refreshToken", jwt.getRefreshToken());
 
@@ -238,9 +239,12 @@ public class MemberAuthController {
     }
 
     @ApiOperation(value = "로그아웃")
-    @DeleteMapping(value = "/accounts/login")
-    public ResponseEntity<ResultResponse> logout(HttpServletResponse response) {
-        memberAuthService.logout();
+    @DeleteMapping(value = "/login")
+    public ResponseEntity<ResultResponse> logout(
+        @CookieValue(value="refreshToken", required = false)
+        Cookie refreshCookie,
+        HttpServletResponse response) {
+        memberAuthService.logout(refreshCookie.getValue());
 
         Cookie cookie = new Cookie("refreshToken", null);
 

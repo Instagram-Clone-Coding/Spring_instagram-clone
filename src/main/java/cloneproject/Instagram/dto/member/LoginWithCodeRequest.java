@@ -15,8 +15,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResetPasswordRequest {
-    
+public class LoginWithCodeRequest {
+
     @ApiModelProperty(value = "유저네임", example = "dlwlrma", required = true)
     @NotBlank(message = "username을 입력해주세요")
     @Length(min = 4, max = 12, message = "사용자 이름은 4문자 이상 12문자 이하여야 합니다")
@@ -28,13 +28,6 @@ public class ResetPasswordRequest {
     @Length(max = 30, min = 30, message = "인증코드는 30자리 입니다.")
     private String code;
 
-    @ApiModelProperty(value = "새비밀번호", example = "a12341234", required = true)
-    @NotBlank(message = "새비밀번호를 입력해주세요")
-    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$", 
-                message = "비밀번호는 8자 이상, 최소 하나의 문자와 숫자가 필요합니다")
-    @Length(max = 20, message = "비밀번호는 20문자 이하여야 합니다")
-    private String newPassword;
-    
     @ApiModelProperty(value = "기기", example = "Window", required = false)
     private String device;
 

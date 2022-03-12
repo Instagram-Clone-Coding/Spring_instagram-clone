@@ -30,6 +30,7 @@ public enum ResultCode {
     LOGOUT_SUCCESS(200, "M020", "로그아웃 성공"),
     CHECK_RESET_PASSWORD_CODE_GOOD(200, "M021", "올바른 비밀번호 재설정 코드"),
     CHECK_RESET_PASSWORD_CODE_BAD(200, "M022", "올바르지 않은 비밀번호 재설정 코드"),
+    LOGIN_CANCELD(200, "M023", "다른 기기에 의해 로그인이 해제되었습니다 다시 로그인 해주세요"),
     
     // Alarm
     GET_ALARMS_SUCCESS(200, "A001", "알림 조회 완료"),

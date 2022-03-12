@@ -13,10 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import cloneproject.Instagram.dto.member.JwtDto;
 import cloneproject.Instagram.dto.member.LoginRequest;
+import cloneproject.Instagram.dto.member.LoginWithCodeRequest;
 import cloneproject.Instagram.dto.member.RegisterRequest;
 import cloneproject.Instagram.dto.member.ResetPasswordRequest;
 import cloneproject.Instagram.dto.member.UpdatePasswordRequest;
 import cloneproject.Instagram.entity.member.Member;
+import cloneproject.Instagram.entity.member.RefreshToken;
 import cloneproject.Instagram.exception.AccountDoesNotMatchException;
 import cloneproject.Instagram.exception.CantResetPasswordException;
 import cloneproject.Instagram.exception.InvalidJwtException;
@@ -24,7 +26,6 @@ import cloneproject.Instagram.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.exception.UseridAlreadyExistException;
 import cloneproject.Instagram.repository.MemberRepository;
 import cloneproject.Instagram.util.JwtUtil;
-import cloneproject.Instagram.vo.RefreshToken;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,7 @@ public class MemberAuthService {
     private final JwtUtil jwtUtil;
     private final EmailCodeService emailCodeService;
     private final MemberRepository memberRepository;
+    private final RefreshTokenService refreshTokenService;
     
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -82,14 +84,11 @@ public class MemberAuthService {
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
             JwtDto jwtDto = jwtUtil.generateTokenDto(authentication);
-            RefreshToken refreshToken = RefreshToken.builder()
-                                                .value(jwtDto.getRefreshToken())
-                                                .build();
             Member member = memberRepository.findById(Long.valueOf(authentication.getName()))
                                             .orElseThrow(MemberDoesNotExistException::new);
-            member.setRefreshToken(refreshToken);
             memberRepository.save(member);
             
+            refreshTokenService.addRefreshToken(member, jwtDto.getRefreshToken(), loginRequest.getDevice(), loginRequest.getLocation());
             return jwtDto;
         }catch(BadCredentialsException e){
             throw new AccountDoesNotMatchException();
@@ -97,7 +96,7 @@ public class MemberAuthService {
     }
 
     @Transactional
-    public JwtDto reisuue(String refreshTokenString){
+    public Optional<JwtDto> reisuue(String refreshTokenString){
         if(!jwtUtil.validateRefeshJwt(refreshTokenString)){
             throw new InvalidJwtException();
         }
@@ -108,18 +107,15 @@ public class MemberAuthService {
             throw new InvalidJwtException();
         }
         Member member = memberRepository.findById(Long.valueOf(authentication.getName()))
-                                        .orElseThrow(MemberDoesNotExistException::new);
-        RefreshToken refreshToken = member.getRefreshToken();
-        if(!refreshToken.getValue().equals(refreshTokenString)){
-            throw new InvalidJwtException();
-        }
+            .orElseThrow(MemberDoesNotExistException::new);
         
+        RefreshToken refreshToken = refreshTokenService.findRefreshToken(member.getId(), refreshTokenString);
+        if(refreshToken.isDeleted()){
+            return Optional.empty();
+        }
         JwtDto jwtDto = jwtUtil.generateTokenDto(authentication);
-
-        refreshToken.updateTokenValue(jwtDto.getRefreshToken());
-        memberRepository.save(member);
-
-        return jwtDto;
+        refreshTokenService.updateRefreshToken(refreshToken, jwtDto.getRefreshToken());
+        return Optional.of(jwtDto);
     }
 
     @Transactional
@@ -155,20 +151,25 @@ public class MemberAuthService {
         String encryptedPassword = bCryptPasswordEncoder.encode(resetPasswordRequest.getNewPassword());
         member.setEncryptedPassword(encryptedPassword);              
         memberRepository.save(member);
-        JwtDto jwtDto = login(new LoginRequest(resetPasswordRequest.getUsername(), resetPasswordRequest.getNewPassword()));
+        JwtDto jwtDto = login(new LoginRequest(resetPasswordRequest.getUsername(), resetPasswordRequest.getNewPassword()
+            ,resetPasswordRequest.getDevice(), resetPasswordRequest.getLocation()));
         emailCodeService.deleteResetPasswordCode(resetPasswordRequest.getUsername());
         return jwtDto;
     }
 
     @Transactional
-    public JwtDto loginWithCode(String username, String code){
-        Member member = memberRepository.findByUsername(username)
+    public JwtDto loginWithCode(LoginWithCodeRequest loginRequest){
+        Member member = memberRepository.findByUsername(loginRequest.getUsername())
                                     .orElseThrow(MemberDoesNotExistException::new);
-        if(!emailCodeService.checkResetPasswordCode(username, code)){
+        if(!emailCodeService.checkResetPasswordCode(loginRequest.getUsername(), loginRequest.getCode())){
             throw new CantResetPasswordException();
         }
         JwtDto jwtDto = jwtUtil.generateTokenDto(jwtUtil.getAuthenticationWithMember(member.getId().toString()));
-        emailCodeService.deleteResetPasswordCode(username);
+        emailCodeService.deleteResetPasswordCode(loginRequest.getUsername());
+
+        memberRepository.save(member);
+        
+        refreshTokenService.addRefreshToken(member, jwtDto.getRefreshToken(), loginRequest.getDevice(), loginRequest.getLocation());
         return jwtDto;
     }
 
@@ -178,11 +179,11 @@ public class MemberAuthService {
     }
 
     @Transactional
-    public void logout(){
+    public void logout(String refreshToken){
         final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findById(Long.valueOf(memberId))
             .orElseThrow(MemberDoesNotExistException::new);
-        member.deleteRefreshToken();
+        refreshTokenService.deleteRefreshToken(refreshToken);
         memberRepository.save(member);
     }
 
