@@ -5,7 +5,6 @@ import java.net.InetAddress;
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.model.CityResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import cloneproject.Instagram.vo.GeoIP;
@@ -15,8 +14,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class GeoIPLocationService {
 
-    @Autowired
-    private DatabaseReader databaseReader;
+    private final DatabaseReader databaseReader;
 
     public GeoIP getLocation(String ip){
         try{
