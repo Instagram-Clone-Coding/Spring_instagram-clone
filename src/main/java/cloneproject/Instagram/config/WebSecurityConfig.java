@@ -73,6 +73,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
         http.sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
+        http.logout()
+            .disable();
+
         http.cors().configurationSource(configurationSource())
                 .and()
                 .csrf().disable()

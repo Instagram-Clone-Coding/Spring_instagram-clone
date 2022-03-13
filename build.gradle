@@ -33,6 +33,7 @@ dependencies {
     implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.2'
     implementation group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.2'
     implementation group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.2'
+	implementation group: 'com.maxmind.geoip2', name: 'geoip2', version: '2.3.1'
 	compileOnly 'org.projectlombok:lombok'
 	implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-aws', version: '2.0.1.RELEASE'
 	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: '1.2.0.RELEASE'
