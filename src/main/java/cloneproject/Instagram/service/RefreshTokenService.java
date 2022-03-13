@@ -1,17 +1,19 @@
 package cloneproject.Instagram.service;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import cloneproject.Instagram.entity.member.Member;
+import cloneproject.Instagram.dto.member.LoginedDevicesDTO;
 import cloneproject.Instagram.entity.member.RefreshToken;
 import cloneproject.Instagram.exception.InvalidJwtException;
-import cloneproject.Instagram.repository.RefreshTokenRepository;
+import cloneproject.Instagram.repository.RefreshTokenRedisRepository;
+import cloneproject.Instagram.vo.GeoIP;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,56 +28,79 @@ public class RefreshTokenService {
     @Value("${refresh-token-expires}")
     private long REFRESH_TOKEN_EXPIRES;
     
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenRedisRepository refreshTokenRedisRepository;
 
     @Transactional
-    public void addRefreshToken(Member member, String tokenValue, String device, String location){
-        deleteExpiredRefreshToken();
-
-        List<RefreshToken> refreshTokens = refreshTokenRepository.findAllWithMemberIdAndDateAfter(
-            member.getId(), getLocalDateTimeBoundary()
-        );
+    public void addRefreshToken(Long memberId, String tokenValue, String device, GeoIP geoIP){
+        List<RefreshToken> refreshTokens = refreshTokenRedisRepository.findByMemberId(memberId)
+            .stream()
+            .sorted(Comparator.comparing(RefreshToken::getCreatedAt))
+            .collect(Collectors.toList());
 
         for(int i = 0; i <= refreshTokens.size()-MAX_LOGIN_DEVICE; ++i){
-            refreshTokens.get(i).deleteToken();
+            refreshTokenRedisRepository.deleteById(refreshTokens.get(i).getId());
+            refreshTokens.remove(i);
         }
+
         RefreshToken refreshToken = RefreshToken.builder()
-            .member(member)
+            .memberId(memberId)
             .value(tokenValue)
             .device(device)
-            .location(location)
+            .geoip(geoIP)
             .build();
 
-        refreshTokenRepository.save(refreshToken);
+        refreshTokenRedisRepository.save(refreshToken);
     }
     
-    @Transactional(readOnly = true)
-    public RefreshToken findRefreshToken(Long memberId, String tokenValue){
-        RefreshToken result = refreshTokenRepository.findWithMemberIdAndDateAfterAndValue(
-            memberId, getLocalDateTimeBoundary(), tokenValue
-        ).orElseThrow(InvalidJwtException::new);
-        return result;
+    @Transactional
+    public Optional<RefreshToken> findRefreshToken(Long memberId, String value){
+        return refreshTokenRedisRepository.findByMemberIdAndValue(memberId, value);
     }
 
     @Transactional
     public void updateRefreshToken(RefreshToken refreshToken, String newToken){
-        refreshToken.updateToken(newToken);
-        refreshTokenRepository.save(refreshToken);
+        RefreshToken newRefreshToken = RefreshToken.builder()
+            .memberId(refreshToken.getMemberId())
+            .value(newToken)
+            .device(refreshToken.getDevice())
+            .geoip(refreshToken.getGeoIP())
+            .build();
+        refreshTokenRedisRepository.delete(refreshToken);
+        refreshTokenRedisRepository.save(newRefreshToken);
     }
 
     @Transactional
-    public void deleteRefreshToken(String value){
-        refreshTokenRepository.deleteByValue(value);
-    }
-
-    private LocalDateTime getLocalDateTimeBoundary(){
-        LocalDateTime time = LocalDateTime.now();
-        return time.minus(REFRESH_TOKEN_EXPIRES, ChronoUnit.MILLIS);
+    public void deleteRefreshTokenWithValue(Long memberId, String value){
+        RefreshToken refreshToken = refreshTokenRedisRepository.findByMemberIdAndValue(memberId, value)
+            .orElseThrow(InvalidJwtException::new);
+        refreshTokenRedisRepository.delete(refreshToken);
     }
 
     @Transactional
-    private void deleteExpiredRefreshToken(){
-        refreshTokenRepository.deleteAllByLastModifiedAtBefore(getLocalDateTimeBoundary());
+    public void deleteRefreshTokenWithId(Long memberId, String id){
+        RefreshToken refreshToken = refreshTokenRedisRepository.findByMemberIdAndId(memberId, id)
+            .orElseThrow(InvalidJwtException::new);
+        refreshTokenRedisRepository.delete(refreshToken);
+    }
+
+    @Transactional(readOnly = true)
+    public List<LoginedDevicesDTO> getLoginedDevices(Long memberId){
+        List<RefreshToken> refreshTokens = refreshTokenRedisRepository.findByMemberId(memberId)
+            .stream()
+            .sorted(Comparator.comparing(RefreshToken::getCreatedAt).reversed())
+            .collect(Collectors.toList());
+        List<LoginedDevicesDTO> loginedDevicesDTOs = refreshTokens.stream()
+            .map(this::convertRefreshTokenToLoginedDevicesDTO)
+            .collect(Collectors.toList());
+        return loginedDevicesDTOs;
     }
     
+    private LoginedDevicesDTO convertRefreshTokenToLoginedDevicesDTO(RefreshToken refreshToken){
+        return LoginedDevicesDTO.builder()
+            .tokenId(refreshToken.getId())
+            .device(refreshToken.getDevice())
+            .location(refreshToken.getGeoIP())
+            .build();
+    }
+
 }

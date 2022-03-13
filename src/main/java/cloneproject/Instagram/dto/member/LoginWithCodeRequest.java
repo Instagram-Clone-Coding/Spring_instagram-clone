@@ -27,11 +27,5 @@ public class LoginWithCodeRequest {
     @NotBlank(message = "인증코드를 입력해주세요")
     @Length(max = 30, min = 30, message = "인증코드는 30자리 입니다.")
     private String code;
-
-    @ApiModelProperty(value = "기기", example = "Window", required = false)
-    private String device;
-
-    @ApiModelProperty(value = "지역", example = "Incheon", required = false)
-    private String location;
     
 }

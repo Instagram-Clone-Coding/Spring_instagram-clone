@@ -2,65 +2,64 @@ package cloneproject.Instagram.entity.member;
 
 import lombok.*;
 
-import org.hibernate.resource.beans.internal.FallbackBeanInstanceProducer;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.TimeToLive;
+import org.springframework.data.redis.core.index.Indexed;
 
+import cloneproject.Instagram.vo.GeoIP;
+
+import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.concurrent.TimeUnit;
 
-import javax.persistence.*;
 
-import com.querydsl.core.annotations.QueryProjection;
-
-@Entity
+@RedisHash("refresh_tokens")
 @Getter
-@EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "refresh_tokens")
-public class RefreshToken {
+public class RefreshToken implements Serializable{
 
     @Id
-    @Column(name = "refresh_token_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Indexed
+    private String id;
+    // Long으로 하면 find 쿼리가 정상 작동하지 않음
 
-    @Column(name = "refresh_token_value", nullable = false, unique = true)
+    @Indexed
     private String value;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
+    @Indexed
+    private Long memberId;
 
-    @LastModifiedDate
-    @Column(name = "refresh_token_last_modified_at", nullable = false)
-    private LocalDateTime lastModifiedAt;
+    @TimeToLive(unit = TimeUnit.DAYS)
+    private Long timeout = 7L;
 
-    @Column(name = "refresh_token_location")
-    private String location;
+    private LocalDateTime createdAt;
 
-    @Column(name = "refresh_token_device")
+    private String city;
+
+    private String longitude;
+
+    private String latitude;
+
     private String device;
 
-    @Column(name = "refresh_token_deleted", nullable = false)
-    private boolean deleted;
-
     public void updateToken(String newValue){
-        this.value = newValue;       
+        this.value = newValue;  
     }
 
-    public void deleteToken(){
-        deleted = true;        
+    public GeoIP getGeoIP(){
+        return new GeoIP(city, longitude, latitude);
     }
 
-    @QueryProjection
     @Builder
-    public RefreshToken(Member member, String value, String location, String device){
-        this.member = member;
+    public RefreshToken(Long memberId, String value, GeoIP geoip, String device){
+        this.createdAt = LocalDateTime.now();
+        this.memberId = memberId;
         this.value = value;
-        this.location = location;
+        this.city = geoip.getCity();
+        this.longitude = geoip.getLongitude();
+        this.latitude = geoip.getLatitude();
         this.device = device;
-        this.deleted = false;
     }
 
 }

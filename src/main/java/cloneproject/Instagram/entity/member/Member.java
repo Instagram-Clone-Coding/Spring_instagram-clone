@@ -59,9 +59,6 @@ public class Member {
     @OneToMany(mappedBy = "member")
     private List<Follow> followings = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", orphanRemoval = true)
-    private List<RefreshToken> refreshTokens = new ArrayList<>();
-
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "imageUrl", column = @Column(name = "member_image_url")),

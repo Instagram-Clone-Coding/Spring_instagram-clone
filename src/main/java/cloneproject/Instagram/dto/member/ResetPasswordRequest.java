@@ -35,10 +35,4 @@ public class ResetPasswordRequest {
     @Length(max = 20, message = "비밀번호는 20문자 이하여야 합니다")
     private String newPassword;
     
-    @ApiModelProperty(value = "기기", example = "Window", required = false)
-    private String device;
-
-    @ApiModelProperty(value = "지역", example = "Incheon", required = false)
-    private String location;
-    
 }
