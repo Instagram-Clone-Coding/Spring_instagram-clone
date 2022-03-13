@@ -1,6 +1,10 @@
 package cloneproject.Instagram.controller;
 
+import java.util.List;
+import java.util.Optional;
+
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Pattern;
 
@@ -9,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -20,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 import cloneproject.Instagram.dto.member.JwtDto;
 import cloneproject.Instagram.dto.member.JwtResponse;
 import cloneproject.Instagram.dto.member.LoginRequest;
+import cloneproject.Instagram.dto.member.LoginWithCodeRequest;
+import cloneproject.Instagram.dto.member.LoginedDevicesDTO;
 import cloneproject.Instagram.dto.member.RegisterRequest;
 import cloneproject.Instagram.dto.member.ResetPasswordRequest;
 import cloneproject.Instagram.dto.member.SendConfirmationEmailRequest;
@@ -92,8 +97,11 @@ public class MemberAuthController {
     @ApiOperation(value = "로그인")
     @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " ")
     @PostMapping(value = "/login")
-    public ResponseEntity<ResultResponse> login(@Validated @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-        JwtDto jwt = memberAuthService.login(loginRequest);
+    public ResponseEntity<ResultResponse> login(@Validated @RequestBody LoginRequest loginRequest, HttpServletRequest request, HttpServletResponse response) {
+        String device = request.getHeader("user-agent");
+        String ip = getClientIP(request);
+
+        JwtDto jwt = memberAuthService.login(loginRequest, device, ip);
 
         Cookie cookie = new Cookie("refreshToken", jwt.getRefreshToken());
 
@@ -126,24 +134,30 @@ public class MemberAuthController {
         if(refreshCookie == null){
             throw new InvalidJwtException();
         }
-        JwtDto jwt = memberAuthService.reisuue(refreshCookie.getValue());
-        Cookie cookie = new Cookie("refreshToken", jwt.getRefreshToken());
-
-        cookie.setMaxAge(REFRESH_TOKEN_EXPIRES);
-
-        // cookie.setSecure(true); https 미지원
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setDomain("bullien.com");
+        Optional<JwtDto> optionalJwt = memberAuthService.reisuue(refreshCookie.getValue());
+        ResultResponse result;
+        if(optionalJwt.isEmpty()){
+            result = ResultResponse.of(ResultCode.LOGIN_CANCELD, null);
+        }else{
+            JwtDto jwt = optionalJwt.get();
+            Cookie cookie = new Cookie("refreshToken", jwt.getRefreshToken());
     
-        response.addCookie(cookie);
-
-        JwtResponse jwtResponse = JwtResponse.builder()
-                                            .type(jwt.getType())
-                                            .accessToken(jwt.getAccessToken())
-                                            .build();
-
-        ResultResponse result = ResultResponse.of(ResultCode.REISSUE_SUCCESS, jwtResponse);
+            cookie.setMaxAge(REFRESH_TOKEN_EXPIRES);
+    
+            // cookie.setSecure(true); https 미지원
+            cookie.setHttpOnly(true);
+            cookie.setPath("/");
+            cookie.setDomain("bullien.com");
+        
+            response.addCookie(cookie);
+    
+            JwtResponse jwtResponse = JwtResponse.builder()
+                                                .type(jwt.getType())
+                                                .accessToken(jwt.getAccessToken())
+                                                .build();
+    
+            result = ResultResponse.of(ResultCode.REISSUE_SUCCESS, jwtResponse);
+        }
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
     
@@ -168,16 +182,24 @@ public class MemberAuthController {
         @Length(min = 4, max = 12, message = "사용자 이름은 4문자 이상 12문자 이하여야 합니다")
         @Pattern(regexp = "^[0-9a-zA-Z]+$", message = "username엔 대소문자, 숫자만 사용할 수 있습니다.") 
         String username) {
-        memberAuthService.sendResetPasswordCode(username);
-        ResultResponse result = ResultResponse.of(ResultCode.SEND_RESET_PASSWORD_EMAIL_SUCCESS,null);
+        String email = memberAuthService.sendResetPasswordCode(username);
+        ResultResponse result = ResultResponse.of(ResultCode.SEND_RESET_PASSWORD_EMAIL_SUCCESS, email);
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
     @ApiOperation(value = "코드를 통한 비밀번호 재설정")
     @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " ")
     @PutMapping(value = "/accounts/password/reset")
-    public ResponseEntity<ResultResponse> resetPassword(@Validated @RequestBody ResetPasswordRequest resetPasswordRequest, HttpServletResponse response) {
-        JwtDto jwt = memberAuthService.resetPassword(resetPasswordRequest);
+    public ResponseEntity<ResultResponse> resetPassword(
+        @Validated 
+        @RequestBody 
+        ResetPasswordRequest resetPasswordRequest, 
+        HttpServletRequest request,
+        HttpServletResponse response) {
+
+        String device = request.getHeader("user-agent");
+        String ip = getClientIP(request);
+        JwtDto jwt = memberAuthService.resetPassword(resetPasswordRequest, device, ip);
 
         Cookie cookie = new Cookie("refreshToken", jwt.getRefreshToken());
 
@@ -200,22 +222,19 @@ public class MemberAuthController {
     }
 
     @ApiOperation(value = "코드를 통한 로그인")
-    @ApiImplicitParams({
-        @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " "),
-        @ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma"),
-        @ApiImplicitParam(name = "code", value = "인증코드", required = true, example = "AAAA1234...")
-    })
+    @ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " ")
     @PostMapping(value = "/accounts/login/recovery")
     public ResponseEntity<ResultResponse> loginWithCode(
-        @RequestParam
-        @Length(min = 4, max = 12, message = "사용자 이름은 4문자 이상 12문자 이하여야 합니다")
-        @Pattern(regexp = "^[0-9a-zA-Z]+$", message = "username엔 대소문자, 숫자만 사용할 수 있습니다.") 
-        String username,
-        @RequestParam
-        @Length(max = 30, min = 30, message = "인증코드는 30자리 입니다.")
-        String code,
+        @Validated
+        @RequestBody
+        LoginWithCodeRequest loginWithCodeRequest,
+        HttpServletRequest request,
         HttpServletResponse response) {
-        JwtDto jwt = memberAuthService.loginWithCode(username, code);
+
+        String device = request.getHeader("user-agent");
+        String ip = getClientIP(request);
+
+        JwtDto jwt = memberAuthService.loginWithCode(loginWithCodeRequest, device, ip);
 
         Cookie cookie = new Cookie("refreshToken", jwt.getRefreshToken());
 
@@ -238,9 +257,12 @@ public class MemberAuthController {
     }
 
     @ApiOperation(value = "로그아웃")
-    @DeleteMapping(value = "/accounts/login")
-    public ResponseEntity<ResultResponse> logout(HttpServletResponse response) {
-        memberAuthService.logout();
+    @PostMapping(value = "/logout")
+    public ResponseEntity<ResultResponse> logout(
+        @CookieValue(value="refreshToken", required = false)
+        Cookie refreshCookie,
+        HttpServletResponse response) {
+        memberAuthService.logout(refreshCookie.getValue());
 
         Cookie cookie = new Cookie("refreshToken", null);
 
@@ -280,6 +302,37 @@ public class MemberAuthController {
             result = ResultResponse.of(ResultCode.CHECK_RESET_PASSWORD_CODE_BAD, false);
         }   
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
+    }
+
+    @ApiOperation(value = "로그인한 기기 조회")
+    @GetMapping(value = "/accounts/logined")
+    public ResponseEntity<ResultResponse> getLoginedDevices() {
+        List<LoginedDevicesDTO> loginedDevicesDTOs = memberAuthService.getLoginedDevices();
+        ResultResponse result = ResultResponse.of(ResultCode.GET_LOGINED_DEVICES_SUCCESS, loginedDevicesDTOs);
+        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
+    }
+
+    @ApiOperation(value = "기기 로그아웃 시키기")
+    @PostMapping(value = "/logout/device")
+    public ResponseEntity<ResultResponse> logoutDevice(@RequestParam String tokenId) {
+        memberAuthService.logoutDevice(tokenId);
+        ResultResponse result = ResultResponse.of(ResultCode.LOGOUT_DEVICE_SUCCESS, null);
+        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
+    }
+    
+    private String getClientIP(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null) 
+            ip = request.getHeader("Proxy-Client-IP");
+        if (ip == null) 
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        if (ip == null) 
+            ip = request.getHeader("HTTP_CLIENT_IP");
+        if (ip == null) 
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+        if (ip == null) 
+            ip = request.getRemoteAddr();
+        return ip;
     }
 
 }
