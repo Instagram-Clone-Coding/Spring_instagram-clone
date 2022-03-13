@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import cloneproject.Instagram.entity.member.RefreshToken;
+import cloneproject.Instagram.entity.redis.RefreshToken;
 
 public interface RefreshTokenRepositoryQuerydsl {
     

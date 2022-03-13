@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cloneproject.Instagram.dto.member.LoginedDevicesDTO;
-import cloneproject.Instagram.entity.member.RefreshToken;
+import cloneproject.Instagram.entity.redis.RefreshToken;
 import cloneproject.Instagram.exception.InvalidJwtException;
 import cloneproject.Instagram.repository.RefreshTokenRedisRepository;
 import cloneproject.Instagram.vo.GeoIP;

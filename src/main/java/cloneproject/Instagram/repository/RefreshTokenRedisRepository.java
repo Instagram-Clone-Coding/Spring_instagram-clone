@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.repository.CrudRepository;
 
-import cloneproject.Instagram.entity.member.RefreshToken;
+import cloneproject.Instagram.entity.redis.RefreshToken;
 
 public interface RefreshTokenRedisRepository extends CrudRepository<RefreshToken, String>{
     

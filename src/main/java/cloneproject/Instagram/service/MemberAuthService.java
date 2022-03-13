@@ -20,7 +20,7 @@ import cloneproject.Instagram.dto.member.RegisterRequest;
 import cloneproject.Instagram.dto.member.ResetPasswordRequest;
 import cloneproject.Instagram.dto.member.UpdatePasswordRequest;
 import cloneproject.Instagram.entity.member.Member;
-import cloneproject.Instagram.entity.member.RefreshToken;
+import cloneproject.Instagram.entity.redis.RefreshToken;
 import cloneproject.Instagram.exception.AccountDoesNotMatchException;
 import cloneproject.Instagram.exception.CantResetPasswordException;
 import cloneproject.Instagram.exception.InvalidJwtException;

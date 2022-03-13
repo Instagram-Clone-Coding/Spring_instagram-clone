@@ -1,4 +1,4 @@
-package cloneproject.Instagram.entity.member;
+package cloneproject.Instagram.entity.redis;
 
 import lombok.*;
 
