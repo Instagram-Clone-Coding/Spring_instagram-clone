@@ -81,7 +81,7 @@ public enum ErrorCode {
 
     // Story
     INVALID_STORY_IMAGE(400, "S001", "스토리 이미지는 필수입니다."),
-    STORY_IMAGES_AND_CONTENTS_MISMATCH(400, "S002", "스토리 이미지마다 내용을 추가해주세요."),
+    INVALID_STORY_IMAGE_INDEX(400, "S002", "스토리 이미지 인덱스가 올바르지 않습니다."),
     ;
 
     private int status;
