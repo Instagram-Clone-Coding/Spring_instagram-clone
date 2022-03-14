@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.Length;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -49,6 +50,9 @@ public class MemberAuthController {
     
     private final MemberAuthService memberAuthService;
     private final int REFRESH_TOKEN_EXPIRES = 60*60*24*7; // 7일
+    
+    @Value("${cookie-domain}")
+    private String COOKIE_DOMAIN;
 
     @ApiOperation(value = "username 중복 조회")
     @ApiImplicitParams({
@@ -110,7 +114,7 @@ public class MemberAuthController {
         // cookie.setSecure(true); https 미지원
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setDomain("api.bullien.com");
+        cookie.setDomain(COOKIE_DOMAIN);
     
         response.addCookie(cookie);
 
@@ -147,7 +151,7 @@ public class MemberAuthController {
             // cookie.setSecure(true); https 미지원
             cookie.setHttpOnly(true);
             cookie.setPath("/");
-            cookie.setDomain("api.bullien.com");
+            cookie.setDomain(COOKIE_DOMAIN);
         
             response.addCookie(cookie);
     
@@ -208,7 +212,7 @@ public class MemberAuthController {
         // cookie.setSecure(true); https 미지원
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setDomain("api.bullien.com");
+        cookie.setDomain(COOKIE_DOMAIN);
     
         response.addCookie(cookie);
 
@@ -243,7 +247,7 @@ public class MemberAuthController {
         // cookie.setSecure(true); https 미지원
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setDomain("api.bullien.com");
+        cookie.setDomain(COOKIE_DOMAIN);
     
         response.addCookie(cookie);
 
@@ -271,7 +275,7 @@ public class MemberAuthController {
         // cookie.setSecure(true); https 미지원
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setDomain("api.bullien.com");
+        cookie.setDomain(COOKIE_DOMAIN);
     
         response.addCookie(cookie);
 
