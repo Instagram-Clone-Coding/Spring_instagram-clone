@@ -1,39 +1,23 @@
 package cloneproject.Instagram.entity.member;
 
-import cloneproject.Instagram.entity.story.Story;
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
 
-import javax.persistence.*;
+import java.util.List;
 
 @Getter
-@Entity
-@Table(name = "member_stories")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@RedisHash(value = "memberStories", timeToLive = 86400)
 public class MemberStory {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "member_story_id")
-    private Long id;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "story_id")
-    private Story story;
+    private Long memberId;
+    private List<Long> storyIds;
 
     @Builder
-    public MemberStory(Member member, Story story) {
-        this.member = member;
-        this.story = story;
-    }
-
-    public void updateStory(Story story) {
-        this.story = story;
+    public MemberStory(Long memberId, List<Long> storyIds) {
+        this.memberId = memberId;
+        this.storyIds = storyIds;
     }
 }
