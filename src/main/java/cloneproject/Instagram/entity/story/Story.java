@@ -1,6 +1,7 @@
 package cloneproject.Instagram.entity.story;
 
 import cloneproject.Instagram.entity.member.Member;
+import cloneproject.Instagram.vo.Image;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,11 +27,21 @@ public class Story {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "imageUrl", column = @Column(name = "story_image_url")),
+            @AttributeOverride(name = "imageType", column = @Column(name = "story_image_type")),
+            @AttributeOverride(name = "imageName", column = @Column(name = "story_image_name")),
+            @AttributeOverride(name = "imageUUID", column = @Column(name = "story_image_uuid"))
+    })
+    private Image image;
+
     @Column(name = "story_upload_date")
     @CreatedDate
     private LocalDateTime uploadDate;
 
-    public Story(Member member) {
+    public Story(Member member, Image image) {
         this.member = member;
+        this.image = image;
     }
 }
