@@ -12,54 +12,55 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserProfileResponse {
-    
+
     @ApiModelProperty(value = "유저네임", example = "dlwlrma")
-    String memberUsername;
+    private String memberUsername;
 
     @ApiModelProperty(value = "이름", example = "이지금")
-    String memberName;
+    private String memberName;
 
     @ApiModelProperty(value = "웹사이트", example = "http://localhost:8080")
-    String memberWebsite;
+    private String memberWebsite;
 
     @ApiModelProperty(value = "프로필사진")
-    Image memberImage;
+    private Image memberImage;
 
     @ApiModelProperty(value = "팔로잉 여부", example = "true")
-    boolean isFollowing;
+    private boolean isFollowing;
 
     @ApiModelProperty(value = "팔로워 여부", example = "false")
-    boolean isFollower;
+    private boolean isFollower;
 
     @ApiModelProperty(value = "차단 여부", example = "false")
-    boolean isBlocking;
+    private boolean isBlocking;
 
     @ApiModelProperty(value = "차단당한 여부", example = "false")
-    boolean isBlocked;
+    private boolean isBlocked;
 
     @ApiModelProperty(value = "소개", example = "안녕하세요")
-    String memberIntroduce;
-    
+    private String memberIntroduce;
+
     @ApiModelProperty(value = "포스팅 수", example = "90")
-    Long memberPostsCount;
+    private Long memberPostsCount;
 
     @ApiModelProperty(value = "팔로잉 수", example = "100")
-    Long memberFollowingsCount;
+    private Long memberFollowingsCount;
 
     @ApiModelProperty(value = "팔로워 수", example = "100")
-    Long memberFollowersCount;
+    private Long memberFollowersCount;
 
     @ApiModelProperty(value = "내 팔로잉 중 해당 유저를 팔로우 하는 사람", example = "dlwlrma")
-    String followingMemberFollow;
+    private String followingMemberFollow;
 
     @ApiModelProperty(value = "본인 여부", example = "false")
-    boolean isMe;
-    
+    private boolean isMe;
+
+    private boolean hasStory;
 
     @QueryProjection
-    public UserProfileResponse(String username, String name, String website,Image image,boolean isFollowing, boolean isFollower, 
-                                boolean isBlocking, boolean isBlocked, String introduce, Long postsCount,
-                                Long followingsCount, Long followersCount, boolean isMe){
+    public UserProfileResponse(String username, String name, String website, Image image, boolean isFollowing, boolean isFollower,
+                               boolean isBlocking, boolean isBlocked, String introduce, Long postsCount,
+                               Long followingsCount, Long followersCount, boolean isMe) {
         this.memberUsername = username;
         this.memberName = name;
         this.memberWebsite = website;
@@ -73,18 +74,18 @@ public class UserProfileResponse {
         this.memberFollowingsCount = followingsCount;
         this.memberFollowersCount = followersCount;
         this.isMe = isMe;
-
+        this.hasStory = false;
     }
 
-    public void checkBlock(){
-        if(this.isBlocked || this.isBlocking){
+    public void checkBlock() {
+        if (this.isBlocked || this.isBlocking) {
             this.memberPostsCount = 0L;
             this.memberFollowingsCount = 0L;
             this.memberFollowersCount = 0L;
         }
     }
 
-    public void setFollowingMemberFollow(String followingMemberFollow){
+    public void setFollowingMemberFollow(String followingMemberFollow) {
         this.followingMemberFollow = followingMemberFollow;
     }
 }
