@@ -1,6 +1,6 @@
 package cloneproject.Instagram.dto.alarm;
 
-import cloneproject.Instagram.dto.member.MenuMemberDTO;
+import cloneproject.Instagram.dto.member.MemberDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +15,6 @@ public class AlarmDTO {
     private Long id;
     private String type;
     private String message;
-    private MenuMemberDTO agent;
+    private MemberDTO agent;
     private LocalDateTime createdDate;
 }

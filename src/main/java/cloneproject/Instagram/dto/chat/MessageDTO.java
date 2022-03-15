@@ -1,6 +1,6 @@
 package cloneproject.Instagram.dto.chat;
 
-import cloneproject.Instagram.dto.member.MenuMemberDTO;
+import cloneproject.Instagram.dto.member.MemberDTO;
 import cloneproject.Instagram.entity.chat.MessageImage;
 import cloneproject.Instagram.entity.chat.MessagePost;
 import cloneproject.Instagram.entity.chat.MessageStory;
@@ -26,7 +26,7 @@ public class MessageDTO {
     private Object content;
     private String messageType;
     private LocalDateTime messageDate;
-    private List<MenuMemberDTO> likeMembers = new ArrayList<>();
+    private List<MemberDTO> likeMembers = new ArrayList<>();
 
     public MessageDTO(MessageStory message) {
         this.roomId = message.getRoom().getId();
@@ -47,7 +47,7 @@ public class MessageDTO {
                     .status(status)
                     .storyId(story.getId())
                     .storyImage(story.getImage())
-                    .uploader(new MenuMemberDTO(message.getMember()))
+                    .uploader(new MemberDTO(message.getMember()))
                     .build();
         } catch (Exception e) {
             this.content = MessageStoryDTO.builder()
@@ -69,7 +69,7 @@ public class MessageDTO {
                     .postId(message.getPost().getId())
                     .postImage(message.getPost().getPostImages().get(0).getImage())
                     .postImageCount(message.getPost().getPostImages().size())
-                    .uploader(new MenuMemberDTO(message.getMember()))
+                    .uploader(new MemberDTO(message.getMember()))
                     .content(message.getPost().getContent())
                     .build();
         } catch (Exception e) {
@@ -111,7 +111,7 @@ public class MessageDTO {
         private Image postImage;
         private Integer postImageCount;
         private String content;
-        private MenuMemberDTO uploader;
+        private MemberDTO uploader;
     }
 
     @Getter
@@ -124,6 +124,6 @@ public class MessageDTO {
         private String status;
         private Long storyId;
         private Image storyImage;
-        private MenuMemberDTO uploader;
+        private MemberDTO uploader;
     }
 }
