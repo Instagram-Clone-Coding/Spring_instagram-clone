@@ -1,6 +1,8 @@
 package cloneproject.Instagram.dto.post;
 
 import cloneproject.Instagram.dto.comment.CommentDTO;
+import cloneproject.Instagram.dto.member.MemberDTO;
+import cloneproject.Instagram.entity.member.Member;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,9 +22,7 @@ public class PostResponse {
     private Long postId;
     private String postContent;
     private LocalDateTime postUploadDate;
-    private String memberUsername;
-    private String memberNickname;
-    private String memberImageUrl;
+    private MemberDTO member;
     private int postLikesCount;
     private boolean postBookmarkFlag;
     private boolean postLikeFlag;
@@ -32,13 +32,11 @@ public class PostResponse {
     private List<CommentDTO> commentDTOs = new ArrayList<>();
 
     @QueryProjection
-    public PostResponse(Long postId, String postContent, LocalDateTime postUploadDate, String memberUsername, String memberNickname, String memberImageUrl, int postLikesCount, boolean postBookmarkFlag, boolean postLikeFlag, boolean commentFlag) {
+    public PostResponse(Long postId, String postContent, LocalDateTime postUploadDate, Member member, int postLikesCount, boolean postBookmarkFlag, boolean postLikeFlag, boolean commentFlag) {
         this.postId = postId;
         this.postContent = postContent;
         this.postUploadDate = postUploadDate;
-        this.memberUsername = memberUsername;
-        this.memberNickname = memberNickname;
-        this.memberImageUrl = memberImageUrl;
+        this.member = new MemberDTO(member);
         this.postLikesCount = postLikesCount;
         this.postBookmarkFlag = postBookmarkFlag;
         this.postLikeFlag = postLikeFlag;

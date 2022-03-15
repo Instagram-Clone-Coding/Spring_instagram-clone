@@ -304,9 +304,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
                         post.id,
                         post.content,
                         post.uploadDate,
-                        post.member.username,
-                        post.member.name,
-                        post.member.image.imageUrl,
+                        post.member,
                         post.postLikes.size(),
                         JPAExpressions
                                 .selectFrom(bookmark)
@@ -324,6 +322,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 
         if (response.isEmpty())
             return Optional.empty();
+
+        response.get().getMember().setHasStory(memberStoryRedisRepository.findById(response.get().getMember().getId()).isPresent());
 
         final List<PostLikeDTO> postLikeDTOs = queryFactory
                 .select(new QPostLikeDTO(
