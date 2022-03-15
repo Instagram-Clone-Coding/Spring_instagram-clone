@@ -3,8 +3,10 @@ package cloneproject.Instagram.repository;
 import cloneproject.Instagram.dto.alarm.AlarmContentDTO;
 import cloneproject.Instagram.dto.alarm.AlarmFollowDTO;
 import cloneproject.Instagram.dto.alarm.AlarmType;
+import cloneproject.Instagram.dto.member.MemberDTO;
 import cloneproject.Instagram.entity.alarms.Alarm;
 import cloneproject.Instagram.entity.member.Follow;
+import cloneproject.Instagram.repository.story.MemberStoryRedisRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import cloneproject.Instagram.dto.alarm.AlarmDTO;
@@ -27,6 +29,7 @@ import static com.querydsl.core.group.GroupBy.groupBy;
 public class AlarmRepositoryQuerydslImpl implements AlarmRepositoryQuerydsl {
 
     private final JPAQueryFactory queryFactory;
+    private final MemberStoryRedisRepository memberStoryRedisRepository;
 
     @Override
     public Page<AlarmDTO> getAlarmDtoPageByMemberId(Pageable pageable, Long memberId) {
@@ -63,6 +66,12 @@ public class AlarmRepositoryQuerydslImpl implements AlarmRepositoryQuerydsl {
                         return new AlarmContentDTO(a);
                 })
                 .collect(Collectors.toList());
+
+        content.forEach(alarm -> {
+            final MemberDTO agent = alarm.getAgent();
+            final boolean hasStory = memberStoryRedisRepository.findById(agent.getId()).isPresent();
+            agent.setHasStory(hasStory);
+        });
 
         final long total = queryFactory
                 .selectFrom(alarm)

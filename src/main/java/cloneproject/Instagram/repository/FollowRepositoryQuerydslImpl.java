@@ -2,6 +2,8 @@ package cloneproject.Instagram.repository;
 
 import java.util.List;
 
+import cloneproject.Instagram.dto.member.MemberDTO;
+import cloneproject.Instagram.repository.story.MemberStoryRedisRepository;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -16,15 +18,14 @@ import static cloneproject.Instagram.entity.member.QMember.member;
 public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl{
 
     private final JPAQueryFactory queryFactory;
+    private final MemberStoryRedisRepository memberStoryRedisRepository;
 
     @Override
-    public List<FollowerDTO> getFollwings(Long loginedMemberId, Long memberId){
+    public List<FollowerDTO> getFollowings(Long loginedMemberId, Long memberId){
 
         final List<FollowerDTO> followerDTOs = queryFactory
                     .select(new QFollowerDTO(
-                        member.username,
-                        member.name,
-                        member.image,
+                        member,
                         JPAExpressions
                             .selectFrom(follow)
                             .where(follow.member.id.eq(loginedMemberId).and(follow.followMember.eq(member)))
@@ -32,10 +33,6 @@ public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl{
                         JPAExpressions
                             .selectFrom(follow)
                             .where(follow.member.eq(member).and(follow.followMember.id.eq(loginedMemberId)))
-                            .exists(),
-                        JPAExpressions
-                            .selectFrom(follow)
-                            .where()
                             .exists(),
                         member.id.eq(loginedMemberId)
                     ))
@@ -47,18 +44,21 @@ public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl{
                     ))
                     .fetch();
 
-        return followerDTOs;
+        followerDTOs.forEach(follower -> {
+            final MemberDTO member = follower.getMember();
+            final boolean hasStory = memberStoryRedisRepository.findById(member.getId()).isPresent();
+            member.setHasStory(hasStory);
+        });
 
+        return followerDTOs;
     }
 
     @Override
-    public List<FollowerDTO> getFollwers(Long loginedMemberId, Long memberId){
+    public List<FollowerDTO> getFollowers(Long loginedMemberId, Long memberId){
 
         final List<FollowerDTO> followerDTOs = queryFactory
                     .select(new QFollowerDTO(
-                        member.username,
-                        member.name,
-                        member.image,
+                        member,
                         JPAExpressions
                             .selectFrom(follow)
                             .where(follow.member.id.eq(loginedMemberId).and(follow.followMember.eq(member)))
@@ -66,10 +66,6 @@ public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl{
                         JPAExpressions
                             .selectFrom(follow)
                             .where(follow.member.eq(member).and(follow.followMember.id.eq(loginedMemberId)))
-                            .exists(),
-                        JPAExpressions
-                            .selectFrom(follow)
-                            .where()
                             .exists(),
                         member.id.eq(loginedMemberId)
                     ))
@@ -80,6 +76,12 @@ public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl{
                                         .where(follow.followMember.id.eq(memberId))
                     ))
                     .fetch();
+
+        followerDTOs.forEach(follower -> {
+            final MemberDTO member = follower.getMember();
+            final boolean hasStory = memberStoryRedisRepository.findById(member.getId()).isPresent();
+            member.setHasStory(hasStory);
+        });
 
         return followerDTOs;
 
