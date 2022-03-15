@@ -90,10 +90,10 @@ public class FollowRepositoryTest {
             @Test
             @DisplayName("팔로잉들을 반환한다")
             void it_returns_followings(){
-                List<FollowerDTO> followings = followRepository.getFollwings(loginedId, savedMemberOne.getId());
+                List<FollowerDTO> followings = followRepository.getFollowings(loginedId, savedMemberOne.getId());
                 assertEquals(2, followings.size());
-                assertEquals(savedMemberTwo.getUsername(), followings.get(0).getUsername());
-                assertEquals(savedMemberThree.getUsername(), followings.get(1).getUsername());
+                assertEquals(savedMemberTwo.getUsername(), followings.get(0).getMember().getUsername());
+                assertEquals(savedMemberThree.getUsername(), followings.get(1).getMember().getUsername());
                 assertTrue(followings.get(1).isFollower());
             }   
         }
@@ -108,10 +108,10 @@ public class FollowRepositoryTest {
             @Test
             @DisplayName("팔로워들을 반환한다")
             void it_returns_followers(){
-                List<FollowerDTO> followers = followRepository.getFollwers(loginedId, savedMemberTwo.getId());
+                List<FollowerDTO> followers = followRepository.getFollowers(loginedId, savedMemberTwo.getId());
                 assertEquals(2, followers.size());
-                assertEquals(savedMemberOne.getUsername(), followers.get(0).getUsername());
-                assertEquals(savedMemberThree.getUsername(), followers.get(1).getUsername());
+                assertEquals(savedMemberOne.getUsername(), followers.get(0).getMember().getUsername());
+                assertEquals(savedMemberThree.getUsername(), followers.get(1).getMember().getUsername());
                 assertTrue(followers.get(0).isMe());
                 assertTrue(followers.get(1).isFollower());
             }   

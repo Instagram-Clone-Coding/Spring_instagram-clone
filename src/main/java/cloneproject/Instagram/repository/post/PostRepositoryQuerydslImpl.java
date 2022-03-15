@@ -2,10 +2,12 @@ package cloneproject.Instagram.repository.post;
 
 import cloneproject.Instagram.dto.comment.CommentDTO;
 import cloneproject.Instagram.dto.comment.QCommentDTO;
+import cloneproject.Instagram.dto.member.MemberDTO;
 import cloneproject.Instagram.dto.post.*;
 import cloneproject.Instagram.entity.hashtag.Hashtag;
 import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.entity.member.QMember;
+import cloneproject.Instagram.repository.story.MemberStoryRedisRepository;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +38,7 @@ import static cloneproject.Instagram.entity.post.QPostTag.postTag;
 public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 
     private final JPAQueryFactory queryFactory;
+    private final MemberStoryRedisRepository memberStoryRedisRepository;
 
     @Override
     public Page<PostDTO> findPostDtoPage(Member member, Pageable pageable) {
@@ -47,9 +50,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
                         post.id,
                         post.content,
                         post.uploadDate,
-                        post.member.username,
-                        post.member.name,
-                        post.member.image.imageUrl,
+                        post.member,
                         post.comments.size(),
                         post.postLikes.size(),
                         JPAExpressions
@@ -75,6 +76,12 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
                 .orderBy(post.id.desc())
                 .distinct()
                 .fetch();
+
+        postDTOs.forEach(post -> {
+            final MemberDTO postMember = post.getMember();
+            final boolean hasStory = memberStoryRedisRepository.findById(postMember.getId()).isPresent();
+            postMember.setHasStory(hasStory);
+        });
 
         final long total = queryFactory
                 .selectFrom(post)
@@ -176,9 +183,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
                         post.id,
                         post.content,
                         post.uploadDate,
-                        post.member.username,
-                        post.member.name,
-                        post.member.image.imageUrl,
+                        post.member,
                         post.comments.size(),
                         post.postLikes.size(),
                         JPAExpressions
@@ -202,6 +207,12 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
                 .limit(10)
                 .orderBy(post.id.desc())
                 .fetch();
+
+        postDTOs.forEach(post -> {
+            final MemberDTO postMember = post.getMember();
+            final boolean hasStory = memberStoryRedisRepository.findById(postMember.getId()).isPresent();
+            postMember.setHasStory(hasStory);
+        });
 
         final List<Long> postIds = postDTOs.stream()
                 .map(PostDTO::getPostId)
@@ -406,9 +417,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
                         post.id,
                         post.content,
                         post.uploadDate,
-                        post.member.username,
-                        post.member.name,
-                        post.member.image.imageUrl,
+                        post.member,
                         post.comments.size(),
                         post.postLikes.size(),
                         JPAExpressions
@@ -426,6 +435,12 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
                 .where(post.id.in(ids))
                 .orderBy(post.id.desc())
                 .fetch();
+
+        postDTOs.forEach(post -> {
+            final MemberDTO postMember = post.getMember();
+            final boolean hasStory = memberStoryRedisRepository.findById(postMember.getId()).isPresent();
+            postMember.setHasStory(hasStory);
+        });
 
         final long total = queryFactory
                 .selectFrom(post)

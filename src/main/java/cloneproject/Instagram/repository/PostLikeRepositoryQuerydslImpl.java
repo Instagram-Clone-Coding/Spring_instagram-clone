@@ -2,6 +2,7 @@ package cloneproject.Instagram.repository;
 
 import cloneproject.Instagram.dto.member.LikeMembersDTO;
 import cloneproject.Instagram.dto.member.QLikeMembersDTO;
+import cloneproject.Instagram.repository.story.MemberStoryRedisRepository;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -9,28 +10,24 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static cloneproject.Instagram.entity.comment.QCommentLike.commentLike;
 import static cloneproject.Instagram.entity.member.QFollow.follow;
 import static cloneproject.Instagram.entity.member.QMember.member;
-import static cloneproject.Instagram.entity.member.QMemberStory.memberStory;
 import static cloneproject.Instagram.entity.post.QPostLike.postLike;
-import static cloneproject.Instagram.entity.story.QStory.story;
 
 @RequiredArgsConstructor
 public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQuerydsl {
 
     private final JPAQueryFactory queryFactory;
+    private final MemberStoryRedisRepository memberStoryRedisRepository;
 
     @Override
     public Page<LikeMembersDTO> findLikeMembersDtoPageByPostIdAndMemberId(Pageable pageable, Long postId, Long memberId) {
         final List<LikeMembersDTO> likeMembersDTOs = queryFactory
                 .select(new QLikeMembersDTO(
-                        postLike.member.username,
-                        postLike.member.name,
-                        postLike.member.image,
+                        postLike.member,
                         JPAExpressions
                                 .selectFrom(follow)
                                 .where(
@@ -44,14 +41,6 @@ public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQueryds
                                         follow.member.eq(postLike.member)
                                                 .and(follow.followMember.id.eq(memberId))
                                 )
-                                .exists(),
-                        JPAExpressions
-                                .selectFrom(memberStory)
-                                .innerJoin(memberStory.story, story)
-                                .where(
-                                        memberStory.member.id.eq(memberId)
-                                                .and(memberStory.story.uploadDate.after(LocalDateTime.now().minusHours(24)))
-                                )
                                 .exists()
                 ))
                 .from(postLike)
@@ -64,6 +53,8 @@ public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQueryds
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+
+        likeMembersDTOs.forEach(dto -> dto.setHasStory(memberStoryRedisRepository.findById(dto.getMember().getId()).isPresent()));
 
         final long total = queryFactory
                 .selectFrom(postLike)
@@ -80,9 +71,7 @@ public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQueryds
     public Page<LikeMembersDTO> findLikeMembersDtoPageByCommentIdAndMemberId(Pageable pageable, Long commentId, Long memberId) {
         final List<LikeMembersDTO> likeMembersDTOs = queryFactory
                 .select(new QLikeMembersDTO(
-                        commentLike.member.username,
-                        commentLike.member.name,
-                        commentLike.member.image,
+                        commentLike.member,
                         JPAExpressions
                                 .selectFrom(follow)
                                 .where(
@@ -96,14 +85,6 @@ public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQueryds
                                         follow.member.eq(commentLike.member)
                                                 .and(follow.followMember.id.eq(memberId))
                                 )
-                                .exists(),
-                        JPAExpressions
-                                .selectFrom(memberStory)
-                                .innerJoin(memberStory.story, story)
-                                .where(
-                                        memberStory.member.id.eq(memberId)
-                                                .and(memberStory.story.uploadDate.after(LocalDateTime.now().minusHours(24)))
-                                )
                                 .exists()
                 ))
                 .from(commentLike)
@@ -116,6 +97,8 @@ public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQueryds
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+
+        likeMembersDTOs.forEach(dto -> dto.setHasStory(memberStoryRedisRepository.findById(dto.getMember().getId()).isPresent()));
 
         final long total = queryFactory
                 .selectFrom(commentLike)

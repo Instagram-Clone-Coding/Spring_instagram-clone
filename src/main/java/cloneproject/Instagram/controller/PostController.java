@@ -35,8 +35,7 @@ public class PostController {
 
     private final PostService postService;
 
-    @ApiOperation(value = "게시물 업로드", consumes = MULTIPART_FORM_DATA_VALUE,
-            notes = "사용자가 이미지 대체 텍스트를 입력하지 않은 경우에는, 각각 빈 값으로 요청해주세요.")
+    @ApiOperation(value = "게시물 업로드", consumes = MULTIPART_FORM_DATA_VALUE)
     @PostMapping("/posts")
     public ResponseEntity<ResultResponse> createPost(@ModelAttribute PostUploadRequest request) {
         final Long postId = postService.upload(request.getContent(), request.getPostImages(), request.getAltTexts(), request.getPostImageTags(), request.isCommentFlag());

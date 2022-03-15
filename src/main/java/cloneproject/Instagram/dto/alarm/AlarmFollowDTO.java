@@ -1,6 +1,6 @@
 package cloneproject.Instagram.dto.alarm;
 
-import cloneproject.Instagram.dto.member.MenuMemberDTO;
+import cloneproject.Instagram.dto.member.MemberDTO;
 import cloneproject.Instagram.entity.alarms.Alarm;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +14,7 @@ public class AlarmFollowDTO extends AlarmDTO {
     private boolean isFollowing;
 
     public AlarmFollowDTO(Alarm alarm, boolean isFollowing) {
-        super(alarm.getId(), alarm.getType().name(), alarm.getType().getMessage(), new MenuMemberDTO(alarm.getAgent()), alarm.getCreatedDate());
+        super(alarm.getId(), alarm.getType().name(), alarm.getType().getMessage(), new MemberDTO(alarm.getAgent()), alarm.getCreatedDate());
         this.isFollowing = isFollowing;
     }
 }

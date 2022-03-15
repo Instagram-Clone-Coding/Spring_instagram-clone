@@ -1,31 +1,25 @@
 package cloneproject.Instagram.dto.member;
 
+import cloneproject.Instagram.entity.member.Member;
 import com.querydsl.core.annotations.QueryProjection;
 
-import cloneproject.Instagram.vo.Image;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 public class FollowerDTO {
-    
-    public String username;
-    public String name;
-    public Image image;
-    public boolean isFollowing;
-    public boolean isFollower;
-    public boolean hasStory;
-    public boolean isMe;
+
+    private MemberDTO member;
+    private boolean isFollowing;
+    private boolean isFollower;
+    private boolean isMe;
 
     @QueryProjection
-    public FollowerDTO(String username, String name, Image image, boolean isFollowing, boolean isFollower, boolean hasStory, boolean isMe){
-        this.username = username;
-        this.name = name;
-        this.image = image;
+    public FollowerDTO(Member member, boolean isFollowing, boolean isFollower, boolean isMe){
+        this.member = new MemberDTO(member);
         this.isFollowing = isFollowing;
         this.isFollower = isFollower;
-        this.hasStory = hasStory;
         this.isMe = isMe;
     }
 

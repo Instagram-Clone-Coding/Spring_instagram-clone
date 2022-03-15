@@ -11,28 +11,27 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class SearchedMemberDTO {
-    
-    public String username;
-    public String name;
-    public Image image;
-    public boolean isFollowing;
-    public boolean isFollower;
-    public boolean hasStory;
-    public List<FollowDTO> followingMemberFollow; // 내 팔로잉 중 해당 멤버를 팔로우 하고있는 사람
+
+    private String username;
+    private String name;
+    private Image image;
+    private boolean isFollowing;
+    private boolean isFollower;
+    private boolean hasStory;
+    private List<FollowDTO> followingMemberFollow; // 내 팔로잉 중 해당 멤버를 팔로우 하고있는 사람
 
     @QueryProjection
-    public SearchedMemberDTO(String username, String name, Image image, boolean isFollowing, boolean isFollower, boolean hasStory){
+    public SearchedMemberDTO(String username, String name, Image image, boolean isFollowing, boolean isFollower) {
         this.username = username;
         this.name = name;
         this.image = image;
         this.isFollowing = isFollowing;
         this.isFollower = isFollower;
-        this.hasStory = hasStory;
+        this.hasStory = false;
     }
 
-    public void setFollowingMemberFollow(List<FollowDTO> followingMemberFollow){
+    public void setFollowingMemberFollow(List<FollowDTO> followingMemberFollow) {
         this.followingMemberFollow = followingMemberFollow;
     }
-
 }
 

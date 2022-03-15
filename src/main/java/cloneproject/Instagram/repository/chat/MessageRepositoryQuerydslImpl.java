@@ -1,7 +1,7 @@
 package cloneproject.Instagram.repository.chat;
 
 import cloneproject.Instagram.dto.chat.MessageDTO;
-import cloneproject.Instagram.dto.member.MenuMemberDTO;
+import cloneproject.Instagram.dto.member.MemberDTO;
 import cloneproject.Instagram.entity.chat.*;
 import cloneproject.Instagram.exception.JoinRoomNotFoundException;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -19,10 +19,12 @@ import static cloneproject.Instagram.entity.chat.QMessage.message;
 import static cloneproject.Instagram.entity.chat.QMessageImage.messageImage;
 import static cloneproject.Instagram.entity.chat.QMessageLike.messageLike;
 import static cloneproject.Instagram.entity.chat.QMessagePost.messagePost;
+import static cloneproject.Instagram.entity.chat.QMessageStory.messageStory;
 import static cloneproject.Instagram.entity.chat.QMessageText.messageText;
 import static cloneproject.Instagram.entity.chat.QRoom.room;
 import static cloneproject.Instagram.entity.member.QMember.member;
 import static cloneproject.Instagram.entity.post.QPost.post;
+import static cloneproject.Instagram.entity.story.QStory.story;
 import static com.querydsl.core.group.GroupBy.*;
 
 @RequiredArgsConstructor
@@ -57,6 +59,11 @@ public class MessageRepositoryQuerydslImpl implements MessageRepositoryQuerydsl 
                 .map(Message::getId)
                 .collect(Collectors.toList());
 
+        final Map<Long, MessageStory> messageStoryMap = queryFactory
+                .from(messageStory)
+                .leftJoin(messageStory.story, story).fetchJoin()
+                .where(messageStory.id.in(messageIds))
+                .transform(groupBy(messageStory.id).as(messageStory));
 
         final Map<Long, MessagePost> messagePostMap = queryFactory
                 .from(messagePost)
@@ -79,6 +86,8 @@ public class MessageRepositoryQuerydslImpl implements MessageRepositoryQuerydsl 
                     switch (m.getDtype()) {
                         case "POST":
                             return new MessageDTO(messagePostMap.get(m.getId()));
+                        case "STORY":
+                            return new MessageDTO(messageStoryMap.get(m.getId()));
                         case "IMAGE":
                             return new MessageDTO(messageImageMap.get(m.getId()));
                         case "TEXT":
@@ -96,8 +105,8 @@ public class MessageRepositoryQuerydslImpl implements MessageRepositoryQuerydsl 
 
         messageDTOs.forEach(m -> {
             if (messageLikeMap.containsKey(m.getMessageId())) {
-                final List<MenuMemberDTO> likeMembers = messageLikeMap.get(m.getMessageId()).stream()
-                        .map(ml -> new MenuMemberDTO(ml.getMember()))
+                final List<MemberDTO> likeMembers = messageLikeMap.get(m.getMessageId()).stream()
+                        .map(ml -> new MemberDTO(ml.getMember()))
                         .collect(Collectors.toList());
                 m.setLikeMembers(likeMembers);
             }
