@@ -1,6 +1,8 @@
 package cloneproject.Instagram.dto.post;
 
 import cloneproject.Instagram.dto.comment.CommentDTO;
+import cloneproject.Instagram.dto.member.MemberDTO;
+import cloneproject.Instagram.entity.member.Member;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -20,9 +22,7 @@ public class PostDTO {
     private String postContent;
     private List<PostImageDTO> postImageDTOs = new ArrayList<>();
     private LocalDateTime postUploadDate;
-    private String memberUsername;
-    private String memberNickname;
-    private String memberImageUrl;
+    private MemberDTO member;
     private int postCommentsCount;
     private int postLikesCount;
     private boolean postBookmarkFlag;
@@ -32,13 +32,11 @@ public class PostDTO {
     private List<CommentDTO> recentComments = new ArrayList<>();
 
     @QueryProjection
-    public PostDTO(Long postId, String postContent, LocalDateTime postUploadDate, String memberUsername, String memberNickname, String memberImageUrl, int postCommentsCount, int postLikesCount, boolean postBookmarkFlag, boolean postLikeFlag, boolean commentFlag) {
+    public PostDTO(Long postId, String postContent, LocalDateTime postUploadDate, Member member, int postCommentsCount, int postLikesCount, boolean postBookmarkFlag, boolean postLikeFlag, boolean commentFlag) {
         this.postId = postId;
         this.postContent = postContent;
         this.postUploadDate = postUploadDate;
-        this.memberUsername = memberUsername;
-        this.memberNickname = memberNickname;
-        this.memberImageUrl = memberImageUrl;
+        this.member = new MemberDTO(member);
         this.postCommentsCount = postCommentsCount;
         this.postLikesCount = postLikesCount;
         this.postBookmarkFlag = postBookmarkFlag;

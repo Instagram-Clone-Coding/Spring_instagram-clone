@@ -1,6 +1,8 @@
 package cloneproject.Instagram.repository;
 
 import cloneproject.Instagram.dto.member.*;
+import cloneproject.Instagram.entity.member.QMember;
+import cloneproject.Instagram.repository.story.MemberStoryRedisRepository;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -14,147 +16,161 @@ import static cloneproject.Instagram.entity.member.QMember.member;
 import static cloneproject.Instagram.entity.member.QBlock.block;
 import static cloneproject.Instagram.entity.post.QPost.post;
 import static cloneproject.Instagram.entity.post.QPostImage.postImage;
+import static com.querydsl.core.group.GroupBy.groupBy;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
-public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl{
-    
+public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl {
+
     private final JPAQueryFactory queryFactory;
+    private final MemberStoryRedisRepository memberStoryRedisRepository;
 
     @Override
-    public UserProfileResponse getUserProfile(Long loginedUserId, String username){
-        
+    public UserProfileResponse getUserProfile(Long loginedUserId, String username) {
         final String followingMemberFollow = queryFactory
-                                                .select(follow.member.username)
-                                                .from(follow)
-                                                .where(follow.followMember.username.eq(username)
-                                                        .and(follow.member.id.in(
-                                                            JPAExpressions
-                                                                .select(follow.followMember.id)
-                                                                .from(follow)
-                                                                .where(follow.member.id.eq(loginedUserId))
-                                                        )))
-                                                .fetchFirst();
+                .select(follow.member.username)
+                .from(follow)
+                .where(follow.followMember.username.eq(username)
+                        .and(follow.member.id.in(
+                                JPAExpressions
+                                        .select(follow.followMember.id)
+                                        .from(follow)
+                                        .where(follow.member.id.eq(loginedUserId))
+                        )))
+                .fetchFirst();
 
-        final UserProfileResponse result = queryFactory.select(new QUserProfileResponse(
-                                            member.username,
-                                            member.name,
-                                            member.website,
-                                            member.image,
-                                            JPAExpressions
-                                                .selectFrom(follow)
-                                                .where(follow.member.id.eq(loginedUserId).and(follow.followMember.username.eq(username)))
-                                                .exists(),
-                                            JPAExpressions
-                                                .selectFrom(follow)
-                                                .where(follow.member.username.eq(username).and(follow.followMember.id.eq(loginedUserId)))
-                                                .exists(),
-                                            JPAExpressions
-                                                .selectFrom(block)
-                                                .where(block.member.id.eq(loginedUserId).and(block.blockMember.username.eq(username)))
-                                                .exists(),
-                                            JPAExpressions
-                                                .selectFrom(block)
-                                                .where(block.member.username.eq(username).and(block.blockMember.id.eq(loginedUserId)))
-                                                .exists(),
-                                            member.introduce,
-                                            JPAExpressions
-                                                .select(post.count())
-                                                .from(post)
-                                                .where(post.member.username.eq(username)),
-                                            JPAExpressions
-                                                .select(follow.count())
-                                                .from(follow)
-                                                .where(follow.member.username.eq(username)), 
-                                            JPAExpressions
-                                                .select(follow.count())
-                                                .from(follow)
-                                                .where(follow.followMember.username.eq(username)),
-                                            member.id.eq(loginedUserId)
-                                        ))
-                                        .from(member)
-                                        .where(member.username.eq(username))
-                                        .fetchOne();
+        final UserProfileResponse result = queryFactory
+                .select(new QUserProfileResponse(
+                        member.username,
+                        member.name,
+                        member.website,
+                        member.image,
+                        JPAExpressions
+                                .selectFrom(follow)
+                                .where(follow.member.id.eq(loginedUserId).and(follow.followMember.username.eq(username)))
+                                .exists(),
+                        JPAExpressions
+                                .selectFrom(follow)
+                                .where(follow.member.username.eq(username).and(follow.followMember.id.eq(loginedUserId)))
+                                .exists(),
+                        JPAExpressions
+                                .selectFrom(block)
+                                .where(block.member.id.eq(loginedUserId).and(block.blockMember.username.eq(username)))
+                                .exists(),
+                        JPAExpressions
+                                .selectFrom(block)
+                                .where(block.member.username.eq(username).and(block.blockMember.id.eq(loginedUserId)))
+                                .exists(),
+                        member.introduce,
+                        JPAExpressions
+                                .select(post.count())
+                                .from(post)
+                                .where(post.member.username.eq(username)),
+                        JPAExpressions
+                                .select(follow.count())
+                                .from(follow)
+                                .where(follow.member.username.eq(username)),
+                        JPAExpressions
+                                .select(follow.count())
+                                .from(follow)
+                                .where(follow.followMember.username.eq(username)),
+                        member.id.eq(loginedUserId)
+                ))
+                .from(member)
+                .where(member.username.eq(username))
+                .fetchOne();
+
+        final Member member = queryFactory
+                .selectFrom(QMember.member)
+                .where(QMember.member.username.eq(username))
+                .fetchOne();
+        result.setHasStory(memberStoryRedisRepository.findById(member.getId()).isPresent());
         result.checkBlock();
         result.setFollowingMemberFollow(followingMemberFollow);
+
         return result;
     }
 
     @Override
-    public MiniProfileResponse getMiniProfile(Long loginedUserId, String username){
-        
+    public MiniProfileResponse getMiniProfile(Long loginedUserId, String username) {
         final String followingMemberFollow = queryFactory
-                                                .select(follow.member.username)
-                                                .from(follow)
-                                                .where(follow.followMember.username.eq(username)
-                                                        .and(follow.member.id.in(
-                                                            JPAExpressions
-                                                                .select(follow.followMember.id)
-                                                                .from(follow)
-                                                                .where(follow.member.id.eq(loginedUserId))
-                                                        )))
-                                                .fetchFirst();
+                .select(follow.member.username)
+                .from(follow)
+                .where(follow.followMember.username.eq(username)
+                        .and(follow.member.id.in(
+                                JPAExpressions
+                                        .select(follow.followMember.id)
+                                        .from(follow)
+                                        .where(follow.member.id.eq(loginedUserId))
+                        )))
+                .fetchFirst();
 
-        final MiniProfileResponse result = queryFactory.select(new QMiniProfileResponse(
-                                            member.username,
-                                            member.name,
-                                            member.image,
-                                            JPAExpressions
-                                                .selectFrom(follow)
-                                                .where(follow.member.id.eq(loginedUserId).and(follow.followMember.username.eq(username)))
-                                                .exists(),
-                                            JPAExpressions
-                                                .selectFrom(follow)
-                                                .where(follow.member.username.eq(username).and(follow.followMember.id.eq(loginedUserId)))
-                                                .exists(),
-                                            JPAExpressions
-                                                .selectFrom(block)
-                                                .where(block.member.id.eq(loginedUserId).and(block.blockMember.username.eq(username)))
-                                                .exists(),
-                                            JPAExpressions
-                                                .selectFrom(block)
-                                                .where(block.member.username.eq(username).and(block.blockMember.id.eq(loginedUserId)))
-                                                .exists(),
-                                            JPAExpressions
-                                                .select(post.count())
-                                                .from(post)
-                                                .where(post.member.username.eq(username)),
-                                            JPAExpressions
-                                                .select(follow.count())
-                                                .from(follow)
-                                                .where(follow.member.username.eq(username)), 
-                                            JPAExpressions
-                                                .select(follow.count())
-                                                .from(follow)
-                                                .where(follow.followMember.username.eq(username)),
-                                            member.id.eq(loginedUserId)
-                                        ))
-                                        .from(member)
-                                        .where(member.username.eq(username))
-                                        .fetchOne();
+        final MiniProfileResponse result = queryFactory
+                .select(new QMiniProfileResponse(
+                        member.username,
+                        member.name,
+                        member.image,
+                        JPAExpressions
+                                .selectFrom(follow)
+                                .where(follow.member.id.eq(loginedUserId).and(follow.followMember.username.eq(username)))
+                                .exists(),
+                        JPAExpressions
+                                .selectFrom(follow)
+                                .where(follow.member.username.eq(username).and(follow.followMember.id.eq(loginedUserId)))
+                                .exists(),
+                        JPAExpressions
+                                .selectFrom(block)
+                                .where(block.member.id.eq(loginedUserId).and(block.blockMember.username.eq(username)))
+                                .exists(),
+                        JPAExpressions
+                                .selectFrom(block)
+                                .where(block.member.username.eq(username).and(block.blockMember.id.eq(loginedUserId)))
+                                .exists(),
+                        JPAExpressions
+                                .select(post.count())
+                                .from(post)
+                                .where(post.member.username.eq(username)),
+                        JPAExpressions
+                                .select(follow.count())
+                                .from(follow)
+                                .where(follow.member.username.eq(username)),
+                        JPAExpressions
+                                .select(follow.count())
+                                .from(follow)
+                                .where(follow.followMember.username.eq(username)),
+                        member.id.eq(loginedUserId)
+                ))
+                .from(member)
+                .where(member.username.eq(username))
+                .fetchOne();
 
         final List<Long> postIds = queryFactory
-                                    .select(post.id)
-                                    .from(post)
-                                    .where(post.member.username.eq(username))
-                                    .limit(3)
-                                    .orderBy(post.uploadDate.desc())
-                                    .fetch();
+                .select(post.id)
+                .from(post)
+                .where(post.member.username.eq(username))
+                .limit(3)
+                .orderBy(post.uploadDate.desc())
+                .fetch();
 
         final List<PostImageDTO> postImageDTOs = queryFactory
-                                                    .select(new QPostImageDTO(
-                                                            postImage.post.id,
-                                                            postImage.id,
-                                                            postImage.image.imageUrl,
-                                                            postImage.altText
-                                                    ))
-                                                    .from(postImage)
-                                                    .where(postImage.post.id.in(postIds))
-                                                    .fetch();
+                .select(new QPostImageDTO(
+                        postImage.post.id,
+                        postImage.id,
+                        postImage.image.imageUrl,
+                        postImage.altText
+                ))
+                .from(postImage)
+                .where(postImage.post.id.in(postIds))
+                .fetch();
 
+        final Member member = queryFactory
+                .selectFrom(QMember.member)
+                .where(QMember.member.username.eq(username))
+                .fetchOne();
+        result.setHasStory(memberStoryRedisRepository.findById(member.getId()).isPresent());
         result.setMemberPosts(postImageDTOs);
         result.checkBlock();
         result.setFollowingMemberFollow(followingMemberFollow);
@@ -163,69 +179,74 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl{
     }
 
     @Override
-    public List<SearchedMemberDTO> searchMember(Long loginedUserId, String text){
-
+    public List<SearchedMemberDTO> searchMember(Long loginedUserId, String text) {
         final List<SearchedMemberDTO> result = queryFactory
-                                                .select(new QSearchedMemberDTO(
-                                                    member.username,
-                                                    member.name, 
-                                                    member.image, 
-                                                    JPAExpressions
-                                                        .selectFrom(follow)
-                                                        .where(follow.member.id.eq(loginedUserId).and(follow.followMember.username.eq(member.username)))
-                                                        .exists(),
-                                                    JPAExpressions
-                                                        .selectFrom(follow)
-                                                        .where(follow.member.username.eq(member.username).and(follow.followMember.id.eq(loginedUserId)))
-                                                        .exists(),
-                                                    JPAExpressions
-                                                        .selectFrom(follow)
-                                                        .where(follow.member.username.eq(member.username).and(follow.followMember.id.eq(loginedUserId)))
-                                                        .exists()))
-                                                .from(member)
-                                                .where(member.username.contains(text).or(member.name.contains(text))
-                                                                .and(member.id.notIn(JPAExpressions
-                                                                                        .select(block.blockMember.id)
-                                                                                        .from(block)
-                                                                                        .where(block.member.id.eq(loginedUserId)))
-                                                                .and(member.id.notIn(JPAExpressions
-                                                                                        .select(block.member.id)
-                                                                                        .from(block)
-                                                                                        .where(block.blockMember.id.eq(loginedUserId))))))
-                                                .fetch();
+                .select(new QSearchedMemberDTO(
+                        member.username,
+                        member.name,
+                        member.image,
+                        JPAExpressions
+                                .selectFrom(follow)
+                                .where(follow.member.id.eq(loginedUserId).and(follow.followMember.username.eq(member.username)))
+                                .exists(),
+                        JPAExpressions
+                                .selectFrom(follow)
+                                .where(follow.member.username.eq(member.username).and(follow.followMember.id.eq(loginedUserId)))
+                                .exists()
+                ))
+                .from(member)
+                .where(member.username.contains(text).or(member.name.contains(text))
+                        .and(member.id.notIn(JPAExpressions
+                                .select(block.blockMember.id)
+                                .from(block)
+                                .where(block.member.id.eq(loginedUserId)))
+                                .and(member.id.notIn(JPAExpressions
+                                        .select(block.member.id)
+                                        .from(block)
+                                        .where(block.blockMember.id.eq(loginedUserId))))))
+                .fetch();
+
         final List<String> resultUsernames = result.stream().map(SearchedMemberDTO::getUsername)
-                                            .collect(Collectors.toList());
+                .collect(Collectors.toList());
+
+        final Map<String, Long> memberIdMap = queryFactory
+                .from(member)
+                .where(member.username.in(resultUsernames))
+                .transform(groupBy(member.username).as(member.id));
+        result.forEach(member -> {
+            member.setHasStory(memberStoryRedisRepository.findById(memberIdMap.get(member.getUsername())).isPresent());
+        });
+
         final List<FollowDTO> follows = queryFactory
-                                            .select(new QFollowDTO(
-                                                follow.member.username,
-                                                follow.followMember.username
-                                            ))
-                                            .from(follow)
-                                            .where(follow.followMember.username.in(resultUsernames)
-                                                        .and(follow.member.id.in(
-                                                            JPAExpressions
-                                                                .select(follow.followMember.id)
-                                                                .from(follow)
-                                                                .where(follow.member.id.eq(loginedUserId))
-                                                        )))
-                                            .fetch();
-        if(follows.isEmpty()){
+                .select(new QFollowDTO(
+                        follow.member.username,
+                        follow.followMember.username
+                ))
+                .from(follow)
+                .where(follow.followMember.username.in(resultUsernames)
+                        .and(follow.member.id.in(
+                                JPAExpressions
+                                        .select(follow.followMember.id)
+                                        .from(follow)
+                                        .where(follow.member.id.eq(loginedUserId))
+                        )))
+                .fetch();
+
+        if (follows.isEmpty())
             return result;
-        }
+
         final Map<String, List<FollowDTO>> followsMap = follows.stream()
-                                            .collect(Collectors.groupingBy(FollowDTO::getFollowMemberUsername));
+                .collect(Collectors.groupingBy(FollowDTO::getFollowMemberUsername));
         result.forEach(r -> r.setFollowingMemberFollow(followsMap.get(r.getUsername())));
 
         return result;
     }
 
     @Override
-    public List<Member> findAllByUsernames(List<String> usernames){
-        List<Member> result = queryFactory
-                                .selectFrom(member)
-                                .where(member.username.in(usernames))
-                                .fetch();
-        return result;
+    public List<Member> findAllByUsernames(List<String> usernames) {
+        return queryFactory
+                .selectFrom(member)
+                .where(member.username.in(usernames))
+                .fetch();
     }
-
 }

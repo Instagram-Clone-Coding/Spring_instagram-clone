@@ -6,7 +6,6 @@ import cloneproject.Instagram.dto.member.FollowerDTO;
 
 public interface FollowRepositoryQuerydsl {
     
-    public List<FollowerDTO> getFollwings(Long loginedMemberId, Long memberId);
-    public List<FollowerDTO> getFollwers(Long loginedMemberId, Long memberId);
-
+    List<FollowerDTO> getFollowings(Long loginedMemberId, Long memberId);
+    List<FollowerDTO> getFollowers(Long loginedMemberId, Long memberId);
 }

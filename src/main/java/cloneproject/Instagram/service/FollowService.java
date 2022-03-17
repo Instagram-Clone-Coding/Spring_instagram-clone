@@ -80,7 +80,7 @@ public class FollowService {
         final Member toMember = memberRepository.findByUsername(memberUsername)
                 .orElseThrow(MemberDoesNotExistException::new);
 
-        final List<FollowerDTO> result = followRepository.getFollwings(Long.valueOf(memberId), toMember.getId());
+        final List<FollowerDTO> result = followRepository.getFollowings(Long.valueOf(memberId), toMember.getId());
 
         return result;
     }
@@ -92,7 +92,7 @@ public class FollowService {
         final Member toMember = memberRepository.findByUsername(memberUsername)
                 .orElseThrow(MemberDoesNotExistException::new);
 
-        final List<FollowerDTO> result = followRepository.getFollwers(Long.valueOf(memberId), toMember.getId());
+        final List<FollowerDTO> result = followRepository.getFollowers(Long.valueOf(memberId), toMember.getId());
 
         return result;
     }

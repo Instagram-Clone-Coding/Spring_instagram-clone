@@ -1,6 +1,6 @@
 package cloneproject.Instagram.dto.alarm;
 
-import cloneproject.Instagram.dto.member.MenuMemberDTO;
+import cloneproject.Instagram.dto.member.MemberDTO;
 import cloneproject.Instagram.entity.alarms.Alarm;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +14,7 @@ public class AlarmContentDTO extends AlarmDTO {
     private String content;
 
     public AlarmContentDTO(Alarm alarm) {
-        super(alarm.getId(), alarm.getType().name(), alarm.getType().getMessage(), new MenuMemberDTO(alarm.getAgent()), alarm.getCreatedDate());
+        super(alarm.getId(), alarm.getType().name(), alarm.getType().getMessage(), new MemberDTO(alarm.getAgent()), alarm.getCreatedDate());
         this.postId = alarm.getPost().getId();
         this.postImageUrl = alarm.getPost().getPostImages().get(0).getImage().getImageUrl();
         this.content = alarm.getPost().getContent();

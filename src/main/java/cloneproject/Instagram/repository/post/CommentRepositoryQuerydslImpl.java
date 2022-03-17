@@ -2,6 +2,8 @@ package cloneproject.Instagram.repository.post;
 
 import cloneproject.Instagram.dto.comment.CommentDTO;
 import cloneproject.Instagram.dto.comment.QCommentDTO;
+import cloneproject.Instagram.dto.member.MemberDTO;
+import cloneproject.Instagram.repository.story.MemberStoryRedisRepository;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import static cloneproject.Instagram.entity.member.QMember.member;
 public class CommentRepositoryQuerydslImpl implements CommentRepositoryQuerydsl {
 
     private final JPAQueryFactory queryFactory;
+    private final MemberStoryRedisRepository memberStoryRedisRepository;
 
     @Override
     public Page<CommentDTO> findCommentDtoPage(Long memberId, Long postId, Pageable pageable) {
@@ -43,6 +46,12 @@ public class CommentRepositoryQuerydslImpl implements CommentRepositoryQuerydsl 
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+
+        commentDTOs.forEach(comment -> {
+            final MemberDTO member = comment.getMember();
+            final boolean hasStory = memberStoryRedisRepository.findById(member.getId()).isPresent();
+            member.setHasStory(hasStory);
+        });
 
         final long total = queryFactory
                 .selectFrom(comment)
@@ -75,6 +84,12 @@ public class CommentRepositoryQuerydslImpl implements CommentRepositoryQuerydsl 
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
+
+        commentDTOs.forEach(comment -> {
+            final MemberDTO member = comment.getMember();
+            final boolean hasStory = memberStoryRedisRepository.findById(member.getId()).isPresent();
+            member.setHasStory(hasStory);
+        });
 
         final long total = queryFactory
                 .selectFrom(comment)

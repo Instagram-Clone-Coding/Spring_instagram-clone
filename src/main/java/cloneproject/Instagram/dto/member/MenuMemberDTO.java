@@ -1,6 +1,5 @@
 package cloneproject.Instagram.dto.member;
 
-import cloneproject.Instagram.entity.member.Member;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -26,11 +25,4 @@ public class MenuMemberDTO {
 
     @ApiModelProperty(value = "이름", example = "이지금")
     private String memberName;
-
-    public MenuMemberDTO(Member member) {
-        this.memberId = member.getId();
-        this.memberUsername = member.getUsername();
-        this.memberImageUrl = member.getImage().getImageUrl();
-        this.memberName = member.getName();
-    }
 }
