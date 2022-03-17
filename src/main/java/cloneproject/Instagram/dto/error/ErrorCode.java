@@ -77,7 +77,12 @@ public enum ErrorCode {
     MISMATCHED_ALARM_TYPE(400, "A001", "알람 형식이 올바르지 않습니다."),
 
     // Email
-    CANT_SEND_EMAIL(500, "E001", "이메일 전송 중 오류가 발생했습니다.")
+    CANT_SEND_EMAIL(500, "E001", "이메일 전송 중 오류가 발생했습니다."),
+
+    // HashTag
+    HASHTAG_NOT_FOUND(400, "H001", "존재하지 않는 해시태그 입니다"),
+    CANT_FOLLOW_HASHTAG(400, "H002", "해시태그 팔로우 실패"),
+    CANT_UNFOLLOW_HASHTAG(400, "H003", "해시태그 언팔로우 실패")
     ;
 
     private int status;
