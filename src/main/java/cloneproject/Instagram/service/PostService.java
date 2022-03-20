@@ -76,6 +76,7 @@ public class PostService {
     private final JoinRoomRepository joinRoomRepository;
     private final HashtagRepository hashtagRepository;
     private final HashtagPostRepository hashtagPostRepository;
+    private final SearchService searchService;
 
     public Page<PostDTO> getPostDtoPage(int size, int page) {
         page = (page == 0 ? 0 : page - 1) + 10;
@@ -403,13 +404,14 @@ public class PostService {
                 .collect(Collectors.toMap(Hashtag::getName, h -> h));
         final List<HashtagPost> newHashtagPost = new ArrayList<>();
         names.forEach(name -> {
-            Hashtag hashtag;
+            final Hashtag hashtag;
             if (hashtagMap.containsKey(name)) {
                 hashtag = hashtagMap.get(name);
                 hashtag.upCount();
-            }
-            else
+            } else {
                 hashtag = hashtagRepository.save(new Hashtag(name));
+                searchService.createSearchHashtag(hashtag);
+            }
             newHashtagPost.add(new HashtagPost(hashtag, post));
         });
         hashtagPostRepository.saveAllBatch(newHashtagPost);
@@ -429,6 +431,7 @@ public class PostService {
         final List<HashtagPost> hashtagPosts = hashtagPostRepository.findAllByHashtagIn(deleteHashtags);
         hashtagPostRepository.deleteAllInBatch(hashtagPosts);
         hashtagRepository.deleteAllInBatch(deleteHashtags);
+        searchService.deleteSearchHashtags(deleteHashtags);
     }
 
     public Page<CommentDTO> getCommentDtoPage(Long postId, int page) {

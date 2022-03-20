@@ -1,8 +1,9 @@
 package cloneproject.Instagram.service;
 
-
 import java.util.List;
+import java.util.stream.Collectors;
 
+import cloneproject.Instagram.entity.hashtag.Hashtag;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,37 +21,47 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class SearchService {
-    
+
     private final SearchRepository searchRepository;
     private final SearchMemberRepository searchMemberRepository;
     private final SearchHashtagRepository searchHashtagRepository;
 
     @Transactional(readOnly = true)
-    public List<SearchDTO> searchByText(String text){
+    public List<SearchDTO> searchByText(String text) {
         final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-        List<SearchDTO> result;
-        if(text.charAt(0) == '#'){
+        final List<SearchDTO> result;
+        if (text.charAt(0) == '#') {
             result = searchRepository.searchByTextOnlyHashtag(Long.valueOf(memberId), text.substring(1));
-        }else{
+        } else {
             result = searchRepository.searchByText(Long.valueOf(memberId), text);
         }
         return result;
     }
 
     @Transactional
-    public void increaseSearchMemberCount(String username){
+    public void increaseSearchMemberCount(String username) {
         SearchMember searchMember = searchMemberRepository.findByMemberUsername(username)
-            .orElseThrow(MemberDoesNotExistException::new);
+                .orElseThrow(MemberDoesNotExistException::new);
         searchMember.upCount();
         searchMemberRepository.save(searchMember);
     }
 
     @Transactional
-    public void increaseSearchHashtagCount(String name){
+    public void increaseSearchHashtagCount(String name) {
         SearchHashtag searchHashtag = searchHashtagRepository.findByHashtagName(name)
-            .orElseThrow(HashtagNotFoundException::new);
+                .orElseThrow(HashtagNotFoundException::new);
         searchHashtag.upCount();
         searchHashtagRepository.save(searchHashtag);
     }
 
+    @Transactional
+    public void createSearchHashtag(Hashtag hashtag) {
+        searchHashtagRepository.save(new SearchHashtag(hashtag));
+    }
+
+    @Transactional
+    public void deleteSearchHashtags(List<Hashtag> hashtags) {
+        final List<SearchHashtag> searchHashtags = searchHashtagRepository.findAllByHashtagIn(hashtags);
+        searchHashtagRepository.deleteAllInBatch(searchHashtags);
+    }
 }
