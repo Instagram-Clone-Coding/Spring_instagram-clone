@@ -1,6 +1,5 @@
 package cloneproject.Instagram.service;
 
-import cloneproject.Instagram.dto.hashtag.HashtagDTO;
 import cloneproject.Instagram.dto.post.PostDTO;
 import cloneproject.Instagram.entity.hashtag.Hashtag;
 import cloneproject.Instagram.entity.member.HashtagFollow;
@@ -47,12 +46,6 @@ public class HashtagService {
         return postRepository.findPostDtoPageByHashtag(pageable, member, findHashtag.get());
     }
 
-    public Page<HashtagDTO> getHashTagsLikeName(int page, int size, String name) {
-        page = (page == 0 ? 0 : page - 1);
-        final Pageable pageable = PageRequest.of(page, size);
-        return hashtagRepository.findHashtagDtoPageLikeName(pageable, name);
-    }
-    
     @Transactional
     public void followHashtag(String hashtagName){
         String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
