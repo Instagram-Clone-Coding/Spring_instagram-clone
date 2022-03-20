@@ -94,6 +94,10 @@ public enum ResultCode {
     
     // Story
     CREATE_STORY_SUCCESS(200, "S001", "스토리 업로드 성공"),
+
+    // Search
+    SEARCH_SUCCESS(200, "SE001", "검색 성공"),
+    INCREASE_SEARCH_COUNT_SUCCESS(200, "SE002", "검색 조회수 증가 성공"),
     ;
 
     private int status;
