@@ -46,7 +46,7 @@ public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl{
 
         followerDTOs.forEach(follower -> {
             final MemberDTO member = follower.getMember();
-            final boolean hasStory = memberStoryRedisRepository.findById(member.getId()).isPresent();
+            final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0;
             member.setHasStory(hasStory);
         });
 
@@ -79,7 +79,7 @@ public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl{
 
         followerDTOs.forEach(follower -> {
             final MemberDTO member = follower.getMember();
-            final boolean hasStory = memberStoryRedisRepository.findById(member.getId()).isPresent();
+            final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0;
             member.setHasStory(hasStory);
         });
 

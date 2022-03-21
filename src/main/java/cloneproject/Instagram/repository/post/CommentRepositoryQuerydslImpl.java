@@ -49,7 +49,7 @@ public class CommentRepositoryQuerydslImpl implements CommentRepositoryQuerydsl 
 
         commentDTOs.forEach(comment -> {
             final MemberDTO member = comment.getMember();
-            final boolean hasStory = memberStoryRedisRepository.findById(member.getId()).isPresent();
+            final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0;
             member.setHasStory(hasStory);
         });
 
@@ -87,7 +87,7 @@ public class CommentRepositoryQuerydslImpl implements CommentRepositoryQuerydsl 
 
         commentDTOs.forEach(comment -> {
             final MemberDTO member = comment.getMember();
-            final boolean hasStory = memberStoryRedisRepository.findById(member.getId()).isPresent();
+            final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0;
             member.setHasStory(hasStory);
         });
 

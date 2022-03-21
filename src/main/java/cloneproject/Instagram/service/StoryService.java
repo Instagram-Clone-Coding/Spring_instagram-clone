@@ -21,12 +21,12 @@ import cloneproject.Instagram.repository.chat.RoomUnreadMemberRepository;
 import cloneproject.Instagram.repository.story.MemberStoryRedisRepository;
 import cloneproject.Instagram.repository.story.MessageStoryRepository;
 import cloneproject.Instagram.repository.story.StoryRepository;
+import cloneproject.Instagram.util.AuthUtil;
 import cloneproject.Instagram.util.S3Uploader;
 import cloneproject.Instagram.util.StringExtractUtil;
 import cloneproject.Instagram.vo.Image;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,7 +60,7 @@ public class StoryService {
                 .collect(Collectors.groupingBy(StoryContentRequest::getId));
         validateStoryUploadRequest(storyImages, storyContentMap);
 
-        final Long memberId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        final Long memberId = AuthUtil.getLoginedMemberIdOrNull();
         final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
 
         final Set<String> usernames = new HashSet<>();
@@ -134,7 +134,7 @@ public class StoryService {
         }
 
         memberStoryRedisRepository.deleteById(member.getId());
-        memberStoryRedisRepository.save(new MemberStory(member.getId(), storyIds));
+        storyIds.forEach(storyId -> memberStoryRedisRepository.save(new MemberStory(member.getId(), storyId)));
 
         return new StatusResponse(true);
     }

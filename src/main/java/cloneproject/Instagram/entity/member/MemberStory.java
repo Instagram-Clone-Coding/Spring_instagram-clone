@@ -4,20 +4,23 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
-
-import java.util.List;
+import org.springframework.data.redis.core.index.Indexed;
 
 @Getter
 @RedisHash(value = "memberStories", timeToLive = 86400)
 public class MemberStory {
 
     @Id
+    private String id;
+
+    @Indexed
     private Long memberId;
-    private List<Long> storyIds;
+
+    private Long storyId;
 
     @Builder
-    public MemberStory(Long memberId, List<Long> storyIds) {
+    public MemberStory(Long memberId, Long storyId) {
         this.memberId = memberId;
-        this.storyIds = storyIds;
+        this.storyId = storyId;
     }
 }
