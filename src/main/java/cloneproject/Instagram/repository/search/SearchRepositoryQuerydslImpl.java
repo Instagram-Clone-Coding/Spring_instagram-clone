@@ -57,7 +57,7 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl{
                     .where(searchHashtag.hashtag.name.like(keyword))
             )))
             .orderBy(search.count.desc())
-            .limit(2)
+            .limit(50)
             .distinct()
             .fetch();
 
