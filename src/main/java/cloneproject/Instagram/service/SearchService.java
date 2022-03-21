@@ -39,19 +39,21 @@ public class SearchService {
     }
 
     @Transactional
-    public void increaseSearchMemberCount(String username) {
-        SearchMember searchMember = searchMemberRepository.findByMemberUsername(username)
-                .orElseThrow(MemberDoesNotExistException::new);
-        searchMember.upCount();
-        searchMemberRepository.save(searchMember);
-    }
-
-    @Transactional
-    public void increaseSearchHashtagCount(String name) {
-        SearchHashtag searchHashtag = searchHashtagRepository.findByHashtagName(name)
-                .orElseThrow(HashtagNotFoundException::new);
-        searchHashtag.upCount();
-        searchHashtagRepository.save(searchHashtag);
+    public void increaseSearchCount(String entityName, String entityType) {
+        switch(entityType){
+            case "MEMBER":
+                SearchMember searchMember = searchMemberRepository.findByMemberUsername(entityName)
+                        .orElseThrow(MemberDoesNotExistException::new);
+                searchMember.upCount();
+                searchMemberRepository.save(searchMember);
+                break;
+            case "HASHTAG":
+                SearchHashtag searchHashtag = searchHashtagRepository.findByHashtagName(entityName)
+                        .orElseThrow(HashtagNotFoundException::new);
+                searchHashtag.upCount();
+                searchHashtagRepository.save(searchHashtag);
+                break;
+        }
     }
 
     @Transactional

@@ -57,7 +57,7 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl{
                     .where(searchHashtag.hashtag.name.like(keyword))
             )))
             .orderBy(search.count.desc())
-            .limit(50)
+            .limit(2)
             .distinct()
             .fetch();
 
@@ -87,7 +87,7 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl{
 
         // follow 주입
         final List<String> resultUsernames = memberMap.values().stream().map(s -> s.getMemberDTO().getUsername())
-                .collect(Collectors.toList());
+            .collect(Collectors.toList());
 
         // TODO 우선 이전의 search에 있던 코드 그대로 넣었는데 개선 필요해보임 !
         memberMap.forEach((id, member) -> {
@@ -125,16 +125,11 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl{
             ))
         );
 
-        boolean matchingMemberExists = queryFactory
-            .from(searchMember)
-            .innerJoin(searchMember.member, member).fetchJoin()
-            .where(searchMember.id.in(searchIds).and(searchMember.member.username.eq(text)))
-            .fetchFirst() != null;
-        boolean matchingHashtagExists = queryFactory
-            .from(searchHashtag)
-            .innerJoin(searchHashtag.hashtag, hashtag).fetchJoin()
-            .where(searchHashtag.id.in(searchIds).and(searchHashtag.hashtag.name.eq(text)))
-            .fetchFirst() != null;
+        final List<String> resultHashtagNames = hashtagMap.values().stream().map(h -> h.getName())
+            .collect(Collectors.toList());
+
+        boolean matchingMemberExists = resultUsernames.contains(text);
+        boolean matchingHashtagExists = resultHashtagNames.contains(text);
 
         final List<SearchDTO> searchDTOs = searches.stream()
                 .map(search -> {

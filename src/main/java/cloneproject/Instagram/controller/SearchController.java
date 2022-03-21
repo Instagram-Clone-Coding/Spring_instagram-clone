@@ -16,6 +16,7 @@ import cloneproject.Instagram.dto.search.SearchDTO;
 import cloneproject.Instagram.service.SearchService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,21 +40,14 @@ public class SearchController {
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
-    @ApiOperation(value = "유저 검색 조회수 증가")
-    @ApiImplicitParam(name = "username", value = "조회수 증가시킬 username", required = true, example = "dlwlrma")
+    @ApiOperation(value = "검색 조회수 증가")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "entityName", value = "조회수 증가시킬 식별 name", required = true, example = "dlwlrma"),
+        @ApiImplicitParam(name = "entityType", value = "조회수 증가시킬 type", required = true, example = "MEMBER")
+    })
     @PostMapping(value = "/topsearch/member/upcount")
-    public ResponseEntity<ResultResponse> increaseSearchMemberCount(@RequestParam String username) {
-        searchService.increaseSearchMemberCount(username);
-
-        ResultResponse result = ResultResponse.of(ResultCode.INCREASE_SEARCH_COUNT_SUCCESS, null);
-        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
-    }
-
-    @ApiOperation(value = "해시태그 검색 조회수 증가")
-    @ApiImplicitParam(name = "name", value = "조회수 증가시킬 hashtag", required = true, example = "만두")
-    @PostMapping(value = "/topsearch/hashtag/upcount")
-    public ResponseEntity<ResultResponse> increaseSearchHashtagCount(@RequestParam String name) {
-        searchService.increaseSearchHashtagCount(name);
+    public ResponseEntity<ResultResponse> increaseSearchMemberCount(@RequestParam String entityName, @RequestParam String entityType) {
+        searchService.increaseSearchCount(entityName, entityType);
 
         ResultResponse result = ResultResponse.of(ResultCode.INCREASE_SEARCH_COUNT_SUCCESS, null);
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
