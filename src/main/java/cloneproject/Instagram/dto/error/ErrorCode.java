@@ -79,9 +79,14 @@ public enum ErrorCode {
     // Email
     CANT_SEND_EMAIL(500, "E001", "이메일 전송 중 오류가 발생했습니다."),
 
+    // HashTag
+    HASHTAG_NOT_FOUND(400, "H001", "존재하지 않는 해시태그 입니다"),
+    CANT_FOLLOW_HASHTAG(400, "H002", "해시태그 팔로우 실패"),
+    CANT_UNFOLLOW_HASHTAG(400, "H003", "해시태그 언팔로우 실패"),
+
     // Story
     INVALID_STORY_IMAGE(400, "S001", "스토리 이미지는 필수입니다."),
-    INVALID_STORY_IMAGE_INDEX(400, "S002", "스토리 이미지 인덱스가 올바르지 않습니다."),
+    INVALID_STORY_IMAGE_INDEX(400, "S002", "스토리 이미지 인덱스가 올바르지 않습니다.")
     ;
 
     private int status;

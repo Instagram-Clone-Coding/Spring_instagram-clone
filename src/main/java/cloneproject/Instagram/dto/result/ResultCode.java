@@ -89,9 +89,15 @@ public enum ResultCode {
     // Hashtag
     GET_HASHTAG_POSTS_SUCCESS(200, "H001", "해시태그 게시물 목록 페이징 조회 성공"),
     GET_HASHTAGS_SUCCESS(200, "H002", "해시태그 목록 페이징 조회 성공"),
+    FOLLOW_HASHTAG_SUCCESS(200, "H003", "해시태그 팔로우 성공"),
+    UNFOLLOW_HASHTAG_SUCCESS(200, "H004", "해시태그 언팔로우 성공"),
     
     // Story
     CREATE_STORY_SUCCESS(200, "S001", "스토리 업로드 성공"),
+
+    // Search
+    SEARCH_SUCCESS(200, "SE001", "검색 성공"),
+    INCREASE_SEARCH_COUNT_SUCCESS(200, "SE002", "검색 조회수 증가 성공"),
     ;
 
     private int status;
