@@ -45,7 +45,7 @@ public class SearchController {
         @ApiImplicitParam(name = "entityName", value = "조회수 증가시킬 식별 name", required = true, example = "dlwlrma"),
         @ApiImplicitParam(name = "entityType", value = "조회수 증가시킬 type", required = true, example = "MEMBER")
     })
-    @PostMapping(value = "/topsearch/member/upcount")
+    @PostMapping(value = "/topsearch/upcount")
     public ResponseEntity<ResultResponse> increaseSearchMemberCount(@RequestParam String entityName, @RequestParam String entityType) {
         searchService.increaseSearchCount(entityName, entityType);
 
