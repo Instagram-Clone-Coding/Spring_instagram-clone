@@ -179,7 +179,7 @@ public class StoryService {
         final List<StoryVisitor> storyVisitors = storyVisitorRepository.findAllByStoryInAndMember(stories, loginMember);
         final Long seenId;
         if (storyVisitors.isEmpty())
-            seenId = storyIds.get(0);
+            seenId = storyIds.get(storyIds.size() - 1);
         else
             seenId = storyVisitors.get(storyVisitors.size() - 1).getId();
         return new MemberStoryDto(seenId, storyDtos);
