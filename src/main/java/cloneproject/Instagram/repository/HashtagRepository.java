@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public interface HashtagRepository extends JpaRepository<Hashtag, Long>, HashTagRepositoryQuerydsl {
+public interface HashtagRepository extends JpaRepository<Hashtag, Long> {
 
     List<Hashtag> findAllByNameIn(Set<String> names);
 

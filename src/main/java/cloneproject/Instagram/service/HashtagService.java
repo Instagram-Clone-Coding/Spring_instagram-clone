@@ -1,10 +1,14 @@
 package cloneproject.Instagram.service;
 
-import cloneproject.Instagram.dto.hashtag.HashtagDTO;
 import cloneproject.Instagram.dto.post.PostDTO;
 import cloneproject.Instagram.entity.hashtag.Hashtag;
+import cloneproject.Instagram.entity.member.HashtagFollow;
 import cloneproject.Instagram.entity.member.Member;
+import cloneproject.Instagram.exception.CantFollowHashtagException;
+import cloneproject.Instagram.exception.CantUnfollowHashtagException;
+import cloneproject.Instagram.exception.HashtagNotFoundException;
 import cloneproject.Instagram.exception.MemberDoesNotExistException;
+import cloneproject.Instagram.repository.HashtagFollowRepository;
 import cloneproject.Instagram.repository.HashtagRepository;
 import cloneproject.Instagram.repository.MemberRepository;
 import cloneproject.Instagram.repository.post.PostRepository;
@@ -28,6 +32,7 @@ public class HashtagService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final HashtagRepository hashtagRepository;
+    private final HashtagFollowRepository hashtagFollowRepository;
 
     public Page<PostDTO> getHashTagPosts(int page, int size, String name) {
         page = (page == 0 ? 0 : page - 1);
@@ -41,9 +46,38 @@ public class HashtagService {
         return postRepository.findPostDtoPageByHashtag(pageable, member, findHashtag.get());
     }
 
-    public Page<HashtagDTO> getHashTagsLikeName(int page, int size, String name) {
-        page = (page == 0 ? 0 : page - 1);
-        final Pageable pageable = PageRequest.of(page, size);
-        return hashtagRepository.findHashtagDtoPageLikeName(pageable, name);
+    @Transactional
+    public void followHashtag(String hashtagName){
+        String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Hashtag hashtag = hashtagRepository.findByName(hashtagName)
+            .orElseThrow(HashtagNotFoundException::new);
+        Member member = memberRepository.findById(Long.valueOf(memberId))
+            .orElseThrow(MemberDoesNotExistException::new);
+        
+        if(hashtagFollowRepository.existsByMemberIdAndHashtagId(member.getId(), hashtag.getId())){
+            throw new CantFollowHashtagException();
+        }
+        
+        HashtagFollow hashtagFollow = HashtagFollow.builder()
+            .member(member)
+            .hashtag(hashtag)
+            .build();
+        
+            hashtagFollowRepository.save(hashtagFollow);
     }
+
+    @Transactional
+    public void unfollowHashtag(String hashtagName){
+        String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Hashtag hashtag = hashtagRepository.findByName(hashtagName)
+            .orElseThrow(HashtagNotFoundException::new);
+        Member member = memberRepository.findById(Long.valueOf(memberId))
+            .orElseThrow(MemberDoesNotExistException::new);
+        
+        HashtagFollow hashtagFollow = hashtagFollowRepository.findByMemberIdAndHashtagId(member.getId(), hashtag.getId())
+            .orElseThrow(CantUnfollowHashtagException::new);
+
+        hashtagFollowRepository.delete(hashtagFollow);
+    }
+    
 }

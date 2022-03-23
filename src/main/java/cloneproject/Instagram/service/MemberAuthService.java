@@ -21,12 +21,14 @@ import cloneproject.Instagram.dto.member.ResetPasswordRequest;
 import cloneproject.Instagram.dto.member.UpdatePasswordRequest;
 import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.entity.redis.RefreshToken;
+import cloneproject.Instagram.entity.search.SearchMember;
 import cloneproject.Instagram.exception.AccountDoesNotMatchException;
 import cloneproject.Instagram.exception.CantResetPasswordException;
 import cloneproject.Instagram.exception.InvalidJwtException;
 import cloneproject.Instagram.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.exception.UseridAlreadyExistException;
 import cloneproject.Instagram.repository.MemberRepository;
+import cloneproject.Instagram.repository.search.SearchMemberRepository;
 import cloneproject.Instagram.util.JwtUtil;
 import cloneproject.Instagram.vo.GeoIP;
 import io.jsonwebtoken.JwtException;
@@ -44,6 +46,7 @@ public class MemberAuthService {
     private final MemberRepository memberRepository;
     private final RefreshTokenService refreshTokenService;
     private final GeoIPLocationService geoIPLocationService;
+    private final SearchMemberRepository searchMemberRepository;
     
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -71,6 +74,10 @@ public class MemberAuthService {
         String encryptedPassword = bCryptPasswordEncoder.encode(member.getPassword());
         member.setEncryptedPassword(encryptedPassword);
         memberRepository.save(member);
+
+        SearchMember searchMember = new SearchMember(member);
+        searchMemberRepository.save(searchMember);
+
         return true;
     }
 

@@ -7,11 +7,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 
-import java.util.List;
-
-import javax.validation.constraints.NotBlank;
-
-import org.hibernate.validator.constraints.Length;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -22,7 +17,6 @@ import cloneproject.Instagram.dto.member.EditProfileRequest;
 import cloneproject.Instagram.dto.member.EditProfileResponse;
 import cloneproject.Instagram.dto.member.MenuMemberDTO;
 import cloneproject.Instagram.dto.member.MiniProfileResponse;
-import cloneproject.Instagram.dto.member.SearchedMemberDTO;
 import cloneproject.Instagram.dto.member.UserProfileResponse;
 import cloneproject.Instagram.dto.result.ResultCode;
 import cloneproject.Instagram.dto.result.ResultResponse;
@@ -114,16 +108,6 @@ public class MemberController {
         memberService.editProfile(editProfileRequest);
         
         ResultResponse result = ResultResponse.of(ResultCode.EDIT_PROFILE_SUCCESS , null);
-        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
-    }
-
-    @ApiOperation(value = "멤버 검색")
-    @ApiImplicitParam(name = "text", value = "검색내용", required = true, example = "dlwl")
-    @GetMapping(value = "/search")
-    public ResponseEntity<ResultResponse> searchMember(@RequestParam String text) {
-        List<SearchedMemberDTO> memberInfos = memberService.searchMember(text);
-
-        ResultResponse result = ResultResponse.of(ResultCode.SEARCH_MEMBER_SUCCESS, memberInfos);
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 

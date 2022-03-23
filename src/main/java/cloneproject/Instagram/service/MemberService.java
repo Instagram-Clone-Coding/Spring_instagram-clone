@@ -1,7 +1,5 @@
 package cloneproject.Instagram.service;
 
-import java.util.List;
-
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -130,12 +128,6 @@ public class MemberService {
         member.updatePhone(editProfileRequest.getMemberPhone());
         member.updateGender(Gender.valueOf(editProfileRequest.getMemberGender()));
         memberRepository.save(member);
-    }
-    
-    public List<SearchedMemberDTO> searchMember(String text){
-        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-        List<SearchedMemberDTO> result = memberRepository.searchMember(Long.valueOf(memberId), text);
-        return result;
     }
     
 }
