@@ -13,9 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.TestPropertySource;
 
-import cloneproject.Instagram.dto.member.FollowerDTO;
-import cloneproject.Instagram.entity.member.Follow;
-import cloneproject.Instagram.entity.member.Member;
+import cloneproject.Instagram.domain.follow.dto.FollowerDTO;
+import cloneproject.Instagram.domain.follow.entity.Follow;
+import cloneproject.Instagram.domain.follow.repository.FollowRepository;
+import cloneproject.Instagram.domain.member.entity.Member;
+import cloneproject.Instagram.domain.member.repository.MemberRepository;
 
 @DataJpaTest
 @DisplayName("Follow Repository")

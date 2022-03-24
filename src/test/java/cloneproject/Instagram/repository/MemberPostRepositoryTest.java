@@ -15,18 +15,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.TestPropertySource;
 
-import cloneproject.Instagram.dto.post.MemberPostDTO;
-import cloneproject.Instagram.dto.post.PostImageTagRequest;
-import cloneproject.Instagram.entity.comment.Comment;
-import cloneproject.Instagram.entity.member.Member;
-import cloneproject.Instagram.entity.post.Bookmark;
-import cloneproject.Instagram.entity.post.Post;
-import cloneproject.Instagram.entity.post.PostImage;
-import cloneproject.Instagram.entity.post.PostLike;
-import cloneproject.Instagram.repository.post.CommentRepository;
-import cloneproject.Instagram.repository.post.PostRepository;
-import cloneproject.Instagram.util.ImageUtil;
-import cloneproject.Instagram.vo.Image;
+import cloneproject.Instagram.domain.feed.dto.MemberPostDTO;
+import cloneproject.Instagram.domain.feed.dto.PostImageTagRequest;
+import cloneproject.Instagram.domain.feed.entity.Bookmark;
+import cloneproject.Instagram.domain.feed.entity.Comment;
+import cloneproject.Instagram.domain.feed.entity.Post;
+import cloneproject.Instagram.domain.feed.entity.PostImage;
+import cloneproject.Instagram.domain.feed.entity.PostLike;
+import cloneproject.Instagram.domain.feed.repository.BookmarkRepository;
+import cloneproject.Instagram.domain.feed.repository.CommentRepository;
+import cloneproject.Instagram.domain.feed.repository.PostImageRepository;
+import cloneproject.Instagram.domain.feed.repository.PostLikeRepository;
+import cloneproject.Instagram.domain.feed.repository.PostRepository;
+import cloneproject.Instagram.domain.member.entity.Member;
+import cloneproject.Instagram.domain.member.repository.MemberRepository;
+import cloneproject.Instagram.global.util.ImageUtil;
+import cloneproject.Instagram.global.vo.Image;
 @DataJpaTest
 @DisplayName("Member Post Repository")
 @TestPropertySource("classpath:application-test.yml")

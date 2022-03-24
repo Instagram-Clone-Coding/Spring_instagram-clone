@@ -10,13 +10,15 @@ import org.mockito.Mock;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import cloneproject.Instagram.dto.member.JwtDto;
-import cloneproject.Instagram.dto.member.LoginRequest;
-import cloneproject.Instagram.dto.member.RegisterRequest;
-import cloneproject.Instagram.entity.member.Member;
-import cloneproject.Instagram.exception.UseridAlreadyExistException;
-import cloneproject.Instagram.repository.MemberRepository;
-import cloneproject.Instagram.util.JwtUtil;
+import cloneproject.Instagram.domain.member.dto.JwtDto;
+import cloneproject.Instagram.domain.member.dto.LoginRequest;
+import cloneproject.Instagram.domain.member.dto.RegisterRequest;
+import cloneproject.Instagram.domain.member.entity.Member;
+import cloneproject.Instagram.domain.member.exception.UseridAlreadyExistException;
+import cloneproject.Instagram.domain.member.repository.MemberRepository;
+import cloneproject.Instagram.domain.member.service.EmailCodeService;
+import cloneproject.Instagram.domain.member.service.MemberAuthService;
+import cloneproject.Instagram.global.util.JwtUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
