@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 import static cloneproject.Instagram.entity.comment.QComment.comment;
 import static cloneproject.Instagram.entity.comment.QCommentLike.commentLike;
 import static cloneproject.Instagram.entity.comment.QRecentComment.recentComment;
-import static cloneproject.Instagram.entity.hashtag.QHashtag.hashtag;
 import static cloneproject.Instagram.entity.member.QFollow.follow;
 import static cloneproject.Instagram.entity.post.QBookmark.bookmark;
 import static cloneproject.Instagram.entity.post.QHashtagPost.hashtagPost;
@@ -79,7 +78,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 
         postDTOs.forEach(post -> {
             final MemberDTO postMember = post.getMember();
-            final boolean hasStory = memberStoryRedisRepository.findById(postMember.getId()).isPresent();
+            final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(postMember.getId()).size() > 0;
             postMember.setHasStory(hasStory);
         });
 
@@ -210,7 +209,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 
         postDTOs.forEach(post -> {
             final MemberDTO postMember = post.getMember();
-            final boolean hasStory = memberStoryRedisRepository.findById(postMember.getId()).isPresent();
+            final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(postMember.getId()).size() > 0;
             postMember.setHasStory(hasStory);
         });
 
@@ -323,7 +322,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
         if (response.isEmpty())
             return Optional.empty();
 
-        response.get().getMember().setHasStory(memberStoryRedisRepository.findById(response.get().getMember().getId()).isPresent());
+        response.get().getMember().setHasStory(memberStoryRedisRepository.findAllByMemberId(response.get().getMember().getId()).size() > 0);
 
         final List<PostLikeDTO> postLikeDTOs = queryFactory
                 .select(new QPostLikeDTO(

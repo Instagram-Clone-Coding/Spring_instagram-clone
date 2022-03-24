@@ -5,14 +5,18 @@ import cloneproject.Instagram.dto.chat.MessageAction;
 import cloneproject.Instagram.dto.chat.MessageDTO;
 import cloneproject.Instagram.dto.chat.MessageResponse;
 import cloneproject.Instagram.dto.error.ErrorResponse;
+import cloneproject.Instagram.dto.story.MemberStoryDto;
 import cloneproject.Instagram.dto.story.StoryContentRequest;
+import cloneproject.Instagram.dto.story.StoryDto;
 import cloneproject.Instagram.dto.story.StoryUploadRequest;
 import cloneproject.Instagram.entity.chat.*;
 import cloneproject.Instagram.entity.member.Member;
 import cloneproject.Instagram.entity.member.MemberStory;
 import cloneproject.Instagram.entity.story.Story;
+import cloneproject.Instagram.entity.story.StoryVisitor;
 import cloneproject.Instagram.exception.InvalidInputException;
 import cloneproject.Instagram.exception.MemberDoesNotExistException;
+import cloneproject.Instagram.exception.MemberStoryNotFoundException;
 import cloneproject.Instagram.repository.MemberRepository;
 import cloneproject.Instagram.repository.chat.JoinRoomRepository;
 import cloneproject.Instagram.repository.chat.RoomMemberRepository;
@@ -21,12 +25,13 @@ import cloneproject.Instagram.repository.chat.RoomUnreadMemberRepository;
 import cloneproject.Instagram.repository.story.MemberStoryRedisRepository;
 import cloneproject.Instagram.repository.story.MessageStoryRepository;
 import cloneproject.Instagram.repository.story.StoryRepository;
+import cloneproject.Instagram.repository.story.StoryVisitorRepository;
+import cloneproject.Instagram.util.AuthUtil;
 import cloneproject.Instagram.util.S3Uploader;
 import cloneproject.Instagram.util.StringExtractUtil;
 import cloneproject.Instagram.vo.Image;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -52,6 +57,8 @@ public class StoryService {
     private final MessageStoryRepository messageStoryRepository;
     private final RoomUnreadMemberRepository roomUnreadMemberRepository;
     private final JoinRoomRepository joinRoomRepository;
+    private final StoryVisitorRepository storyVisitorRepository;
+    private final AuthUtil authUtil;
 
     @Transactional
     public StatusResponse upload(StoryUploadRequest request) {
@@ -60,7 +67,7 @@ public class StoryService {
                 .collect(Collectors.groupingBy(StoryContentRequest::getId));
         validateStoryUploadRequest(storyImages, storyContentMap);
 
-        final Long memberId = Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName());
+        final Long memberId = AuthUtil.getLoginedMemberIdOrNull();
         final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
 
         final Set<String> usernames = new HashSet<>();
@@ -134,7 +141,7 @@ public class StoryService {
         }
 
         memberStoryRedisRepository.deleteById(member.getId());
-        memberStoryRedisRepository.save(new MemberStory(member.getId(), storyIds));
+        storyIds.forEach(storyId -> memberStoryRedisRepository.save(new MemberStory(member.getId(), storyId)));
 
         return new StatusResponse(true);
     }
@@ -152,5 +159,29 @@ public class StoryService {
                 throw new InvalidInputException(errors);
             }
         });
+    }
+
+    public MemberStoryDto getMemberStories(Long memberId) {
+        final Member loginMember = authUtil.getLoginMember();
+        final List<Long> storyIds = memberStoryRedisRepository.findAllByMemberId(memberId).stream()
+                .map(MemberStory::getStoryId)
+                .collect(Collectors.toList());
+
+        if (storyIds.isEmpty())
+            throw new MemberStoryNotFoundException();
+
+        final List<Story> stories = storyRepository.findAllById(storyIds);
+        final List<StoryDto> storyDtos = stories
+                .stream()
+                .map(StoryDto::new)
+                .collect(Collectors.toList());
+
+        final List<StoryVisitor> storyVisitors = storyVisitorRepository.findAllByStoryInAndMember(stories, loginMember);
+        final Long seenId;
+        if (storyVisitors.isEmpty())
+            seenId = storyIds.get(storyIds.size() - 1);
+        else
+            seenId = storyVisitors.get(storyVisitors.size() - 1).getId();
+        return new MemberStoryDto(seenId, storyDtos);
     }
 }

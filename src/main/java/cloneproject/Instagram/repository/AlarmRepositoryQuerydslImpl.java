@@ -69,7 +69,7 @@ public class AlarmRepositoryQuerydslImpl implements AlarmRepositoryQuerydsl {
 
         content.forEach(alarm -> {
             final MemberDTO agent = alarm.getAgent();
-            final boolean hasStory = memberStoryRedisRepository.findById(agent.getId()).isPresent();
+            final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(agent.getId()).size() > 0;
             agent.setHasStory(hasStory);
         });
 

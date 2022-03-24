@@ -54,7 +54,7 @@ public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQueryds
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        likeMembersDTOs.forEach(dto -> dto.setHasStory(memberStoryRedisRepository.findById(dto.getMember().getId()).isPresent()));
+        likeMembersDTOs.forEach(dto -> dto.setHasStory(memberStoryRedisRepository.findAllByMemberId(dto.getMember().getId()).size() > 0));
 
         final long total = queryFactory
                 .selectFrom(postLike)
@@ -98,7 +98,7 @@ public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQueryds
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        likeMembersDTOs.forEach(dto -> dto.setHasStory(memberStoryRedisRepository.findById(dto.getMember().getId()).isPresent()));
+        likeMembersDTOs.forEach(dto -> dto.setHasStory(memberStoryRedisRepository.findAllByMemberId(dto.getMember().getId()).size() > 0));
 
         final long total = queryFactory
                 .selectFrom(commentLike)

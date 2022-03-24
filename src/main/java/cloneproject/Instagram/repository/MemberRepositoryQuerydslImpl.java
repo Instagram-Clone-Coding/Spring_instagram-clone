@@ -87,7 +87,7 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl {
                 .selectFrom(QMember.member)
                 .where(QMember.member.username.eq(username))
                 .fetchOne();
-        result.setHasStory(memberStoryRedisRepository.findById(member.getId()).isPresent());
+        result.setHasStory(memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0);
         result.checkBlock();
         result.setFollowingMemberFollow(followingMemberFollow);
 
@@ -170,7 +170,7 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl {
                 .selectFrom(QMember.member)
                 .where(QMember.member.username.eq(username))
                 .fetchOne();
-        result.setHasStory(memberStoryRedisRepository.findById(member.getId()).isPresent());
+        result.setHasStory(memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0);
         result.setMemberPosts(postImageDTOs);
         result.checkBlock();
         result.setFollowingMemberFollow(followingMemberFollow);
