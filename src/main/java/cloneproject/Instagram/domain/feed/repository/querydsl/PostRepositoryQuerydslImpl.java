@@ -32,7 +32,7 @@ import static cloneproject.Instagram.domain.feed.entity.QCommentLike.commentLike
 import static cloneproject.Instagram.domain.feed.entity.QRecentComment.recentComment;
 import static cloneproject.Instagram.domain.follow.entity.QFollow.follow;
 import static cloneproject.Instagram.domain.feed.entity.QBookmark.bookmark;
-import static cloneproject.Instagram.domain.feed.entity.QHashtagPost.hashtagPost;
+import static cloneproject.Instagram.domain.hashtag.entity.QHashtagPost.hashtagPost;
 import static cloneproject.Instagram.domain.feed.entity.QPost.post;
 import static cloneproject.Instagram.domain.feed.entity.QPostImage.postImage;
 import static cloneproject.Instagram.domain.feed.entity.QPostLike.postLike;
