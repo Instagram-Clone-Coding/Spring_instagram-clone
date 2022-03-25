@@ -1,4 +1,4 @@
-package cloneproject.Instagram.domain.member.entity;
+package cloneproject.Instagram.domain.story.entity.redis;
 
 import lombok.Builder;
 import lombok.Getter;

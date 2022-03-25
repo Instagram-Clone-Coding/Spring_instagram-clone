@@ -1,4 +1,4 @@
-package cloneproject.Instagram.global.config;
+package cloneproject.Instagram.global.validator;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

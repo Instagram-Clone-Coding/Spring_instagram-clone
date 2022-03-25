@@ -3,7 +3,7 @@ package cloneproject.Instagram.domain.feed.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.querydsl.core.annotations.QueryProjection;
 
-import cloneproject.Instagram.global.vo.Tag;
+import cloneproject.Instagram.domain.feed.vo.Tag;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

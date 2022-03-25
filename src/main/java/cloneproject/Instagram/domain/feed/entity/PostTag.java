@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-import cloneproject.Instagram.global.vo.Tag;
+import cloneproject.Instagram.domain.feed.vo.Tag;
 
 @Getter
 @Entity

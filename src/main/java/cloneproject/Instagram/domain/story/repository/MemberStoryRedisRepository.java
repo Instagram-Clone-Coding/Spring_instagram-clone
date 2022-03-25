@@ -2,7 +2,7 @@ package cloneproject.Instagram.domain.story.repository;
 
 import org.springframework.data.repository.CrudRepository;
 
-import cloneproject.Instagram.domain.member.entity.MemberStory;
+import cloneproject.Instagram.domain.story.entity.redis.MemberStory;
 
 import java.util.List;
 

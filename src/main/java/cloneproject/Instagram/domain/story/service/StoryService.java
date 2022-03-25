@@ -14,7 +14,7 @@ import cloneproject.Instagram.domain.dm.repository.RoomMemberRepository;
 import cloneproject.Instagram.domain.dm.repository.RoomRepository;
 import cloneproject.Instagram.domain.dm.repository.RoomUnreadMemberRepository;
 import cloneproject.Instagram.domain.member.entity.Member;
-import cloneproject.Instagram.domain.member.entity.MemberStory;
+import cloneproject.Instagram.domain.story.entity.redis.MemberStory;
 import cloneproject.Instagram.domain.member.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.story.dto.MemberStoryDto;

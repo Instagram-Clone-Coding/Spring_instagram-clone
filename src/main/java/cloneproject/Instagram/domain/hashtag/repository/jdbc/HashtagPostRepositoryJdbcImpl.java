@@ -1,10 +1,10 @@
-package cloneproject.Instagram.domain.feed.repository.jdbc;
+package cloneproject.Instagram.domain.hashtag.repository.jdbc;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import cloneproject.Instagram.domain.feed.entity.HashtagPost;
+import cloneproject.Instagram.domain.hashtag.entity.HashtagPost;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

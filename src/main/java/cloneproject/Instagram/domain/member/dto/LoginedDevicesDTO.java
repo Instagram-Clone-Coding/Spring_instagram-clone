@@ -1,7 +1,7 @@
 package cloneproject.Instagram.domain.member.dto;
 
 
-import cloneproject.Instagram.infra.GeoIP.GeoIP;
+import cloneproject.Instagram.infra.geoip.dto.GeoIP;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

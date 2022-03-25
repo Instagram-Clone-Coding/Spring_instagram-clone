@@ -1,4 +1,4 @@
-package cloneproject.Instagram.infra.GeoIP;
+package cloneproject.Instagram.infra.geoip.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

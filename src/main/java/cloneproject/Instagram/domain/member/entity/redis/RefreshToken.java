@@ -7,7 +7,7 @@ import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 import org.springframework.data.redis.core.index.Indexed;
 
-import cloneproject.Instagram.infra.GeoIP.GeoIP;
+import cloneproject.Instagram.infra.geoip.dto.GeoIP;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

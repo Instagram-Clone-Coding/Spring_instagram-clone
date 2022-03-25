@@ -1,4 +1,4 @@
-package cloneproject.Instagram.domain.member.entity;
+package cloneproject.Instagram.domain.follow.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,6 +11,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import cloneproject.Instagram.domain.hashtag.entity.Hashtag;
+import cloneproject.Instagram.domain.member.entity.Member;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

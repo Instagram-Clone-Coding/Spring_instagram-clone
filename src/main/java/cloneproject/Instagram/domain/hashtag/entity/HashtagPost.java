@@ -1,5 +1,6 @@
-package cloneproject.Instagram.domain.feed.entity;
+package cloneproject.Instagram.domain.hashtag.entity;
 
+import cloneproject.Instagram.domain.feed.entity.Post;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

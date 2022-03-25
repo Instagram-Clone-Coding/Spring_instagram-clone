@@ -1,7 +1,6 @@
 package cloneproject.Instagram.global.vo;
 
 import lombok.*;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -9,7 +8,6 @@ import java.util.Objects;
 @Getter
 @Builder
 @Embeddable
-@EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Image {

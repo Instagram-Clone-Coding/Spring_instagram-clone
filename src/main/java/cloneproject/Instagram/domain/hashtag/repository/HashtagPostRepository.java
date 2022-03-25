@@ -1,7 +1,7 @@
-package cloneproject.Instagram.domain.feed.repository;
+package cloneproject.Instagram.domain.hashtag.repository;
 
-import cloneproject.Instagram.domain.feed.entity.HashtagPost;
-import cloneproject.Instagram.domain.feed.repository.jdbc.HashtagPostRepositoryJdbc;
+import cloneproject.Instagram.domain.hashtag.entity.HashtagPost;
+import cloneproject.Instagram.domain.hashtag.repository.jdbc.HashtagPostRepositoryJdbc;
 import cloneproject.Instagram.domain.hashtag.entity.Hashtag;
 
 import org.springframework.data.jpa.repository.JpaRepository;

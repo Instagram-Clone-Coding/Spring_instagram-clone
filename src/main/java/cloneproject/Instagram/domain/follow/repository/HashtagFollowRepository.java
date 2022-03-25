@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import cloneproject.Instagram.domain.member.entity.HashtagFollow;
+import cloneproject.Instagram.domain.follow.entity.HashtagFollow;
 
 public interface HashtagFollowRepository extends JpaRepository<HashtagFollow, Long>{
     

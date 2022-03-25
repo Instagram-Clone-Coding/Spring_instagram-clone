@@ -1,4 +1,4 @@
-package cloneproject.Instagram.global.vo;
+package cloneproject.Instagram.domain.feed.vo;
 
 import lombok.*;
 

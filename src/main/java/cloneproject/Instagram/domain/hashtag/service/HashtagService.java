@@ -8,7 +8,7 @@ import cloneproject.Instagram.domain.follow.repository.HashtagFollowRepository;
 import cloneproject.Instagram.domain.hashtag.entity.Hashtag;
 import cloneproject.Instagram.domain.hashtag.exception.HashtagNotFoundException;
 import cloneproject.Instagram.domain.hashtag.repository.HashtagRepository;
-import cloneproject.Instagram.domain.member.entity.HashtagFollow;
+import cloneproject.Instagram.domain.follow.entity.HashtagFollow;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;

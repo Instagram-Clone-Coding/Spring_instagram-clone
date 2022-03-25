@@ -13,7 +13,7 @@ import cloneproject.Instagram.domain.member.dto.LoginedDevicesDTO;
 import cloneproject.Instagram.domain.member.entity.redis.RefreshToken;
 import cloneproject.Instagram.domain.member.exception.InvalidJwtException;
 import cloneproject.Instagram.domain.member.repository.redis.RefreshTokenRedisRepository;
-import cloneproject.Instagram.infra.GeoIP.GeoIP;
+import cloneproject.Instagram.infra.geoip.dto.GeoIP;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

@@ -1,4 +1,4 @@
-package cloneproject.Instagram.global.config;
+package cloneproject.Instagram.global.config.security;
 
 import java.io.IOException;
 import java.io.OutputStream;
