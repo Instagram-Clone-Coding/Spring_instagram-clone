@@ -18,16 +18,17 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import cloneproject.Instagram.WithMockCustomUser;
-import cloneproject.Instagram.entity.member.Block;
-import cloneproject.Instagram.entity.member.Follow;
-import cloneproject.Instagram.entity.member.Member;
-import cloneproject.Instagram.exception.AlreadyBlockException;
-import cloneproject.Instagram.exception.CantBlockMyselfException;
-import cloneproject.Instagram.exception.CantUnblockException;
-import cloneproject.Instagram.exception.CantUnblockMyselfException;
-import cloneproject.Instagram.repository.BlockRepository;
-import cloneproject.Instagram.repository.FollowRepository;
-import cloneproject.Instagram.repository.MemberRepository;
+import cloneproject.Instagram.domain.follow.entity.Follow;
+import cloneproject.Instagram.domain.follow.repository.FollowRepository;
+import cloneproject.Instagram.domain.member.entity.Block;
+import cloneproject.Instagram.domain.member.entity.Member;
+import cloneproject.Instagram.domain.member.exception.AlreadyBlockException;
+import cloneproject.Instagram.domain.member.exception.CantBlockMyselfException;
+import cloneproject.Instagram.domain.member.exception.CantUnblockException;
+import cloneproject.Instagram.domain.member.exception.CantUnblockMyselfException;
+import cloneproject.Instagram.domain.member.repository.BlockRepository;
+import cloneproject.Instagram.domain.member.repository.MemberRepository;
+import cloneproject.Instagram.domain.member.service.BlockService;
 
 @ExtendWith(SpringExtension.class)
 @DisplayName("Block Service")

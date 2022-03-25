@@ -18,17 +18,19 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import cloneproject.Instagram.WithMockCustomUser;
-import cloneproject.Instagram.entity.member.Block;
-import cloneproject.Instagram.entity.member.Follow;
-import cloneproject.Instagram.entity.member.Member;
-import cloneproject.Instagram.exception.AlreadyFollowException;
-import cloneproject.Instagram.exception.CantFollowMyselfException;
-import cloneproject.Instagram.exception.CantUnfollowException;
-import cloneproject.Instagram.exception.CantUnfollowMyselfException;
-import cloneproject.Instagram.exception.MemberDoesNotExistException;
-import cloneproject.Instagram.repository.BlockRepository;
-import cloneproject.Instagram.repository.FollowRepository;
-import cloneproject.Instagram.repository.MemberRepository;
+import cloneproject.Instagram.domain.alarm.service.AlarmService;
+import cloneproject.Instagram.domain.follow.entity.Follow;
+import cloneproject.Instagram.domain.follow.exception.AlreadyFollowException;
+import cloneproject.Instagram.domain.follow.exception.CantFollowMyselfException;
+import cloneproject.Instagram.domain.follow.exception.CantUnfollowException;
+import cloneproject.Instagram.domain.follow.exception.CantUnfollowMyselfException;
+import cloneproject.Instagram.domain.follow.repository.FollowRepository;
+import cloneproject.Instagram.domain.follow.service.FollowService;
+import cloneproject.Instagram.domain.member.entity.Block;
+import cloneproject.Instagram.domain.member.entity.Member;
+import cloneproject.Instagram.domain.member.exception.MemberDoesNotExistException;
+import cloneproject.Instagram.domain.member.repository.BlockRepository;
+import cloneproject.Instagram.domain.member.repository.MemberRepository;
 
 @ExtendWith(SpringExtension.class)
 @DisplayName("Follow Service")

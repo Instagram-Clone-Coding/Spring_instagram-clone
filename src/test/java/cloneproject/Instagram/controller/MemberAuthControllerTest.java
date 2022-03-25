@@ -13,16 +13,17 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
-import cloneproject.Instagram.advice.GlobalExceptionHandler;
-import cloneproject.Instagram.dto.member.JwtDto;
-import cloneproject.Instagram.dto.member.LoginRequest;
-import cloneproject.Instagram.dto.member.RegisterRequest;
-import cloneproject.Instagram.dto.member.ResetPasswordRequest;
-import cloneproject.Instagram.dto.member.SendConfirmationEmailRequest;
-import cloneproject.Instagram.dto.member.UpdatePasswordRequest;
-import cloneproject.Instagram.dto.result.ResultCode;
-import cloneproject.Instagram.dto.result.ResultResponse;
-import cloneproject.Instagram.service.MemberAuthService;
+import cloneproject.Instagram.domain.member.controller.MemberAuthController;
+import cloneproject.Instagram.domain.member.dto.JwtDto;
+import cloneproject.Instagram.domain.member.dto.LoginRequest;
+import cloneproject.Instagram.domain.member.dto.RegisterRequest;
+import cloneproject.Instagram.domain.member.dto.ResetPasswordRequest;
+import cloneproject.Instagram.domain.member.dto.SendConfirmationEmailRequest;
+import cloneproject.Instagram.domain.member.dto.UpdatePasswordRequest;
+import cloneproject.Instagram.domain.member.service.MemberAuthService;
+import cloneproject.Instagram.global.error.GlobalExceptionHandler;
+import cloneproject.Instagram.global.result.ResultCode;
+import cloneproject.Instagram.global.result.ResultResponse;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
