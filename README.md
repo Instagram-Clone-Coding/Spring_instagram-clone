@@ -38,9 +38,9 @@
     <br />
     <!-- <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a> -->
     <!-- · -->
-    <a href="https://github.com/Instagram-Clone-Coding/Spring_instagram-clone/issues/new">Report Bug</a>
+    <a href="https://github.com/Instagram-Clone-Coding/Spring_instagram-clone/issues/new?assignees=&labels=&template=bug_report.md&title=">Report Bug</a>
     ·
-    <a href="https://github.com/Instagram-Clone-Coding/Spring_instagram-clone/issues/new">Request Feature</a>
+    <a href="https://github.com/Instagram-Clone-Coding/Spring_instagram-clone/issues/new?assignees=&labels=&template=feature_request.md&title=">Request Feature</a>
   </p>
 </div>
 
