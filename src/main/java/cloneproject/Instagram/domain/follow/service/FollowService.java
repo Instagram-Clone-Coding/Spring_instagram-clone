@@ -10,6 +10,7 @@ import cloneproject.Instagram.domain.alarm.service.AlarmService;
 import cloneproject.Instagram.domain.follow.dto.FollowerDTO;
 import cloneproject.Instagram.domain.follow.entity.Follow;
 import cloneproject.Instagram.domain.follow.exception.AlreadyFollowException;
+import cloneproject.Instagram.domain.follow.exception.CantDeleteFollowerException;
 import cloneproject.Instagram.domain.follow.exception.CantFollowMyselfException;
 import cloneproject.Instagram.domain.follow.exception.CantUnfollowException;
 import cloneproject.Instagram.domain.follow.exception.CantUnfollowMyselfException;
@@ -71,6 +72,20 @@ public class FollowService {
         alarmService.delete(followMember, follow);
         followRepository.delete(follow);
 
+        return true;
+    }
+
+    @Transactional
+    public boolean deleteFollower(String followMemberUsername) {
+        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
+        final Member followMember = memberRepository.findByUsername(followMemberUsername)
+                .orElseThrow(MemberDoesNotExistException::new);
+        if (Long.valueOf(memberId).equals(followMember.getId())) {
+            throw new CantDeleteFollowerException();
+        }
+        Follow follow = followRepository.findByMemberIdAndFollowMemberId(followMember.getId(), Long.valueOf(memberId))
+            .orElseThrow(CantDeleteFollowerException::new);
+        followRepository.delete(follow);
         return true;
     }
 

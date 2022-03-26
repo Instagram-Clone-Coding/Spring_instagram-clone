@@ -5,6 +5,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.Random;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import cloneproject.Instagram.domain.member.exception.NoConfirmEmailException;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.member.repository.redis.EmailCodeRedisRepository;
 import cloneproject.Instagram.domain.member.repository.redis.ResetPasswordCodeRedisRepository;
+import cloneproject.Instagram.global.error.exception.CantConvertFileException;
 import cloneproject.Instagram.global.error.exception.CantSendEmailException;
 import cloneproject.Instagram.infra.email.EmailService;
 import lombok.RequiredArgsConstructor;
@@ -32,27 +35,34 @@ public class EmailCodeService {
     private final EmailCodeRedisRepository emailCodeRedisRepository;
     private final ResetPasswordCodeRedisRepository resetPasswordCodeRedisRepository;
     private final EmailService emailService;
+    
+    private String confirmEmailUI;
+    private String resetPasswordEmailUI;
 
-    public boolean sendEmailConfirmationCode(String username, String email){
-        String text;
-        String code = createConfirmationCode(6);
+    @PostConstruct
+    private void loadEmailUI(){
         try{
             ClassPathResource resource = new ClassPathResource("confirmEmailUI.html");
-            String html = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-            text = String.format(html, email, code, email);
+            confirmEmailUI = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+
+            resource = new ClassPathResource("resetPasswordEmailUI.html");
+            resetPasswordEmailUI = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
         }catch(IOException e){
-            throw new CantSendEmailException();
+            throw new CantConvertFileException();
         }
+    }
+
+    public void sendEmailConfirmationCode(String username, String email){
+        String code = createConfirmationCode(6);
+        String text = String.format(confirmEmailUI, email, code, email);
+        emailService.sendHtmlTextEmail(username+ ", Welcome to Instagram." ,text, email);
+
         EmailCode emailCode = EmailCode.builder()
                                         .username(username)
                                         .email(email)
                                         .code(code)
                                         .build();
         emailCodeRedisRepository.save(emailCode);
-
-        emailService.sendHtmlTextEmail(username+ ", welcome to Instagram." ,text, email);
-        
-        return true;
     }
 
     public boolean checkEmailCode(String username, String email, String code){
@@ -72,25 +82,22 @@ public class EmailCodeService {
         return true;
     }
 
-    public void sendResetPasswordCode(String username){
-        Member member = memberRepository.findByUsername(username).orElseThrow(MemberDoesNotExistException::new);
-        String code = createConfirmationCode(30);
+    public String sendResetPasswordCode(String username){
+        Member member = memberRepository.findByUsername(username)
+            .orElseThrow(MemberDoesNotExistException::new);
 
+        String code = createConfirmationCode(30);
+        String email = member.getEmail();
+        String text = String.format(resetPasswordEmailUI, username, code, username, code, email, username);
+        emailService.sendHtmlTextEmail(username+ ", recover your account's password." ,text, email);
+        
         ResetPasswordCode resetPasswordCode = ResetPasswordCode.builder()
             .username(username)
             .code(code)
             .build();
-        
         resetPasswordCodeRedisRepository.save(resetPasswordCode);
 
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-
-        String emailText = username + "의 인증코드 " + code;
-
-        mailMessage.setTo(member.getEmail());
-        mailMessage.setSubject("비밀번호 재설정 메일입니다");
-        mailMessage.setText(emailText);
-        emailService.sendEmail(mailMessage);
+        return email;
     }
     
     public boolean checkResetPasswordCode(String username, String code){
