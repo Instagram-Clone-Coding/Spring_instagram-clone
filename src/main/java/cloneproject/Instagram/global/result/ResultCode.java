@@ -42,6 +42,7 @@ public enum ResultCode {
     UNFOLLOW_SUCCESS(200, "F002", "회원 언팔로우 완료"),
     GET_FOLLOWINGS_SUCCESS(200, "F003", "회원 팔로우 목록"),
     GET_FOLLOWERS_SUCCESS(200, "F004", "회원 팔로워 목록"),
+    DELETE_FOLLOWER_SUCCESS(200, "F005", "팔로워 삭제 성공"),
 
     //Block
     BLOCK_SUCCESS(200, "B001", "회원 차단 완료"),

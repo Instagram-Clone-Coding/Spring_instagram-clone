@@ -149,10 +149,7 @@ public class MemberAuthService {
 
     @Transactional
     public String sendResetPasswordCode(String username){
-        Member member = memberRepository.findByUsername(username)
-            .orElseThrow(MemberDoesNotExistException::new);
-        emailCodeService.sendResetPasswordCode(username);
-        return member.getEmail();
+        return emailCodeService.sendResetPasswordCode(username);
     }
 
     @Transactional

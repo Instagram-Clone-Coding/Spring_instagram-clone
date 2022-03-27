@@ -51,6 +51,17 @@ public class FollowController {
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
 
+    @ApiOperation(value = "팔로워 삭제")
+    @DeleteMapping("/{followMemberUsername}/follower")
+    @ApiImplicitParam(name = "followMemberUsername", value = "언팔로우할 계정의 username", required = true, example = "dlwlrma")
+    public ResponseEntity<ResultResponse> deleteFollower(@PathVariable("followMemberUsername") @Validated
+                                                @NotBlank(message = "username이 필요합니다") String followMemberUsername){
+        boolean success = followService.deleteFollower(followMemberUsername);
+        
+        ResultResponse result = ResultResponse.of(ResultCode.DELETE_FOLLOWER_SUCCESS, success);
+        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
+    }
+
     @ApiOperation(value = "팔로잉 목록 조회")
     @GetMapping("/{memberUsername}/following")
     @ApiImplicitParam(name = "memberUsername", value = "조회 할 계정의 username", required = true, example = "dlwlrma")

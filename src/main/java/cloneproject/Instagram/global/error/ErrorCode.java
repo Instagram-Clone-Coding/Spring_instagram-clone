@@ -28,6 +28,7 @@ public enum ErrorCode {
     CANT_UNFOLLOW(400, "F002", "팔로우하지 않은 유저는 언팔로우 할 수 없습니다."),
     CANT_FOLLOW_MYSELF(400, "F003", "자기 자신을 팔로우 할 수 없습니다."),
     CANT_UNFOLLOW_MYSELF(400, "F004", "자기 자신을 언팔로우 할 수 없습니다."),
+    CANT_DELETE_FOLLOWER(400, "F005", "팔로워 삭제할 수 없는 대상입니다."),
 
     // BLOCK
     ALREADY_BLOCK(400, "B001", "이미 차단한 유저입니다."),
