@@ -107,6 +107,7 @@ public class MemberService {
                                 .memberName(member.getName())
                                 .memberImageUrl(member.getImage().getImageUrl())
                                 .memberGender(member.getGender().toString())
+                                .memberEmail(member.getEmail())
                                 .memberIntroduce(member.getIntroduce())
                                 .memberWebsite(member.getWebsite())
                                 .memberPhone(member.getPhone())
