@@ -1,7 +1,5 @@
 package cloneproject.Instagram.global.error;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -20,6 +18,8 @@ import static cloneproject.Instagram.global.error.ErrorCode.*;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 import javax.validation.ConstraintViolationException;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     protected ResponseEntity<ErrorResponse> handleMissingServletRequestPartException(MissingServletRequestPartException e) {
-        final ErrorResponse response = ErrorResponse.of(NO_POST_IMAGE);
+        final ErrorResponse response = ErrorResponse.of(INVALID_INPUT_VALUE, e.getRequestPartName());
         return new ResponseEntity<>(response, BAD_REQUEST);
     }
 
@@ -62,21 +62,23 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     protected ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
-        final ErrorResponse response = ErrorResponse.of(INVALID_INPUT_VALUE);
+        final ErrorResponse response = ErrorResponse.of(HTTP_MESSAGE_NOT_READABLE);
         return new ResponseEntity<>(response, BAD_REQUEST);
     }
 
     @ExceptionHandler
     protected ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
-        final ErrorResponse response = ErrorResponse.of(METHOD_NOT_ALLOWED);
-        return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
+        final List<ErrorResponse.FieldError> errors = new ArrayList<>();
+        errors.add(new ErrorResponse.FieldError("http method", e.getMethod(), METHOD_NOT_ALLOWED.getMessage()));
+        final ErrorResponse response = ErrorResponse.of(INVALID_HTTP_HEADER, errors);
+        return new ResponseEntity<>(response, BAD_REQUEST);
     }
 
     @ExceptionHandler
     protected ResponseEntity<ErrorResponse> handleBusinessException(BusinessException e) {
         final ErrorCode errorCode = e.getErrorCode();
         final ErrorResponse response = ErrorResponse.of(errorCode, e.getErrors());
-        return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus()));
+        return new ResponseEntity<>(response, BAD_REQUEST);
     }
 
     @ExceptionHandler
