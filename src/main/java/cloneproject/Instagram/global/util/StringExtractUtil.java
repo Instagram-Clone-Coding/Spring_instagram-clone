@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 @Component
 public class StringExtractUtil {
 
-    public List<String> extractMentions(String input, List<String> usernames) {
+    public List<String> extractMentions(String input, List<String> exceptUsernames) {
         final Set<String> mentions = new HashSet<>();
         final String regex = "@[0-9a-zA-Z가-힣ㄱ-ㅎ]+";
         final Pattern pattern = Pattern.compile(regex);
@@ -20,7 +20,7 @@ public class StringExtractUtil {
 
         while (matcher.find())
             mentions.add(matcher.group().substring(1));
-        for (String username : usernames)
+        for (String username : exceptUsernames)
             mentions.remove(username);
 
         return new ArrayList<>(mentions);
