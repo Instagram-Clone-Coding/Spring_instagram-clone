@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface PostLikeRepository extends JpaRepository<PostLike, Long>, PostLikeRepositoryQuerydsl {
 
-    List<PostLike> findAllByPost(Post post);
+	List<PostLike> findAllByPost(Post post);
 
-    Optional<PostLike> findByMemberAndPost(Member member, Post post);
+	Optional<PostLike> findByMemberAndPost(Member member, Post post);
 }

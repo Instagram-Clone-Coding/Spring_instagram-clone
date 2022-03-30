@@ -8,8 +8,8 @@ import lombok.Getter;
 @ApiModel("게시물 생성 응답 데이터 모델")
 @Getter
 @AllArgsConstructor
-public class PostCreateResponse {
+public class PostUploadResponse {
 
-    @ApiModelProperty(value = "게시물 PK", example = "1")
-    private Long postId;
+	@ApiModelProperty(value = "게시물 PK", example = "1")
+	private Long postId;
 }

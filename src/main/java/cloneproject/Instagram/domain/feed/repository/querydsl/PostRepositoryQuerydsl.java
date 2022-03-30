@@ -13,11 +13,11 @@ import java.util.Optional;
 
 public interface PostRepositoryQuerydsl {
 
-    Page<PostDTO> findPostDtoPage(Member member, Pageable pageable);
+	Page<PostDTO> findPostDtoPage(Member member, Pageable pageable);
 
-    List<PostDTO> findRecent10PostDTOs(Long memberId);
+	List<PostDTO> findRecent10PostDTOs(Long memberId);
 
-    Optional<PostResponse> findPostResponse(Long postId, Long memberId);
+	Optional<PostResponse> findPostResponse(Long postId, Long memberId);
 
-    Page<PostDTO> findPostDtoPageByHashtag(Pageable pageable, Member member, Hashtag hashtag);
+	Page<PostDTO> findPostDtoPageByHashtag(Pageable pageable, Member member, Hashtag hashtag);
 }
