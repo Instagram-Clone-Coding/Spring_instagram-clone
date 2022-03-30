@@ -26,31 +26,31 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     protected ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
-        final ErrorResponse response = ErrorResponse.of(INVALID_INPUT_VALUE, e.getParameterName());
+        final ErrorResponse response = ErrorResponse.of(INPUT_VALUE_INVALID, e.getParameterName());
         return new ResponseEntity<>(response, BAD_REQUEST);
     }
 
     @ExceptionHandler
     protected ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException e) {
-        final ErrorResponse response = ErrorResponse.of(INVALID_INPUT_VALUE, e.getConstraintViolations());
+        final ErrorResponse response = ErrorResponse.of(INPUT_VALUE_INVALID, e.getConstraintViolations());
         return new ResponseEntity<>(response, BAD_REQUEST);
     }
 
     @ExceptionHandler
     protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        final ErrorResponse response = ErrorResponse.of(INVALID_INPUT_VALUE, e.getBindingResult());
+        final ErrorResponse response = ErrorResponse.of(INPUT_VALUE_INVALID, e.getBindingResult());
         return new ResponseEntity<>(response, BAD_REQUEST);
     }
 
     @ExceptionHandler
     protected ResponseEntity<ErrorResponse> handleBindException(BindException e) {
-        final ErrorResponse response = ErrorResponse.of(INVALID_INPUT_VALUE, e.getBindingResult());
+        final ErrorResponse response = ErrorResponse.of(INPUT_VALUE_INVALID, e.getBindingResult());
         return new ResponseEntity<>(response, BAD_REQUEST);
     }
 
     @ExceptionHandler
     protected ResponseEntity<ErrorResponse> handleMissingServletRequestPartException(MissingServletRequestPartException e) {
-        final ErrorResponse response = ErrorResponse.of(INVALID_INPUT_VALUE, e.getRequestPartName());
+        final ErrorResponse response = ErrorResponse.of(INPUT_VALUE_INVALID, e.getRequestPartName());
         return new ResponseEntity<>(response, BAD_REQUEST);
     }
 
@@ -70,7 +70,7 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
         final List<ErrorResponse.FieldError> errors = new ArrayList<>();
         errors.add(new ErrorResponse.FieldError("http method", e.getMethod(), METHOD_NOT_ALLOWED.getMessage()));
-        final ErrorResponse response = ErrorResponse.of(INVALID_HTTP_HEADER, errors);
+        final ErrorResponse response = ErrorResponse.of(HTTP_HEADER_INVALID, errors);
         return new ResponseEntity<>(response, BAD_REQUEST);
     }
 

@@ -30,10 +30,10 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint{
                 ErrorCode errorCode = ((BusinessException) errorObject).getErrorCode();
                 sendError(response, errorCode);
             }else{
-                sendError(response, ErrorCode.NEED_LOGIN);
+                sendError(response, ErrorCode.NEED_TO_LOGIN);
             }
         }else{
-            sendError(response, ErrorCode.NEED_LOGIN);
+            sendError(response, ErrorCode.NEED_TO_LOGIN);
         }
     }
 

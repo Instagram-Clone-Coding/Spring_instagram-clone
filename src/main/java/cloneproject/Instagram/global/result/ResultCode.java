@@ -3,6 +3,13 @@ package cloneproject.Instagram.global.result;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * ResultCode Convention
+ * - 도메인 별로 나누어 관리
+ * - [동사_목적어_SUCCESS] 형태로 생성
+ * - 코드는 도메인명 앞에서부터 1~2글자로 사용
+ * - 메시지는 "~~다."로 마무리
+ */
 @Getter
 @AllArgsConstructor
 public enum ResultCode {
@@ -37,13 +44,13 @@ public enum ResultCode {
     // Alarm
     GET_ALARMS_SUCCESS(200, "A001", "알림 조회 완료"),
 
-    //Follow
+    // Follow
     FOLLOW_SUCCESS(200, "F001", "회원 팔로우 완료"),
     UNFOLLOW_SUCCESS(200, "F002", "회원 언팔로우 완료"),
     GET_FOLLOWINGS_SUCCESS(200, "F003", "회원 팔로우 목록"),
     GET_FOLLOWERS_SUCCESS(200, "F004", "회원 팔로워 목록"),
 
-    //Block
+    // Block
     BLOCK_SUCCESS(200, "B001", "회원 차단 완료"),
     UNBLOCK_SUCCESS(200, "B002", "회원 차단해제 완료"),
 
@@ -55,30 +62,27 @@ public enum ResultCode {
     FIND_RECENT15_MEMBER_TAGGED_POSTS_SUCCESS(200, "MP005", "회원의 최근 태그된 게시물 15개 조회 성공"),
     FIND_MEMBER_TAGGED_POSTS_SUCCESS(200, "MP006", "회원의 태그된 게시물 조회 성공"),
 
+    // Feed
+    CREATE_POST_SUCCESS(200, "F001", "게시물 업로드에 성공하였습니다."),
+    DELETE_POST_SUCCESS(200, "F002", "게시물 삭제에 성공하였습니다."),
+    FIND_POST_PAGE_SUCCESS(200, "F003", "게시물 목록 페이지 조회에 성공하였습니다."),
+    FIND_POST_SUCCESS(200, "F004", "게시물 조회에 성공하였습니다."),
+    FIND_RECENT10POSTS_SUCCESS(200, "F005", "최근 게시물 10개 조회에 성공하였습니다."),
+    LIKE_POST_SUCCESS(200, "F006", "게시물 좋아요에 성공하였습니다."),
+    UN_LIKE_POST_SUCCESS(200, "F007", "게시물 좋아요 해제에 성공하였습니다."),
+    BOOKMARK_POST_SUCCESS(200, "F008", "게시물 북마크에 성공하였습니다."),
+    UN_BOOKMARK_POST_SUCCESS(200, "F009", "게시물 북마크 해제에 성공하였습니다."),
+    CREATE_COMMENT_SUCCESS(200, "F010", "댓글 업로드에 성공하였습니다."),
+    DELETE_COMMENT_SUCCESS(200, "F011", "댓글 삭제에 성공하였습니다."),
+    GET_COMMENT_PAGE_SUCCESS(200, "F012", "댓글 목록 페이지 조회에 성공하였습니다."),
+    GET_REPLY_PAGE_SUCCESS(200, "F013", "답글 목록 페이지 조회에 성공하였습니다."),
+    GET_POST_LIKES_SUCCESS(200, "F014", "게시물에 좋아요한 회원 목록 페이지 조회에 성공하였습니다."),
+    LIKE_COMMENT_SUCCESS(200, "F015", "댓글 좋아요에 성공하였습니다."),
+    UNLIKE_COMMENT_SUCCESS(200, "F016", "댓글 좋아요 해제에 성공하였습니다."),
+    GET_COMMENT_LIKES_SUCCESS(200, "F017", "댓글에 좋아요한 회원 목록 페이지 조회에 성공하였습니다."),
+    SHARE_POST_SUCCESS(200, "F018", "게시물 DM 공유에 성공하였습니다."),
 
-    // POST
-    CREATE_POST_SUCCESS(200, "P001", "게시물 생성 성공"),
-    UPLOAD_POST_IMAGES_SUCCESS(200, "P002", "게시물 이미지 업로드 성공"),
-    ADD_POST_IMAGE_TAGS_SUCCESS(200, "P003", "게시물 이미지 태그 추가 성공"),
-    FIND_POST_PAGE_SUCCESS(200, "P004", "게시물 페이지 조회 성공"),
-    DELETE_POST_SUCCESS(200, "P005", "게시물 삭제 성공"),
-    FIND_POST_SUCCESS(200, "P006", "게시물 조회 성공"),
-    FIND_RECENT10POSTS_SUCCESS(200, "P007", "최근 게시물 10개 조회 성공"),
-    LIKE_POST_SUCCESS(200, "P008", "게시물 좋아요 성공"),
-    UNLIKE_POST_SUCCESS(200, "P009", "게시물 좋아요 취소 성공"),
-    SAVE_POST_SUCCESS(200, "P010", "게시물 저장 성공"),
-    UNSAVE_POST_SUCCESS(200, "P011", "게시물 저장 취소 성공"),
-    CREATE_COMMENT_SUCCESS(200, "P012", "게시물 댓글 생성 성공"),
-    DELETE_COMMENT_SUCCESS(200, "P012", "게시물 댓글 삭제 성공"),
-    GET_COMMENT_PAGE_SUCCESS(200, "P013", "게시물 댓글 페이지 조회 성공"),
-    GET_REPLY_PAGE_SUCCESS(200, "P014", "게시물 답글 페이지 조회 성공"),
-    GET_POST_LIKES_SUCCESS(200, "P015", "게시물 좋아요한 사람 목록 페이지 조회 성공"),
-    LIKE_COMMENT_SUCCESS(200, "P016", "댓글 좋아요 성공"),
-    UNLIKE_COMMENT_SUCCESS(200, "P017", "댓글 좋아요 취소 성공"),
-    GET_COMMENT_LIKES_SUCCESS(200, "P018", "댓글 좋아요한 사람 목록 페이지 조회 성공"),
-    SHARE_POST_SUCCESS(200, "P019", "게시물 DM 공유 성공"),
-
-    // CHAT
+    // Chat
     CREATE_CHAT_ROOM_SUCCESS(200, "C001", "채팅방 생성 요청 성공"),
     INQUIRE_CHAT_ROOM_SUCCESS(200, "C002", "채팅방 조회 성공"),
     DELETE_JOIN_ROOM_SUCCESS(200, "C003", "참여 중인 채팅방 삭제 성공"),
