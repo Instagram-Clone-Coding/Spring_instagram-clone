@@ -5,6 +5,6 @@ import cloneproject.Instagram.global.error.exception.BusinessException;
 
 public class AccountDoesNotMatchException extends BusinessException{
     public AccountDoesNotMatchException(){
-        super(ErrorCode.ACCOUNT_DOES_NOT_MATCH);
+        super(ErrorCode.ACCOUNT_NOT_MATCHED);
     }
 }

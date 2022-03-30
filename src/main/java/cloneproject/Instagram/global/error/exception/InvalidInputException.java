@@ -8,6 +8,6 @@ import cloneproject.Instagram.global.error.ErrorResponse;
 public class InvalidInputException extends BusinessException {
 
     public InvalidInputException(List<ErrorResponse.FieldError> errors) {
-        super(ErrorCode.INVALID_INPUT_VALUE, errors);
+        super(ErrorCode.INPUT_VALUE_INVALID, errors);
     }
 }
