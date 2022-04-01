@@ -23,6 +23,9 @@ import java.util.List;
 import static cloneproject.Instagram.global.result.ResultCode.*;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 @Api(tags = "게시물 API")
 @RestController
 @RequiredArgsConstructor
@@ -134,5 +137,21 @@ public class PostController {
 		postService.sharePost(postId, usernames);
 
 		return ResponseEntity.ok(ResultResponse.of(SHARE_POST_SUCCESS));
+	}
+
+	@ApiOperation(value = "해시태그 게시물 목록 페이징 조회")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "page", value = "page", example = "1", required = true),
+		@ApiImplicitParam(name = "size", value = "size", example = "10", required = true),
+		@ApiImplicitParam(name = "hashtag", value = "hashtag", example = "#만두", required = true)
+	})
+	@GetMapping("/hashtags/posts")
+	public ResponseEntity<ResultResponse> getHashtagPosts(
+		@NotNull(message = "page는 필수입니다.") @RequestParam int page,
+		@NotNull(message = "size는 필수입니다.") @RequestParam int size,
+		@NotBlank(message = "hashtag는 필수입니다.") @RequestParam String hashtag) {
+		final Page<PostDTO> response = postService.getHashTagPosts(page, size, hashtag.substring(1));
+
+		return ResponseEntity.ok(ResultResponse.of(GET_HASHTAG_POSTS_SUCCESS, response));
 	}
 }
