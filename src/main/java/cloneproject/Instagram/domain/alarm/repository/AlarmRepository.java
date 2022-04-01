@@ -21,7 +21,7 @@ public interface AlarmRepository extends JpaRepository<Alarm, Long>, AlarmReposi
 
     void deleteByTypeAndAgentAndTargetAndFollow(AlarmType type, Member agent, Member target, Follow follow);
 
-    List<Alarm> findAllByCommentAndTypeIn(Comment comment, List<AlarmType> alarmTypes);
-
     List<Alarm> findAllByPost(Post post);
+
+	List<Alarm> findAllByCommentIn(List<Comment> comments);
 }

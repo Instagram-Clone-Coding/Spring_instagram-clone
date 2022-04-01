@@ -23,4 +23,8 @@ public class MessagePost extends Message {
         super(member, room);
         this.post = post;
     }
+
+    public void deletePost() {
+        this.post = null;
+    }
 }
