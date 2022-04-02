@@ -11,15 +11,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PostTagDTO {
 
-    @JsonIgnore
-    private Long postImageId;
-    private Long id;
-    private Tag tag;
+	@JsonIgnore
+	private Long postImageId;
+	private Long id;
+	private Tag tag;
 
-    @QueryProjection
-    public PostTagDTO(Long postImageId, Long id, Tag tag) {
-        this.postImageId = postImageId;
-        this.id = id;
-        this.tag = tag;
-    }
+	@QueryProjection
+	public PostTagDTO(Long postImageId, Long id, Tag tag) {
+		this.postImageId = postImageId;
+		this.id = id;
+		this.tag = tag;
+	}
 }

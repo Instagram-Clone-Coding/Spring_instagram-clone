@@ -8,6 +8,7 @@ docker-compose.yml
 Dockerfile
 src/main/resources/*.yml
 src/main/resources/*.mmdb
+*.xml
 
 ### STS ###
 .apt_generated

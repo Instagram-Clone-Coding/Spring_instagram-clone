@@ -11,8 +11,8 @@ import java.util.List;
 
 public interface RecentCommentRepository extends JpaRepository<RecentComment, Long> {
 
-    @Query("select rc from RecentComment rc join fetch rc.comment where rc.post.id = :id")
-    List<RecentComment> findAllWithCommentByPostId(@Param("id") Long id);
+	@Query("select rc from RecentComment rc join fetch rc.comment where rc.post.id = :id")
+	List<RecentComment> findAllWithCommentByPostId(@Param("id") Long id);
 
-    List<RecentComment> findAllByPost(Post post);
+	List<RecentComment> findAllByPost(Post post);
 }

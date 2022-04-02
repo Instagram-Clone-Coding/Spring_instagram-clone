@@ -4,6 +4,6 @@ import cloneproject.Instagram.global.error.ErrorCode;
 
 public class NeedLoginException extends BusinessException{
     public NeedLoginException(){
-        super(ErrorCode.NEED_LOGIN);
+        super(ErrorCode.NEED_TO_LOGIN);
     }
 }
