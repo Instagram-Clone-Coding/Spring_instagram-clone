@@ -71,7 +71,7 @@ public class StoryService {
                 .collect(Collectors.groupingBy(StoryContentRequest::getId));
         validateStoryUploadRequest(storyImages, storyContentMap);
 
-        final Long memberId = AuthUtil.getLoginedMemberIdOrNull();
+        final Long memberId = AuthUtil.getLoginMemberIdOrNull();
         final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
 
         final Set<String> usernames = new HashSet<>();

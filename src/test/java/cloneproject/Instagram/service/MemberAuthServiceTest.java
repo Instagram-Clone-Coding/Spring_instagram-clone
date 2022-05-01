@@ -14,7 +14,7 @@ import cloneproject.Instagram.domain.member.dto.JwtDto;
 import cloneproject.Instagram.domain.member.dto.LoginRequest;
 import cloneproject.Instagram.domain.member.dto.RegisterRequest;
 import cloneproject.Instagram.domain.member.entity.Member;
-import cloneproject.Instagram.domain.member.exception.UseridAlreadyExistException;
+import cloneproject.Instagram.domain.member.exception.UsernameAlreadyExistException;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.member.service.EmailCodeService;
 import cloneproject.Instagram.domain.member.service.MemberAuthService;
@@ -100,7 +100,7 @@ public class MemberAuthServiceTest {
                 RegisterRequest registerRequest = new RegisterRequest("dlwlrma", "이지금", "a12341234", "aaa@gmail.com", "ABC123");
                 when(memberRepository.existsByUsername("dlwlrma")).thenReturn(true);
 
-                assertThrows(UseridAlreadyExistException.class, ()->memberAuthService.register(registerRequest));
+                assertThrows(UsernameAlreadyExistException.class, ()->memberAuthService.register(registerRequest));
             }
         }
         
@@ -141,7 +141,7 @@ public class MemberAuthServiceTest {
             void it_throw_exception(){
                 when(memberRepository.existsByUsername("dlwlrma")).thenReturn(true);
 
-                assertThrows(UseridAlreadyExistException.class, ()->memberAuthService.sendEmailConfirmation("dlwlrma", ""));
+                assertThrows(UsernameAlreadyExistException.class, ()->memberAuthService.sendEmailConfirmation("dlwlrma", ""));
             }
         }
         @Nested

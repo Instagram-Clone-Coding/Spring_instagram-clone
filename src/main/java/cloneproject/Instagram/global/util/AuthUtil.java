@@ -11,23 +11,32 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AuthUtil {
 
-    private final MemberRepository memberRepository;
+	private final MemberRepository memberRepository;
 
-    public static Long getLoginedMemberIdOrNull() {
-        try {
-            final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-            return Long.valueOf(memberId);
-        } catch (Exception e) {
-            return -1L;
-        }
-    }
+	public static Long getLoginMemberIdOrNull() {
+		try {
+			final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
+			return Long.valueOf(memberId);
+		} catch (Exception e) {
+			return -1L;
+		}
+	}
 
-    public Member getLoginMember() {
-        try {
-            final Long memberId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
-            return memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
-        } catch (Exception e) {
-            throw new RuntimeException();
-        }
-    }
+	public Long getLoginMemberId() {
+		try {
+			final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
+			return Long.valueOf(memberId);
+		} catch (Exception e) {
+			throw new RuntimeException();
+		}
+	}
+
+	public Member getLoginMember() {
+		try {
+			final Long memberId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+			return memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
+		} catch (Exception e) {
+			throw new RuntimeException();
+		}
+	}
 }
