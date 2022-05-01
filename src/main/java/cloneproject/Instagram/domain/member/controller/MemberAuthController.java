@@ -196,7 +196,6 @@ public class MemberAuthController {
 			@Validated @RequestBody ResetPasswordRequest resetPasswordRequest,
 			HttpServletRequest request,
 			HttpServletResponse response) {
-
 		String device = request.getHeader("user-agent");
 		String ip = getClientIP(request);
 		JwtDto jwt = memberAuthService.resetPassword(resetPasswordRequest, device, ip);
@@ -228,7 +227,6 @@ public class MemberAuthController {
 			@Validated @RequestBody LoginWithCodeRequest loginWithCodeRequest,
 			HttpServletRequest request,
 			HttpServletResponse response) {
-
 		String device = request.getHeader("user-agent");
 		String ip = getClientIP(request);
 
@@ -259,7 +257,9 @@ public class MemberAuthController {
 	public ResponseEntity<ResultResponse> logout(
 			@CookieValue(value = "refreshToken", required = false) Cookie refreshCookie,
 			HttpServletResponse response) {
-		memberAuthService.logout(refreshCookie.getValue());
+		if (refreshCookie != null) {
+			memberAuthService.logout(refreshCookie.getValue());
+		}
 
 		Cookie cookie = new Cookie("refreshToken", null);
 

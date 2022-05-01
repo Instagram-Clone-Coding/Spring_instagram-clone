@@ -27,6 +27,7 @@ import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.search.entity.SearchMember;
 import cloneproject.Instagram.domain.search.repository.SearchMemberRepository;
 import cloneproject.Instagram.global.error.exception.EntityAlreadyExistException;
+import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 import cloneproject.Instagram.global.util.AuthUtil;
 import cloneproject.Instagram.global.util.JwtUtil;
 import cloneproject.Instagram.infra.geoip.dto.GeoIP;
@@ -96,12 +97,10 @@ public class MemberAuthService {
 					loginRequest.getUsername(), loginRequest.getPassword());
 			Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 			JwtDto jwtDto = jwtUtil.generateTokenDto(authentication);
-			Member member = authUtil.getLoginMember();
-			memberRepository.save(member);
 
 			GeoIP geoIP = geoIPLocationService.getLocation(ip);
 
-			refreshTokenService.addRefreshToken(member.getId(), jwtDto.getRefreshToken(), device, geoIP);
+			refreshTokenService.addRefreshToken(Long.valueOf(authentication.getName()), jwtDto.getRefreshToken(), device, geoIP);
 			return jwtDto;
 		} catch (BadCredentialsException e) {
 			throw new AccountMismatchException();
@@ -150,7 +149,8 @@ public class MemberAuthService {
 
 	@Transactional
 	public JwtDto resetPassword(ResetPasswordRequest resetPasswordRequest, String device, String ip) {
-		Member member = authUtil.getLoginMember();
+        Member member = memberRepository.findByUsername(resetPasswordRequest.getUsername())
+                                    .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 		if (!emailCodeService.checkResetPasswordCode(resetPasswordRequest.getUsername(),
 				resetPasswordRequest.getCode())) {
 			throw new PasswordResetFailException();
@@ -167,14 +167,13 @@ public class MemberAuthService {
 
 	@Transactional
 	public JwtDto loginWithCode(LoginWithCodeRequest loginRequest, String device, String ip) {
-		Member member = authUtil.getLoginMember();
+        Member member = memberRepository.findByUsername(loginRequest.getUsername())
+                                    .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 		if (!emailCodeService.checkResetPasswordCode(loginRequest.getUsername(), loginRequest.getCode())) {
 			throw new PasswordResetFailException();
 		}
 		JwtDto jwtDto = jwtUtil.generateTokenDto(jwtUtil.getAuthenticationWithMember(member.getId().toString()));
 		emailCodeService.deleteResetPasswordCode(loginRequest.getUsername());
-
-		memberRepository.save(member);
 
 		GeoIP geoIP = geoIPLocationService.getLocation(ip);
 
@@ -189,7 +188,11 @@ public class MemberAuthService {
 
 	@Transactional
 	public void logout(String refreshToken) {
-		refreshTokenService.deleteRefreshTokenWithValue(authUtil.getLoginMemberId(), refreshToken);
+		try {
+			refreshTokenService.deleteRefreshTokenWithValue(authUtil.getLoginMemberId(), refreshToken);
+		} catch (InvalidJwtException e) {
+			return;
+		}
 	}
 
 	public List<LoginedDevicesDTO> getLoginedDevices() {
