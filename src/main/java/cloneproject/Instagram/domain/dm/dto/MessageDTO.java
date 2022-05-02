@@ -21,7 +21,7 @@ public class MessageDTO {
 
     private Long roomId;
     private Long messageId;
-    private Long senderId;
+    private MemberDTO sender;
     private Image senderImage;
     private Object content;
     private String messageType;
@@ -31,7 +31,7 @@ public class MessageDTO {
     public MessageDTO(MessageStory message) {
         this.roomId = message.getRoom().getId();
         this.messageId = message.getId();
-        this.senderId = message.getMember().getId();
+        this.sender = new MemberDTO(message.getMember());
         this.senderImage = message.getMember().getImage();
         this.messageDate = message.getCreatedDate();
         this.messageType = message.getDtype();
@@ -59,7 +59,7 @@ public class MessageDTO {
     public MessageDTO(MessagePost message) {
         this.roomId = message.getRoom().getId();
         this.messageId = message.getId();
-        this.senderId = message.getMember().getId();
+        this.sender = new MemberDTO(message.getMember());
         this.senderImage = message.getMember().getImage();
         this.messageDate = message.getCreatedDate();
         this.messageType = message.getDtype();
@@ -82,7 +82,7 @@ public class MessageDTO {
     public MessageDTO(MessageText message) {
         this.roomId = message.getRoom().getId();
         this.messageId = message.getId();
-        this.senderId = message.getMember().getId();
+        this.sender = new MemberDTO(message.getMember());
         this.senderImage = message.getMember().getImage();
         this.messageDate = message.getCreatedDate();
         this.messageType = message.getDtype();
@@ -92,7 +92,7 @@ public class MessageDTO {
     public MessageDTO(MessageImage message) {
         this.roomId = message.getRoom().getId();
         this.messageId = message.getId();
-        this.senderId = message.getMember().getId();
+        this.sender = new MemberDTO(message.getMember());
         this.senderImage = message.getMember().getImage();
         this.messageDate = message.getCreatedDate();
         this.messageType = message.getDtype();
