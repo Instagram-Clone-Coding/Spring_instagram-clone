@@ -63,7 +63,6 @@ public class PostService {
 		final List<MultipartFile> postImages = request.getPostImages();
 		final List<String> altTexts = request.getAltTexts();
 		final List<PostImageTagRequest> postImageTags = request.getPostImageTags();
-
 		validateParameters(postImages.size(), altTexts.size(), postImageTags);
 
 		final Member loginMember = authUtil.getLoginMember();
@@ -166,7 +165,7 @@ public class PostService {
 			.map(PostDTO::getPostId)
 			.collect(Collectors.toList());
 
-		setHashStory(postDTOs);
+		setHashStoryInPostDto(postDTOs);
 		setPostImages(postDTOs, postIds);
 		setRecentComments(loginMember.getId(), postDTOs, postIds);
 		setFollowingMemberUsernameLikedPost(loginMember.getId(), postDTOs, postIds);
@@ -201,7 +200,8 @@ public class PostService {
 			postLikeDTOMap.containsKey(p.getPostId()) ? postLikeDTOMap.get(p.getPostId()).get(0).getUsername() : ""));
 	}
 
-	private void setHashStory(List<PostDTO> postDTOs) {
+	// TODO: 메소드명 수정 필요
+	private void setHashStoryInPostDto(List<PostDTO> postDTOs) {
 		postDTOs.forEach(post -> {
 			final MemberDTO postMember = post.getMember();
 			final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(postMember.getId()).size() > 0;
@@ -221,7 +221,7 @@ public class PostService {
 		final PostResponse postResponse = postRepository.findPostResponse(postId, loginMember.getId())
 			.orElseThrow(() -> new EntityNotFoundException(POST_NOT_FOUND));
 
-		setHashStory(postResponse);
+		setHasStory(postResponse);
 		setPostImages(postResponse);
 		setRecentComments(loginMember.getId(), postResponse);
 		setFollowingMemberUsernameLikedPost(loginMember.getId(), postResponse);
@@ -234,11 +234,11 @@ public class PostService {
 		final List<CommentDTO> commentDTOs = commentRepository.findCommentDtoPage(memberId, postResponse.getPostId(),
 			pageable).getContent();
 
-		setHasStory(commentDTOs);
+		setHasStoryInCommentDto(commentDTOs);
 		postResponse.setCommentDTOs(commentDTOs);
 	}
 
-	private void setHasStory(List<CommentDTO> commentDTOs) {
+	private void setHasStoryInCommentDto(List<CommentDTO> commentDTOs) {
 		commentDTOs.forEach(comment -> {
 			final MemberDTO member = comment.getMember();
 			final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0;
@@ -269,7 +269,7 @@ public class PostService {
 			postLikeDTOs.isEmpty() ? "" : postLikeDTOs.get(0).getUsername());
 	}
 
-	private void setHashStory(PostResponse postResponse) {
+	private void setHasStory(PostResponse postResponse) {
 		final MemberDTO postMember = postResponse.getMember();
 		final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(postMember.getId()).size() > 0;
 		postMember.setHasStory(hasStory);
