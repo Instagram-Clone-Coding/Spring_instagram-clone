@@ -13,7 +13,7 @@ import cloneproject.Instagram.domain.member.dto.UserProfileResponse;
 import cloneproject.Instagram.domain.member.entity.Gender;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.exception.MemberDoesNotExistException;
-import cloneproject.Instagram.domain.member.exception.UseridAlreadyExistException;
+import cloneproject.Instagram.domain.member.exception.UsernameAlreadyExistException;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.global.util.AuthUtil;
 import cloneproject.Instagram.global.vo.Image;
@@ -49,7 +49,7 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public UserProfileResponse getUserProfile(String username){
-        final Long memberId = AuthUtil.getLoginedMemberIdOrNull();
+        final Long memberId = AuthUtil.getLoginMemberIdOrNull();
         
         final Member member = memberRepository.findByUsername(username)
                                 .orElseThrow(MemberDoesNotExistException::new);
@@ -122,7 +122,7 @@ public class MemberService {
         
         if(memberRepository.existsByUsername(editProfileRequest.getMemberUsername())
                         && !member.getUsername().equals(editProfileRequest.getMemberUsername())){
-            throw new UseridAlreadyExistException();
+            throw new UsernameAlreadyExistException();
         }
         
         member.updateUsername(editProfileRequest.getMemberUsername());

@@ -26,12 +26,12 @@ public enum ErrorCode {
 
     // Member
     MEMBER_NOT_FOUND(400, "M001", "존재 하지 않는 유저입니다."),
-    USERNAME_ALREADY_EXISTS(400, "M002", "이미 존재하는 사용자 이름입니다."),
+    USERNAME_ALREADY_EXIST(400, "M002", "이미 존재하는 사용자 이름입니다."),
     NEED_TO_LOGIN(401, "M003", "로그인이 필요한 화면입니다."),
     NO_AUTHORITY(403, "M004", "권한이 없습니다."),
-    ACCOUNT_NOT_MATCHED(401, "M005", "계정 정보가 일치하지 않습니다."),
+    ACCOUNT_MISMATCH(401, "M005", "계정 정보가 일치하지 않습니다."),
     EMAIL_NOT_CONFIRMED(400, "M007", "인증 이메일 전송을 먼저 해야합니다."),
-    CANT_RESET_PASSWORD(400, "M008", "잘못되거나 만료된 코드입니다"),
+    PASSWORD_RESET_FAIL(400, "M008", "잘못되거나 만료된 코드입니다"),
     ALREADY_BLOCK(400, "M009", "이미 차단한 유저입니다."),
     CANT_UNBLOCK(400, "M010", "차단하지 않은 유저는 차단해제 할 수 없습니다."),
     CANT_BLOCK_MYSELF(400, "M011", "자기 자신을 차단 할 수 없습니다."),

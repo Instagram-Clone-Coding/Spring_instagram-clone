@@ -1,6 +1,5 @@
 package cloneproject.Instagram.global.util;
 
-
 import java.security.Key;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,112 +31,110 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtUtil {
 
-    @Value("${access-token-expires}")
-    private long ACCESS_TOKEN_EXPIRES;
-    @Value("${refresh-token-expires}")
-    private long REFRESH_TOKEN_EXPIRES;
-    
-    private final static String BEARER_TYPE = "Bearer";
-    private final static String AUTHENTITIES_KEY = "auth";
-    
-    private final Key accessKey;
-    private final Key refreshKey;
+	@Value("${access-token-expires}")
+	private long ACCESS_TOKEN_EXPIRES;
+	@Value("${refresh-token-expires}")
+	private long REFRESH_TOKEN_EXPIRES;
 
+	private final static String BEARER_TYPE = "Bearer";
+	private final static String AUTHENTITIES_KEY = "auth";
 
-    public JwtUtil(@Value("${jwt.access.secret}") byte[] accessSecret, 
-                    @Value("${jwt.refresh.secret}") byte[] refreshSecret){
-        // byte[] keyBytes = Decoders.BASE64.decode(accessSecret);
-        this.accessKey = Keys.hmacShaKeyFor(accessSecret);
-        // keyBytes = Decoders.BASE64.decode(refreshSecret);
-        refreshKey = Keys.hmacShaKeyFor(refreshSecret);
-    }
+	private final Key accessKey;
+	private final Key refreshKey;
 
-    public JwtDto generateTokenDto(Authentication authentication){
-        // getAuthorities를 그대로 token에 넣으면 객체가 깔끔하지 않다
-        // 따라서 변환 과정을 거침
-        List<String> authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
-            
-        // Token 생성
-        long currentTime = (new Date()).getTime();
+	public JwtUtil(@Value("${jwt.access.secret}") byte[] accessSecret,
+			@Value("${jwt.refresh.secret}") byte[] refreshSecret) {
+		this.accessKey = Keys.hmacShaKeyFor(accessSecret);
+		refreshKey = Keys.hmacShaKeyFor(refreshSecret);
+	}
 
-        Date accessTokenExpiresIn = new Date(currentTime + ACCESS_TOKEN_EXPIRES);
-        Date refreshTokenExpiresIn = new Date(currentTime + REFRESH_TOKEN_EXPIRES);
+	public JwtDto generateTokenDto(Authentication authentication) {
+		// getAuthorities를 그대로 token에 넣으면 객체가 깔끔하지 않다
+		// 따라서 변환 과정을 거침
+		List<String> authorities = authentication.getAuthorities().stream()
+				.map(GrantedAuthority::getAuthority)
+				.collect(Collectors.toList());
 
-        String accessToken = Jwts.builder()
-                .setSubject(authentication.getName())       
-                .claim(AUTHENTITIES_KEY, authorities.get(0))
-                .setExpiration(accessTokenExpiresIn)    
-                .signWith(accessKey, SignatureAlgorithm.HS512)  
-                .compact();
+		// Token 생성
+		long currentTime = (new Date()).getTime();
 
-        String refreshToken = Jwts.builder()
-                .setSubject(authentication.getName())
-                .setExpiration(refreshTokenExpiresIn)
-                .claim(AUTHENTITIES_KEY, authorities.get(0))
-                .signWith(refreshKey, SignatureAlgorithm.HS512)
-                .compact();
+		Date accessTokenExpiresIn = new Date(currentTime + ACCESS_TOKEN_EXPIRES);
+		Date refreshTokenExpiresIn = new Date(currentTime + REFRESH_TOKEN_EXPIRES);
 
-        return JwtDto.builder()
-                .type(BEARER_TYPE)
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
-    }
-    
-    public Authentication getAuthentication(String token, boolean isAccessToken) {
-        final Key key = isAccessToken ? accessKey : refreshKey;
-        Claims claims = parseClaims(token, key);
-        
-        if (claims.get(AUTHENTITIES_KEY) == null) {
-            throw new InvalidJwtException();
-        }
+		String accessToken = Jwts.builder()
+				.setSubject(authentication.getName())
+				.claim(AUTHENTITIES_KEY, authorities.get(0))
+				.setExpiration(accessTokenExpiresIn)
+				.signWith(accessKey, SignatureAlgorithm.HS512)
+				.compact();
 
-        String authorityString = claims.get(AUTHENTITIES_KEY).toString();
+		String refreshToken = Jwts.builder()
+				.setSubject(authentication.getName())
+				.setExpiration(refreshTokenExpiresIn)
+				.claim(AUTHENTITIES_KEY, authorities.get(0))
+				.signWith(refreshKey, SignatureAlgorithm.HS512)
+				.compact();
 
-        Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-        authorities.add(new SimpleGrantedAuthority(authorityString));
+		return JwtDto.builder()
+				.type(BEARER_TYPE)
+				.accessToken(accessToken)
+				.refreshToken(refreshToken)
+				.build();
+	}
 
-        // UserDetails 객체를 만들어서 Authentication 리턴
-        // UsernamePasswordAuthenticationToken의 principal에 username(string)만 넣어놓아도 실행은 똑같이 된다.
-        // 하지만 나중에 여러 정보를 포함 할 경우를 대비하기 위해 User 객체를 만들어서 사용
-        // 참고: https://codevang.tistory.com/273
-        UserDetails principal = new User(claims.getSubject(), "", authorities);
+	public Authentication getAuthentication(String token, boolean isAccessToken) {
+		final Key key = isAccessToken ? accessKey : refreshKey;
+		Claims claims = parseClaims(token, key);
 
-        return new UsernamePasswordAuthenticationToken(principal, "", authorities);
-    }
+		if (claims.get(AUTHENTITIES_KEY) == null) {
+			throw new InvalidJwtException();
+		}
 
-    public Authentication getAuthenticationWithMember(String id){
-        Authentication authentication = new UsernamePasswordAuthenticationToken(id, null,AuthorityUtils.createAuthorityList("ROLE_USER"));
-        return authentication;
-    }
+		String authorityString = claims.get(AUTHENTITIES_KEY).toString();
 
-    public boolean validateAccessJwt(String token){
-        return validateJwt(token, accessKey);
-    }
+		Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+		authorities.add(new SimpleGrantedAuthority(authorityString));
 
-    public boolean validateRefeshJwt(String token){
-        return validateJwt(token, refreshKey);
-    }
+		// UserDetails 객체를 만들어서 Authentication 리턴
+		// UsernamePasswordAuthenticationToken의 principal에 username(string)만 넣어놓아도 실행은
+		// 똑같이 된다.
+		// 하지만 나중에 여러 정보를 포함 할 경우를 대비하기 위해 User 객체를 만들어서 사용
+		// 참고: https://codevang.tistory.com/273
+		UserDetails principal = new User(claims.getSubject(), "", authorities);
 
-    private boolean validateJwt(String token, Key key){
-        try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
-        } catch(ExpiredJwtException e){
-            if(key == refreshKey){
-                throw new ExpiredRefreshTokenException();
-            }else{
-                throw new ExpiredAccessTokenException();
-            }
-        } catch (JwtException e) {
-            throw new InvalidJwtException();
-        }
-    }
+		return new UsernamePasswordAuthenticationToken(principal, "", authorities);
+	}
 
-    private Claims parseClaims(String token, Key key) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
-    }
+	public Authentication getAuthenticationWithMember(String id) {
+		Authentication authentication = new UsernamePasswordAuthenticationToken(id, null,
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
+		return authentication;
+	}
 
+	public boolean validateAccessJwt(String token) {
+		return validateJwt(token, accessKey);
+	}
+
+	public boolean validateRefeshJwt(String token) {
+		return validateJwt(token, refreshKey);
+	}
+
+	private boolean validateJwt(String token, Key key) {
+		try {
+			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+			return true;
+		} catch (ExpiredJwtException e) {
+			if (key == refreshKey) {
+				throw new ExpiredRefreshTokenException();
+			} else {
+				throw new ExpiredAccessTokenException();
+			}
+		} catch (JwtException e) {
+			throw new InvalidJwtException();
+		}
+	}
+
+	private Claims parseClaims(String token, Key key) {
+		return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+	}
 }

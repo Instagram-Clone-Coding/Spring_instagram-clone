@@ -21,7 +21,7 @@ import cloneproject.Instagram.domain.member.dto.MiniProfileResponse;
 import cloneproject.Instagram.domain.member.dto.UserProfileResponse;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.exception.MemberDoesNotExistException;
-import cloneproject.Instagram.domain.member.exception.UseridAlreadyExistException;
+import cloneproject.Instagram.domain.member.exception.UsernameAlreadyExistException;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.member.repository.redis.EmailCodeRedisRepository;
 import cloneproject.Instagram.domain.member.service.MemberService;
@@ -212,7 +212,7 @@ public class MemberServiceTest {
             void it_occur_exception(){
                 when(memberRepository.existsByUsername("dlwlrma1")).thenReturn(true);
                 EditProfileRequest editProfileRequest = new EditProfileRequest("dlwlrma1", "이지금", "", "", "aaa@gmail.com", "", "FEMALE");
-                assertThrows(UseridAlreadyExistException.class, ()->memberService.editProfile(editProfileRequest));
+                assertThrows(UsernameAlreadyExistException.class, ()->memberService.editProfile(editProfileRequest));
             }
         }
 

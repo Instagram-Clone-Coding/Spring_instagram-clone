@@ -31,6 +31,7 @@ public class SearchService {
     public List<SearchDTO> searchByText(String text) {
         final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
         final List<SearchDTO> result;
+        text = text.trim();
         if (text.charAt(0) == '#') {
             result = searchRepository.searchByTextOnlyHashtag(Long.valueOf(memberId), text.substring(1));
         } else {

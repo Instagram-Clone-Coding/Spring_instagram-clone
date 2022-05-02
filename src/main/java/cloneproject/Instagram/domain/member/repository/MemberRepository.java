@@ -12,15 +12,16 @@ import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.repository.querydsl.MemberPostRepositoryQuerydsl;
 import cloneproject.Instagram.domain.member.repository.querydsl.MemberRepositoryQuerydsl;
 
-public interface MemberRepository extends JpaRepository<Member, Long>, JpaSpecificationExecutor<Member>, MemberPostRepositoryQuerydsl, MemberRepositoryQuerydsl {
+public interface MemberRepository extends JpaRepository<Member, Long>, JpaSpecificationExecutor<Member>,
+		MemberPostRepositoryQuerydsl, MemberRepositoryQuerydsl {
 
-    Optional<Member> findByUsername(String username);
+	Optional<Member> findByUsername(String username);
 
-    Optional<Member> findById(Long id);
+	Optional<Member> findById(Long id);
 
-    List<Member> findAll(Specification<Member> spec);
+	List<Member> findAll(Specification<Member> spec);
 
-    boolean existsByUsername(String username);
+	boolean existsByUsername(String username);
 
-    List<Member> findAllByUsernameIn(Collection<String> usernames);
+	List<Member> findAllByUsernameIn(Collection<String> usernames);
 }
