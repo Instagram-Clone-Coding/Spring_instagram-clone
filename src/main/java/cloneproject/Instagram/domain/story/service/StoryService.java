@@ -71,7 +71,7 @@ public class StoryService {
                 .collect(Collectors.groupingBy(StoryContentRequest::getId));
         validateStoryUploadRequest(storyImages, storyContentMap);
 
-        final Long memberId = AuthUtil.getLoginMemberIdOrNull();
+        final Long memberId = authUtil.getLoginMemberIdOrNull();
         final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
 
         final Set<String> usernames = new HashSet<>();
@@ -85,7 +85,8 @@ public class StoryService {
                 continue;
             final List<StoryContentRequest> storyContents = storyContentMap.get(i + 1);
             for (StoryContentRequest storyContent : storyContents) {
-                final List<String> mentionedUsernames = stringExtractUtil.extractMentions(storyContent.getContent(), List.of(member.getUsername()));
+                final List<String> mentionedUsernames = stringExtractUtil.extractMentions(storyContent.getContent(),
+                        List.of(member.getUsername()));
                 usernames.addAll(mentionedUsernames);
             }
 
@@ -137,7 +138,8 @@ public class StoryService {
                         joinRoomRepository.save(new JoinRoom(room, privateRoomMember, message));
                 }
 
-                final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_GET, new MessageDTO(message));
+                final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_GET,
+                        new MessageDTO(message));
                 messagingTemplate.convertAndSend("/sub/" + mentionedMember.getUsername(), response);
             });
 
@@ -150,7 +152,8 @@ public class StoryService {
         return new StatusResponse(true);
     }
 
-    private void validateStoryUploadRequest(List<MultipartFile> storyImages, Map<Integer, List<StoryContentRequest>> storyContentMap) {
+    private void validateStoryUploadRequest(List<MultipartFile> storyImages,
+            Map<Integer, List<StoryContentRequest>> storyContentMap) {
         final List<ErrorResponse.FieldError> errors = new ArrayList<>();
         if (storyImages.isEmpty()) {
             errors.add(new ErrorResponse.FieldError("storyImages", "empty", INVALID_STORY_IMAGE.getMessage()));
@@ -159,7 +162,8 @@ public class StoryService {
 
         storyContentMap.keySet().forEach(id -> {
             if (id > storyImages.size() || id < 1) {
-                errors.add(new ErrorResponse.FieldError("storyContents.id", id.toString(), INVALID_STORY_IMAGE_INDEX.getMessage()));
+                errors.add(new ErrorResponse.FieldError("storyContents.id", id.toString(),
+                        INVALID_STORY_IMAGE_INDEX.getMessage()));
                 throw new InvalidInputException(errors);
             }
         });

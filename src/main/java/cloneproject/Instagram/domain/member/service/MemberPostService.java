@@ -20,12 +20,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MemberPostService {
 
+	private final AuthUtil authUtil;
 	private final MemberRepository memberRepository;
 	private final BlockRepository blockRepository;
 
 	public Page<MemberPostDTO> getMemberPostDto(String username, int size, int page) {
 		page = (page == 0 ? 0 : page - 1) + 5;
-		final Long loginedMemberId = AuthUtil.getLoginMemberIdOrNull();
+		final Long loginedMemberId = authUtil.getLoginMemberIdOrNull();
 
 		final Member member = memberRepository.findByUsername(username)
 				.orElseThrow(MemberDoesNotExistException::new);
@@ -42,7 +43,7 @@ public class MemberPostService {
 	}
 
 	public List<MemberPostDTO> getRecent15PostDTOs(String username) {
-		final Long loginedMemberId = AuthUtil.getLoginMemberIdOrNull();
+		final Long loginedMemberId = authUtil.getLoginMemberIdOrNull();
 
 		final Member member = memberRepository.findByUsername(username)
 				.orElseThrow(MemberDoesNotExistException::new);
@@ -75,7 +76,7 @@ public class MemberPostService {
 
 	public Page<MemberPostDTO> getMemberTaggedPostDto(String username, int size, int page) {
 		page = (page == 0 ? 0 : page - 1) + 5;
-		final Long loginedMemberId = AuthUtil.getLoginMemberIdOrNull();
+		final Long loginedMemberId = authUtil.getLoginMemberIdOrNull();
 
 		final Member member = memberRepository.findByUsername(username)
 				.orElseThrow(MemberDoesNotExistException::new);
@@ -92,7 +93,7 @@ public class MemberPostService {
 	}
 
 	public List<MemberPostDTO> getRecent15TaggedPostDTOs(String username) {
-		final Long loginedMemberId = AuthUtil.getLoginMemberIdOrNull();
+		final Long loginedMemberId = authUtil.getLoginMemberIdOrNull();
 
 		final Member member = memberRepository.findByUsername(username)
 				.orElseThrow(MemberDoesNotExistException::new);

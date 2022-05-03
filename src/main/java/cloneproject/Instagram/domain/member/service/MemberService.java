@@ -26,8 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class MemberService {
 
+	private final AuthUtil authUtil;
 	private final MemberRepository memberRepository;
-
 	private final S3Uploader s3Uploader;
 
 	@Transactional(readOnly = true)
@@ -48,7 +48,7 @@ public class MemberService {
 
 	@Transactional(readOnly = true)
 	public UserProfileResponse getUserProfile(String username) {
-		final Long memberId = AuthUtil.getLoginMemberIdOrNull();
+		final Long memberId = authUtil.getLoginMemberIdOrNull();
 
 		final Member member = memberRepository.findByUsername(username)
 				.orElseThrow(MemberDoesNotExistException::new);
