@@ -14,10 +14,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class JwtResponse {
 
-    @ApiModelProperty(value = "토큰 타입", example = "Bearer")
-    private String type;
+	@ApiModelProperty(value = "토큰 타입", example = "Bearer")
+	private String type;
 
-    @ApiModelProperty(value = "Access 토큰", example = "AAA.BBB.CCC")
-    private String accessToken;
+	@ApiModelProperty(value = "Access 토큰", example = "AAA.BBB.CCC")
+	private String accessToken;
 
 }

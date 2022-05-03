@@ -22,29 +22,29 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 public class BlockController {
-    
-    private final BlockService blockService;
 
-    @ApiOperation(value = "차단")
-    @PostMapping("/{blockMemberUsername}/block")
-    @ApiImplicitParam(name = "blockMemberUsername", value = "차단할 계정의 username", required = true, example = "dlwlrma")
-    public ResponseEntity<ResultResponse> block(@PathVariable("blockMemberUsername") @Validated
-                                                 @NotBlank(message = "username이 필요합니다") String blockMemberUsername){
-        boolean success = blockService.block(blockMemberUsername);
-        
-        ResultResponse result = ResultResponse.of(ResultCode.BLOCK_SUCCESS, success);
-        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
-    }
+	private final BlockService blockService;
 
-    @ApiOperation(value = "차단해제")
-    @DeleteMapping("/{blockMemberUsername}/block")
-    @ApiImplicitParam(name = "blockMemberUsername", value = "차단해제할 계정의 username", required = true, example = "dlwlrma")
-    public ResponseEntity<ResultResponse> unblock(@PathVariable("blockMemberUsername") @Validated
-                                                @NotBlank(message = "username이 필요합니다") String blockMemberUsername){
-        boolean success = blockService.unblock(blockMemberUsername);
-        
-        ResultResponse result = ResultResponse.of(ResultCode.UNBLOCK_SUCCESS, success);
-        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
-    }
+	@ApiOperation(value = "차단")
+	@PostMapping("/{blockMemberUsername}/block")
+	@ApiImplicitParam(name = "blockMemberUsername", value = "차단할 계정의 username", required = true, example = "dlwlrma")
+	public ResponseEntity<ResultResponse> block(
+			@PathVariable("blockMemberUsername") @Validated @NotBlank(message = "username이 필요합니다") String blockMemberUsername) {
+		boolean success = blockService.block(blockMemberUsername);
+
+		ResultResponse result = ResultResponse.of(ResultCode.BLOCK_SUCCESS, success);
+		return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
+	}
+
+	@ApiOperation(value = "차단해제")
+	@DeleteMapping("/{blockMemberUsername}/block")
+	@ApiImplicitParam(name = "blockMemberUsername", value = "차단해제할 계정의 username", required = true, example = "dlwlrma")
+	public ResponseEntity<ResultResponse> unblock(
+			@PathVariable("blockMemberUsername") @Validated @NotBlank(message = "username이 필요합니다") String blockMemberUsername) {
+		boolean success = blockService.unblock(blockMemberUsername);
+
+		ResultResponse result = ResultResponse.of(ResultCode.UNBLOCK_SUCCESS, success);
+		return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
+	}
 
 }

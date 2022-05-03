@@ -13,22 +13,22 @@ import lombok.NoArgsConstructor;
 @Table(name = "blocks")
 public class Block {
 
-    @Id
-    @Column(name = "block_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@Column(name = "block_id")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "member_id")
+	private Member member;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "block_member_id")
-    private Member blockMember;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "block_member_id")
+	private Member blockMember;
 
-    @Builder
-    public Block(Member member, Member blockMember) {
-        this.member = member;
-        this.blockMember = blockMember;
-    }
+	@Builder
+	public Block(Member member, Member blockMember) {
+		this.member = member;
+		this.blockMember = blockMember;
+	}
 }
