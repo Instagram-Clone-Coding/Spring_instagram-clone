@@ -16,15 +16,16 @@ import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import cloneproject.Instagram.WithMockCustomUser;
-import cloneproject.Instagram.dto.member.EditProfileRequest;
-import cloneproject.Instagram.dto.member.MiniProfileResponse;
-import cloneproject.Instagram.dto.member.UserProfileResponse;
-import cloneproject.Instagram.entity.member.Member;
-import cloneproject.Instagram.exception.MemberDoesNotExistException;
-import cloneproject.Instagram.exception.UseridAlreadyExistException;
-import cloneproject.Instagram.repository.EmailCodeRedisRepository;
-import cloneproject.Instagram.repository.MemberRepository;
-import cloneproject.Instagram.util.ImageUtil;
+import cloneproject.Instagram.domain.member.dto.EditProfileRequest;
+import cloneproject.Instagram.domain.member.dto.MiniProfileResponse;
+import cloneproject.Instagram.domain.member.dto.UserProfileResponse;
+import cloneproject.Instagram.domain.member.entity.Member;
+import cloneproject.Instagram.domain.member.exception.MemberDoesNotExistException;
+import cloneproject.Instagram.domain.member.exception.UsernameAlreadyExistException;
+import cloneproject.Instagram.domain.member.repository.MemberRepository;
+import cloneproject.Instagram.domain.member.repository.redis.EmailCodeRedisRepository;
+import cloneproject.Instagram.domain.member.service.MemberService;
+import cloneproject.Instagram.global.util.ImageUtil;
 
 @ExtendWith(SpringExtension.class)
 @DisplayName("Member Service")
@@ -211,7 +212,7 @@ public class MemberServiceTest {
             void it_occur_exception(){
                 when(memberRepository.existsByUsername("dlwlrma1")).thenReturn(true);
                 EditProfileRequest editProfileRequest = new EditProfileRequest("dlwlrma1", "이지금", "", "", "aaa@gmail.com", "", "FEMALE");
-                assertThrows(UseridAlreadyExistException.class, ()->memberService.editProfile(editProfileRequest));
+                assertThrows(UsernameAlreadyExistException.class, ()->memberService.editProfile(editProfileRequest));
             }
         }
 

@@ -33,14 +33,15 @@
   <p align="center">
     인스타그램 클론코딩 프로젝트의 backend 부분 github입니다.
     <br />
-    <a href="https://github.com/Instagram-Clone-Coding"><strong>Explore the Organization</strong></a>
+    <a href="https://github.com/Instagram-Clone-Coding"><strong>1. Explore the Organization</strong></a><br>
+    <a href="https://github.com/Instagram-Clone-Coding/React_instagram_clone"><strong>2. Explore Front Repository</strong></a>
     <br />
     <br />
     <!-- <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a> -->
     <!-- · -->
-    <a href="https://github.com/Instagram-Clone-Coding/Spring_instagram-clone/issues/new">Report Bug</a>
+    <a href="https://github.com/Instagram-Clone-Coding/Spring_instagram-clone/issues/new?assignees=&labels=&template=bug_report.md&title=">Report Bug</a>
     ·
-    <a href="https://github.com/Instagram-Clone-Coding/Spring_instagram-clone/issues/new">Request Feature</a>
+    <a href="https://github.com/Instagram-Clone-Coding/Spring_instagram-clone/issues/new?assignees=&labels=&template=feature_request.md&title=">Request Feature</a>
   </p>
 </div>
 
@@ -57,8 +58,10 @@
       <ul>
         <li><a href="#convention">Convention</a></li>
         <li><a href="#database-convention">Database Convention</a></li>
-        <li><a href="#directory-structure">Directory Structure</a></li>
+        <li><a href="#java-code-convention">Java Code Convention</a></li>
+        <li><a href="#package structure">Package Structure</a></li>
         <li><a href="#commit-convention">Commit Convention</a></li>
+        <li><a href="#erd">ERD</a></li>
       </ul>
     </li>
     <li><a href="#contributing">Contributing</a></li>
@@ -110,8 +113,6 @@ Use the `BLANK_README.md` to get started.
 ## Getting Started
 
 ### Convention
-
--   Conding Convention
 
 1. 통일된 Error Response 객체
     - Error Response JSON
@@ -222,20 +223,32 @@ Use the `BLANK_README.md` to get started.
     public class GlobalExceptionHandler {
 
         @ExceptionHandler
+        protected ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+            final ErrorResponse response = ErrorResponse.of(INPUT_VALUE_INVALID, e.getParameterName());
+            return new ResponseEntity<>(response, BAD_REQUEST);
+        }
+
+        @ExceptionHandler
+        protected ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException e) {
+            final ErrorResponse response = ErrorResponse.of(INPUT_VALUE_INVALID, e.getConstraintViolations());
+            return new ResponseEntity<>(response, BAD_REQUEST);
+        }
+
+        @ExceptionHandler
         protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-            final ErrorResponse response = ErrorResponse.of(INVALID_INPUT_VALUE, e.getBindingResult());
+            final ErrorResponse response = ErrorResponse.of(INPUT_VALUE_INVALID, e.getBindingResult());
             return new ResponseEntity<>(response, BAD_REQUEST);
         }
 
         @ExceptionHandler
         protected ResponseEntity<ErrorResponse> handleBindException(BindException e) {
-            final ErrorResponse response = ErrorResponse.of(INVALID_INPUT_VALUE, e.getBindingResult());
+            final ErrorResponse response = ErrorResponse.of(INPUT_VALUE_INVALID, e.getBindingResult());
             return new ResponseEntity<>(response, BAD_REQUEST);
         }
 
         @ExceptionHandler
         protected ResponseEntity<ErrorResponse> handleMissingServletRequestPartException(MissingServletRequestPartException e) {
-            final ErrorResponse response = ErrorResponse.of(NO_POST_IMAGE);
+            final ErrorResponse response = ErrorResponse.of(INPUT_VALUE_INVALID, e.getRequestPartName());
             return new ResponseEntity<>(response, BAD_REQUEST);
         }
 
@@ -247,21 +260,23 @@ Use the `BLANK_README.md` to get started.
 
         @ExceptionHandler
         protected ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
-            final ErrorResponse response = ErrorResponse.of(INVALID_INPUT_VALUE);
+            final ErrorResponse response = ErrorResponse.of(HTTP_MESSAGE_NOT_READABLE);
             return new ResponseEntity<>(response, BAD_REQUEST);
         }
 
         @ExceptionHandler
         protected ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
-            final ErrorResponse response = ErrorResponse.of(METHOD_NOT_ALLOWED);
-            return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
+            final List<ErrorResponse.FieldError> errors = new ArrayList<>();
+            errors.add(new ErrorResponse.FieldError("http method", e.getMethod(), METHOD_NOT_ALLOWED.getMessage()));
+            final ErrorResponse response = ErrorResponse.of(HTTP_HEADER_INVALID, errors);
+            return new ResponseEntity<>(response, BAD_REQUEST);
         }
 
         @ExceptionHandler
         protected ResponseEntity<ErrorResponse> handleBusinessException(BusinessException e) {
             final ErrorCode errorCode = e.getErrorCode();
             final ErrorResponse response = ErrorResponse.of(errorCode, e.getErrors());
-            return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus()));
+            return new ResponseEntity<>(response, BAD_REQUEST);
         }
 
         @ExceptionHandler
@@ -329,58 +344,104 @@ Use the `BLANK_README.md` to get started.
         ...
     }
     ```
-7.  자바 네이밍 전략
-
-    - 패키지: 소문자
-    - 변수: Camel Case + 명사
-      ```java
-      private String imageName;
-      ```
-    - 상수: 대문자 + underscore
-      ```java
-      private final static String BEARER_TYPE = "Bearer";
-      ```
-    - 메소드: Camel Case + 동사
-      ```java
-      public ResponseEntity<ResultResponse> createPost(@Validated @ModelAttribute PostUploadRequest request) { ... }
-      ```
+###  Java Code Convention
+- [캠퍼스 핵데이 Java 코딩 컨벤션](https://naver.github.io/hackday-conventions-java/)
       
 ###  Database Convention
-- Common
-  1. 소문자 사용
-  2. 단어를 임의로 축약 x
-  3. 동사는 능동태 사용
-- Table
-  1. 복수형 사용
-  2. 교차 테이블(Many to Many): 각 테이블 이름을 _(underscore)로 연결 -> Snake case
-    > ex) vip_members
-- Column
-  1. PK, FK는 해당 테이블의 단수명_id으로 사용
-  2. boolean 유형은 _flag 접미어 사용
-  3. datetime 유형은 _date 접미어 사용
+<b>[Common]</b>
+- 소문자 사용
+- 단어 임의로 축약 x
+  > ex) register_date⭕ reg_date❌
+- 동사는 능동태 사용
+  > ex) register_date⭕ registered_date❌
+- 이름을 구성하는 각각의 단어를 `underscore(_)`로 연결 **(snake case)**
+
+<b>[Table]</b>
+- 복수형 사용
+- 교차 테이블의 이름에 사용할 수 있는 직관적인 단어가 없다면, 각 테이블의 이름을 `_and_` 또는 `_has_`로 연결
+  > ex)
+  > - 복수형: `articles`, `movies`
+  > - 약어도 예외 없이 소문자 & underscore 연결: `vip_members`
+  > - 교차 테이블 연결: `articles_and_movies`
+
+<b>[Column]</b>
+- PK는 `테이블 명 단수형_id`으로 사용
+  > ex) `article_id`
+- FK는 부모 테이블의 PK 이름을 그대로 사용
+    - self 참조인 경우, PK 이름 앞에 적절한 접두어 사용
+- boolean 유형의 컬럼은 `_flag` 접미어 사용
+- date, datetime 유형의 컬럼은 `_date` 접미어 사용
+
+<b>[Index]</b>
+- 접두어
+    1. unique index: `uix`
+    2. spatial index: `six`
+    3. index: `nix`
+- `접두어-테이블 명-컬럼 명`
+  > ex) `uix-accounts-login_email`
+
+<b>[Reference]</b>
+- [[MySQL] 데이터베이스 명명 규칙 (by 르매)](https://purumae.tistory.com/200)
   
-###  Directory Structure
+###  Package Structure
 
 ```txt
-/src.main.java.cloneproject.instagram
-├── /advice
-│ ├── GlobalExceptionHandler.java
-├── /config
-├── /controller
-├── /dto
-│ ├── /error
-│ │ ├── ErrorCode.java
-│ │ └── ErrorResponse.java
-│ ├── /result
-│ │ ├── ResultCode.java
-│ │ └── ResultResponse.java
-├── /entity
-├── /exception
-├── /repository
-├── /service
-├── /util
-├── /vo
-│ InstagramApplication.java
+└── src
+    ├── main
+    │   ├── java
+    │   │   └── cloneproject.instagram
+    │   │       ├── domain
+    │   │       │   ├── member
+    │   │       │   │   ├── controller
+    │   │       │   │   ├── service
+    │   │       │   │   ├── repository
+    │   │       │   │   │   ├── jdbc
+    │   │       │   │   │   └── querydsl
+    │   │       │   │   ├── entity
+    │   │       │   │   ├── dto
+    │   │       │   │   ├── vo
+    │   │       │   │   └── exception
+    │   │       │   ├── feed
+    │   │       │   │   ├── controller
+    │   │       │   │   ├── service
+    │   │       │   │   ├── repository
+    │   │       │   │   │   ├── jdbc
+    │   │       │   │   │   └── querydsl
+    │   │       │   │   ├── entity
+    │   │       │   │   ├── dto
+    │   │       │   │   ├── vo
+    │   │       │   │   └── exception
+    │   │       │   ├── ...    
+    │   │       ├── global
+    │   │       │   ├── config
+    │   │       │   │   ├── SwaggerConfig.java
+    │   │       │   │   ├── ...
+    │   │       │   │   └── security    
+    │   │       │   ├── dto
+    │   │       │   ├── error
+    │   │       │   │   ├── ErrorResponse.java
+    │   │       │   │   ├── GlobalExceptionHandler.java
+    │   │       │   │   ├── ErrorCode.java
+    │   │       │   │   └── exception
+    │   │       │   │       ├── BusinessException.java
+    │   │       │   │       ├── EntityNotFoundException.java
+    │   │       │   │       ├── ...
+    │   │       │   │       └── InvalidValueException.java    
+    │   │       │   ├── result
+    │   │       │   │   ├── ResultResponse.java
+    │   │       │   │   └── ResultCode.java
+    │   │       │   ├── util
+    │   │       │   ├── validator             
+    │   │       │   └── vo
+    │   │       └── infra
+    │   │           ├── aws
+    │   │           ├── geoip
+    │   │           └── email
+    │   └── resources
+    │       ├── application-dev.yml
+    │       ├── application-local.yml
+    │       ├── application-prod.yml
+    │       └── application.yml
 ```
 
 ### Commit Convention
@@ -412,9 +473,13 @@ ex) Resolves: #1, #2
   - 관련된 코드끼리 나누어 Commit
   - 불필요한 Commit 지양
   - 제목은 명령조로 작성
-
+- <b>Reference</b>
+  - [Udacity Git Commit Message Style Guide](https://udacity.github.io/git-styleguide/)
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+### ERD
+![erd](https://s3.us-west-2.amazonaws.com/secure.notion-static.com/03a0a9cc-ea02-4681-b502-8102e715e7d8/Instagram.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20220401%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20220401T184204Z&X-Amz-Expires=86400&X-Amz-Signature=92c923762b4e09be480651f7762f1411cd4e1630a2ae528ef9e4d80b04913f47&X-Amz-SignedHeaders=host&response-content-disposition=filename%20%3D%22Instagram.png%22&x-id=GetObject)
+<p align="center"><a href="https://www.erdcloud.com/d/ufv5P5mkEhpe2iStd"><img src="https://img.shields.io/badge/ERD Cloud-946CEE?style=for-the-badge"/></a></p>
 <!-- CONTRIBUTING -->
 
 ## Contributing
@@ -446,6 +511,12 @@ Don't forget to give the project a star! Thanks again!
         <sub><b>bluetifulc</b></sub></a><br />
         <a href="https://github.com/bluetifulc" title="Code">💻</a>
     </td>
+    <td align="center">
+      <a href="https://github.com/Junhui0u0">
+        <img src="https://avatars.githubusercontent.com/u/71383600?v=4" width="110px;" alt=""/><br />
+        <sub><b>JunhuiPark</b></sub></a><br />
+        <a href="https://github.com/Junhui0u0" title="Code">💻</a>
+    </td>
   </tr>
 </table>  
 
@@ -463,7 +534,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 ## Contact
 
-SeonPil Kim - [Email](ksp970306@gmail.com) - ksp970306@gmail.com
+SeonPil Kim - ksp970306@gmail.com
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

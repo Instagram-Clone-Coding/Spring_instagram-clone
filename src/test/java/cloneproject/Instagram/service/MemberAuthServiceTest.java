@@ -10,13 +10,15 @@ import org.mockito.Mock;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import cloneproject.Instagram.dto.member.JwtDto;
-import cloneproject.Instagram.dto.member.LoginRequest;
-import cloneproject.Instagram.dto.member.RegisterRequest;
-import cloneproject.Instagram.entity.member.Member;
-import cloneproject.Instagram.exception.UseridAlreadyExistException;
-import cloneproject.Instagram.repository.MemberRepository;
-import cloneproject.Instagram.util.JwtUtil;
+import cloneproject.Instagram.domain.member.dto.JwtDto;
+import cloneproject.Instagram.domain.member.dto.LoginRequest;
+import cloneproject.Instagram.domain.member.dto.RegisterRequest;
+import cloneproject.Instagram.domain.member.entity.Member;
+import cloneproject.Instagram.domain.member.exception.UsernameAlreadyExistException;
+import cloneproject.Instagram.domain.member.repository.MemberRepository;
+import cloneproject.Instagram.domain.member.service.EmailCodeService;
+import cloneproject.Instagram.domain.member.service.MemberAuthService;
+import cloneproject.Instagram.global.util.JwtUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -98,7 +100,7 @@ public class MemberAuthServiceTest {
                 RegisterRequest registerRequest = new RegisterRequest("dlwlrma", "이지금", "a12341234", "aaa@gmail.com", "ABC123");
                 when(memberRepository.existsByUsername("dlwlrma")).thenReturn(true);
 
-                assertThrows(UseridAlreadyExistException.class, ()->memberAuthService.register(registerRequest));
+                assertThrows(UsernameAlreadyExistException.class, ()->memberAuthService.register(registerRequest));
             }
         }
         
@@ -139,7 +141,7 @@ public class MemberAuthServiceTest {
             void it_throw_exception(){
                 when(memberRepository.existsByUsername("dlwlrma")).thenReturn(true);
 
-                assertThrows(UseridAlreadyExistException.class, ()->memberAuthService.sendEmailConfirmation("dlwlrma", ""));
+                assertThrows(UsernameAlreadyExistException.class, ()->memberAuthService.sendEmailConfirmation("dlwlrma", ""));
             }
         }
         @Nested

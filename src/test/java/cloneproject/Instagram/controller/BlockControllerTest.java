@@ -16,10 +16,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
-import cloneproject.Instagram.advice.GlobalExceptionHandler;
-import cloneproject.Instagram.dto.result.ResultCode;
-import cloneproject.Instagram.dto.result.ResultResponse;
-import cloneproject.Instagram.service.BlockService;
+import cloneproject.Instagram.domain.member.controller.BlockController;
+import cloneproject.Instagram.domain.member.service.BlockService;
+import cloneproject.Instagram.global.error.GlobalExceptionHandler;
+import cloneproject.Instagram.global.result.ResultCode;
+import cloneproject.Instagram.global.result.ResultResponse;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;

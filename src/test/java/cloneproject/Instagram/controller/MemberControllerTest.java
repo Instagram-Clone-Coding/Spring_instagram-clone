@@ -13,11 +13,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
-import cloneproject.Instagram.advice.GlobalExceptionHandler;
-import cloneproject.Instagram.dto.member.EditProfileRequest;
-import cloneproject.Instagram.dto.result.ResultCode;
-import cloneproject.Instagram.dto.result.ResultResponse;
-import cloneproject.Instagram.service.MemberService;
+import cloneproject.Instagram.domain.member.controller.MemberController;
+import cloneproject.Instagram.domain.member.dto.EditProfileRequest;
+import cloneproject.Instagram.domain.member.service.MemberService;
+import cloneproject.Instagram.global.error.GlobalExceptionHandler;
+import cloneproject.Instagram.global.result.ResultCode;
+import cloneproject.Instagram.global.result.ResultResponse;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
