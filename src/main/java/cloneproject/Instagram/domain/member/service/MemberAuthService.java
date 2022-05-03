@@ -100,7 +100,8 @@ public class MemberAuthService {
 
 			GeoIP geoIP = geoIPLocationService.getLocation(ip);
 
-			refreshTokenService.addRefreshToken(Long.valueOf(authentication.getName()), jwtDto.getRefreshToken(), device, geoIP);
+			refreshTokenService.addRefreshToken(Long.valueOf(authentication.getName()), jwtDto.getRefreshToken(),
+					device, geoIP);
 			return jwtDto;
 		} catch (BadCredentialsException e) {
 			throw new AccountMismatchException();
@@ -118,9 +119,9 @@ public class MemberAuthService {
 		} catch (JwtException e) {
 			throw new InvalidJwtException();
 		}
-		Member member = authUtil.getLoginMember();
 
-		Optional<RefreshToken> refreshToken = refreshTokenService.findRefreshToken(member.getId(), refreshTokenString);
+		Optional<RefreshToken> refreshToken = refreshTokenService
+				.findRefreshToken(Long.valueOf(authentication.getName()), refreshTokenString);
 		if (refreshToken.isEmpty()) {
 			return Optional.empty();
 		}
@@ -149,8 +150,8 @@ public class MemberAuthService {
 
 	@Transactional
 	public JwtDto resetPassword(ResetPasswordRequest resetPasswordRequest, String device, String ip) {
-        Member member = memberRepository.findByUsername(resetPasswordRequest.getUsername())
-                                    .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
+		Member member = memberRepository.findByUsername(resetPasswordRequest.getUsername())
+				.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 		if (!emailCodeService.checkResetPasswordCode(resetPasswordRequest.getUsername(),
 				resetPasswordRequest.getCode())) {
 			throw new PasswordResetFailException();
@@ -167,8 +168,8 @@ public class MemberAuthService {
 
 	@Transactional
 	public JwtDto loginWithCode(LoginWithCodeRequest loginRequest, String device, String ip) {
-        Member member = memberRepository.findByUsername(loginRequest.getUsername())
-                                    .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
+		Member member = memberRepository.findByUsername(loginRequest.getUsername())
+				.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 		if (!emailCodeService.checkResetPasswordCode(loginRequest.getUsername(), loginRequest.getCode())) {
 			throw new PasswordResetFailException();
 		}
