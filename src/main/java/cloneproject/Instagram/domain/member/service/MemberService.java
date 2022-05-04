@@ -1,6 +1,5 @@
 package cloneproject.Instagram.domain.member.service;
 
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,14 +11,16 @@ import cloneproject.Instagram.domain.member.dto.MiniProfileResponse;
 import cloneproject.Instagram.domain.member.dto.UserProfileResponse;
 import cloneproject.Instagram.domain.member.entity.Gender;
 import cloneproject.Instagram.domain.member.entity.Member;
-import cloneproject.Instagram.domain.member.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.domain.member.exception.UsernameAlreadyExistException;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
+import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 import cloneproject.Instagram.global.util.AuthUtil;
 import cloneproject.Instagram.global.vo.Image;
 import cloneproject.Instagram.infra.aws.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import static cloneproject.Instagram.global.error.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -32,10 +33,7 @@ public class MemberService {
 
 	@Transactional(readOnly = true)
 	public MenuMemberDTO getMenuMemberProfile() {
-		final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-
-		final Member member = memberRepository.findById(Long.valueOf(memberId))
-				.orElseThrow(MemberDoesNotExistException::new);
+		final Member member = authUtil.getLoginMember();
 
 		return MenuMemberDTO.builder()
 				.memberId(member.getId())
@@ -43,7 +41,6 @@ public class MemberService {
 				.memberName(member.getName())
 				.memberImageUrl(member.getImage().getImageUrl())
 				.build();
-
 	}
 
 	@Transactional(readOnly = true)
@@ -51,7 +48,7 @@ public class MemberService {
 		final Long memberId = authUtil.getLoginMemberIdOrNull();
 
 		final Member member = memberRepository.findByUsername(username)
-				.orElseThrow(MemberDoesNotExistException::new);
+				.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
 		UserProfileResponse result = memberRepository.getUserProfile(memberId, member.getUsername());
 
@@ -60,21 +57,19 @@ public class MemberService {
 
 	@Transactional(readOnly = true)
 	public MiniProfileResponse getMiniProfile(String username) {
-		final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
+		final Long memberId = authUtil.getLoginMemberId();
 
 		final Member member = memberRepository.findByUsername(username)
-				.orElseThrow(MemberDoesNotExistException::new);
+				.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
-		MiniProfileResponse result = memberRepository.getMiniProfile(Long.valueOf(memberId), member.getUsername());
+		MiniProfileResponse result = memberRepository.getMiniProfile(memberId, member.getUsername());
 
 		return result;
 	}
 
 	@Transactional
 	public void uploadMemberImage(MultipartFile uploadedImage) {
-		final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-		Member member = memberRepository.findById(Long.valueOf(memberId))
-				.orElseThrow(MemberDoesNotExistException::new);
+		Member member = authUtil.getLoginMember();
 
 		// 기존 사진 삭제
 		Image originalImage = member.getImage();
@@ -87,9 +82,7 @@ public class MemberService {
 
 	@Transactional
 	public void deleteMemberImage() {
-		final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-		Member member = memberRepository.findById(Long.valueOf(memberId))
-				.orElseThrow(MemberDoesNotExistException::new);
+		Member member = authUtil.getLoginMember();
 		Image image = member.getImage();
 		s3Uploader.deleteImage("member", image);
 		member.deleteImage();
@@ -97,9 +90,7 @@ public class MemberService {
 	}
 
 	public EditProfileResponse getEditProfile() {
-		final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-		Member member = memberRepository.findById(Long.valueOf(memberId))
-				.orElseThrow(MemberDoesNotExistException::new);
+		Member member = authUtil.getLoginMember();
 		return EditProfileResponse.builder()
 				.memberUsername(member.getUsername())
 				.memberName(member.getName())
@@ -114,9 +105,7 @@ public class MemberService {
 
 	// TODO 변경시 이메일 인증 로직은?
 	public void editProfile(EditProfileRequest editProfileRequest) {
-		final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-		Member member = memberRepository.findById(Long.valueOf(memberId))
-				.orElseThrow(MemberDoesNotExistException::new);
+		Member member = authUtil.getLoginMember();
 
 		if (memberRepository.existsByUsername(editProfileRequest.getMemberUsername())
 				&& !member.getUsername().equals(editProfileRequest.getMemberUsername())) {

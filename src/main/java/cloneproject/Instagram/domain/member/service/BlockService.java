@@ -17,6 +17,7 @@ import cloneproject.Instagram.domain.member.exception.CantUnblockMyselfException
 import cloneproject.Instagram.domain.member.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.domain.member.repository.BlockRepository;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
+import cloneproject.Instagram.global.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,51 +26,54 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class BlockService {
 
-    private final BlockRepository blockRepository;
-    private final MemberRepository memberRepository;
-    private final FollowRepository followRepository;
+	private final AuthUtil authUtil;
+	private final BlockRepository blockRepository;
+	private final MemberRepository memberRepository;
+	private final FollowRepository followRepository;
 
-    @Transactional
-    public boolean block(String blockMemberUsername){
-        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-        final Member member = memberRepository.findById(Long.valueOf(memberId))
-                                        .orElseThrow(MemberDoesNotExistException::new);
-        final Member blockMember = memberRepository.findByUsername(blockMemberUsername)
-                                                .orElseThrow(MemberDoesNotExistException::new);
-        if(member.getId().equals(blockMember.getId())){
-            throw new CantBlockMyselfException();
-        }
-        if(blockRepository.existsByMemberIdAndBlockMemberId(member.getId(), blockMember.getId())){
-            throw new AlreadyBlockException();
-        }
+	@Transactional
+	public boolean block(String blockMemberUsername) {
+		final Member member = authUtil.getLoginMember();
+		final Member blockMember = memberRepository.findByUsername(blockMemberUsername)
+				.orElseThrow(MemberDoesNotExistException::new);
 
-        // 팔로우가 되어있었다면 언팔로우
-        Optional<Follow> follow = followRepository.findByMemberIdAndFollowMemberId(member.getId(), blockMember.getId());
-        if(follow.isPresent()){
-            followRepository.delete(follow.get());
-        }
-        follow = followRepository.findByMemberIdAndFollowMemberId(blockMember.getId(), member.getId());
-        if(follow.isPresent()){
-            followRepository.delete(follow.get());
-        }
+		if (member.getId().equals(blockMember.getId())) {
+			throw new CantBlockMyselfException();
+		}
+		if (blockRepository.existsByMemberIdAndBlockMemberId(member.getId(), blockMember.getId())) {
+			throw new AlreadyBlockException();
+		}
 
-        Block block = new Block(member, blockMember);
-        blockRepository.save(block);
-        return true;
-    }
+		// 팔로우가 되어있었다면 언팔로우
+		Optional<Follow> follow = followRepository.findByMemberIdAndFollowMemberId(member.getId(), blockMember.getId());
 
-    @Transactional
-    public boolean unblock(String blockMemberUsername){
-        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-        final Member blockMember = memberRepository.findByUsername(blockMemberUsername)
-                                                .orElseThrow(MemberDoesNotExistException::new);
-        if(Long.valueOf(memberId).equals(blockMember.getId())){
-            throw new CantUnblockMyselfException();
-        }
-        Block block = blockRepository.findByMemberIdAndBlockMemberId(Long.valueOf(memberId), blockMember.getId())
-                                        .orElseThrow(CantUnblockException::new);
-        blockRepository.delete(block);
-        return true;
-    }
+		if (follow.isPresent()) {
+			followRepository.delete(follow.get());
+		}
+		follow = followRepository.findByMemberIdAndFollowMemberId(blockMember.getId(), member.getId());
+		if (follow.isPresent()) {
+			followRepository.delete(follow.get());
+		}
+
+		Block block = new Block(member, blockMember);
+		blockRepository.save(block);
+		return true;
+	}
+
+	@Transactional
+	public boolean unblock(String blockMemberUsername) {
+		final Long memberId = authUtil.getLoginMemberId();
+		final Member blockMember = memberRepository.findByUsername(blockMemberUsername)
+				.orElseThrow(MemberDoesNotExistException::new);
+
+		if (memberId.equals(blockMember.getId())) {
+			throw new CantUnblockMyselfException();
+		}
+
+		Block block = blockRepository.findByMemberIdAndBlockMemberId(Long.valueOf(memberId), blockMember.getId())
+				.orElseThrow(CantUnblockException::new);
+		blockRepository.delete(block);
+		return true;
+	}
 
 }
