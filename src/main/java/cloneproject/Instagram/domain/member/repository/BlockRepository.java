@@ -5,11 +5,12 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import cloneproject.Instagram.domain.member.entity.Block;
+import cloneproject.Instagram.domain.member.repository.querydsl.BlockRepositoryQuerydsl;
 
-public interface BlockRepository extends JpaRepository<Block, Long> {
+public interface BlockRepository extends JpaRepository<Block, Long>, BlockRepositoryQuerydsl {
 
-	public boolean existsByMemberIdAndBlockMemberId(Long memberId, Long blockMemberId);
+	boolean existsByMemberIdAndBlockMemberId(Long memberId, Long blockMemberId);
 
-	public Optional<Block> findByMemberIdAndBlockMemberId(Long memberId, Long blockMemberId);
+	Optional<Block> findByMemberIdAndBlockMemberId(Long memberId, Long blockMemberId);
 
 }

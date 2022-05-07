@@ -58,10 +58,10 @@ public class UserProfileResponse {
 	private boolean hasStory;
 
 	@QueryProjection
-	public UserProfileResponse(String username, String name, String website, Image image, boolean isFollowing,
-			boolean isFollower,
-			boolean isBlocking, boolean isBlocked, String introduce, Long postsCount,
-			Long followingsCount, Long followersCount, boolean isMe) {
+	public UserProfileResponse(String username, String name, String website, Image image,
+		boolean isFollowing, boolean isFollower, boolean isBlocking, boolean isBlocked,
+		String introduce, Long postsCount, Long followingsCount, Long followersCount,
+		boolean isMe, String followingMemberFollow) {
 		this.memberUsername = username;
 		this.memberName = name;
 		this.memberWebsite = website;
@@ -76,17 +76,22 @@ public class UserProfileResponse {
 		this.memberFollowersCount = followersCount;
 		this.isMe = isMe;
 		this.hasStory = false;
+		this.followingMemberFollow = followingMemberFollow;
+		checkBlock();
 	}
 
-	public void checkBlock() {
+	public void setHasStory(boolean hasStory) {
+		this.hasStory = hasStory;
+		checkBlock();
+	}
+
+	private void checkBlock() {
 		if (this.isBlocked || this.isBlocking) {
 			this.memberPostsCount = 0L;
 			this.memberFollowingsCount = 0L;
 			this.memberFollowersCount = 0L;
+			this.hasStory = false;
 		}
 	}
 
-	public void setFollowingMemberFollow(String followingMemberFollow) {
-		this.followingMemberFollow = followingMemberFollow;
-	}
 }

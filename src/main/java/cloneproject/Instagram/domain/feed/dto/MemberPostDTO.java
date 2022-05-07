@@ -14,7 +14,7 @@ import lombok.Setter;
 public class MemberPostDTO {
 
 	private Long postId;
-	private String postImageUrl;
+	private PostImageDTO postImageDTO;
 	private boolean hasManyPosts;
 	private int postCommentsCount;
 	private int postLikesCount;
@@ -28,7 +28,4 @@ public class MemberPostDTO {
 		this.postLikesCount = postLikesCount;
 	}
 
-	public void setImageUrl(String imageUrl) {
-		this.postImageUrl = imageUrl;
-	}
 }

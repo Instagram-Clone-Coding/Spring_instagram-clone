@@ -1,6 +1,7 @@
 package cloneproject.Instagram.domain.member.dto;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,8 +20,6 @@ import lombok.Setter;
 
 @ApiModel("유저 미니프로필 응답 모델")
 @Getter
-@Setter
-@Builder
 @AllArgsConstructor
 public class MiniProfileResponse {
 
@@ -69,9 +68,10 @@ public class MiniProfileResponse {
 	private boolean hasStory;
 
 	@QueryProjection
-	public MiniProfileResponse(String username, String name, Image image, boolean isFollowing, boolean isFollower,
-			boolean isBlocking, boolean isBlocked, Long postsCount,
-			Long followingsCount, Long followersCount, boolean isMe) {
+	public MiniProfileResponse(String username, String name, Image image,
+		boolean isFollowing, boolean isFollower, boolean isBlocking, boolean isBlocked,
+		Long postsCount, Long followingsCount, Long followersCount,
+		boolean isMe, String followingMemberFollow) {
 		this.memberUsername = username;
 		this.memberName = name;
 		this.memberImage = image;
@@ -84,30 +84,28 @@ public class MiniProfileResponse {
 		this.memberFollowersCount = followersCount;
 		this.isMe = isMe;
 		this.hasStory = false;
+		this.followingMemberFollow = followingMemberFollow;
+		checkBlock();
 	}
 
-	public void setMemberPosts(List<PostImageDTO> postImageDTOs) {
-		final Map<Long, List<PostImageDTO>> postDTOMap = postImageDTOs.stream()
-				.collect(Collectors.groupingBy(PostImageDTO::getPostId));
-		List<MiniProfilePostDTO> results = new ArrayList<MiniProfilePostDTO>();
-		postDTOMap.forEach((id, p) -> results.add(
-				MiniProfilePostDTO.builder()
-						.postId(id)
-						.postImageUrl(p.get(0).getPostImageUrl())
-						.build()));
-		this.memberPosts = results;
+	public void setHasStory(boolean hasStory) {
+		this.hasStory = hasStory;
+		checkBlock();
 	}
 
-	public void checkBlock() {
+	public void setMemberPosts(List<MiniProfilePostDTO> miniProfilePostDTOs) {
+		this.memberPosts = miniProfilePostDTOs;
+		checkBlock();
+	}
+
+	private void checkBlock() {
 		if (this.isBlocked || this.isBlocking) {
 			this.memberPostsCount = 0L;
 			this.memberFollowersCount = 0L;
 			this.memberFollowingsCount = 0L;
-			this.memberPosts = null;
+			this.hasStory = false;
+			this.memberPosts = Collections.emptyList();
 		}
 	}
 
-	public void setFollowingMemberFollow(String followingMemberFollow) {
-		this.followingMemberFollow = followingMemberFollow;
-	}
 }

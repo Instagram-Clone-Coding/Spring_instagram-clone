@@ -2,7 +2,6 @@ package cloneproject.Instagram.domain.member.service;
 
 import java.util.Optional;
 
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +34,7 @@ public class BlockService {
 	public boolean block(String blockMemberUsername) {
 		final Member member = authUtil.getLoginMember();
 		final Member blockMember = memberRepository.findByUsername(blockMemberUsername)
-				.orElseThrow(MemberDoesNotExistException::new);
+			.orElseThrow(MemberDoesNotExistException::new);
 
 		if (member.getId().equals(blockMember.getId())) {
 			throw new CantBlockMyselfException();
@@ -46,14 +45,10 @@ public class BlockService {
 
 		// 팔로우가 되어있었다면 언팔로우
 		Optional<Follow> follow = followRepository.findByMemberIdAndFollowMemberId(member.getId(), blockMember.getId());
+		follow.ifPresent(followRepository::delete);
 
-		if (follow.isPresent()) {
-			followRepository.delete(follow.get());
-		}
 		follow = followRepository.findByMemberIdAndFollowMemberId(blockMember.getId(), member.getId());
-		if (follow.isPresent()) {
-			followRepository.delete(follow.get());
-		}
+		follow.ifPresent(followRepository::delete);
 
 		Block block = new Block(member, blockMember);
 		blockRepository.save(block);
@@ -64,14 +59,14 @@ public class BlockService {
 	public boolean unblock(String blockMemberUsername) {
 		final Long memberId = authUtil.getLoginMemberId();
 		final Member blockMember = memberRepository.findByUsername(blockMemberUsername)
-				.orElseThrow(MemberDoesNotExistException::new);
+			.orElseThrow(MemberDoesNotExistException::new);
 
 		if (memberId.equals(blockMember.getId())) {
 			throw new CantUnblockMyselfException();
 		}
 
-		Block block = blockRepository.findByMemberIdAndBlockMemberId(Long.valueOf(memberId), blockMember.getId())
-				.orElseThrow(CantUnblockException::new);
+		Block block = blockRepository.findByMemberIdAndBlockMemberId(memberId, blockMember.getId())
+			.orElseThrow(CantUnblockException::new);
 		blockRepository.delete(block);
 		return true;
 	}
