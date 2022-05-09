@@ -53,7 +53,8 @@ public class PostController {
 	@ApiOperation(value = "게시물 목록 페이징 조회")
 	@ApiResponses({
 		@ApiResponse(code = 200, message = "F003 - 게시물 목록 페이지 조회에 성공하였습니다."),
-		@ApiResponse(code = 400, message = "G003 - 유효하지 않은 입력입니다."),
+		@ApiResponse(code = 400, message = "G003 - 유효하지 않은 입력입니다.\n"
+			+ "G004 - 입력 타입이 유효하지 않습니다."),
 		@ApiResponse(code = 401, message = "M003 - 로그인이 필요한 화면입니다."),
 	})
 	@ApiImplicitParam(name = "page", value = "게시물 page", example = "1", required = true)
@@ -80,6 +81,7 @@ public class PostController {
 	@ApiResponses({
 		@ApiResponse(code = 200, message = "F002 - 게시물 삭제에 성공하였습니다."),
 		@ApiResponse(code = 400, message = "G003 - 유효하지 않은 입력입니다.\n"
+			+ "G004 - 입력 타입이 유효하지 않습니다.\n"
 			+ "F001 - 존재하지 않는 게시물입니다.\n"
 			+ "F002 - 게시물 게시자만 삭제할 수 있습니다."),
 		@ApiResponse(code = 401, message = "M003 - 로그인이 필요한 화면입니다."),
@@ -96,6 +98,7 @@ public class PostController {
 	@ApiResponses({
 		@ApiResponse(code = 200, message = "F004 - 게시물 조회에 성공하였습니다."),
 		@ApiResponse(code = 400, message = "G003 - 유효하지 않은 입력입니다.\n"
+			+ "G004 - 입력 타입이 유효하지 않습니다.\n"
 			+ "F001 - 존재하지 않는 게시물입니다.\n"),
 		@ApiResponse(code = 401, message = "M003 - 로그인이 필요한 화면입니다."),
 	})
@@ -111,6 +114,7 @@ public class PostController {
 	@ApiResponses({
 		@ApiResponse(code = 200, message = "F006 - 게시물 좋아요에 성공하였습니다."),
 		@ApiResponse(code = 400, message = "G003 - 유효하지 않은 입력입니다.\n"
+			+ "G004 - 입력 타입이 유효하지 않습니다.\n"
 			+ "F001 - 존재하지 않는 게시물입니다.\n"
 			+ "F004 - 해당 게시물에 이미 좋아요를 누른 회원입니다."),
 		@ApiResponse(code = 401, message = "M003 - 로그인이 필요한 화면입니다."),
@@ -127,6 +131,7 @@ public class PostController {
 	@ApiResponses({
 		@ApiResponse(code = 200, message = "F007 - 게시물 좋아요 해제에 성공하였습니다."),
 		@ApiResponse(code = 400, message = "G003 - 유효하지 않은 입력입니다.\n"
+			+ "G004 - 입력 타입이 유효하지 않습니다.\n"
 			+ "F001 - 존재하지 않는 게시물입니다.\n"
 			+ "F003 - 해당 게시물에 좋아요를 누르지 않은 회원입니다."),
 		@ApiResponse(code = 401, message = "M003 - 로그인이 필요한 화면입니다."),
@@ -142,7 +147,8 @@ public class PostController {
 	@ApiOperation(value = "게시물 좋아요한 회원 목록 페이징 조회")
 	@ApiResponses({
 		@ApiResponse(code = 200, message = "F014 - 게시물에 좋아요한 회원 목록 페이지 조회에 성공하였습니다."),
-		@ApiResponse(code = 400, message = "G003 - 유효하지 않은 입력입니다."),
+		@ApiResponse(code = 400, message = "G003 - 유효하지 않은 입력입니다.\n"
+			+ "G004 - 입력 타입이 유효하지 않습니다."),
 		@ApiResponse(code = 401, message = "M003 - 로그인이 필요한 화면입니다."),
 	})
 	@ApiImplicitParams({
@@ -162,6 +168,7 @@ public class PostController {
 	@ApiResponses({
 		@ApiResponse(code = 200, message = "F008 - 게시물 북마크에 성공하였습니다."),
 		@ApiResponse(code = 400, message = "G003 - 유효하지 않은 입력입니다.\n"
+			+ "G004 - 입력 타입이 유효하지 않습니다.\n"
 			+ "F001 - 존재하지 않는 게시물입니다.\n"
 			+ "F006 - 이미 해당 게시물을 저장하였습니다."),
 		@ApiResponse(code = 401, message = "M003 - 로그인이 필요한 화면입니다."),
@@ -178,6 +185,7 @@ public class PostController {
 	@ApiResponses({
 		@ApiResponse(code = 200, message = "F009 - 게시물 북마크 해제에 성공하였습니다."),
 		@ApiResponse(code = 400, message = "G003 - 유효하지 않은 입력입니다.\n"
+			+ "G004 - 입력 타입이 유효하지 않습니다.\n"
 			+ "F001 - 존재하지 않는 게시물입니다.\n"
 			+ "F007 - 아직 해당 게시물을 저장하지 않았습니다."),
 		@ApiResponse(code = 401, message = "M003 - 로그인이 필요한 화면입니다."),
@@ -194,6 +202,7 @@ public class PostController {
 	@ApiResponses({
 		@ApiResponse(code = 200, message = "F018 - 게시물 DM 공유에 성공하였습니다."),
 		@ApiResponse(code = 400, message = "G003 - 유효하지 않은 입력입니다.\n"
+			+ "G004 - 입력 타입이 유효하지 않습니다.\n"
 			+ "F001 - 존재하지 않는 게시물입니다."),
 		@ApiResponse(code = 401, message = "M003 - 로그인이 필요한 화면입니다."),
 	})
@@ -211,7 +220,8 @@ public class PostController {
 	@ApiOperation(value = "해시태그 게시물 목록 페이징 조회")
 	@ApiResponses({
 		@ApiResponse(code = 200, message = "F019 - 해시태그 게시물 목록 페이징 조회 성공"),
-		@ApiResponse(code = 400, message = "G003 - 유효하지 않은 입력입니다."),
+		@ApiResponse(code = 400, message = "G003 - 유효하지 않은 입력입니다.\n"
+			+ "G004 - 입력 타입이 유효하지 않습니다."),
 		@ApiResponse(code = 401, message = "M003 - 로그인이 필요한 화면입니다."),
 	})
 	@ApiImplicitParams({
