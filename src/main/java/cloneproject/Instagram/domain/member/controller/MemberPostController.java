@@ -2,9 +2,6 @@ package cloneproject.Instagram.domain.member.controller;
 
 import java.util.List;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -26,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 @Api(tags = "멤버 게시물 API")
 @RestController
 @RequiredArgsConstructor
+@Validated
 public class MemberPostController {
 
 	private final MemberPostService memberPostService;
@@ -36,8 +34,7 @@ public class MemberPostController {
 		@ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma")
 	})
 	@GetMapping("/accounts/{username}/posts/recent")
-	public ResponseEntity<ResultResponse> getRecent10Posts(
-		@PathVariable("username") @Validated @NotBlank(message = "username은 필수입니다") String username) {
+	public ResponseEntity<ResultResponse> getRecent10Posts(@PathVariable("username") String username) {
 		final List<MemberPostDTO> postList = memberPostService.getRecent15PostDTOs(username);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.FIND_RECENT15_MEMBER_POSTS_SUCCESS, postList));
@@ -50,9 +47,8 @@ public class MemberPostController {
 		@ApiImplicitParam(name = "page", value = "페이지", required = true, example = "1")
 	})
 	@GetMapping("/accounts/{username}/posts")
-	public ResponseEntity<ResultResponse> getPostPage(
-		@PathVariable("username") @Validated @NotBlank(message = "username은 필수입니다") String username,
-		@Validated @NotNull(message = "조회할 게시물 page는 필수입니다.") @RequestParam int page) {
+	public ResponseEntity<ResultResponse> getPostPage(@PathVariable("username") String username,
+		@RequestParam int page) {
 		final Page<MemberPostDTO> postPage = memberPostService.getMemberPostDTOs(username, 3, page);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.FIND_MEMBER_POSTS_SUCCESS, postPage));
@@ -60,7 +56,7 @@ public class MemberPostController {
 
 	// ============== 저장 ================
 	@ApiOperation(value = "멤버 저장한 게시물 15개 조회")
-	@GetMapping("/accounts/{username}/posts/saved/recent")
+	@GetMapping("/accounts/posts/saved/recent")
 	public ResponseEntity<ResultResponse> getRecent1SavedPosts() {
 		final List<MemberPostDTO> postList = memberPostService.getRecent15SavedPostDTOs();
 
@@ -68,10 +64,9 @@ public class MemberPostController {
 	}
 
 	@ApiOperation(value = "멤버 저장한 게시물 페이징 조회(무한스크롤)")
-	@GetMapping("/accounts/{username}/posts/saved")
+	@GetMapping("/accounts/posts/saved")
 	@ApiImplicitParam(name = "page", value = "페이지", required = true, example = "1")
-	public ResponseEntity<ResultResponse> getSavedPostPage(
-		@Validated @NotNull(message = "조회할 게시물 page는 필수입니다.") @RequestParam int page) {
+	public ResponseEntity<ResultResponse> getSavedPostPage(@RequestParam int page) {
 		final Page<MemberPostDTO> postPage = memberPostService.getMemberSavedPostDTOs(3, page);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.FIND_MEMBER_SAVED_POSTS_SUCCESS, postPage));
@@ -84,8 +79,7 @@ public class MemberPostController {
 		@ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma")
 	})
 	@GetMapping("/accounts/{username}/posts/tagged/recent")
-	public ResponseEntity<ResultResponse> getRecent10TaggedPosts(
-		@PathVariable("username") @Validated @NotBlank(message = "username은 필수입니다") String username) {
+	public ResponseEntity<ResultResponse> getRecent10TaggedPosts(@PathVariable("username") String username) {
 		final List<MemberPostDTO> postList = memberPostService.getRecent15TaggedPostDTOs(username);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.FIND_RECENT15_MEMBER_TAGGED_POSTS_SUCCESS, postList));
@@ -98,11 +92,11 @@ public class MemberPostController {
 		@ApiImplicitParam(name = "page", value = "페이지", required = true, example = "1")
 	})
 	@GetMapping("/accounts/{username}/posts/tagged")
-	public ResponseEntity<ResultResponse> getTaggedPostPage(
-		@PathVariable("username") @Validated @NotBlank(message = "username은 필수입니다") String username,
-		@Validated @NotNull(message = "조회할 게시물 page는 필수입니다.") @RequestParam int page) {
+	public ResponseEntity<ResultResponse> getTaggedPostPage(@PathVariable("username") String username,
+		@RequestParam int page) {
 		final Page<MemberPostDTO> postPage = memberPostService.getMemberTaggedPostDTOs(username, 3, page);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.FIND_MEMBER_TAGGED_POSTS_SUCCESS, postPage));
 	}
+
 }
