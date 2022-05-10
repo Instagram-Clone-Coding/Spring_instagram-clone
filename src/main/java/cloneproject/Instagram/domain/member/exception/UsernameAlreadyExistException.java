@@ -7,4 +7,5 @@ public class UsernameAlreadyExistException extends BusinessException {
 	public UsernameAlreadyExistException() {
 		super(ErrorCode.USERNAME_ALREADY_EXIST);
 	}
+
 }

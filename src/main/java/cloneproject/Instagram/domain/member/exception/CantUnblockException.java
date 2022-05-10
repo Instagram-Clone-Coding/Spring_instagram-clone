@@ -7,4 +7,5 @@ public class CantUnblockException extends BusinessException {
 	public CantUnblockException() {
 		super(ErrorCode.CANT_UNBLOCK);
 	}
+
 }

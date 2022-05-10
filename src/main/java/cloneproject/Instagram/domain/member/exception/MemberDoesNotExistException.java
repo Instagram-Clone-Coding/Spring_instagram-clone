@@ -7,4 +7,5 @@ public class MemberDoesNotExistException extends BusinessException {
 	public MemberDoesNotExistException() {
 		super(ErrorCode.MEMBER_NOT_FOUND);
 	}
+
 }

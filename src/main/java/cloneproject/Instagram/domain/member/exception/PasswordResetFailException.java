@@ -7,4 +7,5 @@ public class PasswordResetFailException extends BusinessException {
 	public PasswordResetFailException() {
 		super(ErrorCode.PASSWORD_RESET_FAIL);
 	}
+
 }

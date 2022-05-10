@@ -7,4 +7,5 @@ public class NoConfirmEmailException extends BusinessException {
 	public NoConfirmEmailException() {
 		super(ErrorCode.EMAIL_NOT_CONFIRMED);
 	}
+
 }

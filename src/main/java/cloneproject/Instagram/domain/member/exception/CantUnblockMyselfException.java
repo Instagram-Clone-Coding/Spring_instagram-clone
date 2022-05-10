@@ -7,4 +7,5 @@ public class CantUnblockMyselfException extends BusinessException {
 	public CantUnblockMyselfException() {
 		super(ErrorCode.CANT_UNBLOCK_MYSELF);
 	}
+
 }
