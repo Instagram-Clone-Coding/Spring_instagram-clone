@@ -88,7 +88,8 @@ public class EmailCodeService {
 
 		final String code = createConfirmationCode(30);
 		final String email = member.getEmail();
-		final String text = String.format(resetPasswordEmailUI, username, code, username, code, email, username);
+		final String text = String.format(resetPasswordEmailUI, username, username, code, username, username, code,
+			email, username);
 		emailService.sendHtmlTextEmail(username + ", recover your account's password.", text, email);
 
 		final ResetPasswordCode resetPasswordCode = ResetPasswordCode.builder()
