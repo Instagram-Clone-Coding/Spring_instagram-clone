@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @Getter
-public class LoginedDevicesDTO {
+public class LoginDevicesDTO {
 
 	private String tokenId;
 	private GeoIP location;

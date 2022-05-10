@@ -27,7 +27,7 @@ import cloneproject.Instagram.domain.member.dto.JwtDto;
 import cloneproject.Instagram.domain.member.dto.JwtResponse;
 import cloneproject.Instagram.domain.member.dto.LoginRequest;
 import cloneproject.Instagram.domain.member.dto.LoginWithCodeRequest;
-import cloneproject.Instagram.domain.member.dto.LoginedDevicesDTO;
+import cloneproject.Instagram.domain.member.dto.LoginDevicesDTO;
 import cloneproject.Instagram.domain.member.dto.RegisterRequest;
 import cloneproject.Instagram.domain.member.dto.ResetPasswordRequest;
 import cloneproject.Instagram.domain.member.dto.SendConfirmationEmailRequest;
@@ -259,7 +259,7 @@ public class MemberAuthController {
 	@ApiOperation(value = "로그인한 기기 조회")
 	@GetMapping(value = "/accounts/login/device")
 	public ResponseEntity<ResultResponse> getLoginDevices() {
-		final List<LoginedDevicesDTO> loginDevicesDTOs = memberAuthService.getLoginDevices();
+		final List<LoginDevicesDTO> loginDevicesDTOs = memberAuthService.getLoginDevices();
 
 		return ResponseEntity.ok(ResultResponse.of(GET_LOGIN_DEVICES_SUCCESS, loginDevicesDTOs));
 	}

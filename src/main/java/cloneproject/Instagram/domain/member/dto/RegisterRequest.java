@@ -39,12 +39,12 @@ public class RegisterRequest {
 	@ApiModelProperty(value = "이메일", example = "aaa@gmail.com", required = true)
 	@NotBlank(message = "이메일을 입력해주세요")
 	@Email(message = "이메일의 형식이 맞지 않습니다")
-	String email;
+	private String email;
 
 	@ApiModelProperty(value = "이메일 인증코드", example = "ABC123", required = true)
 	@NotBlank(message = "이메일 인증코드를 입력해주세요")
 	@Length(max = 6, min = 6, message = "인증코드는 6자리 입니다.")
-	String code;
+	private String code;
 
 	public Member convert() {
 		return Member.builder()

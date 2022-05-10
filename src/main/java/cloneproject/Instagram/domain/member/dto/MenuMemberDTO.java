@@ -25,4 +25,5 @@ public class MenuMemberDTO {
 
 	@ApiModelProperty(value = "이름", example = "이지금")
 	private String memberName;
+
 }

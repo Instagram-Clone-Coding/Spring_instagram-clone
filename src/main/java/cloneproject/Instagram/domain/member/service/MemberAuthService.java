@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import cloneproject.Instagram.domain.member.dto.JwtDto;
 import cloneproject.Instagram.domain.member.dto.LoginRequest;
 import cloneproject.Instagram.domain.member.dto.LoginWithCodeRequest;
-import cloneproject.Instagram.domain.member.dto.LoginedDevicesDTO;
+import cloneproject.Instagram.domain.member.dto.LoginDevicesDTO;
 import cloneproject.Instagram.domain.member.dto.RegisterRequest;
 import cloneproject.Instagram.domain.member.dto.ResetPasswordRequest;
 import cloneproject.Instagram.domain.member.dto.UpdatePasswordRequest;
@@ -195,7 +195,7 @@ public class MemberAuthService {
 		}
 	}
 
-	public List<LoginedDevicesDTO> getLoginDevices() {
+	public List<LoginDevicesDTO> getLoginDevices() {
 		final Member member = authUtil.getLoginMember();
 		return refreshTokenService.getLoginDevices(member.getId());
 	}

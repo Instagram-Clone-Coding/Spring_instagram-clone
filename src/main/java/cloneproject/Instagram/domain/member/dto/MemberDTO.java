@@ -22,4 +22,5 @@ public class MemberDTO {
 		this.image = member.getImage();
 		this.hasStory = false;
 	}
+
 }
