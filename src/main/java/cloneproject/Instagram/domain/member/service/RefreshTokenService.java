@@ -32,7 +32,7 @@ public class RefreshTokenService {
 
 	@Transactional
 	public void addRefreshToken(Long memberId, String tokenValue, String device, GeoIP geoIP) {
-		List<RefreshToken> refreshTokens = refreshTokenRedisRepository.findByMemberId(memberId)
+		final List<RefreshToken> refreshTokens = refreshTokenRedisRepository.findByMemberId(memberId)
 				.stream()
 				.sorted(Comparator.comparing(RefreshToken::getCreatedAt))
 				.collect(Collectors.toList());
@@ -42,7 +42,7 @@ public class RefreshTokenService {
 			refreshTokens.remove(i);
 		}
 
-		RefreshToken refreshToken = RefreshToken.builder()
+		final RefreshToken refreshToken = RefreshToken.builder()
 				.memberId(memberId)
 				.value(tokenValue)
 				.device(device)
@@ -59,7 +59,7 @@ public class RefreshTokenService {
 
 	@Transactional
 	public void updateRefreshToken(RefreshToken refreshToken, String newToken) {
-		RefreshToken newRefreshToken = RefreshToken.builder()
+		final RefreshToken newRefreshToken = RefreshToken.builder()
 				.memberId(refreshToken.getMemberId())
 				.value(newToken)
 				.device(refreshToken.getDevice())
@@ -71,28 +71,27 @@ public class RefreshTokenService {
 
 	@Transactional
 	public void deleteRefreshTokenWithValue(Long memberId, String value) {
-		RefreshToken refreshToken = refreshTokenRedisRepository.findByMemberIdAndValue(memberId, value)
+		final RefreshToken refreshToken = refreshTokenRedisRepository.findByMemberIdAndValue(memberId, value)
 				.orElseThrow(InvalidJwtException::new);
 		refreshTokenRedisRepository.delete(refreshToken);
 	}
 
 	@Transactional
 	public void deleteRefreshTokenWithId(Long memberId, String id) {
-		RefreshToken refreshToken = refreshTokenRedisRepository.findByMemberIdAndId(memberId, id)
+		final RefreshToken refreshToken = refreshTokenRedisRepository.findByMemberIdAndId(memberId, id)
 				.orElseThrow(InvalidJwtException::new);
 		refreshTokenRedisRepository.delete(refreshToken);
 	}
 
 	@Transactional(readOnly = true)
-	public List<LoginedDevicesDTO> getLoginedDevices(Long memberId) {
-		List<RefreshToken> refreshTokens = refreshTokenRedisRepository.findByMemberId(memberId)
+	public List<LoginedDevicesDTO> getLoginDevices(Long memberId) {
+		final List<RefreshToken> refreshTokens = refreshTokenRedisRepository.findByMemberId(memberId)
 				.stream()
 				.sorted(Comparator.comparing(RefreshToken::getCreatedAt).reversed())
 				.collect(Collectors.toList());
-		List<LoginedDevicesDTO> loginedDevicesDTOs = refreshTokens.stream()
+		return refreshTokens.stream()
 				.map(this::convertRefreshTokenToLoginedDevicesDTO)
 				.collect(Collectors.toList());
-		return loginedDevicesDTOs;
 	}
 
 	private LoginedDevicesDTO convertRefreshTokenToLoginedDevicesDTO(RefreshToken refreshToken) {
@@ -102,4 +101,5 @@ public class RefreshTokenService {
 				.location(refreshToken.getGeoIP())
 				.build();
 	}
+
 }

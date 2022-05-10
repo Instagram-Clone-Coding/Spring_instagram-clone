@@ -32,11 +32,12 @@ public class JwtUserDetailsService implements UserDetailsService {
     }
 
     private UserDetails createUserDetails(Member member) {
-        GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getRole().toString());
+        final GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getRole().toString());
         // TOKEN, AUTHENTICATION 에 넣을 값 (ex. username, id)
         return new User(
                 String.valueOf(member.getId()),
                 member.getPassword(),
                 Collections.singleton(grantedAuthority));
     }
+
 }

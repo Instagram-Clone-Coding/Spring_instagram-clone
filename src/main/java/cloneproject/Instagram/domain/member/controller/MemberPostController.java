@@ -2,6 +2,8 @@ package cloneproject.Instagram.domain.member.controller;
 
 import java.util.List;
 
+import javax.validation.constraints.Min;
+
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -48,7 +50,7 @@ public class MemberPostController {
 	})
 	@GetMapping("/accounts/{username}/posts")
 	public ResponseEntity<ResultResponse> getPostPage(@PathVariable("username") String username,
-		@RequestParam int page) {
+		@Min(1) @RequestParam int page) {
 		final Page<MemberPostDTO> postPage = memberPostService.getMemberPostDTOs(username, 3, page);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.FIND_MEMBER_POSTS_SUCCESS, postPage));
@@ -66,7 +68,7 @@ public class MemberPostController {
 	@ApiOperation(value = "멤버 저장한 게시물 페이징 조회(무한스크롤)")
 	@GetMapping("/accounts/posts/saved")
 	@ApiImplicitParam(name = "page", value = "페이지", required = true, example = "1")
-	public ResponseEntity<ResultResponse> getSavedPostPage(@RequestParam int page) {
+	public ResponseEntity<ResultResponse> getSavedPostPage(@Min(1) @RequestParam int page) {
 		final Page<MemberPostDTO> postPage = memberPostService.getMemberSavedPostDTOs(3, page);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.FIND_MEMBER_SAVED_POSTS_SUCCESS, postPage));
@@ -93,7 +95,7 @@ public class MemberPostController {
 	})
 	@GetMapping("/accounts/{username}/posts/tagged")
 	public ResponseEntity<ResultResponse> getTaggedPostPage(@PathVariable("username") String username,
-		@RequestParam int page) {
+		@Min(1) @RequestParam int page) {
 		final Page<MemberPostDTO> postPage = memberPostService.getMemberTaggedPostDTOs(username, 3, page);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.FIND_MEMBER_TAGGED_POSTS_SUCCESS, postPage));

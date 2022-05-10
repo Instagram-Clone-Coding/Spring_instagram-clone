@@ -1,5 +1,12 @@
 package cloneproject.Instagram.domain.member.service;
 
+import static cloneproject.Instagram.global.error.ErrorCode.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,13 +32,6 @@ import cloneproject.Instagram.global.vo.Image;
 import cloneproject.Instagram.infra.aws.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import static cloneproject.Instagram.global.error.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -64,7 +64,7 @@ public class MemberService {
 		final Member member = memberRepository.findByUsername(username)
 			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
-		UserProfileResponse result = memberRepository.getUserProfile(memberId, member.getUsername());
+		final UserProfileResponse result = memberRepository.getUserProfile(memberId, member.getUsername());
 		result.setHasStory(memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0);
 
 		return result;
@@ -77,7 +77,7 @@ public class MemberService {
 		final Member member = memberRepository.findByUsername(username)
 			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
-		MiniProfileResponse result = memberRepository.getMiniProfile(memberId, member.getUsername());
+		final MiniProfileResponse result = memberRepository.getMiniProfile(memberId, member.getUsername());
 		result.setHasStory(memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0);
 		setMemberPostImages(result, member.getId());
 		return result;
@@ -93,7 +93,7 @@ public class MemberService {
 		final Map<Long, List<PostImageDTO>> postDTOMap = postImages.stream()
 			.collect(Collectors.groupingBy(PostImageDTO::getPostId));
 
-		List<MiniProfilePostDTO> results = new ArrayList<>();
+		final List<MiniProfilePostDTO> results = new ArrayList<>();
 		postDTOMap.forEach((id, p) -> results.add(
 			MiniProfilePostDTO.builder()
 				.postId(id)
@@ -105,28 +105,28 @@ public class MemberService {
 
 	@Transactional
 	public void uploadMemberImage(MultipartFile uploadedImage) {
-		Member member = authUtil.getLoginMember();
+		final Member member = authUtil.getLoginMember();
 
 		// 기존 사진 삭제
-		Image originalImage = member.getImage();
+		final Image originalImage = member.getImage();
 		s3Uploader.deleteImage("member", originalImage);
 
-		Image image = s3Uploader.uploadImage(uploadedImage, "member");
+		final Image image = s3Uploader.uploadImage(uploadedImage, "member");
 		member.uploadImage(image);
 		memberRepository.save(member);
 	}
 
 	@Transactional
 	public void deleteMemberImage() {
-		Member member = authUtil.getLoginMember();
-		Image image = member.getImage();
+		final Member member = authUtil.getLoginMember();
+		final Image image = member.getImage();
 		s3Uploader.deleteImage("member", image);
 		member.deleteImage();
 		memberRepository.save(member);
 	}
 
 	public EditProfileResponse getEditProfile() {
-		Member member = authUtil.getLoginMember();
+		final Member member = authUtil.getLoginMember();
 		return EditProfileResponse.builder()
 			.memberUsername(member.getUsername())
 			.memberName(member.getName())
@@ -141,7 +141,7 @@ public class MemberService {
 
 	// TODO 변경시 이메일 인증 로직은?
 	public void editProfile(EditProfileRequest editProfileRequest) {
-		Member member = authUtil.getLoginMember();
+		final Member member = authUtil.getLoginMember();
 
 		if (memberRepository.existsByUsername(editProfileRequest.getMemberUsername())
 			&& !member.getUsername().equals(editProfileRequest.getMemberUsername())) {
@@ -157,4 +157,5 @@ public class MemberService {
 		member.updateGender(Gender.valueOf(editProfileRequest.getMemberGender()));
 		memberRepository.save(member);
 	}
+
 }

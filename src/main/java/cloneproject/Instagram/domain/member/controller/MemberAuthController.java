@@ -127,7 +127,7 @@ public class MemberAuthController {
 		if (refreshCookie == null) {
 			throw new InvalidJwtException();
 		}
-		final Optional<JwtDto> optionalJwt = memberAuthService.reisuue(refreshCookie.getValue());
+		final Optional<JwtDto> optionalJwt = memberAuthService.reissue(refreshCookie.getValue());
 		if (optionalJwt.isEmpty()) {
 			return ResponseEntity.ok(ResultResponse.of(LOGOUT_BY_ANOTHER_DEVICE));
 		} else {
@@ -259,7 +259,7 @@ public class MemberAuthController {
 	@ApiOperation(value = "로그인한 기기 조회")
 	@GetMapping(value = "/accounts/login/device")
 	public ResponseEntity<ResultResponse> getLoginDevices() {
-		final List<LoginedDevicesDTO> loginDevicesDTOs = memberAuthService.getLoginedDevices();
+		final List<LoginedDevicesDTO> loginDevicesDTOs = memberAuthService.getLoginDevices();
 
 		return ResponseEntity.ok(ResultResponse.of(GET_LOGIN_DEVICES_SUCCESS, loginDevicesDTOs));
 	}

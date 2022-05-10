@@ -1,5 +1,7 @@
 package cloneproject.Instagram.domain.member.service;
 
+import static cloneproject.Instagram.global.error.ErrorCode.*;
+
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -13,9 +15,9 @@ import cloneproject.Instagram.domain.member.exception.AlreadyBlockException;
 import cloneproject.Instagram.domain.member.exception.CantBlockMyselfException;
 import cloneproject.Instagram.domain.member.exception.CantUnblockException;
 import cloneproject.Instagram.domain.member.exception.CantUnblockMyselfException;
-import cloneproject.Instagram.domain.member.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.domain.member.repository.BlockRepository;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
+import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 import cloneproject.Instagram.global.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +36,7 @@ public class BlockService {
 	public boolean block(String blockMemberUsername) {
 		final Member member = authUtil.getLoginMember();
 		final Member blockMember = memberRepository.findByUsername(blockMemberUsername)
-			.orElseThrow(MemberDoesNotExistException::new);
+			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
 		if (member.getId().equals(blockMember.getId())) {
 			throw new CantBlockMyselfException();
@@ -50,7 +52,7 @@ public class BlockService {
 		follow = followRepository.findByMemberIdAndFollowMemberId(blockMember.getId(), member.getId());
 		follow.ifPresent(followRepository::delete);
 
-		Block block = new Block(member, blockMember);
+		final Block block = new Block(member, blockMember);
 		blockRepository.save(block);
 		return true;
 	}
@@ -59,13 +61,13 @@ public class BlockService {
 	public boolean unblock(String blockMemberUsername) {
 		final Long memberId = authUtil.getLoginMemberId();
 		final Member blockMember = memberRepository.findByUsername(blockMemberUsername)
-			.orElseThrow(MemberDoesNotExistException::new);
+			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
 		if (memberId.equals(blockMember.getId())) {
 			throw new CantUnblockMyselfException();
 		}
 
-		Block block = blockRepository.findByMemberIdAndBlockMemberId(memberId, blockMember.getId())
+		final Block block = blockRepository.findByMemberIdAndBlockMemberId(memberId, blockMember.getId())
 			.orElseThrow(CantUnblockException::new);
 		blockRepository.delete(block);
 		return true;
