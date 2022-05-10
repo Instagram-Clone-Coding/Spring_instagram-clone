@@ -14,9 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cloneproject.Instagram.domain.member.dto.JwtDto;
+import cloneproject.Instagram.domain.member.dto.LoginDevicesDTO;
 import cloneproject.Instagram.domain.member.dto.LoginRequest;
 import cloneproject.Instagram.domain.member.dto.LoginWithCodeRequest;
-import cloneproject.Instagram.domain.member.dto.LoginDevicesDTO;
 import cloneproject.Instagram.domain.member.dto.RegisterRequest;
 import cloneproject.Instagram.domain.member.dto.ResetPasswordRequest;
 import cloneproject.Instagram.domain.member.dto.UpdatePasswordRequest;
@@ -132,10 +132,11 @@ public class MemberAuthService {
 	@Transactional
 	public void updatePassword(UpdatePasswordRequest updatePasswordRequest) {
 		final Member member = authUtil.getLoginMember();
-		final boolean oldPasswordCorrect = bCryptPasswordEncoder.matches(updatePasswordRequest.getOldPassword(),
-			member.getPassword());
-		if (!oldPasswordCorrect) {
+		if (!bCryptPasswordEncoder.matches(updatePasswordRequest.getOldPassword(), member.getPassword())) {
 			throw new AccountMismatchException();
+		}
+		if (updatePasswordRequest.getOldPassword().equals(updatePasswordRequest.getNewPassword())) {
+			throw new EntityAlreadyExistException(PASSWORD_ALREADY_EXIST);
 		}
 		final String encryptedPassword = bCryptPasswordEncoder.encode(updatePasswordRequest.getNewPassword());
 		member.setEncryptedPassword(encryptedPassword);
@@ -151,10 +152,15 @@ public class MemberAuthService {
 	public JwtDto resetPassword(ResetPasswordRequest resetPasswordRequest, String device, String ip) {
 		final Member member = memberRepository.findByUsername(resetPasswordRequest.getUsername())
 			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
+
 		if (!emailCodeService.checkResetPasswordCode(resetPasswordRequest.getUsername(),
 			resetPasswordRequest.getCode())) {
 			throw new PasswordResetFailException();
 		}
+		if (bCryptPasswordEncoder.matches(resetPasswordRequest.getNewPassword(), member.getPassword())) {
+			throw new EntityAlreadyExistException(PASSWORD_ALREADY_EXIST);
+		}
+
 		final String encryptedPassword = bCryptPasswordEncoder.encode(resetPasswordRequest.getNewPassword());
 		member.setEncryptedPassword(encryptedPassword);
 		memberRepository.save(member);
