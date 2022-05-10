@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import cloneproject.Instagram.domain.member.dto.LoginedDevicesDTO;
+import cloneproject.Instagram.domain.member.dto.LoginDevicesDTO;
 import cloneproject.Instagram.domain.member.entity.redis.RefreshToken;
 import cloneproject.Instagram.domain.member.exception.InvalidJwtException;
 import cloneproject.Instagram.domain.member.repository.redis.RefreshTokenRedisRepository;
@@ -84,7 +84,7 @@ public class RefreshTokenService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<LoginedDevicesDTO> getLoginDevices(Long memberId) {
+	public List<LoginDevicesDTO> getLoginDevices(Long memberId) {
 		final List<RefreshToken> refreshTokens = refreshTokenRedisRepository.findByMemberId(memberId)
 				.stream()
 				.sorted(Comparator.comparing(RefreshToken::getCreatedAt).reversed())
@@ -94,8 +94,8 @@ public class RefreshTokenService {
 				.collect(Collectors.toList());
 	}
 
-	private LoginedDevicesDTO convertRefreshTokenToLoginedDevicesDTO(RefreshToken refreshToken) {
-		return LoginedDevicesDTO.builder()
+	private LoginDevicesDTO convertRefreshTokenToLoginedDevicesDTO(RefreshToken refreshToken) {
+		return LoginDevicesDTO.builder()
 				.tokenId(refreshToken.getId())
 				.device(refreshToken.getDevice())
 				.location(refreshToken.getGeoIP())

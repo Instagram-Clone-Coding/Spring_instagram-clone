@@ -20,4 +20,5 @@ public interface MemberRepository
 	boolean existsByUsername(String username);
 
 	List<Member> findAllByUsernameIn(Collection<String> usernames);
+
 }

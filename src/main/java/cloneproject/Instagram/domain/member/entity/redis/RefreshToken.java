@@ -1,6 +1,8 @@
 package cloneproject.Instagram.domain.member.entity.redis;
 
-import lombok.*;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
@@ -8,10 +10,10 @@ import org.springframework.data.redis.core.TimeToLive;
 import org.springframework.data.redis.core.index.Indexed;
 
 import cloneproject.Instagram.infra.geoip.dto.GeoIP;
-
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.concurrent.TimeUnit;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @RedisHash("refresh_tokens")
 @Getter

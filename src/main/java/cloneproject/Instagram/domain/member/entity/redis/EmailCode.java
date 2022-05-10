@@ -32,4 +32,5 @@ public class EmailCode implements Serializable {
 		this.code = code;
 		this.email = email;
 	}
+
 }

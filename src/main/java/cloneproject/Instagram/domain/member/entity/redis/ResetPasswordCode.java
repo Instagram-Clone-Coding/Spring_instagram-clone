@@ -29,4 +29,5 @@ public class ResetPasswordCode implements Serializable {
 		this.username = username;
 		this.code = code;
 	}
+
 }

@@ -13,7 +13,7 @@ public class BlockRepositoryQuerydslImpl implements BlockRepositoryQuerydsl {
 
 	@Override
 	public boolean isBlockingOrIsBlocked(Long loginUserId, Long targetMemberId) {
-		Integer result = queryFactory
+		final Integer result = queryFactory
 			.selectOne()
 			.from(block)
 			.where((block.member.id.eq(loginUserId).and(block.blockMember.id.eq(targetMemberId)))

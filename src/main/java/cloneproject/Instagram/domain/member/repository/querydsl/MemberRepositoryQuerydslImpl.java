@@ -1,12 +1,5 @@
 package cloneproject.Instagram.domain.member.repository.querydsl;
 
-import cloneproject.Instagram.domain.member.dto.MiniProfileResponse;
-import cloneproject.Instagram.domain.member.dto.QMiniProfileResponse;
-import cloneproject.Instagram.domain.member.dto.QUserProfileResponse;
-import cloneproject.Instagram.domain.member.dto.UserProfileResponse;
-import cloneproject.Instagram.domain.member.entity.Member;
-import lombok.RequiredArgsConstructor;
-
 import java.util.List;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -14,10 +7,17 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import static cloneproject.Instagram.domain.feed.entity.QPost.post;
-import static cloneproject.Instagram.domain.follow.entity.QFollow.follow;
-import static cloneproject.Instagram.domain.member.entity.QBlock.block;
-import static cloneproject.Instagram.domain.member.entity.QMember.member;
+import cloneproject.Instagram.domain.member.dto.MiniProfileResponse;
+import cloneproject.Instagram.domain.member.dto.QMiniProfileResponse;
+import cloneproject.Instagram.domain.member.dto.QUserProfileResponse;
+import cloneproject.Instagram.domain.member.dto.UserProfileResponse;
+import cloneproject.Instagram.domain.member.entity.Member;
+import lombok.RequiredArgsConstructor;
+
+import static cloneproject.Instagram.domain.feed.entity.QPost.*;
+import static cloneproject.Instagram.domain.follow.entity.QFollow.*;
+import static cloneproject.Instagram.domain.member.entity.QBlock.*;
+import static cloneproject.Instagram.domain.member.entity.QMember.*;
 
 @RequiredArgsConstructor
 public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl {
@@ -26,7 +26,6 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl {
 
 	@Override
 	public UserProfileResponse getUserProfile(Long loginUserId, String username) {
-
 		return queryFactory
 			.select(new QUserProfileResponse(
 				member.username,
@@ -50,7 +49,6 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl {
 
 	@Override
 	public MiniProfileResponse getMiniProfile(Long loginUserId, String username) {
-
 		return queryFactory
 			.select(new QMiniProfileResponse(
 				member.username,
@@ -68,7 +66,6 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl {
 			.from(member)
 			.where(member.username.eq(username))
 			.fetchOne();
-
 	}
 
 	@Override
