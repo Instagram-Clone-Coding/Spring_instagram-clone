@@ -2,7 +2,6 @@ package cloneproject.Instagram.domain.member.service;
 
 import java.util.Collections;
 
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -20,8 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class JwtUserDetailsService implements UserDetailsService{
-    
+public class JwtUserDetailsService implements UserDetailsService {
+
     private final MemberRepository memberRepository;
 
     @Override
@@ -32,13 +31,13 @@ public class JwtUserDetailsService implements UserDetailsService{
                 .orElseThrow(() -> new UsernameNotFoundException("일치하는 계정이 없습니다"));
     }
 
-    private UserDetails createUserDetails(Member member){
-        GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getRole().toString());
+    private UserDetails createUserDetails(Member member) {
+        final GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getRole().toString());
         // TOKEN, AUTHENTICATION 에 넣을 값 (ex. username, id)
         return new User(
-            String.valueOf(member.getId()),
-            member.getPassword(),
-            Collections.singleton(grantedAuthority)
-        );
+                String.valueOf(member.getId()),
+                member.getPassword(),
+                Collections.singleton(grantedAuthority));
     }
+
 }

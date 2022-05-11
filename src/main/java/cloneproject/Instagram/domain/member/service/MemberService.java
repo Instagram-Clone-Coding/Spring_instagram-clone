@@ -1,10 +1,21 @@
 package cloneproject.Instagram.domain.member.service;
 
-import org.springframework.security.core.context.SecurityContextHolder;
+import static cloneproject.Instagram.global.error.ErrorCode.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import cloneproject.Instagram.domain.feed.dto.MiniProfilePostDTO;
+import cloneproject.Instagram.domain.feed.dto.PostImageDTO;
+import cloneproject.Instagram.domain.feed.entity.Post;
+import cloneproject.Instagram.domain.feed.repository.PostImageRepository;
+import cloneproject.Instagram.domain.feed.repository.PostRepository;
 import cloneproject.Instagram.domain.member.dto.EditProfileRequest;
 import cloneproject.Instagram.domain.member.dto.EditProfileResponse;
 import cloneproject.Instagram.domain.member.dto.MenuMemberDTO;
@@ -12,9 +23,10 @@ import cloneproject.Instagram.domain.member.dto.MiniProfileResponse;
 import cloneproject.Instagram.domain.member.dto.UserProfileResponse;
 import cloneproject.Instagram.domain.member.entity.Gender;
 import cloneproject.Instagram.domain.member.entity.Member;
-import cloneproject.Instagram.domain.member.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.domain.member.exception.UsernameAlreadyExistException;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
+import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
+import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 import cloneproject.Instagram.global.util.AuthUtil;
 import cloneproject.Instagram.global.vo.Image;
 import cloneproject.Instagram.infra.aws.S3Uploader;
@@ -26,113 +38,124 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class MemberService {
 
+	private final AuthUtil authUtil;
+	private final MemberRepository memberRepository;
+	private final S3Uploader s3Uploader;
+	private final MemberStoryRedisRepository memberStoryRedisRepository;
+	private final PostRepository postRepository;
+	private final PostImageRepository postImageRepository;
 
-    private final MemberRepository memberRepository;
-    
-    private final S3Uploader s3Uploader;
+	@Transactional(readOnly = true)
+	public MenuMemberDTO getMenuMemberProfile() {
+		final Member member = authUtil.getLoginMember();
 
-    @Transactional(readOnly = true)
-    public MenuMemberDTO getMenuMemberProfile(){
-        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
+		return MenuMemberDTO.builder()
+			.memberId(member.getId())
+			.memberUsername(member.getUsername())
+			.memberName(member.getName())
+			.memberImageUrl(member.getImage().getImageUrl())
+			.build();
+	}
 
-        final Member member = memberRepository.findById(Long.valueOf(memberId))
-                                .orElseThrow(MemberDoesNotExistException::new);
-        
-        return MenuMemberDTO.builder()
-                            .memberId(member.getId())
-                            .memberUsername(member.getUsername())
-                            .memberName(member.getName())
-                            .memberImageUrl(member.getImage().getImageUrl())
-                            .build();
-        
-    }
+	@Transactional(readOnly = true)
+	public UserProfileResponse getUserProfile(String username) {
+		final Long memberId = authUtil.getLoginMemberIdOrNull();
 
-    @Transactional(readOnly = true)
-    public UserProfileResponse getUserProfile(String username){
-        final Long memberId = AuthUtil.getLoginMemberIdOrNull();
-        
-        final Member member = memberRepository.findByUsername(username)
-                                .orElseThrow(MemberDoesNotExistException::new);
+		final Member member = memberRepository.findByUsername(username)
+			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
-        
-        UserProfileResponse result = memberRepository.getUserProfile(memberId, member.getUsername());
-        
-        return result;
-    }
+		final UserProfileResponse result = memberRepository.getUserProfile(memberId, member.getUsername());
+		result.setHasStory(memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0);
 
-    @Transactional(readOnly = true)
-    public MiniProfileResponse getMiniProfile(String username){
-        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
+		return result;
+	}
 
-        final Member member = memberRepository.findByUsername(username)
-                                .orElseThrow(MemberDoesNotExistException::new);
-        
-        MiniProfileResponse result = memberRepository.getMiniProfile(Long.valueOf(memberId), member.getUsername());
+	@Transactional(readOnly = true)
+	public MiniProfileResponse getMiniProfile(String username) {
+		final Long memberId = authUtil.getLoginMemberId();
 
-        return result;
-    }
+		final Member member = memberRepository.findByUsername(username)
+			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
-    @Transactional
-    public void uploadMemberImage(MultipartFile uploadedImage){
-        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findById(Long.valueOf(memberId))
-                                    .orElseThrow(MemberDoesNotExistException::new);
+		final MiniProfileResponse result = memberRepository.getMiniProfile(memberId, member.getUsername());
+		result.setHasStory(memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0);
+		setMemberPostImages(result, member.getId());
+		return result;
+	}
 
-        // 기존 사진 삭제
-        Image originalImage = member.getImage();
-        s3Uploader.deleteImage("member", originalImage);
+	private void setMemberPostImages(MiniProfileResponse miniProfileResponse, Long memberId) {
+		final List<Post> posts = postRepository.findTop3ByMemberIdOrderByIdDesc(memberId);
+		final List<Long> postIds = posts.stream()
+			.map(Post::getId)
+			.collect(Collectors.toList());
+		final List<PostImageDTO> postImages = postImageRepository.findAllPostImageDto(postIds);
 
-        Image image = s3Uploader.uploadImage(uploadedImage, "member");
-        member.uploadImage(image);
-        memberRepository.save(member);
-    }
+		final Map<Long, List<PostImageDTO>> postDTOMap = postImages.stream()
+			.collect(Collectors.groupingBy(PostImageDTO::getPostId));
 
-    @Transactional
-    public void deleteMemberImage(){
-        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findById(Long.valueOf(memberId))
-                                    .orElseThrow(MemberDoesNotExistException::new);
-        Image image = member.getImage();
-        s3Uploader.deleteImage("member", image);
-        member.deleteImage();
-        memberRepository.save(member);
-    }
+		final List<MiniProfilePostDTO> results = new ArrayList<>();
+		postDTOMap.forEach((id, p) -> results.add(
+			MiniProfilePostDTO.builder()
+				.postId(id)
+				.postImageUrl(p.get(0).getPostImageUrl())
+				.build()));
 
-    public EditProfileResponse getEditProfile(){
-        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findById(Long.valueOf(memberId))
-                                .orElseThrow(MemberDoesNotExistException::new);
-        return EditProfileResponse.builder()
-                                .memberUsername(member.getUsername())
-                                .memberName(member.getName())
-                                .memberImageUrl(member.getImage().getImageUrl())
-                                .memberGender(member.getGender().toString())
-                                .memberEmail(member.getEmail())
-                                .memberIntroduce(member.getIntroduce())
-                                .memberWebsite(member.getWebsite())
-                                .memberPhone(member.getPhone())
-                                .build();
-    }
+		miniProfileResponse.setMemberPosts(results);
+	}
 
-    // TODO 변경시 이메일 인증 로직은?
-    public void editProfile(EditProfileRequest editProfileRequest){
-        final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findById(Long.valueOf(memberId))
-                                .orElseThrow(MemberDoesNotExistException::new);
-        
-        if(memberRepository.existsByUsername(editProfileRequest.getMemberUsername())
-                        && !member.getUsername().equals(editProfileRequest.getMemberUsername())){
-            throw new UsernameAlreadyExistException();
-        }
-        
-        member.updateUsername(editProfileRequest.getMemberUsername());
-        member.updateName(editProfileRequest.getMemberName());
-        member.updateEmail(editProfileRequest.getMemberEmail());
-        member.updateIntroduce(editProfileRequest.getMemberIntroduce());
-        member.updateWebsite(editProfileRequest.getMemberWebsite());
-        member.updatePhone(editProfileRequest.getMemberPhone());
-        member.updateGender(Gender.valueOf(editProfileRequest.getMemberGender()));
-        memberRepository.save(member);
-    }
-    
+	@Transactional
+	public void uploadMemberImage(MultipartFile uploadedImage) {
+		final Member member = authUtil.getLoginMember();
+
+		// 기존 사진 삭제
+		final Image originalImage = member.getImage();
+		s3Uploader.deleteImage("member", originalImage);
+
+		final Image image = s3Uploader.uploadImage(uploadedImage, "member");
+		member.uploadImage(image);
+		memberRepository.save(member);
+	}
+
+	@Transactional
+	public void deleteMemberImage() {
+		final Member member = authUtil.getLoginMember();
+		final Image image = member.getImage();
+		s3Uploader.deleteImage("member", image);
+		member.deleteImage();
+		memberRepository.save(member);
+	}
+
+	public EditProfileResponse getEditProfile() {
+		final Member member = authUtil.getLoginMember();
+		return EditProfileResponse.builder()
+			.memberUsername(member.getUsername())
+			.memberName(member.getName())
+			.memberImageUrl(member.getImage().getImageUrl())
+			.memberGender(member.getGender().toString())
+			.memberEmail(member.getEmail())
+			.memberIntroduce(member.getIntroduce())
+			.memberWebsite(member.getWebsite())
+			.memberPhone(member.getPhone())
+			.build();
+	}
+
+	// TODO 변경시 이메일 인증 로직은?
+	public void editProfile(EditProfileRequest editProfileRequest) {
+		final Member member = authUtil.getLoginMember();
+
+		if (memberRepository.existsByUsername(editProfileRequest.getMemberUsername())
+			&& !member.getUsername().equals(editProfileRequest.getMemberUsername())) {
+			throw new UsernameAlreadyExistException();
+		}
+
+		member.updateUsername(editProfileRequest.getMemberUsername());
+		member.updateName(editProfileRequest.getMemberName());
+		member.updateEmail(editProfileRequest.getMemberEmail());
+		member.updateIntroduce(editProfileRequest.getMemberIntroduce());
+		member.updateWebsite(editProfileRequest.getMemberWebsite());
+		member.updatePhone(editProfileRequest.getMemberPhone());
+		member.updateGender(Gender.valueOf(editProfileRequest.getMemberGender()));
+		memberRepository.save(member);
+	}
+
 }

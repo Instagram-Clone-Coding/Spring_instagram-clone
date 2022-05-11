@@ -10,16 +10,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LikeMembersDTO {
 
-    private MemberDTO member;
-    private boolean isFollowing;
-    private boolean isFollower;
-    private boolean hasStory;
+	private MemberDTO member;
+	private boolean isFollowing;
+	private boolean isFollower;
+	private boolean hasStory;
 
-    @QueryProjection
-    public LikeMembersDTO(Member member, boolean isFollowing, boolean isFollower) {
-        this.member = new MemberDTO(member);
-        this.isFollowing = isFollowing;
-        this.isFollower = isFollower;
-        this.hasStory = false;
-    }
+	@QueryProjection
+	public LikeMembersDTO(Member member, boolean isFollowing, boolean isFollower) {
+		this.member = new MemberDTO(member);
+		this.isFollowing = isFollowing;
+		this.isFollower = isFollower;
+		this.hasStory = false;
+	}
+
 }

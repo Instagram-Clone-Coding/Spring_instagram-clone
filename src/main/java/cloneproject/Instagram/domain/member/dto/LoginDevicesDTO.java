@@ -1,6 +1,5 @@
 package cloneproject.Instagram.domain.member.dto;
 
-
 import cloneproject.Instagram.infra.geoip.dto.GeoIP;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,10 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @Getter
-public class LoginedDevicesDTO {
-    
-    private String tokenId;
-    private GeoIP location;
-    private String device;
+public class LoginDevicesDTO {
+
+	private String tokenId;
+	private GeoIP location;
+	private String device;
 
 }

@@ -11,10 +11,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class JwtDto {
 
-    private String type;
+	private String type;
 
-    private String accessToken;
+	private String accessToken;
 
-    private String refreshToken;
+	private String refreshToken;
 
 }
