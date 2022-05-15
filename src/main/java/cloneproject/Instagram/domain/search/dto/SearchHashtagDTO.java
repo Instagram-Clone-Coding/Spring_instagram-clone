@@ -1,5 +1,7 @@
 package cloneproject.Instagram.domain.search.dto;
 
+import java.time.LocalDateTime;
+
 import com.querydsl.core.annotations.QueryProjection;
 
 import cloneproject.Instagram.domain.hashtag.entity.Hashtag;
@@ -17,8 +19,8 @@ public class SearchHashtagDTO extends SearchDTO{
     private Integer postCount;
 
     @QueryProjection
-    public SearchHashtagDTO(String dtype, Long count, Hashtag hashtag){
-        super(dtype, count);
+    public SearchHashtagDTO(String dtype, Hashtag hashtag){
+        super(dtype);
         this.name = hashtag.getName();
         this.postCount = hashtag.getCount();
     }

@@ -1,5 +1,6 @@
 package cloneproject.Instagram.domain.search.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.querydsl.core.annotations.QueryProjection;
@@ -23,13 +24,14 @@ public class SearchMemberDTO extends SearchDTO{
     private List<FollowDTO> followingMemberFollow;
 
     @QueryProjection
-    public SearchMemberDTO(String dtype, Long count, Member member, boolean isFollowing, boolean isFollower){
-        super(dtype, count);
+    public SearchMemberDTO(String dtype, Member member, boolean isFollowing, boolean isFollower){
+        super(dtype);
         this.memberDTO = new MemberDTO(member);
         this.isFollowing = isFollowing;
         this.isFollower = isFollower;
         // this.followingMemberFollow = followingMemberFollow;
     }
+
     public void setFollowingMemberFollow(List<FollowDTO> followingMemberFollow) {
         this.followingMemberFollow = followingMemberFollow;
     }

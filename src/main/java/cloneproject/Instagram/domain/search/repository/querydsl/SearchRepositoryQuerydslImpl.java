@@ -1,258 +1,147 @@
 package cloneproject.Instagram.domain.search.repository.querydsl;
 
+import static cloneproject.Instagram.domain.follow.entity.QFollow.*;
+import static cloneproject.Instagram.domain.hashtag.entity.QHashtag.*;
+import static cloneproject.Instagram.domain.member.entity.QMember.*;
+import static cloneproject.Instagram.domain.search.entity.QSearch.*;
+import static cloneproject.Instagram.domain.search.entity.QSearchHashtag.*;
+import static cloneproject.Instagram.domain.search.entity.QSearchMember.*;
+
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import cloneproject.Instagram.domain.follow.dto.FollowDTO;
-import cloneproject.Instagram.domain.search.dto.SearchDTO;
+import cloneproject.Instagram.domain.search.dto.QSearchHashtagDTO;
+import cloneproject.Instagram.domain.search.dto.QSearchMemberDTO;
 import cloneproject.Instagram.domain.search.dto.SearchHashtagDTO;
 import cloneproject.Instagram.domain.search.dto.SearchMemberDTO;
 import cloneproject.Instagram.domain.search.entity.Search;
-import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
-import cloneproject.Instagram.domain.follow.dto.QFollowDTO;
-import cloneproject.Instagram.domain.search.dto.QSearchHashtagDTO;
-import cloneproject.Instagram.domain.search.dto.QSearchMemberDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import static cloneproject.Instagram.domain.member.entity.QMember.member;
-import static cloneproject.Instagram.domain.hashtag.entity.QHashtag.hashtag;
-import static cloneproject.Instagram.domain.search.entity.QSearch.search;
-import static cloneproject.Instagram.domain.search.entity.QSearchMember.searchMember;
-import static cloneproject.Instagram.domain.search.entity.QSearchHashtag.searchHashtag;
-import static cloneproject.Instagram.domain.follow.entity.QFollow.follow;
-
 @Slf4j
 @RequiredArgsConstructor
-public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl{
-    
-    private final JPAQueryFactory queryFactory;
-    private final MemberStoryRedisRepository memberStoryRedisRepository;
+public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 
-    @Override
-    public List<SearchDTO> searchByText(Long loginedId, String text){
+	private final JPAQueryFactory queryFactory;
 
-        String keyword = text + "%";
+	@Override
+	public List<Search> findAllByTextLike(String text) {
+		String keyword = text + "%";
 
-        List<Search> searches = queryFactory
-            .select(search)
-            .from(search)
-            .where(search.id.in(
-                JPAExpressions
-                    .select(searchMember.id)
-                    .from(searchMember)
-                    .innerJoin(searchMember.member, member)
-                    .where(searchMember.member.username.like(keyword)
-                        .or(searchMember.member.name.like(keyword)))
-            ).or(search.id.in(
-                JPAExpressions
-                    .select(searchHashtag.id)
-                    .from(searchHashtag)
-                    .innerJoin(searchHashtag.hashtag, hashtag)
-                    .where(searchHashtag.hashtag.name.like(keyword))
-            )))
-            .orderBy(search.count.desc())
-            .limit(50)
-            .distinct()
-            .fetch();
+		return queryFactory
+			.select(search)
+			.from(search)
+			.where(search.id.in(
+				JPAExpressions
+					.select(searchMember.id)
+					.from(searchMember)
+					.innerJoin(searchMember.member, member)
+					.where(searchMember.member.username.like(keyword)
+						.or(searchMember.member.name.like(keyword)))
+			).or(search.id.in(
+				JPAExpressions
+					.select(searchHashtag.id)
+					.from(searchHashtag)
+					.innerJoin(searchHashtag.hashtag, hashtag)
+					.where(searchHashtag.hashtag.name.like(keyword))
+			)))
+			.orderBy(search.count.desc())
+			.limit(50)
+			.distinct()
+			.fetch();
+	}
 
-        final List<Long> searchIds = searches.stream()
-                .map(Search::getId)
-                .collect(Collectors.toList());
+	@Override
+	public List<Search> findHashtagsByTextLike(String text) {
+		String keyword = text + "%";
 
-        Map<Long, SearchMemberDTO> memberMap = queryFactory
-            .from(searchMember)
-            .innerJoin(searchMember.member, member)
-            .where(searchMember.id.in(searchIds))
-            .transform(GroupBy.groupBy(searchMember.id).as(new QSearchMemberDTO(
-                searchMember._super.dtype,
-                searchMember._super.count,
-                searchMember.member,
-                JPAExpressions
-                    .selectFrom(follow)
-                    .where(follow.member.id.eq(loginedId).and(follow.followMember.id.eq(searchMember.member.id)))
-                    .exists(),
-                JPAExpressions
-                    .selectFrom(follow)
-                    .where(follow.member.id.eq(searchMember.member.id).and(follow.followMember.id.eq(loginedId)))
-                    .exists()
-                )
-            )
-        );
+		return queryFactory
+			.select(search)
+			.from(search)
+			.where(search.id.in(
+				JPAExpressions
+					.select(searchHashtag.id)
+					.from(searchHashtag)
+					.innerJoin(searchHashtag.hashtag, hashtag)
+					.where(searchHashtag.hashtag.name.like(keyword))
+			))
+			.orderBy(search.count.desc())
+			.limit(50)
+			.distinct()
+			.fetch();
+	}
 
-        // follow 주입
-        final List<String> resultUsernames = memberMap.values().stream().map(s -> s.getMemberDTO().getUsername())
-            .collect(Collectors.toList());
+	@Override
+	public void checkMatchingMember(Long loginId, String text, List<Search> searches, List<Long> searchIds) {
+		Search matchingSearch = queryFactory
+			.select(searchMember._super)
+			.from(searchMember)
+			.where(searchMember.member.username.eq(text))
+			.fetchOne();
+		if (matchingSearch != null && !searchIds.contains(matchingSearch.getId())) {
+			searches.add(0, matchingSearch);
+			searchIds.add(0, matchingSearch.getId());
+			log.warn(searches.get(searches.size() - 1).getId().toString());
+			log.warn(searchIds.get(searchIds.size() - 1).toString());
+			searches.remove(searches.size() - 1);
+			searchIds.remove(searchIds.size() - 1);
+		}
+	}
 
-        // TODO 우선 이전의 search에 있던 코드 그대로 넣었는데 개선 필요해보임 !
-        memberMap.forEach((id, member) -> {
-            member.getMemberDTO().setHasStory(memberStoryRedisRepository.findById(id).isPresent());
-        });
+	@Override
+	public void checkMatchingHashtag(String text, List<Search> searches, List<Long> searchIds) {
+		Search matchingSearch = queryFactory
+			.select(searchHashtag._super)
+			.from(searchHashtag)
+			.where(searchHashtag.hashtag.name.eq(text))
+			.fetchOne();
+		if (matchingSearch != null && !searchIds.contains(matchingSearch.getId())) {
+			searches.add(0, matchingSearch);
+			searchIds.add(0, matchingSearch.getId());
+			log.warn(searches.get(searches.size() - 1).getId().toString());
+			log.warn(searchIds.get(searchIds.size() - 1).toString());
+			searches.remove(searches.size() - 1);
+			searchIds.remove(searchIds.size() - 1);
+		}
+	}
 
-        final List<FollowDTO> follows = queryFactory
-                .select(new QFollowDTO(
-                        follow.member.username,
-                        follow.followMember.username
-                ))
-                .from(follow)
-                .where(follow.followMember.username.in(resultUsernames)
-                        .and(follow.member.id.in(
-                                JPAExpressions
-                                        .select(follow.followMember.id)
-                                        .from(follow)
-                                        .where(follow.member.id.eq(loginedId))
-                        )))
-                .fetch();
+	@Override
+	public Map<Long, SearchHashtagDTO> findAllSearchHashtagDTOsByIdIn(List<Long> searchIds) {
+		return queryFactory
+			.from(searchHashtag)
+			.innerJoin(searchHashtag.hashtag, hashtag)
+			.where(searchHashtag.id.in(searchIds))
+			.transform(GroupBy.groupBy(searchHashtag.id).as(new QSearchHashtagDTO(
+					searchHashtag.dtype,
+					searchHashtag.hashtag
+				))
+			);
+	}
 
-        final Map<String, List<FollowDTO>> followsMap = follows.stream()
-                .collect(Collectors.groupingBy(FollowDTO::getFollowMemberUsername));
-        memberMap.forEach((id, member) -> member.setFollowingMemberFollow(followsMap.get(member.getMemberDTO().getUsername())));
+	@Override
+	public Map<Long, SearchMemberDTO> findAllSearchMemberDTOsByIdIn(Long loginId, List<Long> searchIds) {
+		return queryFactory
+			.from(searchMember)
+			.innerJoin(searchMember.member, member)
+			.where(searchMember.id.in(searchIds))
+			.transform(GroupBy.groupBy(searchMember.id).as(new QSearchMemberDTO(
+						searchMember._super.dtype,
+						searchMember.member,
+						JPAExpressions
+							.selectFrom(follow)
+							.where(follow.member.id.eq(loginId).and(follow.followMember.id.eq(searchMember.member.id)))
+							.exists(),
+						JPAExpressions
+							.selectFrom(follow)
+							.where(follow.member.id.eq(searchMember.member.id).and(follow.followMember.id.eq(loginId)))
+							.exists()
+					)
+				)
+			);
+	}
 
-        // 해시태그
-        Map<Long, SearchHashtagDTO> hashtagMap = queryFactory
-            .from(searchHashtag)
-            .innerJoin(searchHashtag.hashtag, hashtag)
-            .where(searchHashtag.id.in(searchIds))
-            .transform(GroupBy.groupBy(searchHashtag.id).as(new QSearchHashtagDTO(
-                searchHashtag.dtype,
-                searchHashtag.count,
-                searchHashtag.hashtag
-            ))
-        );
-
-        final List<String> resultHashtagNames = hashtagMap.values().stream().map(h -> h.getName())
-            .collect(Collectors.toList());
-
-        boolean matchingMemberExists = resultUsernames.contains(text);
-        boolean matchingHashtagExists = resultHashtagNames.contains(text);
-
-        final List<SearchDTO> searchDTOs = searches.stream()
-                .map(search -> {
-                    switch (search.getDtype()) {
-                        case "MEMBER":
-                            return memberMap.get(search.getId());
-                        case "HASHTAG":
-                            return hashtagMap.get(search.getId());
-                        default:
-                            return null;
-                    }
-                })
-                .collect(Collectors.toList());
-        
-        if(!matchingHashtagExists){
-            SearchHashtagDTO searchHashtagDTO = queryFactory
-                .select(new QSearchHashtagDTO(
-                    searchHashtag.dtype,
-                    searchHashtag.count,
-                    searchHashtag.hashtag
-                ))
-                .from(searchHashtag)
-                .innerJoin(searchHashtag.hashtag, hashtag)
-                .where(searchHashtag.hashtag.name.eq(text))
-                .fetchFirst();
-            if(searchHashtagDTO != null) {
-                searchDTOs.add(0, searchHashtagDTO);
-                searchDTOs.remove(searchDTOs.size()-1);
-            }
-        }
-        if(!matchingMemberExists){
-            SearchMemberDTO searchMemberDTO = queryFactory
-                .select(new QSearchMemberDTO(
-                    searchMember._super.dtype,
-                    searchMember._super.count,
-                    searchMember.member,
-                    JPAExpressions
-                        .selectFrom(follow)
-                        .where(follow.member.id.eq(loginedId).and(follow.followMember.id.eq(searchMember.member.id)))
-                        .exists(),
-                    JPAExpressions
-                        .selectFrom(follow)
-                        .where(follow.member.id.eq(searchMember.member.id).and(follow.followMember.id.eq(loginedId)))
-                        .exists()
-                ))
-                .from(searchMember)
-                .innerJoin(searchMember.member, member)
-                .where(searchMember.member.username.eq(text))
-                .fetchFirst();
-            if(searchMemberDTO != null) {
-                searchDTOs.add(0, searchMemberDTO);
-                searchDTOs.remove(searchDTOs.size()-1);
-            }
-        }
-
-        return searchDTOs;
-    }
-
-
-    @Override
-    public List<SearchDTO> searchByTextOnlyHashtag(Long loginedId, String text){
-        String keyword = text + "%";
-
-        List<Search> searches = queryFactory
-            .select(search)
-            .from(search)
-            .where(search.id.in(
-                JPAExpressions
-                    .select(searchHashtag.id)
-                    .from(searchHashtag)
-                    .innerJoin(searchHashtag.hashtag, hashtag)
-                    .where(searchHashtag.hashtag.name.like(keyword))
-            ))
-            .orderBy(search.count.desc())
-            .limit(50)
-            .distinct()
-            .fetch();
-
-        final List<Long> searchIds = searches.stream()
-                .map(Search::getId)
-                .collect(Collectors.toList());
-
-        Map<Long, SearchHashtagDTO> hashtagMap = queryFactory
-            .from(searchHashtag)
-            .innerJoin(searchHashtag.hashtag, hashtag)
-            .where(searchHashtag.id.in(searchIds))
-            .transform(GroupBy.groupBy(searchHashtag.id).as(new QSearchHashtagDTO(
-                searchHashtag.dtype,
-                searchHashtag.count,
-                searchHashtag.hashtag
-            ))
-        );
-
-        boolean matchingHashtagExists = queryFactory
-            .from(searchHashtag)
-            .innerJoin(searchHashtag.hashtag, hashtag).fetchJoin()
-            .where(searchHashtag.id.in(searchIds).and(searchHashtag.hashtag.name.eq(text)))
-            .fetchFirst() != null;
-
-        final List<SearchDTO> searchDTOs = searches.stream()
-                .map(search -> {
-                            return hashtagMap.get(search.getId());
-                    
-                })
-                .collect(Collectors.toList());
-        
-        if(!matchingHashtagExists){
-            SearchHashtagDTO searchHashtagDTO = queryFactory
-                .select(new QSearchHashtagDTO(
-                    searchHashtag.dtype,
-                    searchHashtag.count,
-                    searchHashtag.hashtag
-                ))
-                .from(searchHashtag)
-                .innerJoin(searchHashtag.hashtag, hashtag)
-                .where(searchHashtag.hashtag.name.eq(text))
-                .fetchFirst();
-            if(searchHashtagDTO != null) {
-                searchDTOs.add(0, searchHashtagDTO);
-                searchDTOs.remove(searchDTOs.size()-1);
-            }
-        }
-
-        return searchDTOs;
-    }
 }
