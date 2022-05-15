@@ -2,9 +2,12 @@ package cloneproject.Instagram.domain.search.controller;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
+import javax.validation.constraints.Min;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,30 +30,66 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequiredArgsConstructor
 public class SearchController {
-    
-    private final SearchService searchService;
 
-    @ApiOperation(value = "검색")
-    @ApiImplicitParam(name = "text", value = "검색내용", required = true, example = "dlwl")
-    @GetMapping(value = "/topsearch")
-    public ResponseEntity<ResultResponse> searchText(@RequestParam String text) {
-        List<SearchDTO> searchDTOs = searchService.searchByText(text);
+	private final SearchService searchService;
 
-        ResultResponse result = ResultResponse.of(ResultCode.SEARCH_SUCCESS, searchDTOs);
-        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
-    }
+	@ApiOperation(value = "검색")
+	@ApiImplicitParam(name = "text", value = "검색내용", required = true, example = "dlwl")
+	@GetMapping(value = "/topsearch")
+	public ResponseEntity<ResultResponse> searchText(@RequestParam String text) {
+		List<SearchDTO> searchDTOs = searchService.searchByText(text);
 
-    @ApiOperation(value = "검색 조회수 증가")
-    @ApiImplicitParams({
-        @ApiImplicitParam(name = "entityName", value = "조회수 증가시킬 식별 name", required = true, example = "dlwlrma"),
-        @ApiImplicitParam(name = "entityType", value = "조회수 증가시킬 type", required = true, example = "MEMBER")
-    })
-    @PostMapping(value = "/topsearch/upcount")
-    public ResponseEntity<ResultResponse> increaseSearchMemberCount(@RequestParam String entityName, @RequestParam String entityType) {
-        searchService.increaseSearchCount(entityName, entityType);
+		return ResponseEntity.ok(ResultResponse.of(ResultCode.SEARCH_SUCCESS, searchDTOs));
+	}
 
-        ResultResponse result = ResultResponse.of(ResultCode.INCREASE_SEARCH_COUNT_SUCCESS, null);
-        return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
-    }
-    
+	@ApiOperation(value = "검색 조회수 증가, 최근 검색 기록 업데이트")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "entityName", value = "조회수 증가시킬 식별 name", required = true, example = "dlwlrma"),
+		@ApiImplicitParam(name = "entityType", value = "조회수 증가시킬 type", required = true, example = "MEMBER")
+	})
+	@PostMapping(value = "/topsearch/mark")
+	public ResponseEntity<ResultResponse> markSearchedEntity(@RequestParam String entityName,
+		@RequestParam String entityType) {
+		searchService.markSearchedEntity(entityName, entityType);
+
+		return ResponseEntity.ok(ResultResponse.of(ResultCode.MARK_SEARCHED_ENTITY_SUCCESS));
+	}
+
+	@ApiOperation(value = "최근 검색 기록(15개 조회)")
+	@GetMapping(value = "/topsearch/recent/top")
+	public ResponseEntity<ResultResponse> getTop15RecentSearch() {
+		Page<SearchDTO> searchDTOs = searchService.getTop15RecentSearches();
+
+		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_TOP_15_RECENT_SEARCH_SUCCESS, searchDTOs));
+	}
+
+	@ApiOperation(value = "최근 검색 기록 무한스크롤")
+	@GetMapping(value = "/topsearch/recent")
+	public ResponseEntity<ResultResponse> getRecentSearch(@Min(1) @RequestParam int page) {
+		Page<SearchDTO> searchDTOs = searchService.getRecentSearches(page);
+
+		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_RECENT_SEARCH_SUCCESS, searchDTOs));
+	}
+
+	@ApiOperation(value = "최근 검색 기록 삭제")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "entityName", value = "삭제할 식별 name", required = true, example = "dlwlrma"),
+		@ApiImplicitParam(name = "entityType", value = "삭제할 type", required = true, example = "MEMBER")
+	})
+	@DeleteMapping(value = "/topsearch/recent")
+	public ResponseEntity<ResultResponse> deleteRecentSearch(@RequestParam String entityName,
+		@RequestParam String entityType) {
+		searchService.deleteRecentSearch(entityName, entityType);
+
+		return ResponseEntity.ok(ResultResponse.of(ResultCode.DELETE_RECENT_SEARCH_SUCCESS));
+	}
+
+	@ApiOperation(value = "최근 검색 기록 모두 삭제")
+	@DeleteMapping(value = "/topsearch/recent/all")
+	public ResponseEntity<ResultResponse> deleteAllRecentSearch() {
+		searchService.deleteAllRecentSearch();
+
+		return ResponseEntity.ok(ResultResponse.of(ResultCode.DELETE_ALL_RECENT_SEARCH_SUCCESS));
+	}
+
 }
