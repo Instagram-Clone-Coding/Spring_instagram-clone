@@ -30,7 +30,7 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 
 	@Override
 	public List<Search> findAllByTextLike(String text) {
-		String keyword = text + "%";
+		final String keyword = text + "%";
 
 		return queryFactory
 			.select(search)
@@ -57,7 +57,7 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 
 	@Override
 	public List<Search> findHashtagsByTextLike(String text) {
-		String keyword = text + "%";
+		final String keyword = text + "%";
 
 		return queryFactory
 			.select(search)
@@ -77,7 +77,7 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 
 	@Override
 	public void checkMatchingMember(Long loginId, String text, List<Search> searches, List<Long> searchIds) {
-		Search matchingSearch = queryFactory
+		final Search matchingSearch = queryFactory
 			.select(searchMember._super)
 			.from(searchMember)
 			.where(searchMember.member.username.eq(text))
@@ -94,7 +94,7 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 
 	@Override
 	public void checkMatchingHashtag(String text, List<Search> searches, List<Long> searchIds) {
-		Search matchingSearch = queryFactory
+		final Search matchingSearch = queryFactory
 			.select(searchHashtag._super)
 			.from(searchHashtag)
 			.where(searchHashtag.hashtag.name.eq(text))

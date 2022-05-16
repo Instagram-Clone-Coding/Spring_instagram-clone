@@ -26,7 +26,6 @@ public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl {
 
 	@Override
 	public List<FollowerDTO> getFollowings(Long loginedMemberId, Long memberId) {
-
 		final List<FollowerDTO> followerDTOs = queryFactory
 			.select(new QFollowerDTO(
 				member,
@@ -59,7 +58,6 @@ public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl {
 
 	@Override
 	public List<FollowerDTO> getFollowers(Long loginedMemberId, Long memberId) {
-
 		final List<FollowerDTO> followerDTOs = queryFactory
 			.select(new QFollowerDTO(
 				member,
@@ -88,7 +86,6 @@ public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl {
 		});
 
 		return followerDTOs;
-
 	}
 
 	@Override

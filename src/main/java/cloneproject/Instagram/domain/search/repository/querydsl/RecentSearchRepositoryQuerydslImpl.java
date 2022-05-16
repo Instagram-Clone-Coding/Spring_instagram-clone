@@ -50,7 +50,7 @@ public class RecentSearchRepositoryQuerydslImpl implements RecentSearchRepositor
 			.where(recentSearch.member.id.eq(loginId))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
-			.orderBy(recentSearch.lastSearchedAt.desc())
+			.orderBy(recentSearch.lastSearchedDate.desc())
 			.distinct()
 			.fetch();
 	}

@@ -45,8 +45,8 @@ public class RecentSearch {
 	@JoinColumn(name = "search_id")
 	private Search search;
 
-	@Column(name = "recent_search_last_searched_at")
-	private LocalDateTime lastSearchedAt;
+	@Column(name = "recent_search_last_searched_date")
+	private LocalDateTime lastSearchedDate;
 
 	@Builder
 	public RecentSearch(Member member, Search search) {
@@ -54,8 +54,8 @@ public class RecentSearch {
 		this.search = search;
 	}
 
-	public void updateLastSearchedAt() {
-		this.lastSearchedAt = LocalDateTime.now();
+	public void updateLastSearchedDate() {
+		this.lastSearchedDate = LocalDateTime.now();
 	}
 
 }

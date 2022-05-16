@@ -36,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class SearchService {
 
 	private final AuthUtil authUtil;
@@ -45,11 +46,11 @@ public class SearchService {
 	private final RecentSearchRepository recentSearchRepository;
 	private final MemberStoryRedisRepository memberStoryRedisRepository;
 	private final FollowRepository followRepository;
+
 	private static final int FIRST_PAGE_SIZE = 15;
 	private static final int PAGE_SIZE = 5;
 	private static final int PAGE_OFFSET = 2;
 
-	@Transactional(readOnly = true)
 	public List<SearchDTO> searchByText(String text) {
 		text = text.trim();
 		final Long loginId = authUtil.getLoginMemberId();
@@ -70,39 +71,37 @@ public class SearchService {
 		return setSearchContent(loginId, searches, searchIds);
 	}
 
-	@Transactional(readOnly = true)
 	public Page<SearchDTO> getTop15RecentSearches() {
 		final Long loginId = authUtil.getLoginMemberId();
-		Pageable pageable = PageRequest.of(0, FIRST_PAGE_SIZE);
-		List<Search> searches = recentSearchRepository.findAllByMemberId(loginId, pageable);
+		final Pageable pageable = PageRequest.of(0, FIRST_PAGE_SIZE);
+		final List<Search> searches = recentSearchRepository.findAllByMemberId(loginId, pageable);
 
 		final List<Long> searchIds = searches.stream()
 			.map(Search::getId)
 			.collect(Collectors.toList());
 
-		List<SearchDTO> searchDTOs = setSearchContent(loginId, searches, searchIds);
-		Long total = recentSearchRepository.getRecentSearchCount(loginId);
+		final List<SearchDTO> searchDTOs = setSearchContent(loginId, searches, searchIds);
+		final Long total = recentSearchRepository.getRecentSearchCount(loginId);
 		return new PageImpl<>(searchDTOs, pageable, total);
 	}
 
-	@Transactional(readOnly = true)
 	public Page<SearchDTO> getRecentSearches(int page) {
 		final Long loginId = authUtil.getLoginMemberId();
-		Pageable pageable = PageRequest.of(page + PAGE_OFFSET, PAGE_SIZE);
-		List<Search> searches = recentSearchRepository.findAllByMemberId(loginId, pageable);
+		final Pageable pageable = PageRequest.of(page + PAGE_OFFSET, PAGE_SIZE);
+		final List<Search> searches = recentSearchRepository.findAllByMemberId(loginId, pageable);
 
 		final List<Long> searchIds = searches.stream()
 			.map(Search::getId)
 			.collect(Collectors.toList());
 
-		List<SearchDTO> searchDTOs = setSearchContent(loginId, searches, searchIds);
-		Long total = recentSearchRepository.getRecentSearchCount(loginId);
+		final List<SearchDTO> searchDTOs = setSearchContent(loginId, searches, searchIds);
+		final Long total = recentSearchRepository.getRecentSearchCount(loginId);
 		return new PageImpl<>(searchDTOs, pageable, total);
 	}
 
 	@Transactional
 	public void deleteRecentSearch(String entityName, String entityType) {
-		Long loginId = authUtil.getLoginMemberId();
+		final Long loginId = authUtil.getLoginMemberId();
 		switch (entityType) {
 			case "MEMBER":
 				recentSearchRepository.findRecentSearchByUsername(loginId, entityName)
@@ -119,13 +118,13 @@ public class SearchService {
 
 	@Transactional
 	public void deleteAllRecentSearch() {
-		Long loginId = authUtil.getLoginMemberId();
+		final Long loginId = authUtil.getLoginMemberId();
 		recentSearchRepository.deleteAllByMemberId(loginId);
 	}
 
 	@Transactional
 	public void markSearchedEntity(String entityName, String entityType) {
-		Member loginMember = authUtil.getLoginMember();
+		final Member loginMember = authUtil.getLoginMember();
 		Search search;
 		switch (entityType) {
 			case "MEMBER":
@@ -142,13 +141,13 @@ public class SearchService {
 		search.upCount();
 		searchRepository.save(search);
 
-		RecentSearch recentSearch = recentSearchRepository.findByMemberIdAndSearchId(loginMember.getId(),
+		final RecentSearch recentSearch = recentSearchRepository.findByMemberIdAndSearchId(loginMember.getId(),
 				search.getId())
 			.orElse(RecentSearch.builder()
 				.member(loginMember)
 				.search(search)
 				.build());
-		recentSearch.updateLastSearchedAt();
+		recentSearch.updateLastSearchedDate();
 		recentSearchRepository.save(recentSearch);
 	}
 
@@ -162,7 +161,7 @@ public class SearchService {
 		memberMap.forEach((id, member) -> {
 			member.getMemberDTO().setHasStory(memberStoryRedisRepository.findById(id).isPresent());
 		});
-		
+
 		// 팔로우 주입
 		final Map<String, List<FollowDTO>> followsMap = followRepository.getFollowingMemberFollowMap(loginId,
 			searchUsernames);
