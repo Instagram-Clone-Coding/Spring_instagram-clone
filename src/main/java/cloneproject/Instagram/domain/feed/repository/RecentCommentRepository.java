@@ -15,4 +15,5 @@ public interface RecentCommentRepository extends JpaRepository<RecentComment, Lo
 	List<RecentComment> findAllWithCommentByPostId(@Param("id") Long id);
 
 	List<RecentComment> findAllByPost(Post post);
+
 }

@@ -37,4 +37,5 @@ public class PostTag {
 		this.postImage = postImage;
 		this.tag = tag;
 	}
+
 }

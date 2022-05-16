@@ -24,4 +24,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
 	Optional<Comment> findFirstByPostAndIdNotInOrderByIdDesc(Post post, List<Long> ids);
 
 	List<Comment> findAllByParent(Comment comment);
+
 }

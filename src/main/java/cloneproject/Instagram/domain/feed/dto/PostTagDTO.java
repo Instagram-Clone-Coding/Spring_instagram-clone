@@ -22,4 +22,5 @@ public class PostTagDTO {
 		this.id = id;
 		this.tag = tag;
 	}
+
 }

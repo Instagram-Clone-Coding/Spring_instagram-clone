@@ -45,4 +45,5 @@ public class PostDTO {
 		this.postLikeFlag = postLikeFlag;
 		this.commentFlag = commentFlag;
 	}
+
 }

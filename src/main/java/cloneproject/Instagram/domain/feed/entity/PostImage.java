@@ -51,4 +51,5 @@ public class PostImage {
 		this.image = image;
 		this.altText = altText;
 	}
+
 }

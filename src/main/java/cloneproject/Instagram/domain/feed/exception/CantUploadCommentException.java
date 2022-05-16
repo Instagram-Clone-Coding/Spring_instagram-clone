@@ -8,4 +8,5 @@ public class CantUploadCommentException extends BusinessException {
 	public CantUploadCommentException() {
 		super(ErrorCode.COMMENT_CANT_UPLOAD);
 	}
+
 }

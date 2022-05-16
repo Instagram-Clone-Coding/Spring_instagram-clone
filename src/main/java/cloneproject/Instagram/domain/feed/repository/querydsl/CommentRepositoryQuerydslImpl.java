@@ -109,4 +109,5 @@ public class CommentRepositoryQuerydslImpl implements CommentRepositoryQuerydsl 
 			.where(commentLike.comment.eq(comment).and(commentLike.member.id.eq(memberId)))
 			.exists();
 	}
+
 }

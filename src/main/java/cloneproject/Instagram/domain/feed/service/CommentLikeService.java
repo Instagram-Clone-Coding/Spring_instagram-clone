@@ -22,4 +22,5 @@ public class CommentLikeService {
 		final List<CommentLike> commentLikes = commentLikeRepository.findAllByCommentIn(comments);
 		commentLikeRepository.deleteAllInBatch(commentLikes);
 	}
+
 }

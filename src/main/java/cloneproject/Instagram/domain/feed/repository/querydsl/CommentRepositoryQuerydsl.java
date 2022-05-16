@@ -14,4 +14,5 @@ public interface CommentRepositoryQuerydsl {
 	Page<CommentDTO> findCommentDtoPage(Long memberId, Long postId, Pageable pageable);
 
 	Page<CommentDTO> findReplyDtoPage(Long memberId, Long commentId, Pageable pageable);
+
 }

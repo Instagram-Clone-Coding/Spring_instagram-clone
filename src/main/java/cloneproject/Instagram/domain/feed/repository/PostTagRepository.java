@@ -21,4 +21,5 @@ public interface PostTagRepository extends JpaRepository<PostTag, Long>, PostTag
 		+ "from PostTag pt "
 		+ "where pt.postImage.id in :postImageIds")
 	List<PostTagDTO> findAllPostTagDto(@Param(value = "postImageIds") List<Long> postImageIds);
+
 }

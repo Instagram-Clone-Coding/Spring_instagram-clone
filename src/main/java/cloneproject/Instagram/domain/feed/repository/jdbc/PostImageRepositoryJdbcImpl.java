@@ -40,4 +40,5 @@ public class PostImageRepositoryJdbcImpl implements PostImageRepositoryJdbc {
 				}
 			});
 	}
+
 }

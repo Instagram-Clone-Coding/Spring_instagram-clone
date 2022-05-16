@@ -134,4 +134,5 @@ public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQueryds
 			)
 			.exists();
 	}
+
 }

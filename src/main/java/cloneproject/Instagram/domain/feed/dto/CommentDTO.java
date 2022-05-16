@@ -38,4 +38,5 @@ public class CommentDTO {
 		this.commentLikeFlag = commentLikeFlag;
 		this.repliesCount = repliesCount;
 	}
+
 }

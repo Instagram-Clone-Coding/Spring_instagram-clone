@@ -8,4 +8,5 @@ public class CantDeleteCommentException extends BusinessException {
 	public CantDeleteCommentException() {
 		super(ErrorCode.COMMENT_CANT_DELETE);
 	}
+
 }

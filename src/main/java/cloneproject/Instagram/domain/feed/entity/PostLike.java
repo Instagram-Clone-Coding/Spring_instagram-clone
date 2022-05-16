@@ -33,4 +33,5 @@ public class PostLike {
 		this.member = member;
 		this.post = post;
 	}
+
 }

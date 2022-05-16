@@ -20,4 +20,5 @@ public class PostLikeDTO {
 		this.postId = postId;
 		this.username = username;
 	}
+
 }

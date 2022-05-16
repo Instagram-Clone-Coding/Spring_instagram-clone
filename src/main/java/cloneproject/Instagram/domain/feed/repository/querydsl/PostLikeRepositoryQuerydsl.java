@@ -15,4 +15,5 @@ public interface PostLikeRepositoryQuerydsl {
 	Page<LikeMembersDTO> findPostLikeMembersDtoPage(Pageable pageable, Long postId, Long memberId);
 
 	Page<LikeMembersDTO> findCommentLikeMembersDtoPage(Pageable pageable, Long commentId, Long memberId);
+
 }

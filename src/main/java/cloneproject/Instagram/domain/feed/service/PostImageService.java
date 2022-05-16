@@ -60,4 +60,5 @@ public class PostImageService {
 			postImageTag.setId(postImageIds.get(idx - 1));
 		}
 	}
+
 }

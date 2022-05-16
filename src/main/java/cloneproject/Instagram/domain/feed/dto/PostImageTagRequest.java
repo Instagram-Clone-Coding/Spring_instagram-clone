@@ -35,4 +35,5 @@ public class PostImageTagRequest {
 	@ApiModelProperty(value = "게시물 이미지 태그 사용자 아이디", example = "dlwlrma", required = true)
 	@NotBlank(message = "게시물 이미지 태그 사용자 아이디는 필수입니다.")
 	private String username;
+
 }

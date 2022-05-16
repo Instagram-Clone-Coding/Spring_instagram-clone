@@ -8,4 +8,5 @@ public class CantUploadReplyException extends BusinessException {
 	public CantUploadReplyException() {
 		super(ErrorCode.REPLY_CANT_UPLOAD);
 	}
+
 }

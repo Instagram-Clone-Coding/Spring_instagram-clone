@@ -44,4 +44,5 @@ public class PostResponse {
 		this.postLikeFlag = postLikeFlag;
 		this.commentFlag = commentFlag;
 	}
+
 }

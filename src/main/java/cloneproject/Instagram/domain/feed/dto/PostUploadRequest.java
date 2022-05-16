@@ -38,4 +38,5 @@ public class PostUploadRequest {
 
 	@ApiModelProperty(value = "댓글 기능 여부", required = true)
 	private boolean commentFlag;
+
 }

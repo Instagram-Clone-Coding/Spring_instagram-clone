@@ -23,4 +23,5 @@ public interface PostImageRepository extends JpaRepository<PostImage, Long>, Pos
 		+ "from PostImage pi "
 		+ "where pi.post.id in :postIds")
 	List<PostImageDTO> findAllPostImageDto(@Param(value = "postIds") List<Long> postIds);
+
 }

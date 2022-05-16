@@ -65,4 +65,5 @@ public class SwaggerConfig {
 			.description("API 명세서")
 			.build();
 	}
+
 }

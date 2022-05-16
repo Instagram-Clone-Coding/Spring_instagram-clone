@@ -133,4 +133,5 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 				.from(follow)
 				.where(follow.member.id.eq(id)));
 	}
+
 }

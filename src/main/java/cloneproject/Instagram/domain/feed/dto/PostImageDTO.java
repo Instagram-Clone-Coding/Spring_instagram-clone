@@ -29,4 +29,5 @@ public class PostImageDTO {
 		this.postImageUrl = postImageUrl;
 		this.altText = altText;
 	}
+
 }

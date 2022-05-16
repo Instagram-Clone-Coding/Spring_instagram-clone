@@ -16,4 +16,5 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostRepositor
 	Optional<Post> findWithMemberById(@Param("postId") Long postId);
 
 	List<Post> findTop3ByMemberIdOrderByIdDesc(Long memberId);
+
 }

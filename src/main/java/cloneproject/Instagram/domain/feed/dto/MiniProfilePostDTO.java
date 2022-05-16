@@ -22,4 +22,5 @@ public class MiniProfilePostDTO {
 		this.postId = postId;
 		this.postImageUrl = postImageUrl;
 	}
+
 }

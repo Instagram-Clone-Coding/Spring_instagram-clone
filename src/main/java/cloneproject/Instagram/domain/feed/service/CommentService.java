@@ -205,4 +205,5 @@ public class CommentService {
 		return commentLikeRepository.findByMemberAndComment(member, comment)
 			.orElseThrow(() -> new EntityNotFoundException(COMMENT_LIKE_NOT_FOUND));
 	}
+
 }

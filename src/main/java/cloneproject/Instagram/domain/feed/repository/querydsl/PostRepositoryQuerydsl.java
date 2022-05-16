@@ -16,4 +16,5 @@ public interface PostRepositoryQuerydsl {
 	Optional<PostResponse> findPostResponse(Long postId, Long memberId);
 
 	Page<PostDTO> findPostDtoPage(Pageable pageable, Long memberId, List<Long> postIds);
+
 }

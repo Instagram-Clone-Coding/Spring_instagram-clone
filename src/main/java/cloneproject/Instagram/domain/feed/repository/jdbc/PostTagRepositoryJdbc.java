@@ -7,4 +7,5 @@ import java.util.List;
 public interface PostTagRepositoryJdbc {
 
 	void savePostTags(List<PostImageTagRequest> postImageTags);
+
 }
