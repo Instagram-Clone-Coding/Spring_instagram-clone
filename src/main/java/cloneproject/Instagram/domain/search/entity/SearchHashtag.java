@@ -17,15 +17,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DiscriminatorValue("HASHTAG")
 @Table(name = "search_hashtags")
-public class SearchHashtag extends Search{
-    
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hashtag_id")
-    private Hashtag hashtag;
+public class SearchHashtag extends Search {
 
-    public SearchHashtag(Hashtag hashtag) {
-        super();
-        this.hashtag = hashtag;
-    }
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "hashtag_id")
+	private Hashtag hashtag;
+
+	public SearchHashtag(Hashtag hashtag) {
+		super();
+		this.hashtag = hashtag;
+	}
 
 }
