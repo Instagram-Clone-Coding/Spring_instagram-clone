@@ -1,114 +1,131 @@
 package cloneproject.Instagram.domain.member.service;
 
+import static cloneproject.Instagram.global.error.ErrorCode.*;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import cloneproject.Instagram.domain.feed.dto.MemberPostDTO;
+import cloneproject.Instagram.domain.feed.dto.PostImageDTO;
+import cloneproject.Instagram.domain.feed.repository.PostImageRepository;
 import cloneproject.Instagram.domain.member.entity.Member;
-import cloneproject.Instagram.domain.member.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.domain.member.repository.BlockRepository;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
+import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 import cloneproject.Instagram.global.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class MemberPostService {
-    
-    private final MemberRepository memberRepository;
-    private final BlockRepository blockRepository;
-    
-    public Page<MemberPostDTO> getMemberPostDto(String username, int size, int page) {
-        page = (page == 0 ? 0 : page - 1) + 5;
-        final Long loginedMemberId = AuthUtil.getLoginMemberIdOrNull();
 
-        final Member member = memberRepository.findByUsername(username)
-                                                .orElseThrow(MemberDoesNotExistException::new);
+	private final AuthUtil authUtil;
+	private final MemberRepository memberRepository;
+	private final BlockRepository blockRepository;
+	private final PostImageRepository postImageRepository;
+	private static final int FIRST_PAGE_SIZE = 15;
+	private static final int PAGE_OFFSET = 4;
 
-        if(blockRepository.existsByMemberIdAndBlockMemberId(loginedMemberId, member.getId()) ||
-            blockRepository.existsByMemberIdAndBlockMemberId(member.getId(), loginedMemberId)){
-            return null;
-        }
+	public Page<MemberPostDTO> getMemberPostDTOs(String username, int size, int page) {
+		final Long loginMemberId = authUtil.getLoginMemberIdOrNull();
 
-        final Pageable pageable = PageRequest.of(page, size);
-        Page<MemberPostDTO> posts = memberRepository.getMemberPostDto(loginedMemberId, username, pageable);
-        return posts;
+		final Member member = memberRepository.findByUsername(username)
+			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
+		if (blockRepository.isBlockingOrIsBlocked(loginMemberId, member.getId())) {
+			return Page.empty();
+		}
 
-    }
-    
-    public List<MemberPostDTO> getRecent15PostDTOs(String username) {
-        final Long loginedMemberId = AuthUtil.getLoginMemberIdOrNull();
+		final Pageable pageable = PageRequest.of(page + PAGE_OFFSET, size);
+		final Page<MemberPostDTO> posts = memberRepository.getMemberPostDTOs(username, pageable);
+		setMemberPostImageDTOs(posts.getContent());
+		return posts;
+	}
 
-        final Member member = memberRepository.findByUsername(username)
-                                                .orElseThrow(MemberDoesNotExistException::new);
+	public List<MemberPostDTO> getRecent15PostDTOs(String username) {
+		final Long loginMemberId = authUtil.getLoginMemberIdOrNull();
 
-        if(blockRepository.existsByMemberIdAndBlockMemberId(loginedMemberId, member.getId()) ||
-            blockRepository.existsByMemberIdAndBlockMemberId(member.getId(), loginedMemberId)){
-            return null;
-        }
-        
-        List<MemberPostDTO> posts = memberRepository.getRecent15PostDTOs(loginedMemberId, username);
-        return posts;
-    }
+		final Member member = memberRepository.findByUsername(username)
+			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
-    public Page<MemberPostDTO> getMemberSavedPostDto(int size, int page) {
-        page = (page == 0 ? 0 : page - 1)+5;
-        final String loginedMemberId = SecurityContextHolder.getContext().getAuthentication().getName();
+		if (blockRepository.isBlockingOrIsBlocked(loginMemberId, member.getId())) {
+			return Collections.emptyList();
+		}
 
+		final Pageable pageable = PageRequest.of(0, FIRST_PAGE_SIZE);
+		final Page<MemberPostDTO> posts = memberRepository.getMemberPostDTOs(username, pageable);
+		setMemberPostImageDTOs(posts.getContent());
+		return posts.getContent();
+	}
 
-        final Pageable pageable = PageRequest.of(page, size);
-        Page<MemberPostDTO> posts = memberRepository.getMemberSavedPostDto(Long.valueOf(loginedMemberId), pageable);
-        return posts;
+	public Page<MemberPostDTO> getMemberSavedPostDTOs(int size, int page) {
+		final Long loginMemberId = authUtil.getLoginMemberId();
 
+		final Pageable pageable = PageRequest.of(page + PAGE_OFFSET, size);
+		final Page<MemberPostDTO> posts = memberRepository.getMemberSavedPostDTOs(loginMemberId, pageable);
+		setMemberPostImageDTOs(posts.getContent());
+		return posts;
+	}
 
-    }
-    
-    public List<MemberPostDTO> getRecent15SavedPostDTOs() {
-        final String loginedMemberId = SecurityContextHolder.getContext().getAuthentication().getName();
+	public List<MemberPostDTO> getRecent15SavedPostDTOs() {
+		final Long loginMemberId = authUtil.getLoginMemberId();
 
-        List<MemberPostDTO> posts = memberRepository.getRecent15SavedPostDTOs(Long.valueOf(loginedMemberId));
-        return posts;
-    }
+		final Pageable pageable = PageRequest.of(0, FIRST_PAGE_SIZE);
+		final Page<MemberPostDTO> posts = memberRepository.getMemberSavedPostDTOs(loginMemberId, pageable);
+		setMemberPostImageDTOs(posts.getContent());
+		return posts.getContent();
+	}
 
-    public Page<MemberPostDTO> getMemberTaggedPostDto(String username, int size, int page) {
-        page = (page == 0 ? 0 : page - 1)+5;
-        final Long loginedMemberId = AuthUtil.getLoginMemberIdOrNull();
+	public Page<MemberPostDTO> getMemberTaggedPostDTOs(String username, int size, int page) {
+		final Long loginMemberId = authUtil.getLoginMemberIdOrNull();
 
-        final Member member = memberRepository.findByUsername(username)
-                                                .orElseThrow(MemberDoesNotExistException::new);
+		final Member member = memberRepository.findByUsername(username)
+			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
-        if(blockRepository.existsByMemberIdAndBlockMemberId(loginedMemberId, member.getId()) ||
-            blockRepository.existsByMemberIdAndBlockMemberId(member.getId(), loginedMemberId)){
-            return null;
-        }
+		if (blockRepository.isBlockingOrIsBlocked(loginMemberId, member.getId())) {
+			return Page.empty();
+		}
 
-        final Pageable pageable = PageRequest.of(page, size);
-        Page<MemberPostDTO> posts = memberRepository.getMemberTaggedPostDto(loginedMemberId, username, pageable);
-        return posts;
+		final Pageable pageable = PageRequest.of(page + PAGE_OFFSET, size);
+		final Page<MemberPostDTO> posts = memberRepository.getMemberTaggedPostDTOs(username, pageable);
+		setMemberPostImageDTOs(posts.getContent());
+		return posts;
+	}
 
+	public List<MemberPostDTO> getRecent15TaggedPostDTOs(String username) {
+		final Long loginMemberId = authUtil.getLoginMemberIdOrNull();
 
-    }
-    
-    public List<MemberPostDTO> getRecent15TaggedPostDTOs(String username) {
-        final Long loginedMemberId = AuthUtil.getLoginMemberIdOrNull();
+		final Member member = memberRepository.findByUsername(username)
+			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
-        final Member member = memberRepository.findByUsername(username)
-                                                .orElseThrow(MemberDoesNotExistException::new);
+		if (blockRepository.isBlockingOrIsBlocked(loginMemberId, member.getId())) {
+			return Collections.emptyList();
+		}
 
-        if(blockRepository.existsByMemberIdAndBlockMemberId(loginedMemberId, member.getId()) ||
-            blockRepository.existsByMemberIdAndBlockMemberId(member.getId(), loginedMemberId)){
-            return null;
-        }
-        
-        List<MemberPostDTO> posts = memberRepository.getRecent15TaggedPostDTOs(loginedMemberId, username);
-        return posts;
-    }
-    
+		final Pageable pageable = PageRequest.of(0, FIRST_PAGE_SIZE);
+		final Page<MemberPostDTO> posts = memberRepository.getMemberTaggedPostDTOs(username, pageable);
+		setMemberPostImageDTOs(posts.getContent());
+		return posts.getContent();
+	}
+
+	private void setMemberPostImageDTOs(List<MemberPostDTO> memberPostDTOs) {
+		final List<Long> postIds = memberPostDTOs.stream()
+			.map(MemberPostDTO::getPostId)
+			.collect(Collectors.toList());
+
+		final List<PostImageDTO> postImageDTOs = postImageRepository.findAllPostImageDto(postIds);
+
+		final Map<Long, List<PostImageDTO>> postDTOMap = postImageDTOs.stream()
+			.collect(Collectors.groupingBy(PostImageDTO::getPostId));
+
+		memberPostDTOs.forEach(p -> p.setPostImageDTO(postDTOMap.get(p.getPostId()).get(0)));
+	}
+
 }
