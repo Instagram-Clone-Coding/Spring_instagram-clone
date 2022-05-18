@@ -10,7 +10,8 @@ import cloneproject.Instagram.domain.search.entity.SearchHashtag;
 
 public interface SearchHashtagRepository extends JpaRepository<SearchHashtag, Long> {
 
-    Optional<SearchHashtag> findByHashtagName(String name);
+	Optional<SearchHashtag> findByHashtagName(String name);
 
-    List<SearchHashtag> findAllByHashtagIn(List<Hashtag> hashtags);
+	List<SearchHashtag> findAllByHashtagIn(List<Hashtag> hashtags);
+
 }

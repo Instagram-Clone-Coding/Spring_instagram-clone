@@ -6,16 +6,17 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-import cloneproject.Instagram.domain.member.dto.MemberDTO;
+import cloneproject.Instagram.domain.member.dto.MemberDto;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AlarmDTO {
+public class AlarmDto {
 
     private Long id;
     private String type;
     private String message;
-    private MemberDTO agent;
+    private MemberDto agent;
     private LocalDateTime createdDate;
+
 }

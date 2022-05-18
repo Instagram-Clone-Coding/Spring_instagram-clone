@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.TestPropertySource;
 
-import cloneproject.Instagram.domain.feed.dto.MemberPostDTO;
+import cloneproject.Instagram.domain.feed.dto.MemberPostDto;
 import cloneproject.Instagram.domain.feed.dto.PostImageTagRequest;
 import cloneproject.Instagram.domain.feed.entity.Bookmark;
 import cloneproject.Instagram.domain.feed.entity.Comment;
@@ -124,11 +124,11 @@ public class MemberPostRepositoryTest {
             @Test
             @DisplayName("정상적인 결과를 반환한다")
             void it_returns_well(){
-                List<MemberPostDTO> memberPostDTOs = memberRepository.getRecent15PostDTOs(loginedId, savedMemberOne.getUsername());
-                assertEquals(2, memberPostDTOs.size());
-                assertEquals(2, memberPostDTOs.get(1).getPostLikesCount());
-                assertEquals(2, memberPostDTOs.get(1).getPostCommentsCount());
-                assertTrue(memberPostDTOs.get(1).isHasManyPosts());
+                List<MemberPostDto> memberPostDtos = memberRepository.getRecent15PostDTOs(loginedId, savedMemberOne.getUsername());
+                assertEquals(2, memberPostDtos.size());
+                assertEquals(2, memberPostDtos.get(1).getPostLikesCount());
+                assertEquals(2, memberPostDtos.get(1).getPostCommentsCount());
+                assertTrue(memberPostDtos.get(1).isHasManyPosts());
             }   
         }
         @Nested
@@ -137,11 +137,11 @@ public class MemberPostRepositoryTest {
             @Test
             @DisplayName("정상적인 결과를 반환한다")
             void it_returns_well(){
-                List<MemberPostDTO> memberPostDTOs = memberRepository.getRecent15PostDTOs(-1L, savedMemberOne.getUsername());
-                assertEquals(2, memberPostDTOs.size());
-                assertEquals(2, memberPostDTOs.get(1).getPostLikesCount());
-                assertEquals(2, memberPostDTOs.get(1).getPostCommentsCount());
-                assertTrue(memberPostDTOs.get(1).isHasManyPosts());
+                List<MemberPostDto> memberPostDtos = memberRepository.getRecent15PostDTOs(-1L, savedMemberOne.getUsername());
+                assertEquals(2, memberPostDtos.size());
+                assertEquals(2, memberPostDtos.get(1).getPostLikesCount());
+                assertEquals(2, memberPostDtos.get(1).getPostCommentsCount());
+                assertTrue(memberPostDtos.get(1).isHasManyPosts());
             }   
         }
     }
@@ -162,11 +162,11 @@ public class MemberPostRepositoryTest {
             @Test
             @DisplayName("정상적인 결과를 반환한다")
             void it_returns_well(){
-                List<MemberPostDTO> memberPostDTOs = memberRepository.getRecent15SavedPostDTOs(loginedId);
-                assertEquals(2, memberPostDTOs.size());
-                assertEquals(2, memberPostDTOs.get(1).getPostLikesCount());
-                assertEquals(2, memberPostDTOs.get(1).getPostCommentsCount());
-                assertTrue(memberPostDTOs.get(1).isHasManyPosts());
+                List<MemberPostDto> memberPostDtos = memberRepository.getRecent15SavedPostDTOs(loginedId);
+                assertEquals(2, memberPostDtos.size());
+                assertEquals(2, memberPostDtos.get(1).getPostLikesCount());
+                assertEquals(2, memberPostDtos.get(1).getPostCommentsCount());
+                assertTrue(memberPostDtos.get(1).isHasManyPosts());
 
             }   
         }
@@ -214,11 +214,11 @@ public class MemberPostRepositoryTest {
             @Test
             @DisplayName("정상적인 결과를 반환한다")
             void it_returns_well(){
-                List<MemberPostDTO> memberPostDTOs = memberRepository.getRecent15TaggedPostDTOs(loginedId, savedMemberOne.getUsername());
-                assertEquals(2, memberPostDTOs.size());
-                assertEquals(2, memberPostDTOs.get(1).getPostLikesCount());
-                assertEquals(2, memberPostDTOs.get(1).getPostCommentsCount());
-                assertTrue(memberPostDTOs.get(1).isHasManyPosts());
+                List<MemberPostDto> memberPostDtos = memberRepository.getRecent15TaggedPostDTOs(loginedId, savedMemberOne.getUsername());
+                assertEquals(2, memberPostDtos.size());
+                assertEquals(2, memberPostDtos.get(1).getPostLikesCount());
+                assertEquals(2, memberPostDtos.get(1).getPostCommentsCount());
+                assertTrue(memberPostDtos.get(1).isHasManyPosts());
             }   
         }
         @Nested
@@ -227,11 +227,11 @@ public class MemberPostRepositoryTest {
             @Test
             @DisplayName("정상적인 결과를 반환한다")
             void it_returns_well(){
-                List<MemberPostDTO> memberPostDTOs = memberRepository.getRecent15TaggedPostDTOs(-1L, savedMemberOne.getUsername());
-                assertEquals(2, memberPostDTOs.size());
-                assertEquals(2, memberPostDTOs.get(1).getPostLikesCount());
-                assertEquals(2, memberPostDTOs.get(1).getPostCommentsCount());
-                assertTrue(memberPostDTOs.get(1).isHasManyPosts());
+                List<MemberPostDto> memberPostDtos = memberRepository.getRecent15TaggedPostDTOs(-1L, savedMemberOne.getUsername());
+                assertEquals(2, memberPostDtos.size());
+                assertEquals(2, memberPostDtos.get(1).getPostLikesCount());
+                assertEquals(2, memberPostDtos.get(1).getPostCommentsCount());
+                assertTrue(memberPostDtos.get(1).isHasManyPosts());
             }   
         }
     }

@@ -13,17 +13,17 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostImageDTO {
+public class PostImageDto {
 
 	@JsonIgnore
 	private Long postId;
 	private Long id;
 	private String postImageUrl;
 	private String altText;
-	private List<PostTagDTO> postTagDTOs = new ArrayList<>();
+	private List<PostTagDto> postTags = new ArrayList<>();
 
 	@QueryProjection
-	public PostImageDTO(Long postId, Long id, String postImageUrl, String altText) {
+	public PostImageDto(Long postId, Long id, String postImageUrl, String altText) {
 		this.postId = postId;
 		this.id = id;
 		this.postImageUrl = postImageUrl;

@@ -1,6 +1,6 @@
 package cloneproject.Instagram.domain.dm.repository.querydsl;
 
-import cloneproject.Instagram.domain.dm.dto.MessageDTO;
+import cloneproject.Instagram.domain.dm.dto.MessageDto;
 import cloneproject.Instagram.domain.dm.entity.JoinRoom;
 import cloneproject.Instagram.domain.dm.entity.Message;
 import cloneproject.Instagram.domain.dm.entity.MessageImage;
@@ -9,7 +9,7 @@ import cloneproject.Instagram.domain.dm.entity.MessagePost;
 import cloneproject.Instagram.domain.dm.entity.MessageStory;
 import cloneproject.Instagram.domain.dm.entity.MessageText;
 import cloneproject.Instagram.domain.dm.exception.JoinRoomNotFoundException;
-import cloneproject.Instagram.domain.member.dto.MemberDTO;
+import cloneproject.Instagram.domain.member.dto.MemberDto;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +41,7 @@ public class MessageRepositoryQuerydslImpl implements MessageRepositoryQuerydsl 
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<MessageDTO> findMessageDTOPageByMemberIdAndRoomId(Long memberId, Long roomId, Pageable pageable) {
+    public Page<MessageDto> findMessageDtoPageByMemberIdAndRoomId(Long memberId, Long roomId, Pageable pageable) {
         final JoinRoom findJoinRoom = queryFactory
                 .selectFrom(joinRoom)
                 .where(joinRoom.member.id.eq(memberId).and(joinRoom.room.id.eq(roomId)))
@@ -89,17 +89,17 @@ public class MessageRepositoryQuerydslImpl implements MessageRepositoryQuerydsl 
                 .where(messageText.id.in(messageIds))
                 .transform(groupBy(messageText.id).as(messageText));
 
-        final List<MessageDTO> messageDTOs = messages.stream()
+        final List<MessageDto> messageDtos = messages.stream()
                 .map(m -> {
                     switch (m.getDtype()) {
                         case "POST":
-                            return new MessageDTO(messagePostMap.get(m.getId()));
+                            return new MessageDto(messagePostMap.get(m.getId()));
                         case "STORY":
-                            return new MessageDTO(messageStoryMap.get(m.getId()));
+                            return new MessageDto(messageStoryMap.get(m.getId()));
                         case "IMAGE":
-                            return new MessageDTO(messageImageMap.get(m.getId()));
+                            return new MessageDto(messageImageMap.get(m.getId()));
                         case "TEXT":
-                            return new MessageDTO(messageTextMap.get(m.getId()));
+                            return new MessageDto(messageTextMap.get(m.getId()));
                     }
                     return null;
                 })
@@ -111,10 +111,10 @@ public class MessageRepositoryQuerydslImpl implements MessageRepositoryQuerydsl 
                 .innerJoin(messageLike.member, member).fetchJoin()
                 .transform(groupBy(messageLike.message.id).as(list(messageLike)));
 
-        messageDTOs.forEach(m -> {
+        messageDtos.forEach(m -> {
             if (messageLikeMap.containsKey(m.getMessageId())) {
-                final List<MemberDTO> likeMembers = messageLikeMap.get(m.getMessageId()).stream()
-                        .map(ml -> new MemberDTO(ml.getMember()))
+                final List<MemberDto> likeMembers = messageLikeMap.get(m.getMessageId()).stream()
+                        .map(ml -> new MemberDto(ml.getMember()))
                         .collect(Collectors.toList());
                 m.setLikeMembers(likeMembers);
             }
@@ -129,6 +129,6 @@ public class MessageRepositoryQuerydslImpl implements MessageRepositoryQuerydsl 
                 )
                 .fetchCount();
 
-        return new PageImpl<>(messageDTOs, pageable, total);
+        return new PageImpl<>(messageDtos, pageable, total);
     }
 }

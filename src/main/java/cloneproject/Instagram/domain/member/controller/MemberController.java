@@ -36,7 +36,7 @@ import static cloneproject.Instagram.global.result.ResultCode.*;
 @Api(tags = "멤버 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("accounts")
+@RequestMapping("/accounts")
 public class MemberController {
 
 	private final MemberService memberService;

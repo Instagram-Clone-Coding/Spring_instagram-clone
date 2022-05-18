@@ -3,7 +3,7 @@ package cloneproject.Instagram.domain.feed.service;
 import cloneproject.Instagram.domain.alarm.service.AlarmService;
 import cloneproject.Instagram.domain.feed.dto.CommentUploadRequest;
 import cloneproject.Instagram.domain.feed.dto.CommentUploadResponse;
-import cloneproject.Instagram.domain.feed.dto.CommentDTO;
+import cloneproject.Instagram.domain.feed.dto.CommentDto;
 import cloneproject.Instagram.domain.feed.entity.Comment;
 import cloneproject.Instagram.domain.feed.entity.CommentLike;
 import cloneproject.Instagram.domain.feed.entity.Post;
@@ -12,8 +12,8 @@ import cloneproject.Instagram.domain.feed.exception.CantDeleteCommentException;
 import cloneproject.Instagram.domain.feed.exception.CantUploadReplyException;
 import cloneproject.Instagram.domain.feed.repository.*;
 import cloneproject.Instagram.domain.hashtag.service.HashtagService;
-import cloneproject.Instagram.domain.member.dto.LikeMembersDTO;
-import cloneproject.Instagram.domain.member.dto.MemberDTO;
+import cloneproject.Instagram.domain.member.dto.LikeMembersDto;
+import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.mention.service.MentionService;
 import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
@@ -109,33 +109,33 @@ public class CommentService {
 		commentRepository.delete(comment);
 	}
 
-	public Page<CommentDTO> getCommentDtoPage(Long postId, int page) {
+	public Page<CommentDto> getCommentDtoPage(Long postId, int page) {
 		final Member loginMember = authUtil.getLoginMember();
 		page = (page == 0 ? 0 : page - 1);
 		final Pageable pageable = PageRequest.of(page, 10);
 
-		final Page<CommentDTO> commentDtoPage = commentRepository.findCommentDtoPage(loginMember.getId(), postId,
+		final Page<CommentDto> commentDtoPage = commentRepository.findCommentDtoPage(loginMember.getId(), postId,
 			pageable);
 		setHasStory(commentDtoPage.getContent());
 
 		return commentDtoPage;
 	}
 
-	public Page<CommentDTO> getReplyDtoPage(Long commentId, int page) {
+	public Page<CommentDto> getReplyDtoPage(Long commentId, int page) {
 		final Member loginMember = authUtil.getLoginMember();
 		page = (page == 0 ? 0 : page - 1);
 		final Pageable pageable = PageRequest.of(page, 10);
 
-		final Page<CommentDTO> replyDtoPage = commentRepository.findReplyDtoPage(loginMember.getId(), commentId,
+		final Page<CommentDto> replyDtoPage = commentRepository.findReplyDtoPage(loginMember.getId(), commentId,
 			pageable);
 		setHasStory(replyDtoPage.getContent());
 
 		return replyDtoPage;
 	}
 
-	private void setHasStory(List<CommentDTO> commentDTOs) {
-		commentDTOs.forEach(comment -> {
-			final MemberDTO member = comment.getMember();
+	private void setHasStory(List<CommentDto> commentDtos) {
+		commentDtos.forEach(comment -> {
+			final MemberDto member = comment.getMember();
 			final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0;
 			member.setHasStory(hasStory);
 		});
@@ -162,11 +162,11 @@ public class CommentService {
 		alarmService.delete(LIKE_COMMENT, comment.getMember(), comment);
 	}
 
-	public Page<LikeMembersDTO> getCommentLikeMembersDtoPage(Long commentId, int page, int size) {
+	public Page<LikeMembersDto> getCommentLikeMembersDtoPage(Long commentId, int page, int size) {
 		final Member loginMember = authUtil.getLoginMember();
 		page = (page == 0 ? 0 : page - 1);
 		final Pageable pageable = PageRequest.of(page, size);
-		final Page<LikeMembersDTO> likeMembersDTOs =
+		final Page<LikeMembersDto> likeMembersDTOs =
 			postLikeRepository.findCommentLikeMembersDtoPage(pageable, commentId, loginMember.getId());
 
 		setHasStory(likeMembersDTOs);
@@ -174,7 +174,7 @@ public class CommentService {
 		return likeMembersDTOs;
 	}
 
-	private void setHasStory(Page<LikeMembersDTO> likeMembersDTOs) {
+	private void setHasStory(Page<LikeMembersDto> likeMembersDTOs) {
 		likeMembersDTOs.getContent()
 			.forEach(dto -> dto.setHasStory(
 				memberStoryRedisRepository.findAllByMemberId(dto.getMember().getId()).size() > 0));

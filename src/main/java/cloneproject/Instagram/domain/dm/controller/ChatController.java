@@ -3,9 +3,9 @@ package cloneproject.Instagram.domain.dm.controller;
 import cloneproject.Instagram.domain.dm.dto.ChatRoomCreateResponse;
 import cloneproject.Instagram.domain.dm.dto.ChatRoomInquireResponse;
 import cloneproject.Instagram.domain.dm.dto.IndicateRequest;
-import cloneproject.Instagram.domain.dm.dto.JoinRoomDTO;
+import cloneproject.Instagram.domain.dm.dto.JoinRoomDto;
 import cloneproject.Instagram.domain.dm.dto.JoinRoomDeleteResponse;
-import cloneproject.Instagram.domain.dm.dto.MessageDTO;
+import cloneproject.Instagram.domain.dm.dto.MessageDto;
 import cloneproject.Instagram.domain.dm.dto.MessageRequest;
 import cloneproject.Instagram.domain.dm.dto.MessageSimpleRequest;
 import cloneproject.Instagram.domain.dm.service.ChatService;
@@ -69,7 +69,7 @@ public class ChatController {
     @ApiImplicitParam(name = "page", value = "페이지", example = "1", required = true)
     @GetMapping("/chat/rooms")
     public ResponseEntity<ResultResponse> getJoinRooms(@NotNull(message = "페이지는 필수입니다.") @RequestParam Integer page) {
-        final Page<JoinRoomDTO> response = chatService.getJoinRooms(page);
+        final Page<JoinRoomDto> response = chatService.getJoinRooms(page);
 
         return ResponseEntity.ok(ResultResponse.of(GET_JOIN_ROOMS_SUCCESS, response));
     }
@@ -83,7 +83,7 @@ public class ChatController {
     public ResponseEntity<ResultResponse> getChatMessages(
             @NotNull(message = "채팅방 PK는 필수입니다.") @PathVariable Long roomId,
             @NotNull(message = "페이지는 필수입니다.") @RequestParam Integer page) {
-        final Page<MessageDTO> response = chatService.getChatMessages(roomId, page);
+        final Page<MessageDto> response = chatService.getChatMessages(roomId, page);
 
         return ResponseEntity.ok(ResultResponse.of(GET_CHAT_MESSAGES_SUCCESS, response));
     }
@@ -126,4 +126,5 @@ public class ChatController {
     public void indicate(@RequestBody IndicateRequest request) {
         chatService.indicate(request);
     }
+
 }

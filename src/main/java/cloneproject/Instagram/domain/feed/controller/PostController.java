@@ -1,11 +1,11 @@
 package cloneproject.Instagram.domain.feed.controller;
 
 import cloneproject.Instagram.domain.feed.dto.PostUploadResponse;
-import cloneproject.Instagram.domain.feed.dto.PostDTO;
+import cloneproject.Instagram.domain.feed.dto.PostDto;
 import cloneproject.Instagram.domain.feed.dto.PostResponse;
 import cloneproject.Instagram.domain.feed.dto.PostUploadRequest;
 import cloneproject.Instagram.domain.feed.service.PostService;
-import cloneproject.Instagram.domain.member.dto.LikeMembersDTO;
+import cloneproject.Instagram.domain.member.dto.LikeMembersDto;
 import cloneproject.Instagram.global.result.ResultResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -60,7 +60,7 @@ public class PostController {
 	@ApiImplicitParam(name = "page", value = "게시물 page", example = "1", required = true)
 	@GetMapping
 	public ResponseEntity<ResultResponse> getPostPage(@RequestParam int page) {
-		final Page<PostDTO> postPage = postService.getPostDtoPage(1, page);
+		final Page<PostDto> postPage = postService.getPostDtoPage(1, page);
 
 		return ResponseEntity.ok(ResultResponse.of(FIND_POST_PAGE_SUCCESS, postPage));
 	}
@@ -72,7 +72,7 @@ public class PostController {
 	})
 	@GetMapping("/recent")
 	public ResponseEntity<ResultResponse> getRecent10Posts() {
-		final List<PostDTO> postList = postService.getRecent10PostDTOs();
+		final List<PostDto> postList = postService.getRecent10PostDtos();
 
 		return ResponseEntity.ok(ResultResponse.of(FIND_RECENT10POSTS_SUCCESS, postList));
 	}
@@ -159,7 +159,7 @@ public class PostController {
 	@GetMapping("/{postId}/likes")
 	public ResponseEntity<ResultResponse> getMembersLikedPost(
 		@PathVariable Long postId, @RequestParam int page, @RequestParam int size) {
-		final Page<LikeMembersDTO> response = postService.getPostLikeMembersDtoPage(postId, page, size);
+		final Page<LikeMembersDto> response = postService.getPostLikeMembersDtoPage(postId, page, size);
 
 		return ResponseEntity.ok(ResultResponse.of(GET_POST_LIKES_SUCCESS, response));
 	}
@@ -232,7 +232,7 @@ public class PostController {
 	@GetMapping("/hashtags")
 	public ResponseEntity<ResultResponse> getHashtagPosts(@RequestParam int page, @RequestParam int size,
 		@NotBlank(message = "hashtag는 필수입니다.") @RequestParam String hashtag) {
-		final Page<PostDTO> response = postService.getHashTagPosts(page, size, hashtag.substring(1));
+		final Page<PostDto> response = postService.getHashTagPosts(page, size, hashtag.substring(1));
 
 		return ResponseEntity.ok(ResultResponse.of(GET_HASHTAG_POSTS_SUCCESS, response));
 	}

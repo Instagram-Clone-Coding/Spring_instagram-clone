@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import cloneproject.Instagram.domain.feed.dto.MiniProfilePostDTO;
-import cloneproject.Instagram.domain.feed.dto.PostImageDTO;
+import cloneproject.Instagram.domain.feed.dto.MiniProfilePostDto;
+import cloneproject.Instagram.domain.feed.dto.PostImageDto;
 import cloneproject.Instagram.domain.feed.entity.Post;
 import cloneproject.Instagram.domain.feed.repository.PostImageRepository;
 import cloneproject.Instagram.domain.feed.repository.PostRepository;
@@ -88,14 +88,14 @@ public class MemberService {
 		final List<Long> postIds = posts.stream()
 			.map(Post::getId)
 			.collect(Collectors.toList());
-		final List<PostImageDTO> postImages = postImageRepository.findAllPostImageDto(postIds);
+		final List<PostImageDto> postImages = postImageRepository.findAllPostImageDto(postIds);
 
-		final Map<Long, List<PostImageDTO>> postDTOMap = postImages.stream()
-			.collect(Collectors.groupingBy(PostImageDTO::getPostId));
+		final Map<Long, List<PostImageDto>> postDTOMap = postImages.stream()
+			.collect(Collectors.groupingBy(PostImageDto::getPostId));
 
-		final List<MiniProfilePostDTO> results = new ArrayList<>();
+		final List<MiniProfilePostDto> results = new ArrayList<>();
 		postDTOMap.forEach((id, p) -> results.add(
-			MiniProfilePostDTO.builder()
+			MiniProfilePostDto.builder()
 				.postId(id)
 				.postImageUrl(p.get(0).getPostImageUrl())
 				.build()));

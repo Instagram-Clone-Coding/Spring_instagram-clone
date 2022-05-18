@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import cloneproject.Instagram.domain.feed.dto.MemberPostDTO;
+import cloneproject.Instagram.domain.feed.dto.MemberPostDto;
 import cloneproject.Instagram.domain.member.service.MemberPostService;
 import cloneproject.Instagram.global.result.ResultCode;
 import cloneproject.Instagram.global.result.ResultResponse;
@@ -37,7 +37,7 @@ public class MemberPostController {
 	})
 	@GetMapping("/accounts/{username}/posts/recent")
 	public ResponseEntity<ResultResponse> getRecent10Posts(@PathVariable("username") String username) {
-		final List<MemberPostDTO> postList = memberPostService.getRecent15PostDTOs(username);
+		final List<MemberPostDto> postList = memberPostService.getRecent15PostDTOs(username);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.FIND_RECENT15_MEMBER_POSTS_SUCCESS, postList));
 	}
@@ -51,7 +51,7 @@ public class MemberPostController {
 	@GetMapping("/accounts/{username}/posts")
 	public ResponseEntity<ResultResponse> getPostPage(@PathVariable("username") String username,
 		@Min(1) @RequestParam int page) {
-		final Page<MemberPostDTO> postPage = memberPostService.getMemberPostDTOs(username, 3, page);
+		final Page<MemberPostDto> postPage = memberPostService.getMemberPostDTOs(username, 3, page);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.FIND_MEMBER_POSTS_SUCCESS, postPage));
 	}
@@ -60,7 +60,7 @@ public class MemberPostController {
 	@ApiOperation(value = "멤버 저장한 게시물 15개 조회")
 	@GetMapping("/accounts/posts/saved/recent")
 	public ResponseEntity<ResultResponse> getRecent1SavedPosts() {
-		final List<MemberPostDTO> postList = memberPostService.getRecent15SavedPostDTOs();
+		final List<MemberPostDto> postList = memberPostService.getRecent15SavedPostDTOs();
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.FIND_RECENT15_MEMBER_SAVED_POSTS_SUCCESS, postList));
 	}
@@ -69,7 +69,7 @@ public class MemberPostController {
 	@GetMapping("/accounts/posts/saved")
 	@ApiImplicitParam(name = "page", value = "페이지", required = true, example = "1")
 	public ResponseEntity<ResultResponse> getSavedPostPage(@Min(1) @RequestParam int page) {
-		final Page<MemberPostDTO> postPage = memberPostService.getMemberSavedPostDTOs(3, page);
+		final Page<MemberPostDto> postPage = memberPostService.getMemberSavedPostDTOs(3, page);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.FIND_MEMBER_SAVED_POSTS_SUCCESS, postPage));
 	}
@@ -82,7 +82,7 @@ public class MemberPostController {
 	})
 	@GetMapping("/accounts/{username}/posts/tagged/recent")
 	public ResponseEntity<ResultResponse> getRecent10TaggedPosts(@PathVariable("username") String username) {
-		final List<MemberPostDTO> postList = memberPostService.getRecent15TaggedPostDTOs(username);
+		final List<MemberPostDto> postList = memberPostService.getRecent15TaggedPostDTOs(username);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.FIND_RECENT15_MEMBER_TAGGED_POSTS_SUCCESS, postList));
 	}
@@ -96,7 +96,7 @@ public class MemberPostController {
 	@GetMapping("/accounts/{username}/posts/tagged")
 	public ResponseEntity<ResultResponse> getTaggedPostPage(@PathVariable("username") String username,
 		@Min(1) @RequestParam int page) {
-		final Page<MemberPostDTO> postPage = memberPostService.getMemberTaggedPostDTOs(username, 3, page);
+		final Page<MemberPostDto> postPage = memberPostService.getMemberTaggedPostDTOs(username, 3, page);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.FIND_MEMBER_TAGGED_POSTS_SUCCESS, postPage));
 	}

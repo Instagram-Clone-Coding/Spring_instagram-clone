@@ -2,9 +2,9 @@ package cloneproject.Instagram.domain.feed.controller;
 
 import cloneproject.Instagram.domain.feed.dto.CommentUploadRequest;
 import cloneproject.Instagram.domain.feed.dto.CommentUploadResponse;
-import cloneproject.Instagram.domain.feed.dto.CommentDTO;
+import cloneproject.Instagram.domain.feed.dto.CommentDto;
 import cloneproject.Instagram.domain.feed.service.CommentService;
-import cloneproject.Instagram.domain.member.dto.LikeMembersDTO;
+import cloneproject.Instagram.domain.member.dto.LikeMembersDto;
 import cloneproject.Instagram.global.result.ResultResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -80,7 +80,7 @@ public class CommentController {
 	})
 	@GetMapping("/posts/{postId}")
 	public ResponseEntity<ResultResponse> getCommentPage(@PathVariable Long postId, @RequestParam int page) {
-		final Page<CommentDTO> response = commentService.getCommentDtoPage(postId, page);
+		final Page<CommentDto> response = commentService.getCommentDtoPage(postId, page);
 
 		return ResponseEntity.ok(ResultResponse.of(GET_COMMENT_PAGE_SUCCESS, response));
 	}
@@ -98,7 +98,7 @@ public class CommentController {
 	})
 	@GetMapping("/{commentId}")
 	public ResponseEntity<ResultResponse> getReplyPage(@PathVariable Long commentId, @RequestParam int page) {
-		final Page<CommentDTO> response = commentService.getReplyDtoPage(commentId, page);
+		final Page<CommentDto> response = commentService.getReplyDtoPage(commentId, page);
 
 		return ResponseEntity.ok(ResultResponse.of(GET_REPLY_PAGE_SUCCESS, response));
 	}
@@ -152,7 +152,7 @@ public class CommentController {
 	@GetMapping("/{commentId}/likes")
 	public ResponseEntity<ResultResponse> getCommentLikes(@PathVariable Long commentId, @RequestParam int page,
 		@RequestParam int size) {
-		final Page<LikeMembersDTO> response = commentService.getCommentLikeMembersDtoPage(commentId, page, size);
+		final Page<LikeMembersDto> response = commentService.getCommentLikeMembersDtoPage(commentId, page, size);
 
 		return ResponseEntity.ok(ResultResponse.of(GET_COMMENT_LIKES_SUCCESS, response));
 	}

@@ -11,14 +11,14 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SearchHashtagDTO extends SearchDTO{
+public class SearchHashtagDto extends SearchDto {
     
     private String name;
     private Integer postCount;
 
     @QueryProjection
-    public SearchHashtagDTO(String dtype, Long count, Hashtag hashtag){
-        super(dtype, count);
+    public SearchHashtagDto(String dtype, Hashtag hashtag){
+        super(dtype);
         this.name = hashtag.getName();
         this.postCount = hashtag.getCount();
     }

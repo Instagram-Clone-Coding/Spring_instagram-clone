@@ -1,7 +1,7 @@
 package cloneproject.Instagram.domain.dm.service;
 
 import cloneproject.Instagram.domain.dm.dto.MessageAction;
-import cloneproject.Instagram.domain.dm.dto.MessageDTO;
+import cloneproject.Instagram.domain.dm.dto.MessageDto;
 import cloneproject.Instagram.domain.dm.dto.MessageResponse;
 import cloneproject.Instagram.domain.dm.entity.*;
 import cloneproject.Instagram.domain.dm.repository.*;
@@ -60,7 +60,7 @@ public class MessageService {
             }
             roomUnreadMemberRepository.save(new RoomUnreadMember(room, newMessage, receiver));
 
-            final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_GET, new MessageDTO(newMessage));
+            final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_GET, new MessageDto(newMessage));
             messagingTemplate.convertAndSend("/sub/" + receiver.getUsername(), response);
         });
     }
@@ -86,4 +86,5 @@ public class MessageService {
         roomMemberRepository.saveAll(List.of(new RoomMember(sender, room), new RoomMember(receiver, room)));
         return room;
     }
+
 }

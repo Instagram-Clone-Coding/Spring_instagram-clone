@@ -1,6 +1,6 @@
 package cloneproject.Instagram.domain.feed.repository.querydsl;
 
-import cloneproject.Instagram.domain.feed.dto.CommentDTO;
+import cloneproject.Instagram.domain.feed.dto.CommentDto;
 import cloneproject.Instagram.domain.feed.dto.QCommentDTO;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -26,7 +26,7 @@ public class CommentRepositoryQuerydslImpl implements CommentRepositoryQuerydsl 
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public List<CommentDTO> findAllRecentCommentDto(Long memberId, List<Long> postIds) {
+	public List<CommentDto> findAllRecentCommentDto(Long memberId, List<Long> postIds) {
 		return queryFactory
 			.select(new QCommentDTO(
 				recentComment.post.id,
@@ -46,8 +46,8 @@ public class CommentRepositoryQuerydslImpl implements CommentRepositoryQuerydsl 
 	}
 
 	@Override
-	public Page<CommentDTO> findCommentDtoPage(Long memberId, Long postId, Pageable pageable) {
-		final List<CommentDTO> commentDTOs = queryFactory
+	public Page<CommentDto> findCommentDtoPage(Long memberId, Long postId, Pageable pageable) {
+		final List<CommentDto> commentDtos = queryFactory
 			.select(new QCommentDTO(
 				comment.post.id,
 				comment.id,
@@ -71,12 +71,12 @@ public class CommentRepositoryQuerydslImpl implements CommentRepositoryQuerydsl 
 			.where(comment.post.id.eq(postId).and(comment.parent.id.isNull()))
 			.fetchCount();
 
-		return new PageImpl<>(commentDTOs, pageable, total);
+		return new PageImpl<>(commentDtos, pageable, total);
 	}
 
 	@Override
-	public Page<CommentDTO> findReplyDtoPage(Long memberId, Long commentId, Pageable pageable) {
-		final List<CommentDTO> commentDTOs = queryFactory
+	public Page<CommentDto> findReplyDtoPage(Long memberId, Long commentId, Pageable pageable) {
+		final List<CommentDto> commentDtos = queryFactory
 			.select(new QCommentDTO(
 				comment.post.id,
 				comment.id,
@@ -100,7 +100,7 @@ public class CommentRepositoryQuerydslImpl implements CommentRepositoryQuerydsl 
 			.where(comment.parent.id.eq(commentId))
 			.fetchCount();
 
-		return new PageImpl<>(commentDTOs, pageable, total);
+		return new PageImpl<>(commentDtos, pageable, total);
 	}
 
 	private BooleanExpression isExistCommentLikeWhereCommentEqAndMemberEq(Long memberId) {

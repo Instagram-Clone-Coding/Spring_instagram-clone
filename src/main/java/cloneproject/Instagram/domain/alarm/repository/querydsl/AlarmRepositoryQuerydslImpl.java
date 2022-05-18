@@ -1,12 +1,12 @@
 package cloneproject.Instagram.domain.alarm.repository.querydsl;
 
-import cloneproject.Instagram.domain.alarm.dto.AlarmContentDTO;
-import cloneproject.Instagram.domain.alarm.dto.AlarmDTO;
-import cloneproject.Instagram.domain.alarm.dto.AlarmFollowDTO;
+import cloneproject.Instagram.domain.alarm.dto.AlarmContentDto;
+import cloneproject.Instagram.domain.alarm.dto.AlarmDto;
+import cloneproject.Instagram.domain.alarm.dto.AlarmFollowDto;
 import cloneproject.Instagram.domain.alarm.dto.AlarmType;
 import cloneproject.Instagram.domain.alarm.entity.Alarm;
 import cloneproject.Instagram.domain.follow.entity.Follow;
-import cloneproject.Instagram.domain.member.dto.MemberDTO;
+import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -33,7 +33,7 @@ public class AlarmRepositoryQuerydslImpl implements AlarmRepositoryQuerydsl {
     private final MemberStoryRedisRepository memberStoryRedisRepository;
 
     @Override
-    public Page<AlarmDTO> getAlarmDtoPageByMemberId(Pageable pageable, Long memberId) {
+    public Page<AlarmDto> getAlarmDtoPageByMemberId(Pageable pageable, Long memberId) {
         final List<Alarm> alarms = queryFactory
                 .selectFrom(alarm)
                 .innerJoin(alarm.agent, member).fetchJoin()
@@ -59,17 +59,17 @@ public class AlarmRepositoryQuerydslImpl implements AlarmRepositoryQuerydsl {
                 .innerJoin(follow.followMember, member).fetchJoin()
                 .transform(groupBy(follow.followMember.id).as(follow));
 
-        final List<AlarmDTO> content = alarms.stream()
+        final List<AlarmDto> content = alarms.stream()
                 .map(a -> {
                     if (a.getType().equals(AlarmType.FOLLOW))
-                        return new AlarmFollowDTO(a, followMap.containsKey(a.getAgent().getId()));
+                        return new AlarmFollowDto(a, followMap.containsKey(a.getAgent().getId()));
                     else
-                        return new AlarmContentDTO(a);
+                        return new AlarmContentDto(a);
                 })
                 .collect(Collectors.toList());
 
         content.forEach(alarm -> {
-            final MemberDTO agent = alarm.getAgent();
+            final MemberDto agent = alarm.getAgent();
             final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(agent.getId()).size() > 0;
             agent.setHasStory(hasStory);
         });
@@ -81,4 +81,5 @@ public class AlarmRepositoryQuerydslImpl implements AlarmRepositoryQuerydsl {
 
         return new PageImpl<>(content, pageable, total);
     }
+
 }

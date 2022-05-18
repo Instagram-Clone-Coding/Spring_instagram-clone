@@ -10,13 +10,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PostLikeDTO {
+public class PostLikeDto {
 
 	private Long postId;
 	private String username;
 
 	@QueryProjection
-	public PostLikeDTO(Long postId, String username) {
+	public PostLikeDto(Long postId, String username) {
 		this.postId = postId;
 		this.username = username;
 	}

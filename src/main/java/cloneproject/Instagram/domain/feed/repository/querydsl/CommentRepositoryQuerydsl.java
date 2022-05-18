@@ -5,14 +5,14 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import cloneproject.Instagram.domain.feed.dto.CommentDTO;
+import cloneproject.Instagram.domain.feed.dto.CommentDto;
 
 public interface CommentRepositoryQuerydsl {
 
-	List<CommentDTO> findAllRecentCommentDto(Long memberId, List<Long> postIds);
+	List<CommentDto> findAllRecentCommentDto(Long memberId, List<Long> postIds);
 
-	Page<CommentDTO> findCommentDtoPage(Long memberId, Long postId, Pageable pageable);
+	Page<CommentDto> findCommentDtoPage(Long memberId, Long postId, Pageable pageable);
 
-	Page<CommentDTO> findReplyDtoPage(Long memberId, Long commentId, Pageable pageable);
+	Page<CommentDto> findReplyDtoPage(Long memberId, Long commentId, Pageable pageable);
 
 }
