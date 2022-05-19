@@ -1,8 +1,8 @@
 package cloneproject.Instagram.domain.feed.repository.querydsl;
 
-import cloneproject.Instagram.domain.feed.dto.PostLikeDTO;
+import cloneproject.Instagram.domain.feed.dto.PostLikeDto;
 import cloneproject.Instagram.domain.feed.dto.QPostLikeDTO;
-import cloneproject.Instagram.domain.member.dto.LikeMembersDTO;
+import cloneproject.Instagram.domain.member.dto.LikeMembersDto;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.entity.QMember;
 import cloneproject.Instagram.domain.member.dto.QLikeMembersDTO;
@@ -31,7 +31,7 @@ public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQueryds
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public List<PostLikeDTO> findAllPostLikeDtoOfFollowings(Long memberId, List<Long> postIds) {
+	public List<PostLikeDto> findAllPostLikeDtoOfFollowings(Long memberId, List<Long> postIds) {
 		return queryFactory
 			.select(new QPostLikeDTO(
 				postLike.post.id,
@@ -56,8 +56,8 @@ public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQueryds
 	}
 
 	@Override
-	public Page<LikeMembersDTO> findPostLikeMembersDtoPage(Pageable pageable, Long postId, Long memberId) {
-		final List<LikeMembersDTO> likeMembersDTOs = queryFactory
+	public Page<LikeMembersDto> findPostLikeMembersDtoPage(Pageable pageable, Long postId, Long memberId) {
+		final List<LikeMembersDto> likeMembersDtos = queryFactory
 			.select(new QLikeMembersDTO(
 				postLike.member,
 				isFollowing(memberId, postLike.member),
@@ -82,12 +82,12 @@ public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQueryds
 			)
 			.fetchCount();
 
-		return new PageImpl<>(likeMembersDTOs, pageable, total);
+		return new PageImpl<>(likeMembersDtos, pageable, total);
 	}
 
 	@Override
-	public Page<LikeMembersDTO> findCommentLikeMembersDtoPage(Pageable pageable, Long commentId, Long memberId) {
-		final List<LikeMembersDTO> likeMembersDTOs = queryFactory
+	public Page<LikeMembersDto> findCommentLikeMembersDtoPage(Pageable pageable, Long commentId, Long memberId) {
+		final List<LikeMembersDto> likeMembersDtos = queryFactory
 			.select(new QLikeMembersDTO(
 				commentLike.member,
 				isFollowing(memberId, commentLike.member),
@@ -112,7 +112,7 @@ public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQueryds
 			)
 			.fetchCount();
 
-		return new PageImpl<>(likeMembersDTOs, pageable, total);
+		return new PageImpl<>(likeMembersDtos, pageable, total);
 	}
 
 	private BooleanExpression isFollower(Long memberId, QMember member) {
@@ -134,4 +134,5 @@ public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQueryds
 			)
 			.exists();
 	}
+
 }

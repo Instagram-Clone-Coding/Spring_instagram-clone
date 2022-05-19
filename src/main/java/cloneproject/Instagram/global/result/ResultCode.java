@@ -81,6 +81,7 @@ public enum ResultCode {
 	UNLIKE_COMMENT_SUCCESS(200, "F016", "댓글 좋아요 해제에 성공하였습니다."),
 	GET_COMMENT_LIKES_SUCCESS(200, "F017", "댓글에 좋아요한 회원 목록 페이지 조회에 성공하였습니다."),
 	SHARE_POST_SUCCESS(200, "F018", "게시물 DM 공유에 성공하였습니다."),
+	GET_HASHTAG_POSTS_SUCCESS(200, "F019", "해시태그 게시물 목록 페이징 조회 성공"),
 
 	// Chat
 	CREATE_CHAT_ROOM_SUCCESS(200, "C001", "채팅방 생성 요청 성공"),
@@ -91,10 +92,9 @@ public enum ResultCode {
 	SEND_IMAGE_SUCCESS(200, "C006", "이미지 전송 성공"),
 
 	// Hashtag
-	GET_HASHTAG_POSTS_SUCCESS(200, "H001", "해시태그 게시물 목록 페이징 조회 성공"),
-	GET_HASHTAGS_SUCCESS(200, "H002", "해시태그 목록 페이징 조회 성공"),
-	FOLLOW_HASHTAG_SUCCESS(200, "H003", "해시태그 팔로우 성공"),
-	UNFOLLOW_HASHTAG_SUCCESS(200, "H004", "해시태그 언팔로우 성공"),
+	GET_HASHTAGS_SUCCESS(200, "H001", "해시태그 목록 페이징 조회 성공"),
+	FOLLOW_HASHTAG_SUCCESS(200, "H002", "해시태그 팔로우 성공"),
+	UNFOLLOW_HASHTAG_SUCCESS(200, "H003", "해시태그 언팔로우 성공"),
 
 	// Story
 	CREATE_STORY_SUCCESS(200, "S001", "스토리 업로드 성공"),

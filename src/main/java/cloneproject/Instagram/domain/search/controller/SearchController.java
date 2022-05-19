@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import cloneproject.Instagram.domain.search.dto.SearchDTO;
+import cloneproject.Instagram.domain.search.dto.SearchDto;
 import cloneproject.Instagram.domain.search.service.SearchService;
 import cloneproject.Instagram.global.result.ResultResponse;
 import io.swagger.annotations.Api;
@@ -40,9 +40,9 @@ public class SearchController {
 	@ApiImplicitParam(name = "text", value = "검색내용", required = true, example = "dlwl")
 	@GetMapping(value = "/")
 	public ResponseEntity<ResultResponse> searchText(@RequestParam String text) {
-		final List<SearchDTO> searchDTOs = searchService.searchByText(text);
+		final List<SearchDto> searchDtos = searchService.searchByText(text);
 
-		return ResponseEntity.ok(ResultResponse.of(SEARCH_SUCCESS, searchDTOs));
+		return ResponseEntity.ok(ResultResponse.of(SEARCH_SUCCESS, searchDtos));
 	}
 
 	@ApiOperation(value = "검색 조회수 증가, 최근 검색 기록 업데이트")
@@ -61,17 +61,17 @@ public class SearchController {
 	@ApiOperation(value = "최근 검색 기록(15개 조회)")
 	@GetMapping(value = "/recent/top")
 	public ResponseEntity<ResultResponse> getTop15RecentSearch() {
-		final Page<SearchDTO> searchDTOs = searchService.getTop15RecentSearches();
+		final Page<SearchDto> searchDtos = searchService.getTop15RecentSearches();
 
-		return ResponseEntity.ok(ResultResponse.of(GET_TOP_15_RECENT_SEARCH_SUCCESS, searchDTOs));
+		return ResponseEntity.ok(ResultResponse.of(GET_TOP_15_RECENT_SEARCH_SUCCESS, searchDtos));
 	}
 
 	@ApiOperation(value = "최근 검색 기록 무한스크롤")
 	@GetMapping(value = "/recent")
 	public ResponseEntity<ResultResponse> getRecentSearch(@Min(1) @RequestParam int page) {
-		final Page<SearchDTO> searchDTOs = searchService.getRecentSearches(page);
+		final Page<SearchDto> searchDtos = searchService.getRecentSearches(page);
 
-		return ResponseEntity.ok(ResultResponse.of(GET_RECENT_SEARCH_SUCCESS, searchDTOs));
+		return ResponseEntity.ok(ResultResponse.of(GET_RECENT_SEARCH_SUCCESS, searchDtos));
 	}
 
 	@ApiOperation(value = "최근 검색 기록 삭제")

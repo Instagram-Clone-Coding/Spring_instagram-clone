@@ -39,4 +39,5 @@ public class PostTagRepositoryJdbcImpl implements PostTagRepositoryJdbc {
 			}
 		);
 	}
+
 }

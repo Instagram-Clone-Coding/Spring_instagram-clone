@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class FollowDTO {
+public class FollowDto {
     
     public String memberUsername;
 
@@ -16,7 +16,7 @@ public class FollowDTO {
     public String followMemberUsername;
 
     @QueryProjection
-    public FollowDTO(String memberUsername, String followMemberUsername){
+    public FollowDto(String memberUsername, String followMemberUsername){
         this.memberUsername = memberUsername;
         this.followMemberUsername = followMemberUsername;
     }

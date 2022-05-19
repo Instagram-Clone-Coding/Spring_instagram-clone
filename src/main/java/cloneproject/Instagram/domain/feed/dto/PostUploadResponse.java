@@ -12,4 +12,5 @@ public class PostUploadResponse {
 
 	@ApiModelProperty(value = "게시물 PK", example = "1")
 	private Long postId;
+
 }

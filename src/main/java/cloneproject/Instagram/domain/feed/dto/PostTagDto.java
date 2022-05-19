@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class PostTagDTO {
+public class PostTagDto {
 
 	@JsonIgnore
 	private Long postImageId;
@@ -17,9 +17,10 @@ public class PostTagDTO {
 	private Tag tag;
 
 	@QueryProjection
-	public PostTagDTO(Long postImageId, Long id, Tag tag) {
+	public PostTagDto(Long postImageId, Long id, Tag tag) {
 		this.postImageId = postImageId;
 		this.id = id;
 		this.tag = tag;
 	}
+
 }

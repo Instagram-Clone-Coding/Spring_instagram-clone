@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import cloneproject.Instagram.domain.feed.dto.MemberPostDTO;
+import cloneproject.Instagram.domain.feed.dto.MemberPostDto;
 import cloneproject.Instagram.domain.feed.dto.QMemberPostDTO;
 import lombok.RequiredArgsConstructor;
 
@@ -22,8 +22,8 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public Page<MemberPostDTO> getMemberPostDTOs(String username, Pageable pageable) {
-		final List<MemberPostDTO> posts = queryFactory
+	public Page<MemberPostDto> getMemberPostDtos(String username, Pageable pageable) {
+		final List<MemberPostDto> posts = queryFactory
 			.select(new QMemberPostDTO(
 				post.id,
 				post.postImages.size().gt(1),
@@ -45,8 +45,8 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 	}
 
 	@Override
-	public Page<MemberPostDTO> getMemberSavedPostDTOs(Long loginUserId, Pageable pageable) {
-		final List<MemberPostDTO> posts = queryFactory
+	public Page<MemberPostDto> getMemberSavedPostDtos(Long loginUserId, Pageable pageable) {
+		final List<MemberPostDto> posts = queryFactory
 			.select(new QMemberPostDTO(
 				bookmark.post.id,
 				bookmark.post.postImages.size().gt(1),
@@ -68,8 +68,8 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 	}
 
 	@Override
-	public Page<MemberPostDTO> getMemberTaggedPostDTOs(String username, Pageable pageable) {
-		final List<MemberPostDTO> posts = queryFactory
+	public Page<MemberPostDto> getMemberTaggedPostDtos(String username, Pageable pageable) {
+		final List<MemberPostDto> posts = queryFactory
 			.select(new QMemberPostDTO(
 				postTag.postImage.post.id,
 				postTag.postImage.post.postImages.size().gt(1),

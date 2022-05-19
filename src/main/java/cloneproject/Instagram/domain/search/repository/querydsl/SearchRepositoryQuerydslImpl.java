@@ -16,8 +16,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import cloneproject.Instagram.domain.search.dto.QSearchHashtagDTO;
 import cloneproject.Instagram.domain.search.dto.QSearchMemberDTO;
-import cloneproject.Instagram.domain.search.dto.SearchHashtagDTO;
-import cloneproject.Instagram.domain.search.dto.SearchMemberDTO;
+import cloneproject.Instagram.domain.search.dto.SearchHashtagDto;
+import cloneproject.Instagram.domain.search.dto.SearchMemberDto;
 import cloneproject.Instagram.domain.search.entity.Search;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -110,7 +110,7 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 	}
 
 	@Override
-	public Map<Long, SearchHashtagDTO> findAllSearchHashtagDTOsByIdIn(List<Long> searchIds) {
+	public Map<Long, SearchHashtagDto> findAllSearchHashtagDtoByIdIn(List<Long> searchIds) {
 		return queryFactory
 			.from(searchHashtag)
 			.innerJoin(searchHashtag.hashtag, hashtag)
@@ -123,7 +123,7 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 	}
 
 	@Override
-	public Map<Long, SearchMemberDTO> findAllSearchMemberDTOsByIdIn(Long loginId, List<Long> searchIds) {
+	public Map<Long, SearchMemberDto> findAllSearchMemberDtoByIdIn(Long loginId, List<Long> searchIds) {
 		return queryFactory
 			.from(searchMember)
 			.innerJoin(searchMember.member, member)

@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class SearchDTO {
+public abstract class SearchDto {
 
 	private String dtype;
 

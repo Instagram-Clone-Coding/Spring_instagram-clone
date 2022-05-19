@@ -1,7 +1,7 @@
 package cloneproject.Instagram.domain.story.service;
 
 import cloneproject.Instagram.domain.dm.dto.MessageAction;
-import cloneproject.Instagram.domain.dm.dto.MessageDTO;
+import cloneproject.Instagram.domain.dm.dto.MessageDto;
 import cloneproject.Instagram.domain.dm.dto.MessageResponse;
 import cloneproject.Instagram.domain.dm.entity.JoinRoom;
 import cloneproject.Instagram.domain.dm.entity.MessageStory;
@@ -139,7 +139,7 @@ public class StoryService {
                 }
 
                 final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_GET,
-                        new MessageDTO(message));
+                        new MessageDto(message));
                 messagingTemplate.convertAndSend("/sub/" + mentionedMember.getUsername(), response);
             });
 
@@ -192,4 +192,5 @@ public class StoryService {
             seenId = storyVisitors.get(storyVisitors.size() - 1).getId();
         return new MemberStoryDto(seenId, storyDtos);
     }
+
 }

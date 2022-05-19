@@ -3,8 +3,8 @@ package cloneproject.Instagram.domain.search.repository.querydsl;
 import java.util.List;
 import java.util.Map;
 
-import cloneproject.Instagram.domain.search.dto.SearchHashtagDTO;
-import cloneproject.Instagram.domain.search.dto.SearchMemberDTO;
+import cloneproject.Instagram.domain.search.dto.SearchHashtagDto;
+import cloneproject.Instagram.domain.search.dto.SearchMemberDto;
 import cloneproject.Instagram.domain.search.entity.Search;
 
 public interface SearchRepositoryQuerydsl {
@@ -17,8 +17,8 @@ public interface SearchRepositoryQuerydsl {
 
 	void checkMatchingHashtag(String text, List<Search> searches, List<Long> searchIds);
 
-	Map<Long, SearchHashtagDTO> findAllSearchHashtagDTOsByIdIn(List<Long> searchIds);
+	Map<Long, SearchHashtagDto> findAllSearchHashtagDtoByIdIn(List<Long> searchIds);
 
-	Map<Long, SearchMemberDTO> findAllSearchMemberDTOsByIdIn(Long loginId, List<Long> ids);
+	Map<Long, SearchMemberDto> findAllSearchMemberDtoByIdIn(Long loginId, List<Long> ids);
 
 }

@@ -3,7 +3,6 @@ package cloneproject.Instagram.domain.feed.dto;
 import com.querydsl.core.annotations.QueryProjection;
 
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,15 +10,15 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class MiniProfilePostDTO {
+public class PostLikeDto {
 
 	private Long postId;
-	private String postImageUrl;
+	private String username;
 
-	@Builder
 	@QueryProjection
-	public MiniProfilePostDTO(Long postId, String postImageUrl) {
+	public PostLikeDto(Long postId, String username) {
 		this.postId = postId;
-		this.postImageUrl = postImageUrl;
+		this.username = username;
 	}
+
 }

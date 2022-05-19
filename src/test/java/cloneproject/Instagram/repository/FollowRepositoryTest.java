@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.TestPropertySource;
 
-import cloneproject.Instagram.domain.follow.dto.FollowerDTO;
+import cloneproject.Instagram.domain.follow.dto.FollowerDto;
 import cloneproject.Instagram.domain.follow.entity.Follow;
 import cloneproject.Instagram.domain.follow.repository.FollowRepository;
 import cloneproject.Instagram.domain.member.entity.Member;
@@ -92,7 +92,7 @@ public class FollowRepositoryTest {
             @Test
             @DisplayName("팔로잉들을 반환한다")
             void it_returns_followings(){
-                List<FollowerDTO> followings = followRepository.getFollowings(loginedId, savedMemberOne.getId());
+                List<FollowerDto> followings = followRepository.getFollowings(loginedId, savedMemberOne.getId());
                 assertEquals(2, followings.size());
                 assertEquals(savedMemberTwo.getUsername(), followings.get(0).getMember().getUsername());
                 assertEquals(savedMemberThree.getUsername(), followings.get(1).getMember().getUsername());
@@ -110,7 +110,7 @@ public class FollowRepositoryTest {
             @Test
             @DisplayName("팔로워들을 반환한다")
             void it_returns_followers(){
-                List<FollowerDTO> followers = followRepository.getFollowers(loginedId, savedMemberTwo.getId());
+                List<FollowerDto> followers = followRepository.getFollowers(loginedId, savedMemberTwo.getId());
                 assertEquals(2, followers.size());
                 assertEquals(savedMemberOne.getUsername(), followers.get(0).getMember().getUsername());
                 assertEquals(savedMemberThree.getUsername(), followers.get(1).getMember().getUsername());

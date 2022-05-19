@@ -10,11 +10,11 @@ import java.util.stream.Collectors;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import cloneproject.Instagram.domain.follow.dto.FollowDTO;
-import cloneproject.Instagram.domain.follow.dto.FollowerDTO;
+import cloneproject.Instagram.domain.follow.dto.FollowDto;
+import cloneproject.Instagram.domain.follow.dto.FollowerDto;
 import cloneproject.Instagram.domain.follow.dto.QFollowDTO;
 import cloneproject.Instagram.domain.follow.dto.QFollowerDTO;
-import cloneproject.Instagram.domain.member.dto.MemberDTO;
+import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -25,8 +25,8 @@ public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl {
 	private final MemberStoryRedisRepository memberStoryRedisRepository;
 
 	@Override
-	public List<FollowerDTO> getFollowings(Long loginedMemberId, Long memberId) {
-		final List<FollowerDTO> followerDTOs = queryFactory
+	public List<FollowerDto> getFollowings(Long loginedMemberId, Long memberId) {
+		final List<FollowerDto> followerDtos = queryFactory
 			.select(new QFollowerDTO(
 				member,
 				JPAExpressions
@@ -47,18 +47,18 @@ public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl {
 			))
 			.fetch();
 
-		followerDTOs.forEach(follower -> {
-			final MemberDTO member = follower.getMember();
+		followerDtos.forEach(follower -> {
+			final MemberDto member = follower.getMember();
 			final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0;
 			member.setHasStory(hasStory);
 		});
 
-		return followerDTOs;
+		return followerDtos;
 	}
 
 	@Override
-	public List<FollowerDTO> getFollowers(Long loginedMemberId, Long memberId) {
-		final List<FollowerDTO> followerDTOs = queryFactory
+	public List<FollowerDto> getFollowers(Long loginedMemberId, Long memberId) {
+		final List<FollowerDto> followerDtos = queryFactory
 			.select(new QFollowerDTO(
 				member,
 				JPAExpressions
@@ -79,18 +79,18 @@ public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl {
 			))
 			.fetch();
 
-		followerDTOs.forEach(follower -> {
-			final MemberDTO member = follower.getMember();
+		followerDtos.forEach(follower -> {
+			final MemberDto member = follower.getMember();
 			final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0;
 			member.setHasStory(hasStory);
 		});
 
-		return followerDTOs;
+		return followerDtos;
 	}
 
 	@Override
-	public Map<String, List<FollowDTO>> getFollowingMemberFollowMap(Long loginId, List<String> usernames) {
-		final List<FollowDTO> follows = queryFactory
+	public Map<String, List<FollowDto>> getFollowingMemberFollowMap(Long loginId, List<String> usernames) {
+		final List<FollowDto> follows = queryFactory
 			.select(new QFollowDTO(
 				follow.member.username,
 				follow.followMember.username
@@ -105,7 +105,7 @@ public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl {
 				)))
 			.fetch();
 		return follows.stream()
-			.collect(Collectors.groupingBy(FollowDTO::getFollowMemberUsername));
+			.collect(Collectors.groupingBy(FollowDto::getFollowMemberUsername));
 	}
 
 }

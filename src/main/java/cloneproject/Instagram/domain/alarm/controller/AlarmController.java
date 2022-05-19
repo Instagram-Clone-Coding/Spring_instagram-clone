@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import cloneproject.Instagram.domain.alarm.dto.AlarmDTO;
+import cloneproject.Instagram.domain.alarm.dto.AlarmDto;
 import cloneproject.Instagram.domain.alarm.service.AlarmService;
 import cloneproject.Instagram.global.result.ResultCode;
 import cloneproject.Instagram.global.result.ResultResponse;
@@ -37,9 +37,10 @@ public class AlarmController {
     public ResponseEntity<ResultResponse> getAlarms(
             @NotNull(message = "page는 필수입니다.") @RequestParam int page,
             @NotNull(message = "size는 필수입니다.") @RequestParam int size) {
-        Page<AlarmDTO> alarms = alarmService.getAlarms(page, size);
+        final Page<AlarmDto> alarms = alarmService.getAlarms(page, size);
 
-        ResultResponse result = ResultResponse.of(ResultCode.GET_ALARMS_SUCCESS, alarms);
+        final ResultResponse result = ResultResponse.of(ResultCode.GET_ALARMS_SUCCESS, alarms);
         return new ResponseEntity<>(result, HttpStatus.valueOf(result.getStatus()));
     }
+
 }

@@ -1,6 +1,6 @@
 package cloneproject.Instagram.domain.feed.repository;
 
-import cloneproject.Instagram.domain.feed.dto.PostImageDTO;
+import cloneproject.Instagram.domain.feed.dto.PostImageDto;
 import cloneproject.Instagram.domain.feed.entity.Post;
 import cloneproject.Instagram.domain.feed.entity.PostImage;
 
@@ -18,9 +18,10 @@ public interface PostImageRepository extends JpaRepository<PostImage, Long>, Pos
 
 	List<PostImage> findAllByPost(Post post);
 
-	@Query("select new cloneproject.Instagram.domain.feed.dto.PostImageDTO("
+	@Query("select new cloneproject.Instagram.domain.feed.dto.PostImageDto("
 		+ "pi.post.id, pi.id, pi.image.imageUrl, pi.altText) "
 		+ "from PostImage pi "
 		+ "where pi.post.id in :postIds")
-	List<PostImageDTO> findAllPostImageDto(@Param(value = "postIds") List<Long> postIds);
+	List<PostImageDto> findAllPostImageDto(@Param(value = "postIds") List<Long> postIds);
+
 }

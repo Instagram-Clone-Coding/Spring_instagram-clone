@@ -4,15 +4,15 @@ import cloneproject.Instagram.domain.dm.dto.ChatRoomCreateResponse;
 import cloneproject.Instagram.domain.dm.dto.ChatRoomInquireResponse;
 import cloneproject.Instagram.domain.dm.dto.IndicateDTO;
 import cloneproject.Instagram.domain.dm.dto.IndicateRequest;
-import cloneproject.Instagram.domain.dm.dto.JoinRoomDTO;
+import cloneproject.Instagram.domain.dm.dto.JoinRoomDto;
 import cloneproject.Instagram.domain.dm.dto.JoinRoomDeleteResponse;
 import cloneproject.Instagram.domain.dm.dto.MemberSimpleInfo;
 import cloneproject.Instagram.domain.dm.dto.MessageAction;
-import cloneproject.Instagram.domain.dm.dto.MessageDTO;
+import cloneproject.Instagram.domain.dm.dto.MessageDto;
 import cloneproject.Instagram.domain.dm.dto.MessageRequest;
 import cloneproject.Instagram.domain.dm.dto.MessageResponse;
 import cloneproject.Instagram.domain.dm.dto.MessageSeenDTO;
-import cloneproject.Instagram.domain.dm.dto.MessageSimpleDTO;
+import cloneproject.Instagram.domain.dm.dto.MessageSimpleDto;
 import cloneproject.Instagram.domain.dm.entity.JoinRoom;
 import cloneproject.Instagram.domain.dm.entity.Message;
 import cloneproject.Instagram.domain.dm.entity.MessageImage;
@@ -163,13 +163,13 @@ public class ChatService {
         return new JoinRoomDeleteResponse(true);
     }
 
-    public Page<JoinRoomDTO> getJoinRooms(int page) {
+    public Page<JoinRoomDto> getJoinRooms(int page) {
         final Long memberId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
         final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
 
         page = (page == 0 ? 0 : page - 1);
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(DESC, "id"));
-        return joinRoomRepository.findJoinRoomDTOPageByMemberId(member.getId(), pageable);
+        final Pageable pageable = PageRequest.of(page, 10, Sort.by(DESC, "id"));
+        return joinRoomRepository.findJoinRoomDtoPageByMemberId(member.getId(), pageable);
     }
 
     @Transactional
@@ -184,7 +184,7 @@ public class ChatService {
         message.setDtype();
         updateRoom(request.getSenderId(), room, roomMembers, message);
 
-        final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_GET, new MessageDTO(message));
+        final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_GET, new MessageDto(message));
         roomMembers.forEach(r -> messagingTemplate.convertAndSend("/sub/" + r.getMember().getUsername(), response));
     }
 
@@ -200,12 +200,12 @@ public class ChatService {
         });
     }
 
-    public Page<MessageDTO> getChatMessages(Long roomId, Integer page) {
+    public Page<MessageDto> getChatMessages(Long roomId, Integer page) {
         final Long memberId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
 
         page = (page == 0 ? 0 : page - 1);
-        Pageable pageable = PageRequest.of(page, 10);
-        return messageRepository.findMessageDTOPageByMemberIdAndRoomId(memberId, roomId, pageable);
+        final Pageable pageable = PageRequest.of(page, 10);
+        return messageRepository.findMessageDtoPageByMemberIdAndRoomId(memberId, roomId, pageable);
     }
 
     @Transactional
@@ -228,7 +228,7 @@ public class ChatService {
         message.setDtype();
         updateRoom(senderId, room, roomMembers, message);
 
-        final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_GET, new MessageDTO(message));
+        final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_GET, new MessageDto(message));
         roomMembers.forEach(r -> messagingTemplate.convertAndSend("/sub/" + r.getMember().getUsername(), response));
         return new StatusResponse(true);
     }
@@ -290,7 +290,7 @@ public class ChatService {
             }
         });
 
-        final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_DELETE, new MessageSimpleDTO(message, member));
+        final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_DELETE, new MessageSimpleDto(message, member));
         messageRepository.delete(message);
         final List<RoomMember> roomMembers = roomMemberRepository.findAllByRoom(room);
         roomMembers.forEach(r -> messagingTemplate.convertAndSend("/sub/" + r.getMember().getUsername(), response));
@@ -308,7 +308,7 @@ public class ChatService {
             throw new MessageLikeAlreadyExistException();
         messageLikeRepository.save(new MessageLike(member, message));
 
-        final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_LIKE, new MessageSimpleDTO(message, member));
+        final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_LIKE, new MessageSimpleDto(message, member));
         roomMembers.forEach(r -> messagingTemplate.convertAndSend("/sub/" + r.getMember().getUsername(), response));
     }
 
@@ -325,7 +325,7 @@ public class ChatService {
             throw new MessageLikeNotFoundException();
         messageLikeRepository.delete(findMessageLike.get());
 
-        final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_UNLIKE, new MessageSimpleDTO(message, member));
+        final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_UNLIKE, new MessageSimpleDto(message, member));
         roomMembers.forEach(r -> messagingTemplate.convertAndSend("/sub/" + r.getMember().getUsername(), response));
     }
 }

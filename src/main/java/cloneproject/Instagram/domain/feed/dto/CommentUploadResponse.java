@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class CommentUploadResponse {
 
 	private Long commentId;
+
 }

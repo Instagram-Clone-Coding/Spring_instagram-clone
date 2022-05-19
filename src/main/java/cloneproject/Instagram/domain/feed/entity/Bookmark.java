@@ -33,4 +33,5 @@ public class Bookmark {
 		this.member = member;
 		this.post = post;
 	}
+
 }

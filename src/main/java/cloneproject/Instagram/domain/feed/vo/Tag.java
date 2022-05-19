@@ -32,4 +32,5 @@ public class Tag {
 		Tag tag = (Tag)obj;
 		return Objects.equals(x, tag.x) && Objects.equals(y, tag.y) && Objects.equals(username, tag.username);
 	}
+
 }

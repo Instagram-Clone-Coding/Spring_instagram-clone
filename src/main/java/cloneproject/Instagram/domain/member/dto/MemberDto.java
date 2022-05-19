@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class MemberDTO {
+public class MemberDto {
 
 	private Long id;
 	private String username;
@@ -15,7 +15,7 @@ public class MemberDTO {
 	private Image image;
 	private boolean hasStory;
 
-	public MemberDTO(Member member) {
+	public MemberDto(Member member) {
 		this.id = member.getId();
 		this.username = member.getUsername();
 		this.name = member.getName();

@@ -1,8 +1,7 @@
 package cloneproject.Instagram.domain.feed.repository.querydsl;
 
-import cloneproject.Instagram.domain.feed.dto.PostDTO;
+import cloneproject.Instagram.domain.feed.dto.PostDto;
 import cloneproject.Instagram.domain.feed.dto.PostResponse;
-import cloneproject.Instagram.domain.feed.dto.*;
 import cloneproject.Instagram.domain.member.entity.QMember;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -29,8 +28,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public Page<PostDTO> findPostDtoPage(Long memberId, Pageable pageable) {
-		final List<PostDTO> postDTOs = queryFactory
+	public Page<PostDto> findPostDtoPage(Long memberId, Pageable pageable) {
+		final List<PostDto> postDtos = queryFactory
 			.select(new QPostDTO(
 				post.id,
 				post.content,
@@ -56,7 +55,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 			.where(isPostUploadedByFollowings(memberId))
 			.fetchCount();
 
-		return new PageImpl<>(postDTOs, pageable, total);
+		return new PageImpl<>(postDtos, pageable, total);
 	}
 
 	@Override
@@ -78,14 +77,14 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 	}
 
 	@Override
-	public Page<PostDTO> findPostDtoPage(Pageable pageable, Long memberId, List<Long> postIds) {
-		final List<PostDTO> postDTOs = getPostDTOsByPostIdIn(memberId, postIds);
+	public Page<PostDto> findPostDtoPage(Pageable pageable, Long memberId, List<Long> postIds) {
+		final List<PostDto> postDtos = getPostDTOsByPostIdIn(memberId, postIds);
 		final long total = getTotalByPostIdIn(postIds);
 
-		return new PageImpl<>(postDTOs, pageable, total);
+		return new PageImpl<>(postDtos, pageable, total);
 	}
 
-	private List<PostDTO> getPostDTOsByPostIdIn(Long memberId, List<Long> postIds) {
+	private List<PostDto> getPostDTOsByPostIdIn(Long memberId, List<Long> postIds) {
 		return queryFactory
 			.select(new QPostDTO(
 				post.id,
@@ -133,4 +132,5 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 				.from(follow)
 				.where(follow.member.id.eq(id)));
 	}
+
 }

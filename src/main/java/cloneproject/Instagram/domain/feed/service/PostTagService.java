@@ -27,4 +27,5 @@ public class PostTagService {
     public void saveAll(List<PostImageTagRequest> tags) {
         postTagRepository.savePostTags(tags);
     }
+
 }

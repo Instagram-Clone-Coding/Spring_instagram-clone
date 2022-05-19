@@ -1,6 +1,6 @@
 package cloneproject.Instagram.domain.feed.repository.querydsl;
 
-import cloneproject.Instagram.domain.feed.dto.PostDTO;
+import cloneproject.Instagram.domain.feed.dto.PostDto;
 import cloneproject.Instagram.domain.feed.dto.PostResponse;
 
 import org.springframework.data.domain.Page;
@@ -11,9 +11,10 @@ import java.util.Optional;
 
 public interface PostRepositoryQuerydsl {
 
-	Page<PostDTO> findPostDtoPage(Long memberId, Pageable pageable);
+	Page<PostDto> findPostDtoPage(Long memberId, Pageable pageable);
 
 	Optional<PostResponse> findPostResponse(Long postId, Long memberId);
 
-	Page<PostDTO> findPostDtoPage(Pageable pageable, Long memberId, List<Long> postIds);
+	Page<PostDto> findPostDtoPage(Pageable pageable, Long memberId, List<Long> postIds);
+
 }

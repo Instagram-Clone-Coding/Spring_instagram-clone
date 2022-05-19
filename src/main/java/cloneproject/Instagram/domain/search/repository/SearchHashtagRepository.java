@@ -13,4 +13,5 @@ public interface SearchHashtagRepository extends JpaRepository<SearchHashtag, Lo
 	Optional<SearchHashtag> findByHashtagName(String name);
 
 	List<SearchHashtag> findAllByHashtagIn(List<Hashtag> hashtags);
+
 }

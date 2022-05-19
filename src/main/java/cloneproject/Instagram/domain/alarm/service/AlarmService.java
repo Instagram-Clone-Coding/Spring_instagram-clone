@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import cloneproject.Instagram.domain.alarm.dto.AlarmDTO;
+import cloneproject.Instagram.domain.alarm.dto.AlarmDto;
 import cloneproject.Instagram.domain.alarm.dto.AlarmType;
 import cloneproject.Instagram.domain.alarm.entity.Alarm;
 import cloneproject.Instagram.domain.alarm.exception.MismatchedAlarmTypeException;
@@ -31,7 +31,7 @@ public class AlarmService {
     private final AlarmRepository alarmRepository;
     private final AuthUtil authUtil;
 
-    public Page<AlarmDTO> getAlarms(int page, int size) {
+    public Page<AlarmDto> getAlarms(int page, int size) {
         final Member agent = authUtil.getLoginMember();
         page = (page == 0 ? 0 : page - 1);
         final Pageable pageable = PageRequest.of(page, size);
@@ -130,4 +130,5 @@ public class AlarmService {
         final List<Alarm> alarms = alarmRepository.findAllByCommentIn(comments);
         alarmRepository.deleteAllInBatch(alarms);
     }
+
 }

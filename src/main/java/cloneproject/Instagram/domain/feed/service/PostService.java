@@ -10,8 +10,8 @@ import cloneproject.Instagram.domain.hashtag.entity.Hashtag;
 import cloneproject.Instagram.domain.hashtag.repository.HashtagPostRepository;
 import cloneproject.Instagram.domain.hashtag.repository.HashtagRepository;
 import cloneproject.Instagram.domain.hashtag.service.HashtagService;
-import cloneproject.Instagram.domain.member.dto.LikeMembersDTO;
-import cloneproject.Instagram.domain.member.dto.MemberDTO;
+import cloneproject.Instagram.domain.member.dto.LikeMembersDto;
+import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.mention.service.MentionService;
@@ -133,87 +133,86 @@ public class PostService {
 		postRepository.delete(post);
 	}
 
-	public Page<PostDTO> getPostDtoPage(int size, int page) {
+	public Page<PostDto> getPostDtoPage(int size, int page) {
 		final Member loginMember = authUtil.getLoginMember();
 		page = (page == 0 ? 0 : page - 1) + 10;
 		final Pageable pageable = PageRequest.of(page, size);
-		final Page<PostDTO> postDtoPage = postRepository.findPostDtoPage(loginMember.getId(), pageable);
+		final Page<PostDto> postDtoPage = postRepository.findPostDtoPage(loginMember.getId(), pageable);
 		setContent(loginMember, postDtoPage.getContent());
 
 		return postDtoPage;
 	}
 
-	public Page<PostDTO> getPostDtoPage(Pageable pageable, List<Long> postIds) {
+	public Page<PostDto> getPostDtoPage(Pageable pageable, List<Long> postIds) {
 		final Member loginMember = authUtil.getLoginMember();
-		final Page<PostDTO> postDtoPage = postRepository.findPostDtoPage(pageable, loginMember.getId(), postIds);
+		final Page<PostDto> postDtoPage = postRepository.findPostDtoPage(pageable, loginMember.getId(), postIds);
 		setContent(loginMember, postDtoPage.getContent());
 
 		return postDtoPage;
 	}
 
-	public List<PostDTO> getRecent10PostDTOs() {
+	public List<PostDto> getRecent10PostDtos() {
 		final Member loginMember = authUtil.getLoginMember();
 		final Pageable pageable = PageRequest.of(0, 10);
-		final Page<PostDTO> postDtoPage = postRepository.findPostDtoPage(loginMember.getId(), pageable);
+		final Page<PostDto> postDtoPage = postRepository.findPostDtoPage(loginMember.getId(), pageable);
 		setContent(loginMember, postDtoPage.getContent());
 
 		return postDtoPage.getContent();
 	}
 
-	private void setContent(Member loginMember, List<PostDTO> postDTOs) {
-		final List<Long> postIds = postDTOs.stream()
-			.map(PostDTO::getPostId)
+	private void setContent(Member loginMember, List<PostDto> postDtos) {
+		final List<Long> postIds = postDtos.stream()
+			.map(PostDto::getPostId)
 			.collect(Collectors.toList());
 
-		setHashStoryInPostDto(postDTOs);
-		setPostImages(postDTOs, postIds);
-		setRecentComments(loginMember.getId(), postDTOs, postIds);
-		setFollowingMemberUsernameLikedPost(loginMember.getId(), postDTOs, postIds);
+		setHasStoryInPostDto(postDtos);
+		setPostImages(postDtos, postIds);
+		setRecentComments(loginMember.getId(), postDtos, postIds);
+		setFollowingMemberUsernameLikedPost(loginMember.getId(), postDtos, postIds);
 	}
 
-	private void setPostImages(List<PostDTO> postDTOs, List<Long> postIds) {
-		final List<PostImageDTO> postImageDTOs = postImageRepository.findAllPostImageDto(postIds);
-		final List<Long> postImageIds = postImageDTOs.stream()
-			.map(PostImageDTO::getId)
+	private void setPostImages(List<PostDto> postDtos, List<Long> postIds) {
+		final List<PostImageDto> postImageDtos = postImageRepository.findAllPostImageDto(postIds);
+		final List<Long> postImageIds = postImageDtos.stream()
+			.map(PostImageDto::getId)
 			.collect(Collectors.toList());
 
-		setPostTags(postImageDTOs, postImageIds);
+		setPostTags(postImageDtos, postImageIds);
 
-		final Map<Long, List<PostImageDTO>> postDTOMap = postImageDTOs.stream()
-			.collect(Collectors.groupingBy(PostImageDTO::getPostId));
-		postDTOs.forEach(p -> p.setPostImageDTOs(postDTOMap.get(p.getPostId())));
+		final Map<Long, List<PostImageDto>> postDTOMap = postImageDtos.stream()
+			.collect(Collectors.groupingBy(PostImageDto::getPostId));
+		postDtos.forEach(p -> p.setPostImages(postDTOMap.get(p.getPostId())));
 	}
 
-	private void setPostTags(List<PostImageDTO> postImageDTOs, List<Long> postImageIds) {
-		final List<PostTagDTO> postTagDTOs = postTagRepository.findAllPostTagDto(postImageIds);
+	private void setPostTags(List<PostImageDto> postImageDtos, List<Long> postImageIds) {
+		final List<PostTagDto> postTagDtos = postTagRepository.findAllPostTagDto(postImageIds);
 
-		final Map<Long, List<PostTagDTO>> postImageDTOMap = postTagDTOs.stream()
-			.collect(Collectors.groupingBy(PostTagDTO::getPostImageId));
-		postImageDTOs.forEach(i -> i.setPostTagDTOs(postImageDTOMap.get(i.getId())));
+		final Map<Long, List<PostTagDto>> postImageDTOMap = postTagDtos.stream()
+			.collect(Collectors.groupingBy(PostTagDto::getPostImageId));
+		postImageDtos.forEach(i -> i.setPostTags(postImageDTOMap.get(i.getId())));
 	}
 
-	private void setFollowingMemberUsernameLikedPost(Long memberId, List<PostDTO> postDTOs, List<Long> postIds) {
-		final Map<Long, List<PostLikeDTO>> postLikeDTOMap =
+	private void setFollowingMemberUsernameLikedPost(Long memberId, List<PostDto> postDtos, List<Long> postIds) {
+		final Map<Long, List<PostLikeDto>> postLikeDTOMap =
 			postLikeRepository.findAllPostLikeDtoOfFollowings(memberId, postIds).stream()
-				.collect(Collectors.groupingBy(PostLikeDTO::getPostId));
-		postDTOs.forEach(p -> p.setFollowingMemberUsernameLikedPost(
+				.collect(Collectors.groupingBy(PostLikeDto::getPostId));
+		postDtos.forEach(p -> p.setFollowingMemberUsernameLikedPost(
 			postLikeDTOMap.containsKey(p.getPostId()) ? postLikeDTOMap.get(p.getPostId()).get(0).getUsername() : ""));
 	}
 
-	// TODO: 메소드명 수정 필요
-	private void setHashStoryInPostDto(List<PostDTO> postDTOs) {
-		postDTOs.forEach(post -> {
-			final MemberDTO postMember = post.getMember();
+	private void setHasStoryInPostDto(List<PostDto> postDtos) {
+		postDtos.forEach(post -> {
+			final MemberDto postMember = post.getMember();
 			final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(postMember.getId()).size() > 0;
 			postMember.setHasStory(hasStory);
 		});
 	}
 
-	private void setRecentComments(Long memberId, List<PostDTO> postDTOs, List<Long> postIds) {
-		final Map<Long, List<CommentDTO>> recentCommentMap =
+	private void setRecentComments(Long memberId, List<PostDto> postDtos, List<Long> postIds) {
+		final Map<Long, List<CommentDto>> recentCommentMap =
 			commentRepository.findAllRecentCommentDto(memberId, postIds).stream()
-				.collect(Collectors.groupingBy(CommentDTO::getPostId));
-		postDTOs.forEach(p -> p.setRecentComments(recentCommentMap.get(p.getPostId())));
+				.collect(Collectors.groupingBy(CommentDto::getPostId));
+		postDtos.forEach(p -> p.setRecentComments(recentCommentMap.get(p.getPostId())));
 	}
 
 	public PostResponse getPostResponse(Long postId) {
@@ -231,46 +230,46 @@ public class PostService {
 
 	private void setRecentComments(Long memberId, PostResponse postResponse) {
 		final Pageable pageable = PageRequest.of(0, 10);
-		final List<CommentDTO> commentDTOs = commentRepository.findCommentDtoPage(memberId, postResponse.getPostId(),
+		final List<CommentDto> commentDtos = commentRepository.findCommentDtoPage(memberId, postResponse.getPostId(),
 			pageable).getContent();
 
-		setHasStoryInCommentDto(commentDTOs);
-		postResponse.setCommentDTOs(commentDTOs);
+		setHasStoryInCommentDto(commentDtos);
+		postResponse.setCommentDtos(commentDtos);
 	}
 
-	private void setHasStoryInCommentDto(List<CommentDTO> commentDTOs) {
-		commentDTOs.forEach(comment -> {
-			final MemberDTO member = comment.getMember();
+	private void setHasStoryInCommentDto(List<CommentDto> commentDtos) {
+		commentDtos.forEach(comment -> {
+			final MemberDto member = comment.getMember();
 			final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0;
 			member.setHasStory(hasStory);
 		});
 	}
 
 	private void setPostImages(PostResponse postResponse) {
-		final List<PostImageDTO> postImageDTOs = postImageRepository.findAllPostImageDto(
+		final List<PostImageDto> postImageDtos = postImageRepository.findAllPostImageDto(
 			List.of(postResponse.getPostId()));
 
 		setPostTags(postResponse);
-		postResponse.setPostImageDTOs(postImageDTOs);
+		postResponse.setPostImageDtos(postImageDtos);
 	}
 
 	private void setPostTags(PostResponse postResponse) {
-		final List<PostTagDTO> postTagDTOs = postTagRepository.findAllPostTagDto(List.of(postResponse.getPostId()));
+		final List<PostTagDto> postTagDtos = postTagRepository.findAllPostTagDto(List.of(postResponse.getPostId()));
 
-		final Map<Long, List<PostTagDTO>> postImageDTOMap = postTagDTOs.stream()
-			.collect(Collectors.groupingBy(PostTagDTO::getPostImageId));
-		postResponse.getPostImageDTOs().forEach(i -> i.setPostTagDTOs(postImageDTOMap.get(i.getId())));
+		final Map<Long, List<PostTagDto>> postImageDTOMap = postTagDtos.stream()
+			.collect(Collectors.groupingBy(PostTagDto::getPostImageId));
+		postResponse.getPostImageDtos().forEach(i -> i.setPostTags(postImageDTOMap.get(i.getId())));
 	}
 
 	private void setFollowingMemberUsernameLikedPost(Long memberId, PostResponse postResponse) {
-		final List<PostLikeDTO> postLikeDTOs = postLikeRepository.findAllPostLikeDtoOfFollowings(memberId,
+		final List<PostLikeDto> postLikeDtos = postLikeRepository.findAllPostLikeDtoOfFollowings(memberId,
 			List.of(postResponse.getPostId()));
 		postResponse.setFollowingMemberUsernameLikedPost(
-			postLikeDTOs.isEmpty() ? "" : postLikeDTOs.get(0).getUsername());
+			postLikeDtos.isEmpty() ? "" : postLikeDtos.get(0).getUsername());
 	}
 
 	private void setHasStory(PostResponse postResponse) {
-		final MemberDTO postMember = postResponse.getMember();
+		final MemberDto postMember = postResponse.getMember();
 		final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(postMember.getId()).size() > 0;
 		postMember.setHasStory(hasStory);
 	}
@@ -297,11 +296,11 @@ public class PostService {
 		alarmService.delete(LIKE_POST, post.getMember(), post);
 	}
 
-	public Page<LikeMembersDTO> getPostLikeMembersDtoPage(Long postId, int page, int size) {
+	public Page<LikeMembersDto> getPostLikeMembersDtoPage(Long postId, int page, int size) {
 		final Member loginMember = authUtil.getLoginMember();
 		page = (page == 0 ? 0 : page - 1);
 		final Pageable pageable = PageRequest.of(page, size);
-		final Page<LikeMembersDTO> likeMembersDTOs =
+		final Page<LikeMembersDto> likeMembersDTOs =
 			postLikeRepository.findPostLikeMembersDtoPage(pageable, postId, loginMember.getId());
 
 		setHasStory(likeMembersDTOs);
@@ -309,7 +308,7 @@ public class PostService {
 		return likeMembersDTOs;
 	}
 
-	private void setHasStory(Page<LikeMembersDTO> likeMembersDTOs) {
+	private void setHasStory(Page<LikeMembersDto> likeMembersDTOs) {
 		likeMembersDTOs.getContent()
 			.forEach(dto -> dto.setHasStory(
 				memberStoryRedisRepository.findAllByMemberId(dto.getMember().getId()).size() > 0));
@@ -343,7 +342,7 @@ public class PostService {
 		messageService.sendMessageToMembersIndividually(loginMember, post, usernames);
 	}
 
-	public Page<PostDTO> getHashTagPosts(int page, int size, String name) {
+	public Page<PostDto> getHashTagPosts(int page, int size, String name) {
 		page = (page == 0 ? 0 : page - 1);
 		final Pageable pageable = PageRequest.of(page, size);
 		final Optional<Hashtag> findHashtag = hashtagRepository.findByName(name);

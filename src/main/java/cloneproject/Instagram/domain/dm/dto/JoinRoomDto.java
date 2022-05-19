@@ -13,18 +13,19 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class JoinRoomDTO {
+public class JoinRoomDto {
 
     private Long roomId;
-    private MessageDTO lastMessage;
+    private MessageDto lastMessage;
     private boolean unreadFlag;
     private MemberSimpleInfo inviter;
     private List<MemberSimpleInfo> members = new ArrayList<>();
 
     @QueryProjection
-    public JoinRoomDTO(Long roomId, boolean unreadFlag, Member member) {
+    public JoinRoomDto(Long roomId, boolean unreadFlag, Member member) {
         this.roomId = roomId;
         this.unreadFlag = unreadFlag;
         this.inviter = new MemberSimpleInfo(member);
     }
+
 }

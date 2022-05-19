@@ -27,4 +27,5 @@ public class CommentUploadRequest {
 	@NotBlank(message = "댓글 내용은 필수입니다.")
 	@Length(max = 100, message = "최대 100자까지 입력 가능합니다.")
 	private String content;
+
 }

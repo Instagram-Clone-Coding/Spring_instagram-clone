@@ -1,12 +1,11 @@
 package cloneproject.Instagram.domain.search.dto;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import com.querydsl.core.annotations.QueryProjection;
 
-import cloneproject.Instagram.domain.follow.dto.FollowDTO;
-import cloneproject.Instagram.domain.member.dto.MemberDTO;
+import cloneproject.Instagram.domain.follow.dto.FollowDto;
+import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -16,23 +15,23 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SearchMemberDTO extends SearchDTO{
+public class SearchMemberDto extends SearchDto {
     
-    private MemberDTO memberDTO;
+    private MemberDto member;
     private boolean isFollowing;
     private boolean isFollower;
-    private List<FollowDTO> followingMemberFollow;
+    private List<FollowDto> followingMemberFollow;
 
     @QueryProjection
-    public SearchMemberDTO(String dtype, Member member, boolean isFollowing, boolean isFollower){
+    public SearchMemberDto(String dtype, Member member, boolean isFollowing, boolean isFollower) {
         super(dtype);
-        this.memberDTO = new MemberDTO(member);
+        this.member = new MemberDto(member);
         this.isFollowing = isFollowing;
         this.isFollower = isFollower;
         // this.followingMemberFollow = followingMemberFollow;
     }
 
-    public void setFollowingMemberFollow(List<FollowDTO> followingMemberFollow) {
+    public void setFollowingMemberFollow(List<FollowDto> followingMemberFollow) {
         this.followingMemberFollow = followingMemberFollow;
     }
 

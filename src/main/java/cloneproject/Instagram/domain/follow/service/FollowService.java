@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cloneproject.Instagram.domain.alarm.service.AlarmService;
-import cloneproject.Instagram.domain.follow.dto.FollowerDTO;
+import cloneproject.Instagram.domain.follow.dto.FollowerDto;
 import cloneproject.Instagram.domain.follow.entity.Follow;
 import cloneproject.Instagram.domain.follow.exception.AlreadyFollowException;
 import cloneproject.Instagram.domain.follow.exception.CantDeleteFollowerException;
@@ -52,7 +52,7 @@ public class FollowService {
         // 차단했었다면 차단해제
         blockRepository.findByMemberIdAndBlockMemberId(member.getId(), followMember.getId()).ifPresent(blockRepository::delete);
 
-        Follow follow = new Follow(member, followMember);
+        final Follow follow = new Follow(member, followMember);
         followRepository.save(follow);
         alarmService.alert(followMember, follow);
 
@@ -67,7 +67,7 @@ public class FollowService {
         if (Long.valueOf(memberId).equals(followMember.getId())) {
             throw new CantUnfollowMyselfException();
         }
-        Follow follow = followRepository.findByMemberIdAndFollowMemberId(Long.valueOf(memberId), followMember.getId())
+        final Follow follow = followRepository.findByMemberIdAndFollowMemberId(Long.valueOf(memberId), followMember.getId())
                 .orElseThrow(CantUnfollowException::new);
         alarmService.delete(followMember, follow);
         followRepository.delete(follow);
@@ -83,32 +83,32 @@ public class FollowService {
         if (Long.valueOf(memberId).equals(followMember.getId())) {
             throw new CantDeleteFollowerException();
         }
-        Follow follow = followRepository.findByMemberIdAndFollowMemberId(followMember.getId(), Long.valueOf(memberId))
+        final Follow follow = followRepository.findByMemberIdAndFollowMemberId(followMember.getId(), Long.valueOf(memberId))
             .orElseThrow(CantDeleteFollowerException::new);
         followRepository.delete(follow);
         return true;
     }
 
     @Transactional(readOnly = true)
-    public List<FollowerDTO> getFollowings(String memberUsername) {
+    public List<FollowerDto> getFollowings(String memberUsername) {
         final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
 
         final Member toMember = memberRepository.findByUsername(memberUsername)
                 .orElseThrow(MemberDoesNotExistException::new);
 
-        final List<FollowerDTO> result = followRepository.getFollowings(Long.valueOf(memberId), toMember.getId());
+        final List<FollowerDto> result = followRepository.getFollowings(Long.valueOf(memberId), toMember.getId());
 
         return result;
     }
 
     @Transactional(readOnly = true)
-    public List<FollowerDTO> getFollowers(String memberUsername) {
+    public List<FollowerDto> getFollowers(String memberUsername) {
         final String memberId = SecurityContextHolder.getContext().getAuthentication().getName();
 
         final Member toMember = memberRepository.findByUsername(memberUsername)
                 .orElseThrow(MemberDoesNotExistException::new);
 
-        final List<FollowerDTO> result = followRepository.getFollowers(Long.valueOf(memberId), toMember.getId());
+        final List<FollowerDto> result = followRepository.getFollowers(Long.valueOf(memberId), toMember.getId());
 
         return result;
     }

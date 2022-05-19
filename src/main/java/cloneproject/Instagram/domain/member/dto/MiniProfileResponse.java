@@ -1,22 +1,16 @@
 package cloneproject.Instagram.domain.member.dto;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import com.querydsl.core.annotations.QueryProjection;
 
-import cloneproject.Instagram.domain.feed.dto.MiniProfilePostDTO;
-import cloneproject.Instagram.domain.feed.dto.PostImageDTO;
+import cloneproject.Instagram.domain.feed.dto.MiniProfilePostDto;
 import cloneproject.Instagram.global.vo.Image;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @ApiModel("유저 미니프로필 응답 모델")
 @Getter
@@ -57,7 +51,7 @@ public class MiniProfileResponse {
 	private Long memberFollowingsCount;
 
 	@ApiModelProperty(value = "최근 게시물 3개")
-	private List<MiniProfilePostDTO> memberPosts;
+	private List<MiniProfilePostDto> memberPosts;
 
 	@ApiModelProperty(value = "내 팔로잉 중 해당 유저를 팔로우 하는 사람", example = "dlwlrma")
 	private String followingMemberFollow;
@@ -93,8 +87,8 @@ public class MiniProfileResponse {
 		checkBlock();
 	}
 
-	public void setMemberPosts(List<MiniProfilePostDTO> miniProfilePostDTOs) {
-		this.memberPosts = miniProfilePostDTOs;
+	public void setMemberPosts(List<MiniProfilePostDto> miniProfilePostDtos) {
+		this.memberPosts = miniProfilePostDtos;
 		checkBlock();
 	}
 

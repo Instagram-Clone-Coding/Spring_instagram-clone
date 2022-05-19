@@ -8,4 +8,5 @@ public class CantDeletePostException extends BusinessException {
 	public CantDeletePostException() {
 		super(ErrorCode.POST_CANT_DELETE);
 	}
+
 }

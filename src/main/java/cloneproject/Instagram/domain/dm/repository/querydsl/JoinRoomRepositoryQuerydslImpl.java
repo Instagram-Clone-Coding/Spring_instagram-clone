@@ -1,8 +1,8 @@
 package cloneproject.Instagram.domain.dm.repository.querydsl;
 
-import cloneproject.Instagram.domain.dm.dto.JoinRoomDTO;
+import cloneproject.Instagram.domain.dm.dto.JoinRoomDto;
 import cloneproject.Instagram.domain.dm.dto.MemberSimpleInfo;
-import cloneproject.Instagram.domain.dm.dto.MessageDTO;
+import cloneproject.Instagram.domain.dm.dto.MessageDto;
 import cloneproject.Instagram.domain.dm.dto.QJoinRoomDTO;
 import cloneproject.Instagram.domain.dm.entity.Message;
 import cloneproject.Instagram.domain.dm.entity.MessageImage;
@@ -38,8 +38,8 @@ public class JoinRoomRepositoryQuerydslImpl implements JoinRoomRepositoryQueryds
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<JoinRoomDTO> findJoinRoomDTOPageByMemberId(Long memberId, Pageable pageable) {
-        final List<JoinRoomDTO> joinRoomDTOs = queryFactory
+    public Page<JoinRoomDto> findJoinRoomDtoPageByMemberId(Long memberId, Pageable pageable) {
+        final List<JoinRoomDto> joinRoomDtos = queryFactory
                 .select(new QJoinRoomDTO(
                         joinRoom.room.id,
                         JPAExpressions
@@ -61,8 +61,8 @@ public class JoinRoomRepositoryQuerydslImpl implements JoinRoomRepositoryQueryds
                 .limit(pageable.getPageSize())
                 .orderBy(joinRoom.message.createdDate.desc())
                 .fetch();
-        final List<Long> roomIds = joinRoomDTOs.stream()
-                .map(JoinRoomDTO::getRoomId)
+        final List<Long> roomIds = joinRoomDtos.stream()
+                .map(JoinRoomDto::getRoomId)
                 .collect(Collectors.toList());
         final List<Message> messages = queryFactory
                 .select(joinRoom.message)
@@ -103,20 +103,20 @@ public class JoinRoomRepositoryQuerydslImpl implements JoinRoomRepositoryQueryds
         final Map<Long, List<RoomMember>> roomMemberMap = roomMembers.stream()
                 .collect(Collectors.groupingBy(r -> r.getRoom().getId()));
 
-        joinRoomDTOs.forEach(j -> {
+        joinRoomDtos.forEach(j -> {
             j.setMembers(
                     roomMemberMap.get(j.getRoomId()).stream()
                             .map(r -> new MemberSimpleInfo(r.getMember()))
                             .collect(Collectors.toList())
             );
             if (messagePostMap.containsKey(j.getRoomId()))
-                j.setLastMessage(new MessageDTO(messagePostMap.get(j.getRoomId())));
+                j.setLastMessage(new MessageDto(messagePostMap.get(j.getRoomId())));
             else if (messageImageMap.containsKey(j.getRoomId()))
-                j.setLastMessage(new MessageDTO(messageImageMap.get(j.getRoomId())));
+                j.setLastMessage(new MessageDto(messageImageMap.get(j.getRoomId())));
             else if (messageTextMap.containsKey(j.getRoomId()))
-                j.setLastMessage(new MessageDTO(messageTextMap.get(j.getRoomId())));
+                j.setLastMessage(new MessageDto(messageTextMap.get(j.getRoomId())));
         });
 
-        return new PageImpl<>(joinRoomDTOs, pageable, total);
+        return new PageImpl<>(joinRoomDtos, pageable, total);
     }
 }

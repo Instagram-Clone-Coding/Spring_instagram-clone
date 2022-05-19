@@ -22,4 +22,5 @@ public class PostLikeService {
 		final List<PostLike> postLikes = postLikeRepository.findAllByPost(post);
 		postLikeRepository.deleteAllInBatch(postLikes);
 	}
+
 }

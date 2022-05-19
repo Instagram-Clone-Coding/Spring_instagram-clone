@@ -11,17 +11,17 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class MemberPostDTO {
+public class MemberPostDto {
 
 	private Long postId;
-	private PostImageDTO postImageDTO;
+	private PostImageDto postImages;
 	private boolean hasManyPosts;
 	private int postCommentsCount;
 	private int postLikesCount;
 
 	@Builder
 	@QueryProjection
-	public MemberPostDTO(Long postId, boolean hasManyPosts, int postCommentsCount, int postLikesCount) {
+	public MemberPostDto(Long postId, boolean hasManyPosts, int postCommentsCount, int postLikesCount) {
 		this.postId = postId;
 		this.hasManyPosts = hasManyPosts;
 		this.postCommentsCount = postCommentsCount;

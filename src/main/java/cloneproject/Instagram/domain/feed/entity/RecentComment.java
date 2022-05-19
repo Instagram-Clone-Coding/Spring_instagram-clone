@@ -38,4 +38,5 @@ public class RecentComment {
 		this.post = post;
 		this.comment = comment;
 	}
+
 }

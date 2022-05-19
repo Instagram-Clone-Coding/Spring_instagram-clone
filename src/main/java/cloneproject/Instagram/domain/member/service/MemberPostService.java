@@ -12,8 +12,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import cloneproject.Instagram.domain.feed.dto.MemberPostDTO;
-import cloneproject.Instagram.domain.feed.dto.PostImageDTO;
+import cloneproject.Instagram.domain.feed.dto.MemberPostDto;
+import cloneproject.Instagram.domain.feed.dto.PostImageDto;
 import cloneproject.Instagram.domain.feed.repository.PostImageRepository;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.repository.BlockRepository;
@@ -33,7 +33,7 @@ public class MemberPostService {
 	private static final int FIRST_PAGE_SIZE = 15;
 	private static final int PAGE_OFFSET = 4;
 
-	public Page<MemberPostDTO> getMemberPostDTOs(String username, int size, int page) {
+	public Page<MemberPostDto> getMemberPostDTOs(String username, int size, int page) {
 		final Long loginMemberId = authUtil.getLoginMemberIdOrNull();
 
 		final Member member = memberRepository.findByUsername(username)
@@ -44,12 +44,12 @@ public class MemberPostService {
 		}
 
 		final Pageable pageable = PageRequest.of(page + PAGE_OFFSET, size);
-		final Page<MemberPostDTO> posts = memberRepository.getMemberPostDTOs(username, pageable);
+		final Page<MemberPostDto> posts = memberRepository.getMemberPostDtos(username, pageable);
 		setMemberPostImageDTOs(posts.getContent());
 		return posts;
 	}
 
-	public List<MemberPostDTO> getRecent15PostDTOs(String username) {
+	public List<MemberPostDto> getRecent15PostDTOs(String username) {
 		final Long loginMemberId = authUtil.getLoginMemberIdOrNull();
 
 		final Member member = memberRepository.findByUsername(username)
@@ -60,30 +60,30 @@ public class MemberPostService {
 		}
 
 		final Pageable pageable = PageRequest.of(0, FIRST_PAGE_SIZE);
-		final Page<MemberPostDTO> posts = memberRepository.getMemberPostDTOs(username, pageable);
+		final Page<MemberPostDto> posts = memberRepository.getMemberPostDtos(username, pageable);
 		setMemberPostImageDTOs(posts.getContent());
 		return posts.getContent();
 	}
 
-	public Page<MemberPostDTO> getMemberSavedPostDTOs(int size, int page) {
+	public Page<MemberPostDto> getMemberSavedPostDTOs(int size, int page) {
 		final Long loginMemberId = authUtil.getLoginMemberId();
 
 		final Pageable pageable = PageRequest.of(page + PAGE_OFFSET, size);
-		final Page<MemberPostDTO> posts = memberRepository.getMemberSavedPostDTOs(loginMemberId, pageable);
+		final Page<MemberPostDto> posts = memberRepository.getMemberSavedPostDtos(loginMemberId, pageable);
 		setMemberPostImageDTOs(posts.getContent());
 		return posts;
 	}
 
-	public List<MemberPostDTO> getRecent15SavedPostDTOs() {
+	public List<MemberPostDto> getRecent15SavedPostDTOs() {
 		final Long loginMemberId = authUtil.getLoginMemberId();
 
 		final Pageable pageable = PageRequest.of(0, FIRST_PAGE_SIZE);
-		final Page<MemberPostDTO> posts = memberRepository.getMemberSavedPostDTOs(loginMemberId, pageable);
+		final Page<MemberPostDto> posts = memberRepository.getMemberSavedPostDtos(loginMemberId, pageable);
 		setMemberPostImageDTOs(posts.getContent());
 		return posts.getContent();
 	}
 
-	public Page<MemberPostDTO> getMemberTaggedPostDTOs(String username, int size, int page) {
+	public Page<MemberPostDto> getMemberTaggedPostDTOs(String username, int size, int page) {
 		final Long loginMemberId = authUtil.getLoginMemberIdOrNull();
 
 		final Member member = memberRepository.findByUsername(username)
@@ -94,12 +94,12 @@ public class MemberPostService {
 		}
 
 		final Pageable pageable = PageRequest.of(page + PAGE_OFFSET, size);
-		final Page<MemberPostDTO> posts = memberRepository.getMemberTaggedPostDTOs(username, pageable);
+		final Page<MemberPostDto> posts = memberRepository.getMemberTaggedPostDtos(username, pageable);
 		setMemberPostImageDTOs(posts.getContent());
 		return posts;
 	}
 
-	public List<MemberPostDTO> getRecent15TaggedPostDTOs(String username) {
+	public List<MemberPostDto> getRecent15TaggedPostDTOs(String username) {
 		final Long loginMemberId = authUtil.getLoginMemberIdOrNull();
 
 		final Member member = memberRepository.findByUsername(username)
@@ -110,22 +110,22 @@ public class MemberPostService {
 		}
 
 		final Pageable pageable = PageRequest.of(0, FIRST_PAGE_SIZE);
-		final Page<MemberPostDTO> posts = memberRepository.getMemberTaggedPostDTOs(username, pageable);
+		final Page<MemberPostDto> posts = memberRepository.getMemberTaggedPostDtos(username, pageable);
 		setMemberPostImageDTOs(posts.getContent());
 		return posts.getContent();
 	}
 
-	private void setMemberPostImageDTOs(List<MemberPostDTO> memberPostDTOs) {
-		final List<Long> postIds = memberPostDTOs.stream()
-			.map(MemberPostDTO::getPostId)
+	private void setMemberPostImageDTOs(List<MemberPostDto> memberPostDtos) {
+		final List<Long> postIds = memberPostDtos.stream()
+			.map(MemberPostDto::getPostId)
 			.collect(Collectors.toList());
 
-		final List<PostImageDTO> postImageDTOs = postImageRepository.findAllPostImageDto(postIds);
+		final List<PostImageDto> postImageDtos = postImageRepository.findAllPostImageDto(postIds);
 
-		final Map<Long, List<PostImageDTO>> postDTOMap = postImageDTOs.stream()
-			.collect(Collectors.groupingBy(PostImageDTO::getPostId));
+		final Map<Long, List<PostImageDto>> postDTOMap = postImageDtos.stream()
+			.collect(Collectors.groupingBy(PostImageDto::getPostId));
 
-		memberPostDTOs.forEach(p -> p.setPostImageDTO(postDTOMap.get(p.getPostId()).get(0)));
+		memberPostDtos.forEach(p -> p.setPostImages(postDTOMap.get(p.getPostId()).get(0)));
 	}
 
 }

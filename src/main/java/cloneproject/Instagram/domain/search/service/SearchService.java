@@ -11,15 +11,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import cloneproject.Instagram.domain.follow.dto.FollowDTO;
+import cloneproject.Instagram.domain.follow.dto.FollowDto;
 import cloneproject.Instagram.domain.follow.repository.FollowRepository;
 import cloneproject.Instagram.domain.hashtag.entity.Hashtag;
 import cloneproject.Instagram.domain.hashtag.exception.HashtagNotFoundException;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.exception.MemberDoesNotExistException;
-import cloneproject.Instagram.domain.search.dto.SearchDTO;
-import cloneproject.Instagram.domain.search.dto.SearchHashtagDTO;
-import cloneproject.Instagram.domain.search.dto.SearchMemberDTO;
+import cloneproject.Instagram.domain.search.dto.SearchDto;
+import cloneproject.Instagram.domain.search.dto.SearchHashtagDto;
+import cloneproject.Instagram.domain.search.dto.SearchMemberDto;
 import cloneproject.Instagram.domain.search.entity.RecentSearch;
 import cloneproject.Instagram.domain.search.entity.Search;
 import cloneproject.Instagram.domain.search.entity.SearchHashtag;
@@ -51,7 +51,7 @@ public class SearchService {
 	private static final int PAGE_SIZE = 5;
 	private static final int PAGE_OFFSET = 2;
 
-	public List<SearchDTO> searchByText(String text) {
+	public List<SearchDto> searchByText(String text) {
 		text = text.trim();
 		final Long loginId = authUtil.getLoginMemberId();
 		List<Search> searches;
@@ -71,7 +71,7 @@ public class SearchService {
 		return setSearchContent(loginId, searches, searchIds);
 	}
 
-	public Page<SearchDTO> getTop15RecentSearches() {
+	public Page<SearchDto> getTop15RecentSearches() {
 		final Long loginId = authUtil.getLoginMemberId();
 		final Pageable pageable = PageRequest.of(0, FIRST_PAGE_SIZE);
 		final List<Search> searches = recentSearchRepository.findAllByMemberId(loginId, pageable);
@@ -80,12 +80,12 @@ public class SearchService {
 			.map(Search::getId)
 			.collect(Collectors.toList());
 
-		final List<SearchDTO> searchDTOs = setSearchContent(loginId, searches, searchIds);
+		final List<SearchDto> searchDtos = setSearchContent(loginId, searches, searchIds);
 		final Long total = recentSearchRepository.getRecentSearchCount(loginId);
-		return new PageImpl<>(searchDTOs, pageable, total);
+		return new PageImpl<>(searchDtos, pageable, total);
 	}
 
-	public Page<SearchDTO> getRecentSearches(int page) {
+	public Page<SearchDto> getRecentSearches(int page) {
 		final Long loginId = authUtil.getLoginMemberId();
 		final Pageable pageable = PageRequest.of(page + PAGE_OFFSET, PAGE_SIZE);
 		final List<Search> searches = recentSearchRepository.findAllByMemberId(loginId, pageable);
@@ -94,9 +94,9 @@ public class SearchService {
 			.map(Search::getId)
 			.collect(Collectors.toList());
 
-		final List<SearchDTO> searchDTOs = setSearchContent(loginId, searches, searchIds);
+		final List<SearchDto> searchDtos = setSearchContent(loginId, searches, searchIds);
 		final Long total = recentSearchRepository.getRecentSearchCount(loginId);
-		return new PageImpl<>(searchDTOs, pageable, total);
+		return new PageImpl<>(searchDtos, pageable, total);
 	}
 
 	@Transactional
@@ -125,7 +125,7 @@ public class SearchService {
 	@Transactional
 	public void markSearchedEntity(String entityName, String entityType) {
 		final Member loginMember = authUtil.getLoginMember();
-		Search search;
+		final Search search;
 		switch (entityType) {
 			case "MEMBER":
 				search = searchMemberRepository.findByMemberUsername(entityName)
@@ -151,22 +151,22 @@ public class SearchService {
 		recentSearchRepository.save(recentSearch);
 	}
 
-	private List<SearchDTO> setSearchContent(Long loginId, List<Search> searches, List<Long> searchIds) {
-		final Map<Long, SearchMemberDTO> memberMap = searchRepository.findAllSearchMemberDTOsByIdIn(loginId, searchIds);
-		final Map<Long, SearchHashtagDTO> hashtagMap = searchRepository.findAllSearchHashtagDTOsByIdIn(searchIds);
-		final List<String> searchUsernames = memberMap.values().stream().map(s -> s.getMemberDTO().getUsername())
+	private List<SearchDto> setSearchContent(Long loginId, List<Search> searches, List<Long> searchIds) {
+		final Map<Long, SearchMemberDto> memberMap = searchRepository.findAllSearchMemberDtoByIdIn(loginId, searchIds);
+		final Map<Long, SearchHashtagDto> hashtagMap = searchRepository.findAllSearchHashtagDtoByIdIn(searchIds);
+		final List<String> searchUsernames = memberMap.values().stream().map(s -> s.getMember().getUsername())
 			.collect(Collectors.toList());
 
 		// 스토리 주입
 		memberMap.forEach((id, member) -> {
-			member.getMemberDTO().setHasStory(memberStoryRedisRepository.findById(id).isPresent());
+			member.getMember().setHasStory(memberStoryRedisRepository.findById(id).isPresent());
 		});
 
 		// 팔로우 주입
-		final Map<String, List<FollowDTO>> followsMap = followRepository.getFollowingMemberFollowMap(loginId,
+		final Map<String, List<FollowDto>> followsMap = followRepository.getFollowingMemberFollowMap(loginId,
 			searchUsernames);
 		memberMap.forEach(
-			(id, member) -> member.setFollowingMemberFollow(followsMap.get(member.getMemberDTO().getUsername())));
+			(id, member) -> member.setFollowingMemberFollow(followsMap.get(member.getMember().getUsername())));
 
 		return searches.stream()
 			.map(search -> {
