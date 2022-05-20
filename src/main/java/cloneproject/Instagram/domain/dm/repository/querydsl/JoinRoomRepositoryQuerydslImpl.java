@@ -3,7 +3,7 @@ package cloneproject.Instagram.domain.dm.repository.querydsl;
 import cloneproject.Instagram.domain.dm.dto.JoinRoomDto;
 import cloneproject.Instagram.domain.dm.dto.MemberSimpleInfo;
 import cloneproject.Instagram.domain.dm.dto.MessageDto;
-import cloneproject.Instagram.domain.dm.dto.QJoinRoomDTO;
+import cloneproject.Instagram.domain.dm.dto.QJoinRoomDto;
 import cloneproject.Instagram.domain.dm.entity.Message;
 import cloneproject.Instagram.domain.dm.entity.MessageImage;
 import cloneproject.Instagram.domain.dm.entity.MessagePost;
@@ -40,7 +40,7 @@ public class JoinRoomRepositoryQuerydslImpl implements JoinRoomRepositoryQueryds
     @Override
     public Page<JoinRoomDto> findJoinRoomDtoPageByMemberId(Long memberId, Pageable pageable) {
         final List<JoinRoomDto> joinRoomDtos = queryFactory
-                .select(new QJoinRoomDTO(
+                .select(new QJoinRoomDto(
                         joinRoom.room.id,
                         JPAExpressions
                                 .selectFrom(roomUnreadMember)

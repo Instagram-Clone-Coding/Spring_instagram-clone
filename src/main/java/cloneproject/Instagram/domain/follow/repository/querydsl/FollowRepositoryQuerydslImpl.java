@@ -12,8 +12,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import cloneproject.Instagram.domain.follow.dto.FollowDto;
 import cloneproject.Instagram.domain.follow.dto.FollowerDto;
-import cloneproject.Instagram.domain.follow.dto.QFollowDTO;
-import cloneproject.Instagram.domain.follow.dto.QFollowerDTO;
+import cloneproject.Instagram.domain.follow.dto.QFollowDto;
+import cloneproject.Instagram.domain.follow.dto.QFollowerDto;
 import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl {
 	@Override
 	public List<FollowerDto> getFollowings(Long loginedMemberId, Long memberId) {
 		final List<FollowerDto> followerDtos = queryFactory
-			.select(new QFollowerDTO(
+			.select(new QFollowerDto(
 				member,
 				JPAExpressions
 					.selectFrom(follow)
@@ -59,7 +59,7 @@ public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl {
 	@Override
 	public List<FollowerDto> getFollowers(Long loginedMemberId, Long memberId) {
 		final List<FollowerDto> followerDtos = queryFactory
-			.select(new QFollowerDTO(
+			.select(new QFollowerDto(
 				member,
 				JPAExpressions
 					.selectFrom(follow)
@@ -91,7 +91,7 @@ public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl {
 	@Override
 	public Map<String, List<FollowDto>> getFollowingMemberFollowMap(Long loginId, List<String> usernames) {
 		final List<FollowDto> follows = queryFactory
-			.select(new QFollowDTO(
+			.select(new QFollowDto(
 				follow.member.username,
 				follow.followMember.username
 			))

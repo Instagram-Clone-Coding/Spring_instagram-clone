@@ -9,7 +9,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import cloneproject.Instagram.domain.feed.dto.MemberPostDto;
-import cloneproject.Instagram.domain.feed.dto.QMemberPostDTO;
+import cloneproject.Instagram.domain.feed.dto.QMemberPostDto;
 import lombok.RequiredArgsConstructor;
 
 import static cloneproject.Instagram.domain.feed.entity.QPost.post;
@@ -24,7 +24,7 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 	@Override
 	public Page<MemberPostDto> getMemberPostDtos(String username, Pageable pageable) {
 		final List<MemberPostDto> posts = queryFactory
-			.select(new QMemberPostDTO(
+			.select(new QMemberPostDto(
 				post.id,
 				post.postImages.size().gt(1),
 				post.comments.size(),
@@ -47,7 +47,7 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 	@Override
 	public Page<MemberPostDto> getMemberSavedPostDtos(Long loginUserId, Pageable pageable) {
 		final List<MemberPostDto> posts = queryFactory
-			.select(new QMemberPostDTO(
+			.select(new QMemberPostDto(
 				bookmark.post.id,
 				bookmark.post.postImages.size().gt(1),
 				bookmark.post.comments.size(),
@@ -70,7 +70,7 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 	@Override
 	public Page<MemberPostDto> getMemberTaggedPostDtos(String username, Pageable pageable) {
 		final List<MemberPostDto> posts = queryFactory
-			.select(new QMemberPostDTO(
+			.select(new QMemberPostDto(
 				postTag.postImage.post.id,
 				postTag.postImage.post.postImages.size().gt(1),
 				postTag.postImage.post.comments.size(),

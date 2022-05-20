@@ -1,11 +1,11 @@
 package cloneproject.Instagram.domain.feed.repository.querydsl;
 
 import cloneproject.Instagram.domain.feed.dto.PostLikeDto;
-import cloneproject.Instagram.domain.feed.dto.QPostLikeDTO;
+import cloneproject.Instagram.domain.feed.dto.QPostLikeDto;
 import cloneproject.Instagram.domain.member.dto.LikeMembersDto;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.entity.QMember;
-import cloneproject.Instagram.domain.member.dto.QLikeMembersDTO;
+import cloneproject.Instagram.domain.member.dto.QLikeMembersDto;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
@@ -33,7 +33,7 @@ public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQueryds
 	@Override
 	public List<PostLikeDto> findAllPostLikeDtoOfFollowings(Long memberId, List<Long> postIds) {
 		return queryFactory
-			.select(new QPostLikeDTO(
+			.select(new QPostLikeDto(
 				postLike.post.id,
 				postLike.member.username
 			))
@@ -58,7 +58,7 @@ public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQueryds
 	@Override
 	public Page<LikeMembersDto> findPostLikeMembersDtoPage(Pageable pageable, Long postId, Long memberId) {
 		final List<LikeMembersDto> likeMembersDtos = queryFactory
-			.select(new QLikeMembersDTO(
+			.select(new QLikeMembersDto(
 				postLike.member,
 				isFollowing(memberId, postLike.member),
 				isFollower(memberId, postLike.member)
@@ -88,7 +88,7 @@ public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQueryds
 	@Override
 	public Page<LikeMembersDto> findCommentLikeMembersDtoPage(Pageable pageable, Long commentId, Long memberId) {
 		final List<LikeMembersDto> likeMembersDtos = queryFactory
-			.select(new QLikeMembersDTO(
+			.select(new QLikeMembersDto(
 				commentLike.member,
 				isFollowing(memberId, commentLike.member),
 				isFollower(memberId, commentLike.member)

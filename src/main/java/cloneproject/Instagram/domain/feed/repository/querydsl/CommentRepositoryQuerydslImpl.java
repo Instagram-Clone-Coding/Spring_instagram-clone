@@ -1,7 +1,7 @@
 package cloneproject.Instagram.domain.feed.repository.querydsl;
 
 import cloneproject.Instagram.domain.feed.dto.CommentDto;
-import cloneproject.Instagram.domain.feed.dto.QCommentDTO;
+import cloneproject.Instagram.domain.feed.dto.QCommentDto;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
@@ -28,7 +28,7 @@ public class CommentRepositoryQuerydslImpl implements CommentRepositoryQuerydsl 
 	@Override
 	public List<CommentDto> findAllRecentCommentDto(Long memberId, List<Long> postIds) {
 		return queryFactory
-			.select(new QCommentDTO(
+			.select(new QCommentDto(
 				recentComment.post.id,
 				recentComment.comment.id,
 				recentComment.member,
@@ -48,7 +48,7 @@ public class CommentRepositoryQuerydslImpl implements CommentRepositoryQuerydsl 
 	@Override
 	public Page<CommentDto> findCommentDtoPage(Long memberId, Long postId, Pageable pageable) {
 		final List<CommentDto> commentDtos = queryFactory
-			.select(new QCommentDTO(
+			.select(new QCommentDto(
 				comment.post.id,
 				comment.id,
 				comment.member,
@@ -77,7 +77,7 @@ public class CommentRepositoryQuerydslImpl implements CommentRepositoryQuerydsl 
 	@Override
 	public Page<CommentDto> findReplyDtoPage(Long memberId, Long commentId, Pageable pageable) {
 		final List<CommentDto> commentDtos = queryFactory
-			.select(new QCommentDTO(
+			.select(new QCommentDto(
 				comment.post.id,
 				comment.id,
 				comment.member,

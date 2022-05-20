@@ -14,8 +14,8 @@ import com.querydsl.core.group.GroupBy;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import cloneproject.Instagram.domain.search.dto.QSearchHashtagDTO;
-import cloneproject.Instagram.domain.search.dto.QSearchMemberDTO;
+import cloneproject.Instagram.domain.search.dto.QSearchHashtagDto;
+import cloneproject.Instagram.domain.search.dto.QSearchMemberDto;
 import cloneproject.Instagram.domain.search.dto.SearchHashtagDto;
 import cloneproject.Instagram.domain.search.dto.SearchMemberDto;
 import cloneproject.Instagram.domain.search.entity.Search;
@@ -115,7 +115,7 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 			.from(searchHashtag)
 			.innerJoin(searchHashtag.hashtag, hashtag)
 			.where(searchHashtag.id.in(searchIds))
-			.transform(GroupBy.groupBy(searchHashtag.id).as(new QSearchHashtagDTO(
+			.transform(GroupBy.groupBy(searchHashtag.id).as(new QSearchHashtagDto(
 					searchHashtag.dtype,
 					searchHashtag.hashtag
 				))
@@ -128,7 +128,7 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 			.from(searchMember)
 			.innerJoin(searchMember.member, member)
 			.where(searchMember.id.in(searchIds))
-			.transform(GroupBy.groupBy(searchMember.id).as(new QSearchMemberDTO(
+			.transform(GroupBy.groupBy(searchMember.id).as(new QSearchMemberDto(
 						searchMember._super.dtype,
 						searchMember.member,
 						JPAExpressions

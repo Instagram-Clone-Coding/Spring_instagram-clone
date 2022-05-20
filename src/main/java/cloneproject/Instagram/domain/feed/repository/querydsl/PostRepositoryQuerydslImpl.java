@@ -2,6 +2,8 @@ package cloneproject.Instagram.domain.feed.repository.querydsl;
 
 import cloneproject.Instagram.domain.feed.dto.PostDto;
 import cloneproject.Instagram.domain.feed.dto.PostResponse;
+import cloneproject.Instagram.domain.feed.dto.QPostDto;
+import cloneproject.Instagram.domain.feed.dto.QPostResponse;
 import cloneproject.Instagram.domain.member.entity.QMember;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -30,7 +32,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 	@Override
 	public Page<PostDto> findPostDtoPage(Long memberId, Pageable pageable) {
 		final List<PostDto> postDtos = queryFactory
-			.select(new QPostDTO(
+			.select(new QPostDto(
 				post.id,
 				post.content,
 				post.uploadDate,
@@ -86,7 +88,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 
 	private List<PostDto> getPostDTOsByPostIdIn(Long memberId, List<Long> postIds) {
 		return queryFactory
-			.select(new QPostDTO(
+			.select(new QPostDto(
 				post.id,
 				post.content,
 				post.uploadDate,
