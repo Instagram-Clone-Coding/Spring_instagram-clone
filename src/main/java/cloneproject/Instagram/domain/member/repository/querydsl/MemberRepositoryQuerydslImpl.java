@@ -78,7 +78,7 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl {
 
 	private JPQLQuery<String> getFollowingMemberFollow(Long loginUserId, String targetUsername) {
 		return JPAExpressions
-			.select(follow.member.username)
+			.select(follow.member.username.min())
 			.from(follow)
 			.where(follow.followMember.username.eq(targetUsername)
 				.and(follow.member.id.in(
