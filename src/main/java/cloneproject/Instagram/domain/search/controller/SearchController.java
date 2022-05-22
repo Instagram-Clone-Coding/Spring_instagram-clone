@@ -38,7 +38,7 @@ public class SearchController {
 
 	@ApiOperation(value = "검색")
 	@ApiImplicitParam(name = "text", value = "검색내용", required = true, example = "dlwl")
-	@GetMapping(value = "/")
+	@GetMapping
 	public ResponseEntity<ResultResponse> searchText(@RequestParam String text) {
 		final List<SearchDto> searchDtos = searchService.searchByText(text);
 
