@@ -117,10 +117,9 @@ public class MemberAuthService {
 		} catch (JwtException e) {
 			throw new InvalidJwtException();
 		}
-		final Member member = authUtil.getLoginMember();
+		final Long memberId = Long.valueOf(authentication.getName());
 
-		final Optional<RefreshToken> refreshToken = refreshTokenService.findRefreshToken(member.getId(),
-			refreshTokenString);
+		final Optional<RefreshToken> refreshToken = refreshTokenService.findRefreshToken(memberId, refreshTokenString);
 		if (refreshToken.isEmpty()) {
 			return Optional.empty();
 		}
