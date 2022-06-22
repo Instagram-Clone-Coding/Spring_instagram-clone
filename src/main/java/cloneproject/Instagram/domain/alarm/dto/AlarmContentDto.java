@@ -9,15 +9,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AlarmContentDto extends AlarmDto {
 
-    private Long postId;
-    private String postImageUrl;
-    private String content;
+	private Long postId;
+	private String postImageUrl;
+	private String content;
 
-    public AlarmContentDto(Alarm alarm) {
-        super(alarm.getId(), alarm.getType().name(), alarm.getType().getMessage(), new MemberDto(alarm.getAgent()), alarm.getCreatedDate());
-        this.postId = alarm.getPost().getId();
-        this.postImageUrl = alarm.getPost().getPostImages().get(0).getImage().getImageUrl();
-        this.content = alarm.getPost().getContent();
-    }
+	public AlarmContentDto(Alarm alarm) {
+		super(alarm.getId(), alarm.getType().name(), alarm.getType().getMessage(), new MemberDto(alarm.getAgent()),
+			alarm.getCreatedDate());
+		this.postId = alarm.getPost().getId();
+		this.postImageUrl = alarm.getPost().getPostImages().get(0).getImage().getImageUrl();
+		this.content = alarm.getPost().getContent();
+	}
 
 }

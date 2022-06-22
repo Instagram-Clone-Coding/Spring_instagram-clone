@@ -8,4 +8,5 @@ public class MismatchedAlarmTypeException extends BusinessException {
     public MismatchedAlarmTypeException() {
         super(ErrorCode.MISMATCHED_ALARM_TYPE);
     }
+
 }
