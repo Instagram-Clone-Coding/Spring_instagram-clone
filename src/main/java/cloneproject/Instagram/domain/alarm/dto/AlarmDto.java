@@ -13,10 +13,10 @@ import cloneproject.Instagram.domain.member.dto.MemberDto;
 @AllArgsConstructor
 public class AlarmDto {
 
-    private Long id;
-    private String type;
-    private String message;
-    private MemberDto agent;
-    private LocalDateTime createdDate;
+	private Long id;
+	private String type;
+	private String message;
+	private MemberDto agent;
+	private LocalDateTime createdDate;
 
 }

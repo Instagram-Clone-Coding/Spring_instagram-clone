@@ -15,13 +15,14 @@ import java.util.List;
 
 public interface AlarmRepository extends JpaRepository<Alarm, Long>, AlarmRepositoryQuerydsl, AlarmRepositoryJdbc {
 
-    void deleteByTypeAndAgentAndTargetAndPost(cloneproject.Instagram.domain.alarm.dto.AlarmType type, Member agent, Member target, Post post);
+	void deleteByTypeAndAgentAndTargetAndPost(AlarmType type, Member agent, Member target, Post post);
 
-    void deleteByTypeAndAgentAndTargetAndComment(AlarmType type, Member agent, Member target, Comment comment);
+	void deleteByTypeAndAgentAndTargetAndComment(AlarmType type, Member agent, Member target, Comment comment);
 
-    void deleteByTypeAndAgentAndTargetAndFollow(AlarmType type, Member agent, Member target, Follow follow);
+	void deleteByTypeAndAgentAndTargetAndFollow(AlarmType type, Member agent, Member target, Follow follow);
 
-    List<Alarm> findAllByPost(Post post);
+	List<Alarm> findAllByPost(Post post);
 
 	List<Alarm> findAllByCommentIn(List<Comment> comments);
+
 }

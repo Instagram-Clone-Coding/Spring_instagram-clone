@@ -18,4 +18,5 @@ public enum AlarmType {
     ;
 
     private String message;
+
 }

@@ -1,7 +1,14 @@
 package cloneproject.Instagram.domain.alarm.service;
 
+import cloneproject.Instagram.domain.alarm.dto.AlarmContentDto;
+import cloneproject.Instagram.domain.alarm.dto.AlarmFollowDto;
+import cloneproject.Instagram.domain.follow.repository.FollowRepository;
+import cloneproject.Instagram.domain.member.dto.MemberDto;
+import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
 import cloneproject.Instagram.global.util.AuthUtil;
+
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,113 +29,152 @@ import static cloneproject.Instagram.domain.alarm.dto.AlarmType.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AlarmService {
 
-    private final AlarmRepository alarmRepository;
-    private final AuthUtil authUtil;
+	private final AlarmRepository alarmRepository;
+	private final FollowRepository followRepository;
+	private final MemberStoryRedisRepository memberStoryRedisRepository;
+	private final AuthUtil authUtil;
 
-    public Page<AlarmDto> getAlarms(int page, int size) {
-        final Member agent = authUtil.getLoginMember();
-        page = (page == 0 ? 0 : page - 1);
-        final Pageable pageable = PageRequest.of(page, size);
-        return alarmRepository.getAlarmDtoPageByMemberId(pageable, agent.getId());
-    }
+	public Page<AlarmDto> getAlarms(int page, int size) {
+		final Member loginMember = authUtil.getLoginMember();
+		page = (page == 0 ? 0 : page - 1);
+		final Pageable pageable = PageRequest.of(page, size);
 
-    @Transactional
-    public void alert(Member target, Follow follow) {
-        final Member agent = authUtil.getLoginMember();
-        final Alarm alarm = Alarm.builder()
-                .type(FOLLOW)
-                .agent(agent)
-                .target(target)
-                .follow(follow)
-                .build();
+		final Page<Alarm> alarmPage = alarmRepository.findAlarmPageByMemberId(pageable, loginMember.getId());
+		final List<Alarm> alarms = alarmPage.getContent();
+		final List<Long> agentIds = alarms.stream()
+			.filter(a -> a.getType().equals(AlarmType.FOLLOW))
+			.map(a -> a.getAgent().getId())
+			.collect(Collectors.toList());
 
-        alarmRepository.save(alarm);
-    }
+		final List<Follow> follows = followRepository.findFollows(loginMember.getId(), agentIds);
+		final Map<Long, Follow> followMap = follows.stream()
+			.collect(Collectors.toMap(f -> f.getFollowMember().getId(), f -> f));
 
-    @Transactional
-    public void alert(AlarmType type, Member target, Post post) {
-        if (!type.equals(LIKE_POST))
-            throw new MismatchedAlarmTypeException();
+		final List<AlarmDto> content = convertToDto(alarms, followMap);
+		setHasStory(content);
 
-        final Member agent = authUtil.getLoginMember();
-        final Alarm alarm = Alarm.builder()
-                .type(type)
-                .agent(agent)
-                .target(target)
-                .post(post)
-                .build();
+		return new PageImpl<>(content, pageable, alarmPage.getTotalElements());
+	}
 
-        alarmRepository.save(alarm);
-    }
+	@Transactional
+	public void alert(Member target, Follow follow) {
+		final Member loginMember = authUtil.getLoginMember();
+		final Alarm alarm = Alarm.builder()
+			.type(FOLLOW)
+			.agent(loginMember)
+			.target(target)
+			.follow(follow)
+			.build();
 
-    @Transactional
-    public void alertBatch(AlarmType type, List<Member> targets, Post post) {
-        if (!type.equals(MENTION_POST))
-            throw new MismatchedAlarmTypeException();
+		alarmRepository.save(alarm);
+	}
 
-        final Member agent = authUtil.getLoginMember();
-        alarmRepository.saveMentionPostAlarms(agent, targets, post, LocalDateTime.now());
-    }
+	@Transactional
+	public void alert(AlarmType type, Member target, Post post) {
+		if (!type.equals(LIKE_POST))
+			throw new MismatchedAlarmTypeException();
 
-    @Transactional
-    public void alertBatch(AlarmType type, List<Member> targets, Post post, Comment comment) {
-        if (!type.equals(MENTION_COMMENT))
-            throw new MismatchedAlarmTypeException();
+		final Member loginMember = authUtil.getLoginMember();
+		final Alarm alarm = Alarm.builder()
+			.type(type)
+			.agent(loginMember)
+			.target(target)
+			.post(post)
+			.build();
 
-        final Member agent = authUtil.getLoginMember();
-        alarmRepository.saveMentionCommentAlarms(agent, targets, post, comment, LocalDateTime.now());
-    }
+		alarmRepository.save(alarm);
+	}
 
-    @Transactional
-    public void alert(AlarmType type, Member target, Post post, Comment comment) {
-        if (!type.equals(COMMENT) && !type.equals(LIKE_COMMENT) && !type.equals(MENTION_COMMENT))
-            throw new MismatchedAlarmTypeException();
+	@Transactional
+	public void alertBatch(AlarmType type, List<Member> targets, Post post) {
+		if (!type.equals(MENTION_POST))
+			throw new MismatchedAlarmTypeException();
 
-        final Member agent = authUtil.getLoginMember();
-        final Alarm alarm = Alarm.builder()
-                .type(type)
-                .agent(agent)
-                .target(target)
-                .post(post)
-                .comment(comment)
-                .build();
+		final Member loginMember = authUtil.getLoginMember();
+		alarmRepository.saveMentionPostAlarms(loginMember, targets, post, LocalDateTime.now());
+	}
 
-        alarmRepository.save(alarm);
-    }
+	@Transactional
+	public void alertBatch(AlarmType type, List<Member> targets, Post post, Comment comment) {
+		if (!type.equals(MENTION_COMMENT))
+			throw new MismatchedAlarmTypeException();
 
-    @Transactional
-    public void delete(AlarmType type, Member target, Post post) {
-        final Member agent = authUtil.getLoginMember();
-        alarmRepository.deleteByTypeAndAgentAndTargetAndPost(type, agent, target, post);
-    }
-    @Transactional
-    public void delete(AlarmType type, Member target, Comment comment) {
-        final Member agent = authUtil.getLoginMember();
-        alarmRepository.deleteByTypeAndAgentAndTargetAndComment(type, agent, target, comment);
-    }
+		final Member loginMember = authUtil.getLoginMember();
+		alarmRepository.saveMentionCommentAlarms(loginMember, targets, post, comment, LocalDateTime.now());
+	}
 
-    @Transactional
-    public void delete(Member target, Follow follow) {
-        final Member agent = authUtil.getLoginMember();
-        alarmRepository.deleteByTypeAndAgentAndTargetAndFollow(FOLLOW, agent, target, follow);
-    }
+	@Transactional
+	public void alert(AlarmType type, Member target, Post post, Comment comment) {
+		if (!type.equals(COMMENT) && !type.equals(LIKE_COMMENT) && !type.equals(MENTION_COMMENT))
+			throw new MismatchedAlarmTypeException();
 
-    @Transactional
-    public void deleteAll(Post post) {
-        final List<Alarm> alarms = alarmRepository.findAllByPost(post);
-        alarmRepository.deleteAllInBatch(alarms);
-    }
+		final Member loginMember = authUtil.getLoginMember();
+		final Alarm alarm = Alarm.builder()
+			.type(type)
+			.agent(loginMember)
+			.target(target)
+			.post(post)
+			.comment(comment)
+			.build();
 
-    @Transactional
-    public void deleteAll(List<Comment> comments) {
-        final List<Alarm> alarms = alarmRepository.findAllByCommentIn(comments);
-        alarmRepository.deleteAllInBatch(alarms);
-    }
+		alarmRepository.save(alarm);
+	}
+
+	@Transactional
+	public void delete(AlarmType type, Member target, Post post) {
+		final Member loginMember = authUtil.getLoginMember();
+		alarmRepository.deleteByTypeAndAgentAndTargetAndPost(type, loginMember, target, post);
+	}
+
+	@Transactional
+	public void delete(AlarmType type, Member target, Comment comment) {
+		final Member loginMember = authUtil.getLoginMember();
+		alarmRepository.deleteByTypeAndAgentAndTargetAndComment(type, loginMember, target, comment);
+	}
+
+	@Transactional
+	public void delete(Member target, Follow follow) {
+		final Member loginMember = authUtil.getLoginMember();
+		alarmRepository.deleteByTypeAndAgentAndTargetAndFollow(FOLLOW, loginMember, target, follow);
+	}
+
+	@Transactional
+	public void deleteAll(Post post) {
+		final List<Alarm> alarms = alarmRepository.findAllByPost(post);
+		alarmRepository.deleteAllInBatch(alarms);
+	}
+
+	@Transactional
+	public void deleteAll(List<Comment> comments) {
+		final List<Alarm> alarms = alarmRepository.findAllByCommentIn(comments);
+		alarmRepository.deleteAllInBatch(alarms);
+	}
+
+	private void setHasStory(List<AlarmDto> content) {
+		content.forEach(alarm -> {
+			final MemberDto agent = alarm.getAgent();
+			final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(agent.getId()).size() > 0;
+			agent.setHasStory(hasStory);
+		});
+	}
+
+	private List<AlarmDto> convertToDto(List<Alarm> alarms, Map<Long, Follow> followMap) {
+		return alarms.stream()
+			.map(a -> {
+				if (a.getType().equals(AlarmType.FOLLOW))
+					return new AlarmFollowDto(a, followMap.containsKey(a.getAgent().getId()));
+				else
+					return new AlarmContentDto(a);
+			})
+			.collect(Collectors.toList());
+	}
 
 }

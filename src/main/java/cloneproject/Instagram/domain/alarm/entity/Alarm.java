@@ -24,47 +24,48 @@ import lombok.NoArgsConstructor;
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "alarms")
 public class Alarm {
-    
-    @Id
-    @Column(name = "alarm_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
-    @Column(name = "alarm_type")
-    @Enumerated(EnumType.STRING)
-    private AlarmType type;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "alarm_agent_id")
-    private Member agent;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "alarm_target_id")
-    private Member target;
+	@Id
+	@Column(name = "alarm_id")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
-    private Post post;
+	@Column(name = "alarm_type")
+	@Enumerated(EnumType.STRING)
+	private AlarmType type;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "comment_id")
-    private Comment comment;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "alarm_agent_id")
+	private Member agent;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "follow_id")
-    private Follow follow;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "alarm_target_id")
+	private Member target;
 
-    @CreatedDate
-    @Column(name = "alarm_created_date")
-    private LocalDateTime createdDate;
-    
-    @Builder
-    public Alarm(AlarmType type, Member agent, Member target, Post post, Comment comment, Follow follow) {
-        this.type = type;
-        this.agent = agent;
-        this.target = target;
-        this.post = post;
-        this.comment = comment;
-        this.follow = follow;
-    }
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "post_id")
+	private Post post;
+
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "comment_id")
+	private Comment comment;
+
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "follow_id")
+	private Follow follow;
+
+	@CreatedDate
+	@Column(name = "alarm_created_date")
+	private LocalDateTime createdDate;
+
+	@Builder
+	public Alarm(AlarmType type, Member agent, Member target, Post post, Comment comment, Follow follow) {
+		this.type = type;
+		this.agent = agent;
+		this.target = target;
+		this.post = post;
+		this.comment = comment;
+		this.follow = follow;
+	}
+
 }

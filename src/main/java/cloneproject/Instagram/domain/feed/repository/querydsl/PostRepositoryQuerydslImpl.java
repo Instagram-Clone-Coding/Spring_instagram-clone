@@ -80,13 +80,13 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 
 	@Override
 	public Page<PostDto> findPostDtoPage(Pageable pageable, Long memberId, List<Long> postIds) {
-		final List<PostDto> postDtos = getPostDTOsByPostIdIn(memberId, postIds);
-		final long total = getTotalByPostIdIn(postIds);
+		final List<PostDto> postDtos = findAllPostDtoByPostIdIn(memberId, postIds);
+		final long total = countByPostIdIn(postIds);
 
 		return new PageImpl<>(postDtos, pageable, total);
 	}
 
-	private List<PostDto> getPostDTOsByPostIdIn(Long memberId, List<Long> postIds) {
+	private List<PostDto> findAllPostDtoByPostIdIn(Long memberId, List<Long> postIds) {
 		return queryFactory
 			.select(new QPostDto(
 				post.id,
@@ -106,7 +106,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 			.fetch();
 	}
 
-	private long getTotalByPostIdIn(List<Long> ids) {
+	private long countByPostIdIn(List<Long> ids) {
 		return queryFactory
 				.selectFrom(post)
 				.where(post.id.in(ids))
