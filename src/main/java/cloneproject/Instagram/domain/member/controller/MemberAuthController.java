@@ -32,7 +32,7 @@ import cloneproject.Instagram.domain.member.dto.RegisterRequest;
 import cloneproject.Instagram.domain.member.dto.ResetPasswordRequest;
 import cloneproject.Instagram.domain.member.dto.SendConfirmationEmailRequest;
 import cloneproject.Instagram.domain.member.dto.UpdatePasswordRequest;
-import cloneproject.Instagram.domain.member.exception.InvalidJwtException;
+import cloneproject.Instagram.domain.member.exception.JwtInvalidException;
 import cloneproject.Instagram.domain.member.service.MemberAuthService;
 import cloneproject.Instagram.global.result.ResultResponse;
 import io.swagger.annotations.Api;
@@ -125,7 +125,7 @@ public class MemberAuthController {
 	public ResponseEntity<ResultResponse> reissue(
 		@CookieValue(value = "refreshToken", required = false) Cookie refreshCookie, HttpServletResponse response) {
 		if (refreshCookie == null) {
-			throw new InvalidJwtException();
+			throw new JwtInvalidException();
 		}
 		final Optional<JwtDto> optionalJwt = memberAuthService.reissue(refreshCookie.getValue());
 		if (optionalJwt.isEmpty()) {

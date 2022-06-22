@@ -23,7 +23,8 @@ import cloneproject.Instagram.domain.member.dto.UpdatePasswordRequest;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.entity.redis.RefreshToken;
 import cloneproject.Instagram.domain.member.exception.AccountMismatchException;
-import cloneproject.Instagram.domain.member.exception.InvalidJwtException;
+import cloneproject.Instagram.domain.member.exception.JwtExpiredException;
+import cloneproject.Instagram.domain.member.exception.JwtInvalidException;
 import cloneproject.Instagram.domain.member.exception.PasswordResetFailException;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.search.entity.SearchMember;
@@ -34,6 +35,7 @@ import cloneproject.Instagram.global.util.AuthUtil;
 import cloneproject.Instagram.global.util.JwtUtil;
 import cloneproject.Instagram.infra.geoip.GeoIPLocationService;
 import cloneproject.Instagram.infra.geoip.dto.GeoIP;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -90,17 +92,25 @@ public class MemberAuthService {
 	@Transactional
 	public JwtDto login(LoginRequest loginRequest, String device, String ip) {
 		try {
-			final UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-				loginRequest.getUsername(), loginRequest.getPassword());
-			final Authentication authentication = authenticationManagerBuilder.getObject()
-				.authenticate(authenticationToken);
-			final JwtDto jwtDto = jwtUtil.generateTokenDto(authentication);
+			// final UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+			// 	loginRequest.getUsername(), loginRequest.getPassword());
+			// final Authentication authentication = authenticationManagerBuilder.getObject()
+			// 	.authenticate(authenticationToken);
+			// final JwtDto jwtDto = jwtUtil.generateJwtDto(authentication);
+			//
+			// final GeoIP geoIP = geoIPLocationService.getLocation(ip);
+			//
+			// refreshTokenService.addRefreshToken(Long.valueOf(authentication.getName()), jwtDto.getRefreshToken(),
+			// 	device, geoIP);
+			// return jwtDto;
+			final Member member = memberRepository.findByUsername(loginRequest.getUsername())
+				.orElseThrow(AccountMismatchException::new);
 
-			final GeoIP geoIP = geoIPLocationService.getLocation(ip);
+			if (!bCryptPasswordEncoder.matches(loginRequest.getPassword(), member.getPassword())) {
+				throw new AccountMismatchException();
+			}
 
-			refreshTokenService.addRefreshToken(Long.valueOf(authentication.getName()), jwtDto.getRefreshToken(),
-				device, geoIP);
-			return jwtDto;
+			return jwtUtil.generateJwtDto(member);
 		} catch (BadCredentialsException e) {
 			throw new AccountMismatchException();
 		}
@@ -108,22 +118,22 @@ public class MemberAuthService {
 
 	@Transactional
 	public Optional<JwtDto> reissue(String refreshTokenString) {
-		if (!jwtUtil.validateRefeshJwt(refreshTokenString)) {
-			throw new InvalidJwtException();
-		}
 		Authentication authentication;
-		try {
-			authentication = jwtUtil.getAuthentication(refreshTokenString, false);
-		} catch (JwtException e) {
-			throw new InvalidJwtException();
-		}
-		final Long memberId = Long.valueOf(authentication.getName());
 
+		try {
+			authentication = jwtUtil.getAuthentication(refreshTokenString);
+		} catch (ExpiredJwtException e) {
+			throw new JwtExpiredException();
+		} catch (JwtException e){
+			throw new JwtInvalidException();
+		}
+
+		final Long memberId = Long.valueOf(authentication.getName());
 		final Optional<RefreshToken> refreshToken = refreshTokenService.findRefreshToken(memberId, refreshTokenString);
 		if (refreshToken.isEmpty()) {
 			return Optional.empty();
 		}
-		final JwtDto jwtDto = jwtUtil.generateTokenDto(authentication);
+		final JwtDto jwtDto = jwtUtil.generateJwtDto(authentication);
 		refreshTokenService.updateRefreshToken(refreshToken.get(), jwtDto.getRefreshToken());
 		return Optional.of(jwtDto);
 	}
@@ -177,7 +187,7 @@ public class MemberAuthService {
 		if (!emailCodeService.checkResetPasswordCode(loginRequest.getUsername(), loginRequest.getCode())) {
 			throw new PasswordResetFailException();
 		}
-		final JwtDto jwtDto = jwtUtil.generateTokenDto(jwtUtil.getAuthenticationWithMember(member.getId().toString()));
+		final JwtDto jwtDto = jwtUtil.generateJwtDto(jwtUtil.getAuthenticationWithMember(member.getId().toString()));
 		emailCodeService.deleteResetPasswordCode(loginRequest.getUsername());
 
 		final GeoIP geoIP = geoIPLocationService.getLocation(ip);
@@ -195,7 +205,7 @@ public class MemberAuthService {
 	public void logout(String refreshToken) {
 		try {
 			refreshTokenService.deleteRefreshTokenWithValue(authUtil.getLoginMemberId(), refreshToken);
-		} catch (InvalidJwtException ignored) {
+		} catch (JwtInvalidException ignored) {
 
 		}
 	}

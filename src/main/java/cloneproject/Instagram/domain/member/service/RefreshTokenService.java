@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import cloneproject.Instagram.domain.member.dto.LoginDevicesDTO;
 import cloneproject.Instagram.domain.member.entity.redis.RefreshToken;
-import cloneproject.Instagram.domain.member.exception.InvalidJwtException;
+import cloneproject.Instagram.domain.member.exception.JwtInvalidException;
 import cloneproject.Instagram.domain.member.repository.redis.RefreshTokenRedisRepository;
 import cloneproject.Instagram.infra.geoip.dto.GeoIP;
 import lombok.RequiredArgsConstructor;
@@ -72,14 +72,14 @@ public class RefreshTokenService {
 	@Transactional
 	public void deleteRefreshTokenWithValue(Long memberId, String value) {
 		final RefreshToken refreshToken = refreshTokenRedisRepository.findByMemberIdAndValue(memberId, value)
-				.orElseThrow(InvalidJwtException::new);
+				.orElseThrow(JwtInvalidException::new);
 		refreshTokenRedisRepository.delete(refreshToken);
 	}
 
 	@Transactional
 	public void deleteRefreshTokenWithId(Long memberId, String id) {
 		final RefreshToken refreshToken = refreshTokenRedisRepository.findByMemberIdAndId(memberId, id)
-				.orElseThrow(InvalidJwtException::new);
+				.orElseThrow(JwtInvalidException::new);
 		refreshTokenRedisRepository.delete(refreshToken);
 	}
 
