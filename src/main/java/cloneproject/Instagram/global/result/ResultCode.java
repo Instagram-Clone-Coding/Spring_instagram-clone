@@ -41,7 +41,7 @@ public enum ResultCode {
 	LOGOUT_DEVICE_SUCCESS(200, "M025", "해당 기기를 로그아웃 시켰습니다."),
 
 	// Alarm
-	GET_ALARMS_SUCCESS(200, "A001", "알림 조회 완료"),
+	GET_ALARMS_SUCCESS(200, "A001", "알림 조회에 성공하였습니다."),
 
 	// Follow
 	FOLLOW_SUCCESS(200, "F001", "회원 팔로우 완료"),
