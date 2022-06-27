@@ -44,7 +44,9 @@ public class PostImageService {
             post.getPostImages().add(new PostImage(post, images.get(i), altTexts.get(i)));
         }
 
-		linkWithTags(tags, post);
+		if (!tags.isEmpty()) {
+			linkWithTags(tags, post);
+		}
 		postTagService.saveAll(tags);
 	}
 
