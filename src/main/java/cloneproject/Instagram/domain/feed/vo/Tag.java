@@ -13,8 +13,8 @@ import java.util.Objects;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Tag {
 
-	private Long x;
-	private Long y;
+	private Double x;
+	private Double y;
 	private String username;
 
 	@Override
