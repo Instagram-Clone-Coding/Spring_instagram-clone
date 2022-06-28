@@ -59,7 +59,7 @@ public class PostImageService {
 		for (PostImageTagRequest postImageTag : postImageTags) {
 			if (idx != postImageTag.getId())
 				idx = postImageTag.getId().intValue();
-			postImageTag.setId(postImageIds.get(idx - 1));
+			postImageTag.setId(postImageIds.get(idx));
 		}
 	}
 
