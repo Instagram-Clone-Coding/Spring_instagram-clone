@@ -13,6 +13,7 @@ import cloneproject.Instagram.domain.member.dto.LoginDevicesDTO;
 import cloneproject.Instagram.domain.member.entity.redis.RefreshToken;
 import cloneproject.Instagram.domain.member.exception.JwtInvalidException;
 import cloneproject.Instagram.domain.member.repository.redis.RefreshTokenRedisRepository;
+import cloneproject.Instagram.global.util.DateUtil;
 import cloneproject.Instagram.infra.geoip.dto.GeoIP;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,7 @@ public class RefreshTokenService {
 	public void addRefreshToken(Long memberId, String tokenValue, String device, GeoIP geoIP) {
 		final List<RefreshToken> refreshTokens = refreshTokenRedisRepository.findByMemberId(memberId)
 				.stream()
-				.sorted(Comparator.comparing(RefreshToken::getCreatedAt))
+				.sorted(Comparator.comparing(RefreshToken::getLastUpdateDate))
 				.collect(Collectors.toList());
 
 		for (int i = 0; i <= refreshTokens.size() - MAX_LOGIN_DEVICE; ++i) {
@@ -92,7 +93,7 @@ public class RefreshTokenService {
 	public List<LoginDevicesDTO> getLoginDevices(Long memberId) {
 		final List<RefreshToken> refreshTokens = refreshTokenRedisRepository.findByMemberId(memberId)
 				.stream()
-				.sorted(Comparator.comparing(RefreshToken::getCreatedAt).reversed())
+				.sorted(Comparator.comparing(RefreshToken::getLastUpdateDate).reversed())
 				.collect(Collectors.toList());
 		return refreshTokens.stream()
 				.map(this::convertRefreshTokenToLoginedDevicesDTO)
@@ -104,6 +105,7 @@ public class RefreshTokenService {
 				.tokenId(refreshToken.getId())
 				.device(refreshToken.getDevice())
 				.location(refreshToken.getGeoIP())
+				.lastLoginDate(refreshToken.getLastUpdateDate())
 				.build();
 	}
 
