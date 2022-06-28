@@ -1,12 +1,9 @@
 package cloneproject.Instagram.global.util;
 
 import java.security.Key;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -16,19 +13,16 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import cloneproject.Instagram.domain.member.dto.JwtDto;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.exception.JwtExpiredException;
-import cloneproject.Instagram.domain.member.exception.ExpiredRefreshTokenException;
 import cloneproject.Instagram.domain.member.exception.JwtInvalidException;
-import cloneproject.Instagram.global.config.security.JwtAuthenticationToken;
+import cloneproject.Instagram.global.config.security.token.JwtAuthenticationToken;
 import cloneproject.Instagram.global.error.exception.BusinessException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -43,7 +37,8 @@ public class JwtUtil {
 
 	private final static String CLAIM_AUTHORITIES_KEY = "authorities";
 	private final static String CLAIM_JWT_TYPE_KEY = "type";
-	private final static String BEARER_TYPE = "Bearer ";
+	private final static String BEARER_TYPE_PREFIX = "Bearer ";
+	private final static String BEARER_TYPE = "Bearer";
 	private static final int JWT_PREFIX_LENGTH = 7;
 
 	private final Key JWT_KEY;
@@ -55,7 +50,7 @@ public class JwtUtil {
 	public String extractJwt(String authenticationHeader){
 		if(authenticationHeader == null){
 			throw new JwtInvalidException();
-		}else if(!authenticationHeader.startsWith(BEARER_TYPE)){
+		}else if(!authenticationHeader.startsWith(BEARER_TYPE_PREFIX)){
 			throw new JwtInvalidException();
 		}
 		return authenticationHeader.substring(JWT_PREFIX_LENGTH);
@@ -92,8 +87,8 @@ public class JwtUtil {
 
 		String refreshToken = Jwts.builder()
 			.setSubject(authentication.getName())
-			.setExpiration(refreshTokenExpiresIn)
 			.claim(CLAIM_AUTHORITIES_KEY, authoritiesString)
+			.setExpiration(refreshTokenExpiresIn)
 			.signWith(JWT_KEY, SignatureAlgorithm.HS512)
 			.compact();
 
@@ -102,40 +97,6 @@ public class JwtUtil {
 			.accessToken(accessToken)
 			.refreshToken(refreshToken)
 			.build();
-	}
-
-	public JwtDto generateJwtDto(Member member) {
-		final String authoritiesString = member.getRole().toString();
-		long currentTime = (new Date()).getTime();
-
-		Date accessTokenExpiresIn = new Date(currentTime + ACCESS_TOKEN_EXPIRES);
-		Date refreshTokenExpiresIn = new Date(currentTime + REFRESH_TOKEN_EXPIRES);
-
-		String accessToken = Jwts.builder()
-			.setSubject(member.getId().toString())
-			.claim(CLAIM_AUTHORITIES_KEY, authoritiesString)
-			.claim(CLAIM_JWT_TYPE_KEY, BEARER_TYPE)
-			.setExpiration(accessTokenExpiresIn)
-			.signWith(JWT_KEY, SignatureAlgorithm.HS512)
-			.compact();
-
-		String refreshToken = Jwts.builder()
-			.setSubject(member.getId().toString())
-			.setExpiration(refreshTokenExpiresIn)
-			.claim(CLAIM_AUTHORITIES_KEY, authoritiesString)
-			.signWith(JWT_KEY, SignatureAlgorithm.HS512)
-			.compact();
-
-		return JwtDto.builder()
-			.type(BEARER_TYPE)
-			.accessToken(accessToken)
-			.refreshToken(refreshToken)
-			.build();
-	}
-
-	public Authentication getAuthenticationWithMember(String id) {
-		return new UsernamePasswordAuthenticationToken(id, null,
-				AuthorityUtils.createAuthorityList("ROLE_USER"));
 	}
 
 	private Claims parseClaims(String token) throws BusinessException {

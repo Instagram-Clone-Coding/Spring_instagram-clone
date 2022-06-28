@@ -1,4 +1,4 @@
-package cloneproject.Instagram.global.config.security;
+package cloneproject.Instagram.global.config.security.token;
 
 import java.util.Collection;
 
@@ -13,7 +13,6 @@ public class JwtAuthenticationToken extends UsernamePasswordAuthenticationToken 
 	}
 
 	private JwtAuthenticationToken(Object principal, Object credentials) {
-		// authority는 자동으로 null로 설정됨
 		super(principal, credentials);
 	}
 

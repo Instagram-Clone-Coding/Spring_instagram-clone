@@ -72,7 +72,12 @@ public class RefreshTokenService {
 	@Transactional
 	public void deleteRefreshTokenWithValue(Long memberId, String value) {
 		final RefreshToken refreshToken = refreshTokenRedisRepository.findByMemberIdAndValue(memberId, value)
-				.orElseThrow(JwtInvalidException::new);
+			.orElseThrow(JwtInvalidException::new);
+		refreshTokenRedisRepository.delete(refreshToken);
+	}
+
+	@Transactional
+	public void deleteRefreshToken(RefreshToken refreshToken) {
 		refreshTokenRedisRepository.delete(refreshToken);
 	}
 

@@ -92,50 +92,20 @@ public class MemberAuthService {
 	@Transactional
 	public JwtDto login(LoginRequest loginRequest, String device, String ip) {
 		try {
-			// final UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-			// 	loginRequest.getUsername(), loginRequest.getPassword());
-			// final Authentication authentication = authenticationManagerBuilder.getObject()
-			// 	.authenticate(authenticationToken);
-			// final JwtDto jwtDto = jwtUtil.generateJwtDto(authentication);
-			//
-			// final GeoIP geoIP = geoIPLocationService.getLocation(ip);
-			//
-			// refreshTokenService.addRefreshToken(Long.valueOf(authentication.getName()), jwtDto.getRefreshToken(),
-			// 	device, geoIP);
-			// return jwtDto;
-			final Member member = memberRepository.findByUsername(loginRequest.getUsername())
-				.orElseThrow(AccountMismatchException::new);
+			final UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+				loginRequest.getUsername(), loginRequest.getPassword());
+			final Authentication authentication = authenticationManagerBuilder.getObject()
+				.authenticate(authenticationToken);
+			final JwtDto jwtDto = jwtUtil.generateJwtDto(authentication);
 
-			if (!bCryptPasswordEncoder.matches(loginRequest.getPassword(), member.getPassword())) {
-				throw new AccountMismatchException();
-			}
+			final GeoIP geoIP = geoIPLocationService.getLocation(ip);
 
-			return jwtUtil.generateJwtDto(member);
+			refreshTokenService.addRefreshToken(Long.valueOf(authentication.getName()), jwtDto.getRefreshToken(),
+				device, geoIP);
+			return jwtDto;
 		} catch (BadCredentialsException e) {
 			throw new AccountMismatchException();
 		}
-	}
-
-	@Transactional
-	public Optional<JwtDto> reissue(String refreshTokenString) {
-		Authentication authentication;
-
-		try {
-			authentication = jwtUtil.getAuthentication(refreshTokenString);
-		} catch (ExpiredJwtException e) {
-			throw new JwtExpiredException();
-		} catch (JwtException e){
-			throw new JwtInvalidException();
-		}
-
-		final Long memberId = Long.valueOf(authentication.getName());
-		final Optional<RefreshToken> refreshToken = refreshTokenService.findRefreshToken(memberId, refreshTokenString);
-		if (refreshToken.isEmpty()) {
-			return Optional.empty();
-		}
-		final JwtDto jwtDto = jwtUtil.generateJwtDto(authentication);
-		refreshTokenService.updateRefreshToken(refreshToken.get(), jwtDto.getRefreshToken());
-		return Optional.of(jwtDto);
 	}
 
 	@Transactional
@@ -157,6 +127,7 @@ public class MemberAuthService {
 		return emailCodeService.sendResetPasswordCode(username);
 	}
 
+	// TODO 수정
 	@Transactional
 	public JwtDto resetPassword(ResetPasswordRequest resetPasswordRequest, String device, String ip) {
 		final Member member = memberRepository.findByUsername(resetPasswordRequest.getUsername())
@@ -177,22 +148,6 @@ public class MemberAuthService {
 			new LoginRequest(resetPasswordRequest.getUsername(), resetPasswordRequest.getNewPassword()), device,
 			ip);
 		emailCodeService.deleteResetPasswordCode(resetPasswordRequest.getUsername());
-		return jwtDto;
-	}
-
-	@Transactional
-	public JwtDto loginWithCode(LoginWithCodeRequest loginRequest, String device, String ip) {
-		final Member member = memberRepository.findByUsername(loginRequest.getUsername())
-			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
-		if (!emailCodeService.checkResetPasswordCode(loginRequest.getUsername(), loginRequest.getCode())) {
-			throw new PasswordResetFailException();
-		}
-		final JwtDto jwtDto = jwtUtil.generateJwtDto(jwtUtil.getAuthenticationWithMember(member.getId().toString()));
-		emailCodeService.deleteResetPasswordCode(loginRequest.getUsername());
-
-		final GeoIP geoIP = geoIPLocationService.getLocation(ip);
-
-		refreshTokenService.addRefreshToken(member.getId(), jwtDto.getRefreshToken(), device, geoIP);
 		return jwtDto;
 	}
 

@@ -38,7 +38,7 @@ public enum ErrorCode {
 	CANT_BLOCK_MYSELF(400, "M011", "자기 자신을 차단 할 수 없습니다."),
 	CANT_UNBLOCK_MYSELF(400, "M012", "자기 자신을 차단해제 할 수 없습니다."),
 	PASSWORD_ALREADY_EXIST(400, "M013", "기존 비밀번호와 동일하게 변경할 수 없습니다."),
-
+	LOGOUT_BY_ANOTHER(401, "M014", "다른 기기에 의해 로그아웃되었습니다."),
 	// Follow
 	ALREADY_FOLLOW(400, "F001", "이미 팔로우한 유저입니다."),
 	CANT_UNFOLLOW(400, "F002", "팔로우하지 않은 유저는 언팔로우 할 수 없습니다."),
