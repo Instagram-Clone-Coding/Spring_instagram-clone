@@ -195,38 +195,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.permitAll()
 			.antMatchers(AUTH_WHITELIST)
 			.permitAll()
-
-			//게시물
-			.antMatchers("/posts", "/posts/**", "/comments/**", "/hashtags/**")
-			.hasAuthority("ROLE_USER")
-
-			// 유저 포스트
-			.antMatchers("/accounts/**/posts", "/accounts/**/posts/recent", "/accounts/**/posts/tagged",
-				"/accounts/**/posts/tagged/recent")
-			.permitAll()
-			.antMatchers("/accounts/**/posts/saved", "/accounts/**/posts/saved/recent")
-			.hasAuthority("ROLE_USER")
-
-			// 유저 프로필 관련
-			.antMatchers("/accounts/**")
-			.permitAll()
-			.antMatchers("/accounts/**/mini", "/accounts/edit", "/accounts/image", "/menu/profile")
-			.hasAuthority("ROLE_USER")
-			.antMatchers("/accounts/password")
-			.hasAuthority("ROLE_USER")
-			// 유저 기타
-			.antMatchers("/search", "/alarms")
-			.hasAuthority("ROLE_USER")
-
-			// 팔로우 & 차단
-			.antMatchers("/**/follow", "/**/followers", "/**/following")
-			.hasAuthority("ROLE_USER")
-			.antMatchers("/**/block")
-			.hasAuthority("ROLE_USER")
-
-			// DM
-			.antMatchers("/chat/rooms/**")
-			.hasAuthority("ROLE_USER");
+			.anyRequest().hasAuthority("ROLE_USER");
 
 		http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 		http.addFilterBefore(customExceptionHandleFilter, JwtAuthenticationFilter.class);
