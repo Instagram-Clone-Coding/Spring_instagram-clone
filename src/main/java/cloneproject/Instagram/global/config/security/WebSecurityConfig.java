@@ -27,7 +27,7 @@ import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import cloneproject.Instagram.domain.member.service.EmailCodeService;
-import cloneproject.Instagram.domain.member.service.JwtUserDetailsService;
+import cloneproject.Instagram.domain.member.service.CustomUserDetailsService;
 import cloneproject.Instagram.domain.member.service.ResetPasswordCodeUserDetailService;
 import cloneproject.Instagram.global.config.security.filter.CustomExceptionHandleFilter;
 import cloneproject.Instagram.global.config.security.filter.CustomUsernamePasswordAuthenticationFilter;
@@ -55,7 +55,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	private final JwtUtil jwtUtil;
 	private final ResetPasswordCodeUserDetailService resetPasswordCodeUserDetailService;
-	private final JwtUserDetailsService jwtUserDetailsService;
+	private final CustomUserDetailsService jwtUserDetailsService;
 	private final EmailCodeService emailCodeService;
 	// Provider
 	private final JwtAuthenticationProvider jwtAuthenticationProvider;
