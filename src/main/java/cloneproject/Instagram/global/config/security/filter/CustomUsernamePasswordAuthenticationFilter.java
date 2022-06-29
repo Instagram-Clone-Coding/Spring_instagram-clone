@@ -18,13 +18,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import cloneproject.Instagram.domain.member.dto.LoginRequest;
 
 public class CustomUsernamePasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
-	private static final AntPathRequestMatcher ANT_PATH_REQUEST_MATCHER = new AntPathRequestMatcher("/login", "POST");
-	ObjectMapper objectMapper = new ObjectMapper();
+
+	private static final AntPathRequestMatcher ANT_PATH_REQUEST_MATCHER =
+		new AntPathRequestMatcher("/login", "POST");
+	final ObjectMapper objectMapper = new ObjectMapper();
 
 	public CustomUsernamePasswordAuthenticationFilter() {
 		super(ANT_PATH_REQUEST_MATCHER);
 	}
 
+	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws
 		AuthenticationException {
 		if (!request.getMethod().equals("POST")) {

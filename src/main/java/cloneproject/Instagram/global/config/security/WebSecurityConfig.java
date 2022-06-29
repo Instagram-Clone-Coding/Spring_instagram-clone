@@ -52,6 +52,7 @@ import lombok.extern.slf4j.Slf4j;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
 	private final JwtUtil jwtUtil;
 	private final ResetPasswordCodeUserDetailService resetPasswordCodeUserDetailService;
 	private final JwtUserDetailsService jwtUserDetailsService;
@@ -115,30 +116,32 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	@Bean
-	public CustomUsernamePasswordAuthenticationFilter customUsernamePasswordAuthenticationFilter() throws Exception {
-		final CustomUsernamePasswordAuthenticationFilter customUsernamePasswordAuthenticationFilter = new CustomUsernamePasswordAuthenticationFilter();
-		customUsernamePasswordAuthenticationFilter.setAuthenticationManager(super.authenticationManager());
-		customUsernamePasswordAuthenticationFilter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
-		customUsernamePasswordAuthenticationFilter.setAuthenticationFailureHandler(customAuthenticationFailureHandler);
-		return customUsernamePasswordAuthenticationFilter;
+	public CustomUsernamePasswordAuthenticationFilter customUsernamePasswordAuthenticationFilter()
+		throws Exception {
+		final CustomUsernamePasswordAuthenticationFilter filter =
+			new CustomUsernamePasswordAuthenticationFilter();
+		filter.setAuthenticationManager(super.authenticationManager());
+		filter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
+		filter.setAuthenticationFailureHandler(customAuthenticationFailureHandler);
+		return filter;
 	}
 
 	@Bean
 	public ResetPasswordCodeAuthenticationFilter resetPasswordCodeAuthenticationFilter() throws Exception {
-		final ResetPasswordCodeAuthenticationFilter resetPasswordCodeAuthenticationFilter = new ResetPasswordCodeAuthenticationFilter();
-		resetPasswordCodeAuthenticationFilter.setAuthenticationManager(super.authenticationManager());
-		resetPasswordCodeAuthenticationFilter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
-		resetPasswordCodeAuthenticationFilter.setAuthenticationFailureHandler(customAuthenticationFailureHandler);
-		return resetPasswordCodeAuthenticationFilter;
+		final ResetPasswordCodeAuthenticationFilter filter = new ResetPasswordCodeAuthenticationFilter();
+		filter.setAuthenticationManager(super.authenticationManager());
+		filter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
+		filter.setAuthenticationFailureHandler(customAuthenticationFailureHandler);
+		return filter;
 	}
 
 	@Bean
-	public ReissueAuthenticationFilter reissueAuthentiactionFilter() throws Exception {
-		final ReissueAuthenticationFilter reissueAuthentiactionFilter = new ReissueAuthenticationFilter();
-		reissueAuthentiactionFilter.setAuthenticationManager(super.authenticationManager());
-		reissueAuthentiactionFilter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
-		reissueAuthentiactionFilter.setAuthenticationFailureHandler(customAuthenticationFailureHandler);
-		return reissueAuthentiactionFilter;
+	public ReissueAuthenticationFilter reissueAuthenticationFilter() throws Exception {
+		final ReissueAuthenticationFilter filter = new ReissueAuthenticationFilter();
+		filter.setAuthenticationManager(super.authenticationManager());
+		filter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
+		filter.setAuthenticationFailureHandler(customAuthenticationFailureHandler);
+		return filter;
 	}
 
 	@Override
@@ -201,11 +204,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		http.addFilterBefore(customExceptionHandleFilter, JwtAuthenticationFilter.class);
 		http.addFilterBefore(customUsernamePasswordAuthenticationFilter(), JwtAuthenticationFilter.class);
 		http.addFilterBefore(resetPasswordCodeAuthenticationFilter(), JwtAuthenticationFilter.class);
-		http.addFilterBefore(reissueAuthentiactionFilter(), JwtAuthenticationFilter.class);
+		http.addFilterBefore(reissueAuthenticationFilter(), JwtAuthenticationFilter.class);
 	}
 
 	private void configureCustomBeans() {
-		Map<String, ResultCode> map = new HashMap<>();
+		final Map<String, ResultCode> map = new HashMap<>();
 		map.put("/login", ResultCode.LOGIN_SUCCESS);
 		map.put("/reissue", ResultCode.REISSUE_SUCCESS);
 		map.put("/login/recovery", ResultCode.LOGIN_WITH_CODE_SUCCESS);

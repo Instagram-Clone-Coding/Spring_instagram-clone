@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class ResetPasswordCodeAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
-	private static final String USER_NOT_FOUND_PASSWORD = "userNotFoundPassword";
 	private final UserDetailsService userDetailsService;
 
 	private final EmailCodeService emailCodeService;
@@ -33,7 +32,7 @@ public class ResetPasswordCodeAuthenticationProvider extends AbstractUserDetails
 			this.logger.debug("Failed to authenticate since no credentials provided");
 			throw new PasswordResetFailException();
 		} else {
-			String presentedEmailCode = authentication.getCredentials().toString();
+			final String presentedEmailCode = authentication.getCredentials().toString();
 			if (!presentedEmailCode.equals(userDetails.getPassword())) {
 				this.logger.debug("Failed to authenticate since email code does not match stored value");
 				throw new PasswordResetFailException();
@@ -48,7 +47,7 @@ public class ResetPasswordCodeAuthenticationProvider extends AbstractUserDetails
 	protected final UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) throws
 		AuthenticationException {
 		try {
-			UserDetails loadedUser = this.getUserDetailsService().loadUserByUsername(username);
+			final UserDetails loadedUser = this.getUserDetailsService().loadUserByUsername(username);
 			if (loadedUser == null) {
 				throw new EntityNotFoundException(MEMBER_NOT_FOUND);
 			} else {

@@ -32,8 +32,7 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws
 		AuthenticationException {
 		final String authorizationHeader = request.getHeader(AUTHORIZATION_HEADER);
-		final String jwt;
-		jwt = jwtUtil.extractJwt(authorizationHeader);
+		final String jwt = jwtUtil.extractJwt(authorizationHeader);
 		final JwtAuthenticationToken authentication = JwtAuthenticationToken.of(jwt);
 
 		return super.getAuthenticationManager().authenticate(authentication);
@@ -44,13 +43,6 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
 		Authentication authResult) throws IOException, ServletException {
 		SecurityContextHolder.getContext().setAuthentication(authResult);
 		chain.doFilter(request, response);
-	}
-
-	@Override
-	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-		AuthenticationException failed) throws IOException, ServletException {
-		SecurityContextHolder.clearContext();
-		super.unsuccessfulAuthentication(request, response, failed);
 	}
 
 }

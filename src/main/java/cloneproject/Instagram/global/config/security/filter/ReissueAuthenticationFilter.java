@@ -16,6 +16,7 @@ import cloneproject.Instagram.domain.member.exception.JwtInvalidException;
 import cloneproject.Instagram.global.config.security.token.ReissueAuthenticationToken;
 
 public class ReissueAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+
 	private static final AntPathRequestMatcher ANT_PATH_REQUEST_MATCHER = new AntPathRequestMatcher("/reissue",
 		"POST");
 
@@ -23,6 +24,7 @@ public class ReissueAuthenticationFilter extends AbstractAuthenticationProcessin
 		super(ANT_PATH_REQUEST_MATCHER);
 	}
 
+	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws
 		AuthenticationException {
 		if (!request.getMethod().equals("POST")) {

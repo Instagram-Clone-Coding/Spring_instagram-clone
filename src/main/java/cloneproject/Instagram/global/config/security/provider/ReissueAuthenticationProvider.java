@@ -38,7 +38,7 @@ public class ReissueAuthenticationProvider implements AuthenticationProvider {
 		return authenticated;
 	}
 
-	protected void deleteRefreshToken(RefreshToken refreshToken) {
+	private void deleteRefreshToken(RefreshToken refreshToken) {
 		refreshTokenService.deleteRefreshToken(refreshToken);
 	}
 

@@ -18,14 +18,16 @@ import cloneproject.Instagram.domain.member.dto.LoginWithCodeRequest;
 import cloneproject.Instagram.global.config.security.token.ResetPasswordCodeAuthenticationToken;
 
 public class ResetPasswordCodeAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+
 	private static final AntPathRequestMatcher ANT_PATH_REQUEST_MATCHER = new AntPathRequestMatcher("/login/recovery",
 		"POST");
-	ObjectMapper objectMapper = new ObjectMapper();
+	final ObjectMapper objectMapper = new ObjectMapper();
 
 	public ResetPasswordCodeAuthenticationFilter() {
 		super(ANT_PATH_REQUEST_MATCHER);
 	}
 
+	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws
 		AuthenticationException {
 		if (!request.getMethod().equals("POST")) {
