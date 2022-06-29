@@ -24,6 +24,7 @@ public enum ErrorCode {
 	IMAGE_TYPE_NOT_SUPPORTED(400, "G007", "지원하지 않는 이미지 타입입니다."),
 	FILE_CANT_CONVERT(500, "G008", "변환할 수 없는 파일입니다."),
 	ENTITY_TYPE_INVALID(500, "G009", "올바르지 않은 entity type 입니다."),
+	FILTER_MUST_RESPOND(500, "G010", "필터에서 처리해야 할 요청이 Controller에 접근하였습니다."),
 
 	// Member
 	MEMBER_NOT_FOUND(400, "M001", "존재 하지 않는 유저입니다."),
