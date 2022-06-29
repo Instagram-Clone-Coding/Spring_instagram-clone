@@ -34,7 +34,7 @@ public class RefreshToken implements Serializable {
 	@TimeToLive(unit = TimeUnit.DAYS)
 	private Long timeout = 7L;
 
-	private LocalDateTime createdAt;
+	private LocalDateTime lastUpdateDate;
 
 	private String city;
 
@@ -45,6 +45,7 @@ public class RefreshToken implements Serializable {
 	private String device;
 
 	public void updateToken(String newValue) {
+		this.lastUpdateDate = LocalDateTime.now();
 		this.value = newValue;
 	}
 
@@ -54,7 +55,7 @@ public class RefreshToken implements Serializable {
 
 	@Builder
 	public RefreshToken(Long memberId, String value, GeoIP geoip, String device) {
-		this.createdAt = LocalDateTime.now();
+		this.lastUpdateDate = LocalDateTime.now();
 		this.memberId = memberId;
 		this.value = value;
 		this.city = geoip.getCity();

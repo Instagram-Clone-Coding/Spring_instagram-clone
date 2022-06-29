@@ -3,7 +3,6 @@ package cloneproject.Instagram.domain.member.controller;
 import static cloneproject.Instagram.global.result.ResultCode.*;
 
 import java.util.List;
-import java.util.Optional;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -25,16 +24,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cloneproject.Instagram.domain.member.dto.JwtDto;
 import cloneproject.Instagram.domain.member.dto.JwtResponse;
+import cloneproject.Instagram.domain.member.dto.LoginDevicesDTO;
 import cloneproject.Instagram.domain.member.dto.LoginRequest;
 import cloneproject.Instagram.domain.member.dto.LoginWithCodeRequest;
-import cloneproject.Instagram.domain.member.dto.LoginDevicesDTO;
 import cloneproject.Instagram.domain.member.dto.RegisterRequest;
 import cloneproject.Instagram.domain.member.dto.ResetPasswordRequest;
 import cloneproject.Instagram.domain.member.dto.SendConfirmationEmailRequest;
 import cloneproject.Instagram.domain.member.dto.UpdatePasswordRequest;
-import cloneproject.Instagram.domain.member.exception.InvalidJwtException;
 import cloneproject.Instagram.domain.member.service.MemberAuthService;
+import cloneproject.Instagram.global.error.exception.FilterMustRespondException;
 import cloneproject.Instagram.global.result.ResultResponse;
+import cloneproject.Instagram.global.util.RequestExtractor;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -98,51 +98,20 @@ public class MemberAuthController {
 	}
 
 	@ApiOperation(value = "로그인")
-	@ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " ")
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " ")
+	})
 	@PostMapping(value = "/login")
-	public ResponseEntity<ResultResponse> login(@Valid @RequestBody LoginRequest loginRequest,
-		HttpServletRequest request, HttpServletResponse response) {
-		final String device = request.getHeader("user-agent");
-		final String ip = getClientIP(request);
-
-		final JwtDto jwt = memberAuthService.login(loginRequest, device, ip);
-
-		final Cookie cookie = getRefreshTokenCookie(jwt.getRefreshToken());
-
-		response.addCookie(cookie);
-
-		final JwtResponse jwtResponse = JwtResponse.builder()
-			.type(jwt.getType())
-			.accessToken(jwt.getAccessToken())
-			.build();
-
-		return ResponseEntity.ok(ResultResponse.of(LOGIN_SUCCESS, jwtResponse));
+	public ResponseEntity<ResultResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
+		throw new FilterMustRespondException();
 	}
 
 	@ApiOperation(value = "토큰 재발급")
 	@ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " ")
 	@PostMapping(value = "/reissue")
 	public ResponseEntity<ResultResponse> reissue(
-		@CookieValue(value = "refreshToken", required = false) Cookie refreshCookie, HttpServletResponse response) {
-		if (refreshCookie == null) {
-			throw new InvalidJwtException();
-		}
-		final Optional<JwtDto> optionalJwt = memberAuthService.reissue(refreshCookie.getValue());
-		if (optionalJwt.isEmpty()) {
-			return ResponseEntity.ok(ResultResponse.of(LOGOUT_BY_ANOTHER_DEVICE));
-		} else {
-			final JwtDto jwt = optionalJwt.get();
-			final Cookie cookie = getRefreshTokenCookie(jwt.getRefreshToken());
-
-			response.addCookie(cookie);
-
-			final JwtResponse jwtResponse = JwtResponse.builder()
-				.type(jwt.getType())
-				.accessToken(jwt.getAccessToken())
-				.build();
-
-			return ResponseEntity.ok(ResultResponse.of(REISSUE_SUCCESS, jwtResponse));
-		}
+		@CookieValue(value = "refreshToken", required = false) Cookie refreshCookie) {
+		throw new FilterMustRespondException();
 	}
 
 	@ApiOperation(value = "비밀번호 변경")
@@ -169,14 +138,15 @@ public class MemberAuthController {
 		return ResponseEntity.ok(ResultResponse.of(SEND_RESET_PASSWORD_EMAIL_SUCCESS, email));
 	}
 
+	// TODO filter로 옮길 방법?
 	@ApiOperation(value = "코드를 통한 비밀번호 재설정")
 	@ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " ")
 	@PutMapping(value = "/accounts/password/reset")
 	public ResponseEntity<ResultResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest,
 		HttpServletRequest request,
 		HttpServletResponse response) {
-		final String device = request.getHeader("user-agent");
-		final String ip = getClientIP(request);
+		final String device = RequestExtractor.getDevice(request);
+		final String ip = RequestExtractor.getClientIP(request);
 		final JwtDto jwt = memberAuthService.resetPassword(resetPasswordRequest, device, ip);
 
 		final Cookie cookie = getRefreshTokenCookie(jwt.getRefreshToken());
@@ -193,25 +163,10 @@ public class MemberAuthController {
 
 	@ApiOperation(value = "코드를 통한 로그인")
 	@ApiImplicitParam(name = "Authorization", value = "불필요", required = false, example = " ")
-	@PostMapping(value = "/accounts/login/recovery")
+	@PostMapping(value = "/login/recovery")
 	public ResponseEntity<ResultResponse> loginWithCode(
-		@Valid @RequestBody LoginWithCodeRequest loginWithCodeRequest,
-		HttpServletRequest request,
-		HttpServletResponse response) {
-		final String device = request.getHeader("user-agent");
-		final String ip = getClientIP(request);
-
-		final JwtDto jwt = memberAuthService.loginWithCode(loginWithCodeRequest, device, ip);
-
-		final Cookie cookie = getRefreshTokenCookie(jwt.getRefreshToken());
-		response.addCookie(cookie);
-
-		final JwtResponse jwtResponse = JwtResponse.builder()
-			.type(jwt.getType())
-			.accessToken(jwt.getAccessToken())
-			.build();
-
-		return ResponseEntity.ok(ResultResponse.of(LOGIN_WITH_CODE_SUCCESS, jwtResponse));
+		@Valid @RequestBody LoginWithCodeRequest loginWithCodeRequest) {
+		throw new FilterMustRespondException();
 	}
 
 	@ApiOperation(value = "로그아웃")
@@ -283,21 +238,6 @@ public class MemberAuthController {
 		cookie.setDomain(COOKIE_DOMAIN);
 
 		return cookie;
-	}
-
-	private String getClientIP(HttpServletRequest request) {
-		String ip = request.getHeader("X-Forwarded-For");
-		if (ip == null)
-			ip = request.getHeader("Proxy-Client-IP");
-		if (ip == null)
-			ip = request.getHeader("WL-Proxy-Client-IP");
-		if (ip == null)
-			ip = request.getHeader("HTTP_CLIENT_IP");
-		if (ip == null)
-			ip = request.getHeader("HTTP_X_FORWARDED_FOR");
-		if (ip == null)
-			ip = request.getRemoteAddr();
-		return ip;
 	}
 
 }

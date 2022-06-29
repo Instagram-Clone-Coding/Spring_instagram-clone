@@ -23,7 +23,8 @@ import cloneproject.Instagram.domain.member.dto.UpdatePasswordRequest;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.entity.redis.RefreshToken;
 import cloneproject.Instagram.domain.member.exception.AccountMismatchException;
-import cloneproject.Instagram.domain.member.exception.InvalidJwtException;
+import cloneproject.Instagram.domain.member.exception.JwtExpiredException;
+import cloneproject.Instagram.domain.member.exception.JwtInvalidException;
 import cloneproject.Instagram.domain.member.exception.PasswordResetFailException;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.search.entity.SearchMember;
@@ -34,6 +35,7 @@ import cloneproject.Instagram.global.util.AuthUtil;
 import cloneproject.Instagram.global.util.JwtUtil;
 import cloneproject.Instagram.infra.geoip.GeoIPLocationService;
 import cloneproject.Instagram.infra.geoip.dto.GeoIP;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -94,7 +96,7 @@ public class MemberAuthService {
 				loginRequest.getUsername(), loginRequest.getPassword());
 			final Authentication authentication = authenticationManagerBuilder.getObject()
 				.authenticate(authenticationToken);
-			final JwtDto jwtDto = jwtUtil.generateTokenDto(authentication);
+			final JwtDto jwtDto = jwtUtil.generateJwtDto(authentication);
 
 			final GeoIP geoIP = geoIPLocationService.getLocation(ip);
 
@@ -104,28 +106,6 @@ public class MemberAuthService {
 		} catch (BadCredentialsException e) {
 			throw new AccountMismatchException();
 		}
-	}
-
-	@Transactional
-	public Optional<JwtDto> reissue(String refreshTokenString) {
-		if (!jwtUtil.validateRefeshJwt(refreshTokenString)) {
-			throw new InvalidJwtException();
-		}
-		Authentication authentication;
-		try {
-			authentication = jwtUtil.getAuthentication(refreshTokenString, false);
-		} catch (JwtException e) {
-			throw new InvalidJwtException();
-		}
-		final Long memberId = Long.valueOf(authentication.getName());
-
-		final Optional<RefreshToken> refreshToken = refreshTokenService.findRefreshToken(memberId, refreshTokenString);
-		if (refreshToken.isEmpty()) {
-			return Optional.empty();
-		}
-		final JwtDto jwtDto = jwtUtil.generateTokenDto(authentication);
-		refreshTokenService.updateRefreshToken(refreshToken.get(), jwtDto.getRefreshToken());
-		return Optional.of(jwtDto);
 	}
 
 	@Transactional
@@ -147,6 +127,7 @@ public class MemberAuthService {
 		return emailCodeService.sendResetPasswordCode(username);
 	}
 
+	// TODO 수정
 	@Transactional
 	public JwtDto resetPassword(ResetPasswordRequest resetPasswordRequest, String device, String ip) {
 		final Member member = memberRepository.findByUsername(resetPasswordRequest.getUsername())
@@ -171,22 +152,6 @@ public class MemberAuthService {
 	}
 
 	@Transactional
-	public JwtDto loginWithCode(LoginWithCodeRequest loginRequest, String device, String ip) {
-		final Member member = memberRepository.findByUsername(loginRequest.getUsername())
-			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
-		if (!emailCodeService.checkResetPasswordCode(loginRequest.getUsername(), loginRequest.getCode())) {
-			throw new PasswordResetFailException();
-		}
-		final JwtDto jwtDto = jwtUtil.generateTokenDto(jwtUtil.getAuthenticationWithMember(member.getId().toString()));
-		emailCodeService.deleteResetPasswordCode(loginRequest.getUsername());
-
-		final GeoIP geoIP = geoIPLocationService.getLocation(ip);
-
-		refreshTokenService.addRefreshToken(member.getId(), jwtDto.getRefreshToken(), device, geoIP);
-		return jwtDto;
-	}
-
-	@Transactional
 	public boolean checkResetPasswordCode(String username, String code) {
 		return emailCodeService.checkResetPasswordCode(username, code);
 	}
@@ -195,7 +160,7 @@ public class MemberAuthService {
 	public void logout(String refreshToken) {
 		try {
 			refreshTokenService.deleteRefreshTokenWithValue(authUtil.getLoginMemberId(), refreshToken);
-		} catch (InvalidJwtException ignored) {
+		} catch (JwtInvalidException ignored) {
 
 		}
 	}
