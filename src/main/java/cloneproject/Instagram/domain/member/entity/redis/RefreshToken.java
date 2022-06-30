@@ -2,6 +2,7 @@ package cloneproject.Instagram.domain.member.entity.redis;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.annotation.Id;
@@ -45,7 +46,7 @@ public class RefreshToken implements Serializable {
 	private String device;
 
 	public void updateToken(String newValue) {
-		this.lastUpdateDate = LocalDateTime.now();
+		this.lastUpdateDate = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 		this.value = newValue;
 	}
 
@@ -55,7 +56,7 @@ public class RefreshToken implements Serializable {
 
 	@Builder
 	public RefreshToken(Long memberId, String value, GeoIP geoip, String device) {
-		this.lastUpdateDate = LocalDateTime.now();
+		this.lastUpdateDate = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 		this.memberId = memberId;
 		this.value = value;
 		this.city = geoip.getCity();
