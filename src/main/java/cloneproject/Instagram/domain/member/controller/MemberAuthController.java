@@ -172,12 +172,27 @@ public class MemberAuthController {
 	@ApiOperation(value = "로그아웃")
 	@PostMapping(value = "/logout")
 	public ResponseEntity<ResultResponse> logout(
-		@CookieValue(value = "refreshToken", required = false) Cookie refreshCookie,
+		@CookieValue(value = "refreshToken", required = true) Cookie refreshCookie,
 		HttpServletResponse response) {
-		if (refreshCookie != null) {
-			memberAuthService.logout(refreshCookie.getValue());
-		}
+		memberAuthService.logout(refreshCookie.getValue());
 
+		final Cookie cookie = new Cookie("refreshToken", null);
+
+		cookie.setMaxAge(0);
+
+		// cookie.setSecure(true); https 미지원
+		cookie.setHttpOnly(true);
+		cookie.setPath("/");
+		cookie.setDomain(COOKIE_DOMAIN);
+
+		response.addCookie(cookie);
+
+		return ResponseEntity.ok(ResultResponse.of(LOGOUT_SUCCESS));
+	}
+
+	@ApiOperation(value = "토큰 없이 로그아웃(쿠키만 초기화)")
+	@PostMapping(value = "/logout/only/cookie")
+	public ResponseEntity<ResultResponse> deleteRefreshToken(HttpServletResponse response) {
 		final Cookie cookie = new Cookie("refreshToken", null);
 
 		cookie.setMaxAge(0);

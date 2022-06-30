@@ -6,6 +6,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -54,6 +55,13 @@ public class GlobalExceptionHandler {
 	protected ResponseEntity<ErrorResponse> handleMissingServletRequestPartException(
 		MissingServletRequestPartException e) {
 		final ErrorResponse response = ErrorResponse.of(INPUT_VALUE_INVALID, e.getRequestPartName());
+		return new ResponseEntity<>(response, BAD_REQUEST);
+	}
+
+	@ExceptionHandler
+	protected ResponseEntity<ErrorResponse> handleMissingServletRequestPartException(
+		MissingRequestCookieException e) {
+		final ErrorResponse response = ErrorResponse.of(INPUT_VALUE_INVALID, e.getCookieName());
 		return new ResponseEntity<>(response, BAD_REQUEST);
 	}
 

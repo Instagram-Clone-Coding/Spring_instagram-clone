@@ -158,11 +158,7 @@ public class MemberAuthService {
 
 	@Transactional
 	public void logout(String refreshToken) {
-		try {
-			refreshTokenService.deleteRefreshTokenWithValue(authUtil.getLoginMemberId(), refreshToken);
-		} catch (JwtInvalidException ignored) {
-
-		}
+		refreshTokenService.deleteRefreshTokenWithValue(authUtil.getLoginMemberId(), refreshToken);
 	}
 
 	public List<LoginDevicesDTO> getLoginDevices() {
