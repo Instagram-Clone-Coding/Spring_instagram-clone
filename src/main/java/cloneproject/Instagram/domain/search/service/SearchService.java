@@ -50,6 +50,7 @@ public class SearchService {
 	private static final int FIRST_PAGE_SIZE = 15;
 	private static final int PAGE_SIZE = 5;
 	private static final int PAGE_OFFSET = 2;
+	private static final int MAX_FOLLOWING_MEMBER_FOLLOW_COUNT = 3;
 
 	public List<SearchDto> searchByText(String text) {
 		text = text.trim();
@@ -166,7 +167,11 @@ public class SearchService {
 		final Map<String, List<FollowDto>> followsMap = followRepository.getFollowingMemberFollowMap(loginId,
 			searchUsernames);
 		memberMap.forEach(
-			(id, member) -> member.setFollowingMemberFollow(followsMap.get(member.getMember().getUsername())));
+			(id, member) -> member.setFollowingMemberFollow(
+				followsMap.get(
+						member.getMember().getUsername()
+					), MAX_FOLLOWING_MEMBER_FOLLOW_COUNT)
+		);
 
 		return searches.stream()
 			.map(search -> {

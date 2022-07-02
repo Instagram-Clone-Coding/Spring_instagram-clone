@@ -16,6 +16,8 @@ import cloneproject.Instagram.domain.feed.dto.PostImageDto;
 import cloneproject.Instagram.domain.feed.entity.Post;
 import cloneproject.Instagram.domain.feed.repository.PostImageRepository;
 import cloneproject.Instagram.domain.feed.repository.PostRepository;
+import cloneproject.Instagram.domain.follow.dto.FollowDto;
+import cloneproject.Instagram.domain.follow.repository.FollowRepository;
 import cloneproject.Instagram.domain.member.dto.EditProfileRequest;
 import cloneproject.Instagram.domain.member.dto.EditProfileResponse;
 import cloneproject.Instagram.domain.member.dto.MenuMemberDTO;
@@ -40,10 +42,13 @@ public class MemberService {
 
 	private final AuthUtil authUtil;
 	private final MemberRepository memberRepository;
+	private final FollowRepository followRepository;
 	private final S3Uploader s3Uploader;
 	private final MemberStoryRedisRepository memberStoryRedisRepository;
 	private final PostRepository postRepository;
 	private final PostImageRepository postImageRepository;
+	private static final int MAX_PROFILE_FOLLOWING_MEMBER_FOLLOW_COUNT = 3;
+	private static final int MAX_MINI_PROFILE_FOLLOWING_MEMBER_FOLLOW_COUNT = 1;
 
 	@Transactional(readOnly = true)
 	public MenuMemberDTO getMenuMemberProfile() {
@@ -65,6 +70,9 @@ public class MemberService {
 			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
 		final UserProfileResponse result = memberRepository.getUserProfile(memberId, member.getUsername());
+		final List<FollowDto> followDtos = followRepository.getFollowingMemberFollowList(memberId, username);
+
+		result.setFollowingMemberFollow(followDtos, MAX_PROFILE_FOLLOWING_MEMBER_FOLLOW_COUNT);
 		result.setHasStory(memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0);
 
 		return result;
@@ -78,6 +86,9 @@ public class MemberService {
 			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
 		final MiniProfileResponse result = memberRepository.getMiniProfile(memberId, member.getUsername());
+		final List<FollowDto> followDtos = followRepository.getFollowingMemberFollowList(memberId, username);
+
+		result.setFollowingMemberFollow(followDtos, MAX_MINI_PROFILE_FOLLOWING_MEMBER_FOLLOW_COUNT);
 		result.setHasStory(memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0);
 		setMemberPostImages(result, member.getId());
 		return result;
