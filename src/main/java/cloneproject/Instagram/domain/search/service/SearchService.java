@@ -15,6 +15,7 @@ import cloneproject.Instagram.domain.follow.dto.FollowDto;
 import cloneproject.Instagram.domain.follow.repository.FollowRepository;
 import cloneproject.Instagram.domain.hashtag.entity.Hashtag;
 import cloneproject.Instagram.domain.hashtag.exception.HashtagNotFoundException;
+import cloneproject.Instagram.domain.hashtag.exception.HashtagPrefixMismatchException;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.domain.search.dto.SearchDto;
@@ -109,7 +110,10 @@ public class SearchService {
 					.ifPresent(recentSearchRepository::delete);
 				break;
 			case "HASHTAG":
-				recentSearchRepository.findRecentSearchByHashtagName(loginId, entityName)
+				if(!entityName.startsWith("#")){
+					throw new HashtagPrefixMismatchException();
+				}
+				recentSearchRepository.findRecentSearchByHashtagName(loginId, entityName.substring(1))
 					.ifPresent(recentSearchRepository::delete);
 				break;
 			default:
@@ -133,7 +137,10 @@ public class SearchService {
 					.orElseThrow(MemberDoesNotExistException::new);
 				break;
 			case "HASHTAG":
-				search = searchHashtagRepository.findByHashtagName(entityName)
+				if(!entityName.startsWith("#")){
+					throw new HashtagPrefixMismatchException();
+				}
+				search = searchHashtagRepository.findByHashtagName(entityName.substring(1))
 					.orElseThrow(HashtagNotFoundException::new);
 				break;
 			default:
