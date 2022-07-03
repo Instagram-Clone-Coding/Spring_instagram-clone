@@ -15,6 +15,7 @@ import cloneproject.Instagram.domain.follow.dto.FollowDto;
 import cloneproject.Instagram.domain.follow.repository.FollowRepository;
 import cloneproject.Instagram.domain.hashtag.entity.Hashtag;
 import cloneproject.Instagram.domain.hashtag.exception.HashtagNotFoundException;
+import cloneproject.Instagram.domain.hashtag.exception.HashtagPrefixMismatchException;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.domain.search.dto.SearchDto;
@@ -50,6 +51,7 @@ public class SearchService {
 	private static final int FIRST_PAGE_SIZE = 15;
 	private static final int PAGE_SIZE = 5;
 	private static final int PAGE_OFFSET = 2;
+	private static final int MAX_FOLLOWING_MEMBER_FOLLOW_COUNT = 3;
 
 	public List<SearchDto> searchByText(String text) {
 		text = text.trim();
@@ -108,7 +110,10 @@ public class SearchService {
 					.ifPresent(recentSearchRepository::delete);
 				break;
 			case "HASHTAG":
-				recentSearchRepository.findRecentSearchByHashtagName(loginId, entityName)
+				if(!entityName.startsWith("#")){
+					throw new HashtagPrefixMismatchException();
+				}
+				recentSearchRepository.findRecentSearchByHashtagName(loginId, entityName.substring(1))
 					.ifPresent(recentSearchRepository::delete);
 				break;
 			default:
@@ -132,7 +137,10 @@ public class SearchService {
 					.orElseThrow(MemberDoesNotExistException::new);
 				break;
 			case "HASHTAG":
-				search = searchHashtagRepository.findByHashtagName(entityName)
+				if(!entityName.startsWith("#")){
+					throw new HashtagPrefixMismatchException();
+				}
+				search = searchHashtagRepository.findByHashtagName(entityName.substring(1))
 					.orElseThrow(HashtagNotFoundException::new);
 				break;
 			default:
@@ -166,7 +174,11 @@ public class SearchService {
 		final Map<String, List<FollowDto>> followsMap = followRepository.getFollowingMemberFollowMap(loginId,
 			searchUsernames);
 		memberMap.forEach(
-			(id, member) -> member.setFollowingMemberFollow(followsMap.get(member.getMember().getUsername())));
+			(id, member) -> member.setFollowingMemberFollow(
+				followsMap.get(
+						member.getMember().getUsername()
+					), MAX_FOLLOWING_MEMBER_FOLLOW_COUNT)
+		);
 
 		return searches.stream()
 			.map(search -> {

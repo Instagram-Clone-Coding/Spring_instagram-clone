@@ -120,6 +120,24 @@ public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl {
 			.collect(Collectors.groupingBy(FollowDto::getFollowMemberUsername));
 	}
 
+	@Override
+	public List<FollowDto> getFollowingMemberFollowList(Long loginId, String username) {
+		return queryFactory
+			.select(new QFollowDto(
+				follow.member.username,
+				follow.followMember.username
+			))
+			.from(follow)
+			.where(follow.followMember.username.eq(username)
+				.and(follow.member.id.in(
+					JPAExpressions
+						.select(follow.followMember.id)
+						.from(follow)
+						.where(follow.member.id.eq(loginId))
+				)))
+			.fetch();
+	}
+
 	private BooleanExpression isFollowing(Long memberId, List<Long> agentIds) {
 		return follow.member.id.eq(memberId).and(
 			follow.followMember.id.in(agentIds)

@@ -40,8 +40,7 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl {
 				getPostCount(username),
 				getFollowingCount(username),
 				getFollowerCount(username),
-				member.id.eq(loginUserId),
-				getFollowingMemberFollow(loginUserId, username)))
+				member.id.eq(loginUserId)))
 			.from(member)
 			.where(member.username.eq(username))
 			.fetchOne();
@@ -61,8 +60,7 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl {
 				getPostCount(username),
 				getFollowingCount(username),
 				getFollowerCount(username),
-				member.id.eq(loginUserId),
-				getFollowingMemberFollow(loginUserId, username)))
+				member.id.eq(loginUserId)))
 			.from(member)
 			.where(member.username.eq(username))
 			.fetchOne();
@@ -74,18 +72,6 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl {
 			.selectFrom(member)
 			.where(member.username.in(usernames))
 			.fetch();
-	}
-
-	private JPQLQuery<String> getFollowingMemberFollow(Long loginUserId, String targetUsername) {
-		return JPAExpressions
-			.select(follow.member.username.min())
-			.from(follow)
-			.where(follow.followMember.username.eq(targetUsername)
-				.and(follow.member.id.in(
-					JPAExpressions
-						.select(follow.followMember.id)
-						.from(follow)
-						.where(follow.member.id.eq(loginUserId)))));
 	}
 
 	private JPQLQuery<Long> getPostCount(String targetUsername) {

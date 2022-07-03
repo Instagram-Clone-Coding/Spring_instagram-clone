@@ -86,6 +86,7 @@ public enum ErrorCode {
 	HASHTAG_NOT_FOUND(400, "H001", "존재하지 않는 해시태그 입니다"),
 	CANT_FOLLOW_HASHTAG(400, "H002", "해시태그 팔로우 실패"),
 	CANT_UNFOLLOW_HASHTAG(400, "H003", "해시태그 언팔로우 실패"),
+	HASHTAG_PREFIX_MISMATCH(400, "H004", "해시태그는 #으로 시작해야 합니다"),
 
 	// Story
 	INVALID_STORY_IMAGE(400, "S001", "스토리 이미지는 필수입니다."),

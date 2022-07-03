@@ -2,10 +2,12 @@ package cloneproject.Instagram.domain.member.dto;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.querydsl.core.annotations.QueryProjection;
 
 import cloneproject.Instagram.domain.feed.dto.MiniProfilePostDto;
+import cloneproject.Instagram.domain.follow.dto.FollowDto;
 import cloneproject.Instagram.global.vo.Image;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -54,7 +56,8 @@ public class MiniProfileResponse {
 	private List<MiniProfilePostDto> memberPosts;
 
 	@ApiModelProperty(value = "내 팔로잉 중 해당 유저를 팔로우 하는 사람", example = "dlwlrma")
-	private String followingMemberFollow;
+	private List<FollowDto> followingMemberFollow;
+	private int followingMemberFollowCount;
 
 	@ApiModelProperty(value = "본인 여부", example = "false")
 	private boolean isMe;
@@ -65,7 +68,7 @@ public class MiniProfileResponse {
 	public MiniProfileResponse(String username, String name, Image image,
 		boolean isFollowing, boolean isFollower, boolean isBlocking, boolean isBlocked,
 		Long postsCount, Long followingsCount, Long followersCount,
-		boolean isMe, String followingMemberFollow) {
+		boolean isMe) {
 		this.memberUsername = username;
 		this.memberName = name;
 		this.memberImage = image;
@@ -78,8 +81,15 @@ public class MiniProfileResponse {
 		this.memberFollowersCount = followersCount;
 		this.isMe = isMe;
 		this.hasStory = false;
-		this.followingMemberFollow = followingMemberFollow;
 		checkBlock();
+	}
+
+	public void setFollowingMemberFollow(List<FollowDto> followingMemberFollow, int maxCount) {
+		this.followingMemberFollow = followingMemberFollow
+			.stream()
+			.limit(maxCount)
+			.collect(Collectors.toList());
+		this.followingMemberFollowCount = followingMemberFollow.size() - this.followingMemberFollow.size();
 	}
 
 	public void setHasStory(boolean hasStory) {

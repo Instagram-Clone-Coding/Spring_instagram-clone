@@ -1,16 +1,21 @@
 package cloneproject.Instagram.domain.member.dto;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.querydsl.core.annotations.QueryProjection;
 
+import cloneproject.Instagram.domain.follow.dto.FollowDto;
 import cloneproject.Instagram.global.vo.Image;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @ApiModel("유저 프로필 조회 응답 모델")
 @Getter
-@Setter
 public class UserProfileResponse {
 
 	@ApiModelProperty(value = "유저네임", example = "dlwlrma")
@@ -50,7 +55,8 @@ public class UserProfileResponse {
 	private Long memberFollowersCount;
 
 	@ApiModelProperty(value = "내 팔로잉 중 해당 유저를 팔로우 하는 사람", example = "dlwlrma")
-	private String followingMemberFollow;
+	private List<FollowDto> followingMemberFollow;
+	private int followingMemberFollowCount;
 
 	@ApiModelProperty(value = "본인 여부", example = "false")
 	private boolean isMe;
@@ -61,7 +67,7 @@ public class UserProfileResponse {
 	public UserProfileResponse(String username, String name, String website, Image image,
 		boolean isFollowing, boolean isFollower, boolean isBlocking, boolean isBlocked,
 		String introduce, Long postsCount, Long followingsCount, Long followersCount,
-		boolean isMe, String followingMemberFollow) {
+		boolean isMe) {
 		this.memberUsername = username;
 		this.memberName = name;
 		this.memberWebsite = website;
@@ -76,8 +82,15 @@ public class UserProfileResponse {
 		this.memberFollowersCount = followersCount;
 		this.isMe = isMe;
 		this.hasStory = false;
-		this.followingMemberFollow = followingMemberFollow;
 		checkBlock();
+	}
+
+	public void setFollowingMemberFollow(List<FollowDto> followingMemberFollow, int maxCount) {
+		this.followingMemberFollow = followingMemberFollow
+			.stream()
+			.limit(maxCount)
+			.collect(Collectors.toList());
+		this.followingMemberFollowCount = followingMemberFollow.size() - this.followingMemberFollow.size();
 	}
 
 	public void setHasStory(boolean hasStory) {

@@ -15,6 +15,8 @@ public interface FollowRepositoryQuerydsl {
 
 	Map<String, List<FollowDto>> getFollowingMemberFollowMap(Long loginId, List<String> usernames);
 
+	List<FollowDto> getFollowingMemberFollowList(Long loginId, String username);
+
 	List<Follow> findFollows(Long memberId, List<Long> agentIds);
 
 }
