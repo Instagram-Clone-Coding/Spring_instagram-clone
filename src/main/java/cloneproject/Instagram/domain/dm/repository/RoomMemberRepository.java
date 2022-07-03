@@ -17,8 +17,12 @@ public interface RoomMemberRepository extends JpaRepository<RoomMember, Long>, R
 
     List<RoomMember> findAllByRoomIdIn(List<Long> roomIds);
 
-    @Query("select r from RoomMember r join fetch r.member where r.room.id = :roomId")
+    @Query("select rm from RoomMember rm join fetch rm.member where rm.room.id = :roomId")
     List<RoomMember> findAllWithMemberByRoomId(@Param("roomId") Long roomId);
 
+    @Query("select rm from RoomMember rm join fetch rm.member where rm.room.id in :roomIds")
+    List<RoomMember> findAllWithMemberByRoomIdIn(@Param("roomIds") List<Long> roomIds);
+
     List<RoomMember> findAllByRoom(Room room);
+
 }
