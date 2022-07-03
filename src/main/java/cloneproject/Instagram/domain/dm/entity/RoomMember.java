@@ -33,4 +33,5 @@ public class RoomMember {
         this.member = member;
         this.room = room;
     }
+
 }

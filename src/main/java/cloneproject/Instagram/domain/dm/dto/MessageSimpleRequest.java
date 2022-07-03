@@ -16,4 +16,5 @@ public class MessageSimpleRequest {
 
     @NotNull(message = "회원 PK는 필수입니다.")
     private Long memberId;
+
 }

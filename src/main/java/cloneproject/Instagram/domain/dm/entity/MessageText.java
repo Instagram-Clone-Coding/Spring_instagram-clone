@@ -23,4 +23,5 @@ public class MessageText extends Message {
         super(member, room);
         this.content = content;
     }
+
 }

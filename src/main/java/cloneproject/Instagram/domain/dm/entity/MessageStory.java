@@ -23,4 +23,5 @@ public class MessageStory extends Message {
         super(member, room);
         this.story = story;
     }
+
 }

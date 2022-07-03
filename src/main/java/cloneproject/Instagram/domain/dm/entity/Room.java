@@ -35,4 +35,5 @@ public class Room {
     public Room(Member member) {
         this.member = member;
     }
+
 }

@@ -7,9 +7,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class IndicateDTO {
+public class IndicateDto {
 
     private Long roomId;
     private Long senderId;
     private Long ttl;
+    
 }

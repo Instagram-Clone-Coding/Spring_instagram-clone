@@ -10,4 +10,5 @@ public interface JoinRomRepositoryJdbc {
     void saveAllBatch(List<JoinRoom> joinRooms, Message message);
 
     void updateAllBatch(List<JoinRoom> updateJoinRooms, Message message);
+
 }

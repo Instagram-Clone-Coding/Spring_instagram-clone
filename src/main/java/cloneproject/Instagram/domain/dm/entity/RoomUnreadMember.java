@@ -38,4 +38,5 @@ public class RoomUnreadMember {
         this.message = message;
         this.member = member;
     }
+
 }

@@ -26,4 +26,5 @@ public interface JoinRoomRepository extends JpaRepository<JoinRoom, Long>, JoinR
 
     @Query(value = "select j from JoinRoom j join fetch j.message where j.room.id = :id")
     List<JoinRoom> findAllWithMessageByRoomId(@Param("id") Long id);
+
 }
