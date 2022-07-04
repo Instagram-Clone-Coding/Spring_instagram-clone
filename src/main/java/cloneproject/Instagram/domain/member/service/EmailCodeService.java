@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.entity.redis.EmailCode;
 import cloneproject.Instagram.domain.member.entity.redis.ResetPasswordCode;
-import cloneproject.Instagram.domain.member.exception.NoConfirmEmailException;
+import cloneproject.Instagram.domain.member.exception.EmailNotConfirmedException;
 import cloneproject.Instagram.domain.member.exception.PasswordResetFailException;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.member.repository.redis.EmailCodeRedisRepository;
@@ -69,7 +69,7 @@ public class EmailCodeService {
 		final Optional<EmailCode> optionalEmailCode = emailCodeRedisRepository.findByUsername(username);
 
 		if (optionalEmailCode.isEmpty()) {
-			throw new NoConfirmEmailException();
+			throw new EmailNotConfirmedException();
 		}
 
 		final EmailCode emailCode = optionalEmailCode.get();
@@ -106,7 +106,7 @@ public class EmailCodeService {
 			.findByUsername(username);
 
 		if (optionalResetPasswordCode.isEmpty()) {
-			throw new PasswordResetFailException();
+			throw new EmailNotConfirmedException();
 		}
 
 		final ResetPasswordCode resetPasswordCode = optionalResetPasswordCode.get();
