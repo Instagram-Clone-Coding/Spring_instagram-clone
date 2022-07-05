@@ -8,6 +8,7 @@ import cloneproject.Instagram.domain.dm.dto.JoinRoomDeleteResponse;
 import cloneproject.Instagram.domain.dm.dto.MessageDto;
 import cloneproject.Instagram.domain.dm.dto.MessageRequest;
 import cloneproject.Instagram.domain.dm.dto.MessageSimpleRequest;
+import cloneproject.Instagram.domain.dm.dto.SignalRequest;
 import cloneproject.Instagram.domain.dm.service.ChatService;
 import cloneproject.Instagram.global.dto.StatusResponse;
 import cloneproject.Instagram.global.result.ResultResponse;
@@ -170,6 +171,11 @@ public class ChatController {
 	@MessageMapping("/messages/indicate")
 	public void indicate(@Valid @RequestBody IndicateRequest request) {
 		chatService.indicate(request);
+	}
+
+	@MessageMapping("/messages/signal")
+	public void signal(@Valid @RequestBody SignalRequest request) {
+		chatService.signal(request);
 	}
 
 }

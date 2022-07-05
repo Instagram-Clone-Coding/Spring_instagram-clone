@@ -13,6 +13,8 @@ import cloneproject.Instagram.domain.dm.dto.MessageRequest;
 import cloneproject.Instagram.domain.dm.dto.MessageResponse;
 import cloneproject.Instagram.domain.dm.dto.MessageSeenDto;
 import cloneproject.Instagram.domain.dm.dto.MessageSimpleDto;
+import cloneproject.Instagram.domain.dm.dto.SignalRequest;
+import cloneproject.Instagram.domain.dm.dto.SignalSource;
 import cloneproject.Instagram.domain.dm.entity.JoinRoom;
 import cloneproject.Instagram.domain.dm.entity.Message;
 import cloneproject.Instagram.domain.dm.entity.MessageImage;
@@ -477,6 +479,22 @@ public class ChatService {
 		final MessageSimpleDto messageSimpleDto = new MessageSimpleDto(message, member);
 		final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_UNLIKE, messageSimpleDto);
 		roomMembers.forEach(r -> messagingTemplate.convertAndSend("/sub/" + r.getMember().getUsername(), response));
+	}
+
+	public void signal(SignalRequest request) {
+		final Long memberId = request.getMemberId();
+		final Member member = memberRepository.findById(memberId).orElseThrow(MemberDoesNotExistException::new);
+		final int unReadRoomCount = roomUnreadMemberRepository.findAllByMember(member).stream()
+			.collect(Collectors.groupingBy(roomUnreadMember -> roomUnreadMember.getRoom().getId()))
+			.size();
+
+		final MessageResponse response = new MessageResponse(MessageAction.MESSAGE_SIGNAL, unReadRoomCount);
+
+		if (request.getSource().equals(SignalSource.INTERNAL)) {
+			messagingTemplate.convertAndSend("/sub/" + member.getUsername(), response);
+		} else {
+			messagingTemplate.convertAndSend("/sub/home/" + member.getUsername(), response);
+		}
 	}
 
 }

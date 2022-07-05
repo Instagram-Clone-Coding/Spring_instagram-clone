@@ -18,4 +18,6 @@ public interface RoomUnreadMemberRepository extends JpaRepository<RoomUnreadMemb
 
     List<RoomUnreadMember> findAllByRoom(Room room);
 
+	List<RoomUnreadMember> findAllByMember(Member member);
+
 }
