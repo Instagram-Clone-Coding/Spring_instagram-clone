@@ -22,7 +22,7 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public Page<MemberPostDto> getMemberPostDtos(String username, Pageable pageable) {
+	public Page<MemberPostDto> findMemberPostDtos(String username, Pageable pageable) {
 		final List<MemberPostDto> posts = queryFactory
 			.select(new QMemberPostDto(
 				post.id,
@@ -45,7 +45,7 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 	}
 
 	@Override
-	public Page<MemberPostDto> getMemberSavedPostDtos(Long loginUserId, Pageable pageable) {
+	public Page<MemberPostDto> findMemberSavedPostDtos(Long loginUserId, Pageable pageable) {
 		final List<MemberPostDto> posts = queryFactory
 			.select(new QMemberPostDto(
 				bookmark.post.id,
@@ -68,7 +68,7 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 	}
 
 	@Override
-	public Page<MemberPostDto> getMemberTaggedPostDtos(String username, Pageable pageable) {
+	public Page<MemberPostDto> findMemberTaggedPostDtos(String username, Pageable pageable) {
 		final List<MemberPostDto> posts = queryFactory
 			.select(new QMemberPostDto(
 				postTag.postImage.post.id,

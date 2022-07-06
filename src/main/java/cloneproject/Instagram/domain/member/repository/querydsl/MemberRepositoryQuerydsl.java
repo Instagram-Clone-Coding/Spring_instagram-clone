@@ -8,9 +8,9 @@ import cloneproject.Instagram.domain.member.entity.Member;
 
 public interface MemberRepositoryQuerydsl {
 
-	UserProfileResponse getUserProfile(Long loginUserId, String username);
+	UserProfileResponse findUserProfile(Long loginUserId, String username);
 
-	MiniProfileResponse getMiniProfile(Long loginUserId, String username);
+	MiniProfileResponse findMiniProfile(Long loginUserId, String username);
 
 	List<Member> findAllByUsernames(List<String> usernames);
 

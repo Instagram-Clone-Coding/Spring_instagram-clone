@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @Getter
-public class LoginDevicesDTO {
+public class LoginDevicesDto {
 
 	private String tokenId;
 	private GeoIP location;

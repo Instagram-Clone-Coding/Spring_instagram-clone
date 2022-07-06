@@ -97,7 +97,7 @@ public class MemberRepositoryTest {
             @Test
             @DisplayName("정상적으로 결과를 반환한다")
             void it_returns_well(){
-                UserProfileResponse userProfileResponse = memberRepository.getUserProfile(loginedId, savedMemberTwo.getUsername());
+                UserProfileResponse userProfileResponse = memberRepository.findUserProfile(loginedId, savedMemberTwo.getUsername());
                 assertEquals(savedMemberTwo.getUsername(), userProfileResponse.getMemberUsername());
                 assertEquals(savedMemberTwo.getName(), userProfileResponse.getMemberName());
                 assertEquals(2L, userProfileResponse.getMemberFollowersCount());
@@ -111,7 +111,7 @@ public class MemberRepositoryTest {
             @Test
             @DisplayName("정상적으로 결과를 반환하나, 특정 결과가 고정된다")
             void it_returns_well(){
-                UserProfileResponse userProfileResponse = memberRepository.getUserProfile(-1L, savedMemberTwo.getUsername());
+                UserProfileResponse userProfileResponse = memberRepository.findUserProfile(-1L, savedMemberTwo.getUsername());
                 assertEquals(savedMemberTwo.getUsername(), userProfileResponse.getMemberUsername());
                 assertEquals(savedMemberTwo.getName(), userProfileResponse.getMemberName());
                 assertEquals(2L, userProfileResponse.getMemberFollowersCount());
@@ -129,7 +129,7 @@ public class MemberRepositoryTest {
             @Test
             @DisplayName("정상적으로 결과를 반환한다")
             void it_returns_well(){
-                MiniProfileResponse miniProfileResponse = memberRepository.getMiniProfile(loginedId, savedMemberTwo.getUsername());
+                MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfile(loginedId, savedMemberTwo.getUsername());
                 assertEquals(savedMemberTwo.getUsername(), miniProfileResponse.getMemberUsername());
                 assertEquals(savedMemberTwo.getName(), miniProfileResponse.getMemberName());
                 assertEquals(2L, miniProfileResponse.getMemberFollowersCount());

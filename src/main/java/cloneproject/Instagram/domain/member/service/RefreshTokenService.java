@@ -9,11 +9,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import cloneproject.Instagram.domain.member.dto.LoginDevicesDTO;
+import cloneproject.Instagram.domain.member.dto.LoginDevicesDto;
 import cloneproject.Instagram.domain.member.entity.redis.RefreshToken;
 import cloneproject.Instagram.domain.member.exception.JwtInvalidException;
 import cloneproject.Instagram.domain.member.repository.redis.RefreshTokenRedisRepository;
-import cloneproject.Instagram.global.util.DateUtil;
 import cloneproject.Instagram.infra.geoip.dto.GeoIP;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -90,7 +89,7 @@ public class RefreshTokenService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<LoginDevicesDTO> getLoginDevices(Long memberId) {
+	public List<LoginDevicesDto> getLoginDevices(Long memberId) {
 		final List<RefreshToken> refreshTokens = refreshTokenRedisRepository.findByMemberId(memberId)
 				.stream()
 				.sorted(Comparator.comparing(RefreshToken::getLastUpdateDate).reversed())
@@ -100,8 +99,8 @@ public class RefreshTokenService {
 				.collect(Collectors.toList());
 	}
 
-	private LoginDevicesDTO convertRefreshTokenToLoginedDevicesDTO(RefreshToken refreshToken) {
-		return LoginDevicesDTO.builder()
+	private LoginDevicesDto convertRefreshTokenToLoginedDevicesDTO(RefreshToken refreshToken) {
+		return LoginDevicesDto.builder()
 				.tokenId(refreshToken.getId())
 				.device(refreshToken.getDevice())
 				.location(refreshToken.getGeoIP())

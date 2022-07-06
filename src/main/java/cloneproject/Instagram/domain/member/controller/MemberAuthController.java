@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cloneproject.Instagram.domain.member.dto.JwtDto;
 import cloneproject.Instagram.domain.member.dto.JwtResponse;
-import cloneproject.Instagram.domain.member.dto.LoginDevicesDTO;
+import cloneproject.Instagram.domain.member.dto.LoginDevicesDto;
 import cloneproject.Instagram.domain.member.dto.LoginRequest;
 import cloneproject.Instagram.domain.member.dto.LoginWithCodeRequest;
 import cloneproject.Instagram.domain.member.dto.RegisterRequest;
@@ -299,9 +299,9 @@ public class MemberAuthController {
 	})
 	@GetMapping(value = "/accounts/login/device")
 	public ResponseEntity<ResultResponse> getLoginDevices() {
-		final List<LoginDevicesDTO> loginDevicesDTOs = memberAuthService.getLoginDevices();
+		final List<LoginDevicesDto> loginDevicesDtos = memberAuthService.getLoginDevices();
 
-		return ResponseEntity.ok(ResultResponse.of(GET_LOGIN_DEVICES_SUCCESS, loginDevicesDTOs));
+		return ResponseEntity.ok(ResultResponse.of(GET_LOGIN_DEVICES_SUCCESS, loginDevicesDtos));
 	}
 
 	@ApiOperation(value = "기기 로그아웃 시키기")

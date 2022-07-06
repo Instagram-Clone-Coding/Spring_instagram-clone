@@ -45,7 +45,7 @@ public class MemberPostController {
 	@ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma")
 	@GetMapping("/{username}/posts/recent")
 	public ResponseEntity<ResultResponse> getRecent10Posts(@PathVariable("username") String username) {
-		final List<MemberPostDto> postList = memberPostService.getRecent15PostDTOs(username);
+		final List<MemberPostDto> postList = memberPostService.getRecent15PostDtos(username);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_RECENT15_MEMBER_POSTS_SUCCESS, postList));
 	}
@@ -65,7 +65,7 @@ public class MemberPostController {
 	@GetMapping("/{username}/posts")
 	public ResponseEntity<ResultResponse> getPostPage(@PathVariable("username") String username,
 		@Min(1) @RequestParam int page) {
-		final Page<MemberPostDto> postPage = memberPostService.getMemberPostDTOs(username, 3, page);
+		final Page<MemberPostDto> postPage = memberPostService.getMemberPostDtos(username, 3, page);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_MEMBER_POSTS_SUCCESS, postPage));
 	}
@@ -80,7 +80,7 @@ public class MemberPostController {
 	})
 	@GetMapping("/posts/saved/recent")
 	public ResponseEntity<ResultResponse> getRecent1SavedPosts() {
-		final List<MemberPostDto> postList = memberPostService.getRecent15SavedPostDTOs();
+		final List<MemberPostDto> postList = memberPostService.getRecent15SavedPostDtos();
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_RECENT15_MEMBER_SAVED_POSTS_SUCCESS, postList));
 	}
@@ -95,7 +95,7 @@ public class MemberPostController {
 	@GetMapping("/posts/saved")
 	@ApiImplicitParam(name = "page", value = "페이지", required = true, example = "1")
 	public ResponseEntity<ResultResponse> getSavedPostPage(@Min(1) @RequestParam int page) {
-		final Page<MemberPostDto> postPage = memberPostService.getMemberSavedPostDTOs(3, page);
+		final Page<MemberPostDto> postPage = memberPostService.getMemberSavedPostDtos(3, page);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_MEMBER_SAVED_POSTS_SUCCESS, postPage));
 	}
@@ -112,7 +112,7 @@ public class MemberPostController {
 	@ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma")
 	@GetMapping("/{username}/posts/tagged/recent")
 	public ResponseEntity<ResultResponse> getRecent10TaggedPosts(@PathVariable("username") String username) {
-		final List<MemberPostDto> postList = memberPostService.getRecent15TaggedPostDTOs(username);
+		final List<MemberPostDto> postList = memberPostService.getRecent15TaggedPostDtos(username);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_RECENT15_MEMBER_TAGGED_POSTS_SUCCESS, postList));
 	}
@@ -132,7 +132,7 @@ public class MemberPostController {
 	@GetMapping("/{username}/posts/tagged")
 	public ResponseEntity<ResultResponse> getTaggedPostPage(@PathVariable("username") String username,
 		@Min(1) @RequestParam int page) {
-		final Page<MemberPostDto> postPage = memberPostService.getMemberTaggedPostDTOs(username, 3, page);
+		final Page<MemberPostDto> postPage = memberPostService.getMemberTaggedPostDtos(username, 3, page);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_MEMBER_TAGGED_POSTS_SUCCESS, postPage));
 	}

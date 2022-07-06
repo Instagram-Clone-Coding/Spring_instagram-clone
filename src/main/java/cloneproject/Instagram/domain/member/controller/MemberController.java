@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import cloneproject.Instagram.domain.member.dto.EditProfileRequest;
 import cloneproject.Instagram.domain.member.dto.EditProfileResponse;
-import cloneproject.Instagram.domain.member.dto.MenuMemberDTO;
+import cloneproject.Instagram.domain.member.dto.MenuMemberProfile;
 import cloneproject.Instagram.domain.member.dto.MiniProfileResponse;
 import cloneproject.Instagram.domain.member.dto.UserProfileResponse;
 import cloneproject.Instagram.domain.member.service.MemberService;
@@ -49,7 +49,7 @@ public class MemberController {
 	})
 	@GetMapping(value = "/profile")
 	public ResponseEntity<ResultResponse> getMenuMemberProfile() {
-		final MenuMemberDTO menuMemberProfile = memberService.getMenuMemberProfile();
+		final MenuMemberProfile menuMemberProfile = memberService.getMenuMemberProfile();
 
 		return ResponseEntity.ok(ResultResponse.of(GET_MENU_MEMBER_SUCCESS, menuMemberProfile));
 	}

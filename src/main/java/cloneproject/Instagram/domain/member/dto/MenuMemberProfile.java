@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class MenuMemberDTO {
+public class MenuMemberProfile {
 
 	@ApiModelProperty(value = "DB상 유저의 ID(PK)", example = "1")
 	private Long memberId;
