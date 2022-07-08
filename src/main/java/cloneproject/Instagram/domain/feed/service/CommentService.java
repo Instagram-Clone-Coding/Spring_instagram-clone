@@ -12,7 +12,7 @@ import cloneproject.Instagram.domain.feed.exception.CantDeleteCommentException;
 import cloneproject.Instagram.domain.feed.exception.CantUploadReplyException;
 import cloneproject.Instagram.domain.feed.repository.*;
 import cloneproject.Instagram.domain.hashtag.service.HashtagService;
-import cloneproject.Instagram.domain.member.dto.LikeMembersDto;
+import cloneproject.Instagram.domain.member.dto.LikeMemberDto;
 import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.mention.service.MentionService;
@@ -162,11 +162,11 @@ public class CommentService {
 		alarmService.delete(LIKE_COMMENT, comment.getMember(), comment);
 	}
 
-	public Page<LikeMembersDto> getCommentLikeMembersDtoPage(Long commentId, int page, int size) {
+	public Page<LikeMemberDto> getCommentLikeMembersDtoPage(Long commentId, int page, int size) {
 		final Member loginMember = authUtil.getLoginMember();
 		page = (page == 0 ? 0 : page - 1);
 		final Pageable pageable = PageRequest.of(page, size);
-		final Page<LikeMembersDto> likeMembersDTOs =
+		final Page<LikeMemberDto> likeMembersDTOs =
 			postLikeRepository.findCommentLikeMembersDtoPage(pageable, commentId, loginMember.getId());
 
 		setHasStory(likeMembersDTOs);
@@ -174,7 +174,7 @@ public class CommentService {
 		return likeMembersDTOs;
 	}
 
-	private void setHasStory(Page<LikeMembersDto> likeMembersDTOs) {
+	private void setHasStory(Page<LikeMemberDto> likeMembersDTOs) {
 		likeMembersDTOs.getContent()
 			.forEach(dto -> dto.setHasStory(
 				memberStoryRedisRepository.findAllByMemberId(dto.getMember().getId()).size() > 0));

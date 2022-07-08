@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class LikeMembersDto {
+public class LikeMemberDto {
 
 	private MemberDto member;
 	private boolean isFollowing;
@@ -20,7 +20,7 @@ public class LikeMembersDto {
 	}
 
 	@QueryProjection
-	public LikeMembersDto(Member member, boolean isFollowing, boolean isFollower) {
+	public LikeMemberDto(Member member, boolean isFollowing, boolean isFollower) {
 		this.member = new MemberDto(member);
 		this.isFollowing = isFollowing;
 		this.isFollower = isFollower;

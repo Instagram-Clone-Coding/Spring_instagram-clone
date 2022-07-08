@@ -10,7 +10,7 @@ import cloneproject.Instagram.domain.hashtag.entity.Hashtag;
 import cloneproject.Instagram.domain.hashtag.repository.HashtagPostRepository;
 import cloneproject.Instagram.domain.hashtag.repository.HashtagRepository;
 import cloneproject.Instagram.domain.hashtag.service.HashtagService;
-import cloneproject.Instagram.domain.member.dto.LikeMembersDto;
+import cloneproject.Instagram.domain.member.dto.LikeMemberDto;
 import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
@@ -296,11 +296,11 @@ public class PostService {
 		alarmService.delete(LIKE_POST, post.getMember(), post);
 	}
 
-	public Page<LikeMembersDto> getPostLikeMembersDtoPage(Long postId, int page, int size) {
+	public Page<LikeMemberDto> getPostLikeMembersDtoPage(Long postId, int page, int size) {
 		final Member loginMember = authUtil.getLoginMember();
 		page = (page == 0 ? 0 : page - 1);
 		final Pageable pageable = PageRequest.of(page, size);
-		final Page<LikeMembersDto> likeMembersDTOs =
+		final Page<LikeMemberDto> likeMembersDTOs =
 			postLikeRepository.findPostLikeMembersDtoPage(pageable, postId, loginMember.getId());
 
 		setHasStory(likeMembersDTOs);
@@ -308,7 +308,7 @@ public class PostService {
 		return likeMembersDTOs;
 	}
 
-	private void setHasStory(Page<LikeMembersDto> likeMembersDTOs) {
+	private void setHasStory(Page<LikeMemberDto> likeMembersDTOs) {
 		likeMembersDTOs.getContent()
 			.forEach(dto -> dto.setHasStory(
 				memberStoryRedisRepository.findAllByMemberId(dto.getMember().getId()).size() > 0));
