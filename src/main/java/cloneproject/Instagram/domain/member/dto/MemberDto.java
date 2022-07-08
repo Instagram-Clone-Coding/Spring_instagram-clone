@@ -2,10 +2,11 @@ package cloneproject.Instagram.domain.member.dto;
 
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.global.vo.Image;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
+// @Data
+@Getter
 @NoArgsConstructor
 public class MemberDto {
 
@@ -14,6 +15,10 @@ public class MemberDto {
 	private String name;
 	private Image image;
 	private boolean hasStory;
+
+	public void setHasStory(boolean hasStory) {
+		this.hasStory = hasStory;
+	}
 
 	public MemberDto(Member member) {
 		this.id = member.getId();

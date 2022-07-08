@@ -5,13 +5,11 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @ApiModel("상단 메뉴 유저 프로필 모델")
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class MenuMemberProfile {
 
 	@ApiModelProperty(value = "DB상 유저의 ID(PK)", example = "1")

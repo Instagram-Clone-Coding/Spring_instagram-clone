@@ -9,10 +9,7 @@ import cloneproject.Instagram.domain.follow.dto.FollowDto;
 import cloneproject.Instagram.global.vo.Image;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @ApiModel("유저 프로필 조회 응답 모델")
 @Getter
