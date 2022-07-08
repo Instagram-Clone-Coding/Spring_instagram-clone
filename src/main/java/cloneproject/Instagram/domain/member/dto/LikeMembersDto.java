@@ -6,7 +6,6 @@ import cloneproject.Instagram.domain.member.entity.Member;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-// @Data
 @Getter
 @NoArgsConstructor
 public class LikeMembersDto {

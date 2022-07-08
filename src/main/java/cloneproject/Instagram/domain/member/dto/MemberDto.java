@@ -5,7 +5,6 @@ import cloneproject.Instagram.global.vo.Image;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-// @Data
 @Getter
 @NoArgsConstructor
 public class MemberDto {
