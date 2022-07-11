@@ -1,15 +1,16 @@
 package cloneproject.Instagram.domain.dm.dto;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
-public class IndicateDTO {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class SignalRequest {
 
-    private Long roomId;
-    private Long senderId;
-    private Long ttl;
+	private SignalSource source;
+	private Long memberId;
+
 }

@@ -84,11 +84,11 @@ public enum ResultCode {
 	GET_HASHTAG_POSTS_SUCCESS(200, "F019", "해시태그 게시물 목록 페이징 조회 성공"),
 
 	// Chat
-	CREATE_CHAT_ROOM_SUCCESS(200, "C001", "채팅방 생성 요청 성공"),
-	INQUIRE_CHAT_ROOM_SUCCESS(200, "C002", "채팅방 조회 성공"),
-	DELETE_JOIN_ROOM_SUCCESS(200, "C003", "참여 중인 채팅방 삭제 성공"),
-	GET_JOIN_ROOMS_SUCCESS(200, "C004", "채팅방 목록 조회 성공"),
-	GET_CHAT_MESSAGES_SUCCESS(200, "C005", "채팅 메시지 목록 조회 성공"),
+	CREATE_CHAT_ROOM_SUCCESS(200, "C001", "채팅방 생성에 성공하였습니다."),
+	INQUIRE_CHAT_ROOM_SUCCESS(200, "C002", "채팅방 조회에 성공하였습니다."),
+	DELETE_JOIN_ROOM_SUCCESS(200, "C003", "채팅방 나가기에 성공하였습니다."),
+	GET_JOIN_ROOMS_SUCCESS(200, "C004", "채팅방 목록 조회에 성공하였습니다."),
+	GET_CHAT_MESSAGES_SUCCESS(200, "C005", "채팅 메시지 목록 조회에 성공하였습니다."),
 	SEND_IMAGE_SUCCESS(200, "C006", "이미지 전송 성공"),
 
 	// Hashtag

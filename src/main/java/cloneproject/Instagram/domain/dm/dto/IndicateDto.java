@@ -5,10 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
-public class JoinRoomDeleteResponse {
+@AllArgsConstructor
+public class IndicateDto {
 
-    private boolean status;
-
+    private Long roomId;
+    private Long senderId;
+    private Long ttl;
+    
 }

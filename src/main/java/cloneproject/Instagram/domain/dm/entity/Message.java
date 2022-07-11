@@ -51,4 +51,5 @@ public class Message {
     public void setDtype() {
         this.dtype = getClass().getAnnotation(DiscriminatorValue.class).value();
     }
+
 }

@@ -27,4 +27,5 @@ public class MessagePost extends Message {
     public void deletePost() {
         this.post = null;
     }
+
 }

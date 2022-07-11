@@ -9,9 +9,10 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class MessageSeenDTO {
+public class MessageSeenDto {
 
     private Long roomId;
     private Long memberId;
     private LocalDateTime seenDate;
+
 }

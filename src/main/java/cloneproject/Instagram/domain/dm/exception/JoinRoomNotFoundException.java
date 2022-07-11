@@ -8,4 +8,5 @@ public class JoinRoomNotFoundException extends BusinessException {
     public JoinRoomNotFoundException() {
         super(ErrorCode.JOIN_ROOM_NOT_FOUND);
     }
+
 }

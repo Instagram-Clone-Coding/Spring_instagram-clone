@@ -11,4 +11,5 @@ public class MessageResponse {
     
     private MessageAction action;
     private Object data;
+
 }

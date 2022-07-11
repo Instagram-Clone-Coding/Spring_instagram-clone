@@ -50,4 +50,5 @@ public class JoinRoom {
     public void updateMessage(Message message){
         this.message = message;
     }
+
 }

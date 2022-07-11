@@ -8,4 +8,5 @@ import java.util.List;
 public interface RoomMemberRepositoryJdbc {
 
     void saveAllBatch(Room room, List<Member> members);
+
 }

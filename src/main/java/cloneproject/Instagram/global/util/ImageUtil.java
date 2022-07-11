@@ -13,31 +13,30 @@ import cloneproject.Instagram.global.vo.ImageType;
 
 public class ImageUtil {
 
-    public static Image convertMultipartToImage(MultipartFile file){
-        
-        String originalName = file.getOriginalFilename();
-        String name = FilenameUtils.getBaseName(originalName);
-        String type = FilenameUtils.getExtension(originalName).toUpperCase();
+	public static Image convertMultipartToImage(MultipartFile file) {
 
-        if(!Enums.getIfPresent(ImageType.class, type).isPresent())
-            throw new NotSupportedImageTypeException();
+		final String originalName = file.getOriginalFilename();
+		final String name = FilenameUtils.getBaseName(originalName);
+		final String type = FilenameUtils.getExtension(originalName).toUpperCase();
 
-        Image image = Image.builder()
-                .imageType(ImageType.valueOf(type))
-                .imageName(name)
-                .imageUUID(UUID.randomUUID().toString())
-                .build();
+		if (!Enums.getIfPresent(ImageType.class, type).isPresent()) {
+			throw new NotSupportedImageTypeException();
+		}
 
-        return image;
-    }
+		return Image.builder()
+			.imageType(ImageType.valueOf(type))
+			.imageName(name)
+			.imageUUID(UUID.randomUUID().toString())
+			.build();
+	}
 
-    public static Image getBaseImage(){
-        return Image.builder()
-                .imageName("base")
-                .imageType(ImageType.PNG)
-                .imageUrl("https://bluetifulc-spring-bucket.s3.ap-northeast-2.amazonaws.com/member/base-UUID_base.PNG")
-                .imageUUID("base-UUID")
-                .build();
-    }
+	public static Image getBaseImage() {
+		return Image.builder()
+			.imageName("base")
+			.imageType(ImageType.PNG)
+			.imageUrl("https://bluetifulc-spring-bucket.s3.ap-northeast-2.amazonaws.com/member/base-UUID_base.PNG")
+			.imageUUID("base-UUID")
+			.build();
+	}
 
 }

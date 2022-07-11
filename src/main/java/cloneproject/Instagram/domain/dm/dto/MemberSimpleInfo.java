@@ -17,4 +17,5 @@ public class MemberSimpleInfo {
         this.name = member.getName();
         this.imageUrl = member.getImage().getImageUrl();
     }
+
 }

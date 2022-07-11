@@ -39,10 +39,11 @@ public class MessageDto {
         String status = "DELETED";
         try {
             final Story story = message.getStory();
-            if (story.getUploadDate().isBefore(LocalDateTime.now().minusHours(24)))
+            if (story.getUploadDate().isBefore(LocalDateTime.now().minusHours(24))) {
                 status = "DISABLED";
-            else
+            } else {
                 status = "ACTIVATE";
+            }
             this.content = MessageStoryDTO.builder()
                     .status(status)
                     .storyId(story.getId())

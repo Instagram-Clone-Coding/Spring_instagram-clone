@@ -9,4 +9,5 @@ public class IndicateRequest {
 
     private Long roomId;
     private Long senderId;
+
 }
