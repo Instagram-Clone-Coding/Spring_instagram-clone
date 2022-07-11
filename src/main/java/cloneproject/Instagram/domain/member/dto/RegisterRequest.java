@@ -8,6 +8,7 @@ import org.hibernate.validator.constraints.Length;
 
 import cloneproject.Instagram.domain.member.entity.Member;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class RegisterRequest {
 
@@ -48,11 +49,11 @@ public class RegisterRequest {
 
 	public Member convert() {
 		return Member.builder()
-				.username(getUsername())
-				.name(getName())
-				.password(getPassword())
-				.email(getEmail())
-				.build();
+			.username(getUsername())
+			.name(getName())
+			.password(getPassword())
+			.email(getEmail())
+			.build();
 	}
 
 }

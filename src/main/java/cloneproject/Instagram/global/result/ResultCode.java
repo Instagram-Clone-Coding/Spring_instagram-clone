@@ -55,12 +55,12 @@ public enum ResultCode {
 	UNBLOCK_SUCCESS(200, "B002", "회원 차단해제 완료"),
 
 	// MemberPost
-	FIND_RECENT15_MEMBER_POSTS_SUCCESS(200, "MP001", "회원의 최근 게시물 15개 조회 성공"),
-	FIND_MEMBER_POSTS_SUCCESS(200, "MP002", "회원의 게시물 조회 성공"),
-	FIND_RECENT15_MEMBER_SAVED_POSTS_SUCCESS(200, "MP003", "회원의 최근 저장한 게시물 15개 조회 성공"),
-	FIND_MEMBER_SAVED_POSTS_SUCCESS(200, "MP004", "회원의 저장한 게시물 조회 성공"),
-	FIND_RECENT15_MEMBER_TAGGED_POSTS_SUCCESS(200, "MP005", "회원의 최근 태그된 게시물 15개 조회 성공"),
-	FIND_MEMBER_TAGGED_POSTS_SUCCESS(200, "MP006", "회원의 태그된 게시물 조회 성공"),
+	GET_RECENT15_MEMBER_POSTS_SUCCESS(200, "MP001", "회원의 최근 게시물 15개 조회에 성공하였습니다."),
+	GET_MEMBER_POSTS_SUCCESS(200, "MP002", "회원의 게시물 조회에 성공하였습니다."),
+	GET_RECENT15_MEMBER_SAVED_POSTS_SUCCESS(200, "MP003", "회원의 최근 저장한 게시물 15개 조회에 성공하였습니다."),
+	GET_MEMBER_SAVED_POSTS_SUCCESS(200, "MP004", "회원의 저장한 게시물 조회에 성공하였습니다."),
+	GET_RECENT15_MEMBER_TAGGED_POSTS_SUCCESS(200, "MP005", "회원의 최근 태그된 게시물 15개 조회에 성공하였습니다."),
+	GET_MEMBER_TAGGED_POSTS_SUCCESS(200, "MP006", "회원의 태그된 게시물 조회에 성공하였습니다."),
 
 	// Feed
 	CREATE_POST_SUCCESS(200, "F001", "게시물 업로드에 성공하였습니다."),

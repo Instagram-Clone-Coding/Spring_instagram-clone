@@ -25,7 +25,7 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public UserProfileResponse getUserProfile(Long loginUserId, String username) {
+	public UserProfileResponse findUserProfile(Long loginUserId, String username) {
 		return queryFactory
 			.select(new QUserProfileResponse(
 				member.username,
@@ -47,7 +47,7 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl {
 	}
 
 	@Override
-	public MiniProfileResponse getMiniProfile(Long loginUserId, String username) {
+	public MiniProfileResponse findMiniProfile(Long loginUserId, String username) {
 		return queryFactory
 			.select(new QMiniProfileResponse(
 				member.username,

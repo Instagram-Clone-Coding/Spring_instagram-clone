@@ -33,7 +33,7 @@ public class MemberPostService {
 	private static final int FIRST_PAGE_SIZE = 15;
 	private static final int PAGE_OFFSET = 4;
 
-	public Page<MemberPostDto> getMemberPostDTOs(String username, int size, int page) {
+	public Page<MemberPostDto> getMemberPostDtos(String username, int size, int page) {
 		final Long loginMemberId = authUtil.getLoginMemberIdOrNull();
 
 		final Member member = memberRepository.findByUsername(username)
@@ -44,12 +44,12 @@ public class MemberPostService {
 		}
 
 		final Pageable pageable = PageRequest.of(page + PAGE_OFFSET, size);
-		final Page<MemberPostDto> posts = memberRepository.getMemberPostDtos(username, pageable);
-		setMemberPostImageDTOs(posts.getContent());
+		final Page<MemberPostDto> posts = memberRepository.findMemberPostDtos(username, pageable);
+		setMemberPostImageDtos(posts.getContent());
 		return posts;
 	}
 
-	public List<MemberPostDto> getRecent15PostDTOs(String username) {
+	public List<MemberPostDto> getRecent15PostDtos(String username) {
 		final Long loginMemberId = authUtil.getLoginMemberIdOrNull();
 
 		final Member member = memberRepository.findByUsername(username)
@@ -60,30 +60,30 @@ public class MemberPostService {
 		}
 
 		final Pageable pageable = PageRequest.of(0, FIRST_PAGE_SIZE);
-		final Page<MemberPostDto> posts = memberRepository.getMemberPostDtos(username, pageable);
-		setMemberPostImageDTOs(posts.getContent());
+		final Page<MemberPostDto> posts = memberRepository.findMemberPostDtos(username, pageable);
+		setMemberPostImageDtos(posts.getContent());
 		return posts.getContent();
 	}
 
-	public Page<MemberPostDto> getMemberSavedPostDTOs(int size, int page) {
+	public Page<MemberPostDto> getMemberSavedPostDtos(int size, int page) {
 		final Long loginMemberId = authUtil.getLoginMemberId();
 
 		final Pageable pageable = PageRequest.of(page + PAGE_OFFSET, size);
-		final Page<MemberPostDto> posts = memberRepository.getMemberSavedPostDtos(loginMemberId, pageable);
-		setMemberPostImageDTOs(posts.getContent());
+		final Page<MemberPostDto> posts = memberRepository.findMemberSavedPostDtos(loginMemberId, pageable);
+		setMemberPostImageDtos(posts.getContent());
 		return posts;
 	}
 
-	public List<MemberPostDto> getRecent15SavedPostDTOs() {
+	public List<MemberPostDto> getRecent15SavedPostDtos() {
 		final Long loginMemberId = authUtil.getLoginMemberId();
 
 		final Pageable pageable = PageRequest.of(0, FIRST_PAGE_SIZE);
-		final Page<MemberPostDto> posts = memberRepository.getMemberSavedPostDtos(loginMemberId, pageable);
-		setMemberPostImageDTOs(posts.getContent());
+		final Page<MemberPostDto> posts = memberRepository.findMemberSavedPostDtos(loginMemberId, pageable);
+		setMemberPostImageDtos(posts.getContent());
 		return posts.getContent();
 	}
 
-	public Page<MemberPostDto> getMemberTaggedPostDTOs(String username, int size, int page) {
+	public Page<MemberPostDto> getMemberTaggedPostDtos(String username, int size, int page) {
 		final Long loginMemberId = authUtil.getLoginMemberIdOrNull();
 
 		final Member member = memberRepository.findByUsername(username)
@@ -94,12 +94,12 @@ public class MemberPostService {
 		}
 
 		final Pageable pageable = PageRequest.of(page + PAGE_OFFSET, size);
-		final Page<MemberPostDto> posts = memberRepository.getMemberTaggedPostDtos(username, pageable);
-		setMemberPostImageDTOs(posts.getContent());
+		final Page<MemberPostDto> posts = memberRepository.findMemberTaggedPostDtos(username, pageable);
+		setMemberPostImageDtos(posts.getContent());
 		return posts;
 	}
 
-	public List<MemberPostDto> getRecent15TaggedPostDTOs(String username) {
+	public List<MemberPostDto> getRecent15TaggedPostDtos(String username) {
 		final Long loginMemberId = authUtil.getLoginMemberIdOrNull();
 
 		final Member member = memberRepository.findByUsername(username)
@@ -110,12 +110,12 @@ public class MemberPostService {
 		}
 
 		final Pageable pageable = PageRequest.of(0, FIRST_PAGE_SIZE);
-		final Page<MemberPostDto> posts = memberRepository.getMemberTaggedPostDtos(username, pageable);
-		setMemberPostImageDTOs(posts.getContent());
+		final Page<MemberPostDto> posts = memberRepository.findMemberTaggedPostDtos(username, pageable);
+		setMemberPostImageDtos(posts.getContent());
 		return posts.getContent();
 	}
 
-	private void setMemberPostImageDTOs(List<MemberPostDto> memberPostDtos) {
+	private void setMemberPostImageDtos(List<MemberPostDto> memberPostDtos) {
 		final List<Long> postIds = memberPostDtos.stream()
 			.map(MemberPostDto::getPostId)
 			.collect(Collectors.toList());

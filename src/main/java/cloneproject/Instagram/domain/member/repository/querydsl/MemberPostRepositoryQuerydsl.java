@@ -7,10 +7,10 @@ import cloneproject.Instagram.domain.feed.dto.MemberPostDto;
 
 public interface MemberPostRepositoryQuerydsl {
 
-	Page<MemberPostDto> getMemberPostDtos(String username, Pageable pageable);
+	Page<MemberPostDto> findMemberPostDtos(String username, Pageable pageable);
 
-	Page<MemberPostDto> getMemberSavedPostDtos(Long loginUserId, Pageable pageable);
+	Page<MemberPostDto> findMemberSavedPostDtos(Long loginUserId, Pageable pageable);
 
-	Page<MemberPostDto> getMemberTaggedPostDtos(String username, Pageable pageable);
+	Page<MemberPostDto> findMemberTaggedPostDtos(String username, Pageable pageable);
 
 }

@@ -6,13 +6,11 @@ import cloneproject.Instagram.infra.geoip.dto.GeoIP;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Getter
-public class LoginDevicesDTO {
+@Builder
+@AllArgsConstructor
+public class LoginDevicesDto {
 
 	private String tokenId;
 	private GeoIP location;

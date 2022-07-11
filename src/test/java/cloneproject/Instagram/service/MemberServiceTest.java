@@ -92,7 +92,7 @@ public class MemberServiceTest {
             @DisplayName("정상적으로 조회된다")
             @Test
             void it_load_well(){
-                when(memberRepository.getUserProfile(1L, "dlwlrma")).thenReturn(
+                when(memberRepository.findUserProfile(1L, "dlwlrma")).thenReturn(
                     new UserProfileResponse("dlwlrma", "이지금", "", ImageUtil.getBaseImage(),
                     true, false, false, false, "이지금 입니다", 2L, 1L, 1L, true)
                 );
@@ -126,7 +126,7 @@ public class MemberServiceTest {
             @DisplayName("정상적으로 조회된다")
             @Test
             void it_load_well(){
-                when(memberRepository.getMiniProfile(1L, "dlwlrma")).thenReturn(
+                when(memberRepository.findMiniProfile(1L, "dlwlrma")).thenReturn(
                     new MiniProfileResponse("dlwlrma", "이지금", ImageUtil.getBaseImage(),
                     true, false, false, false, 2L, 1L, 1L, true)
                 );

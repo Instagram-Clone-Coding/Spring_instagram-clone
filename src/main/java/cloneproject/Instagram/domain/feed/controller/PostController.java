@@ -5,7 +5,7 @@ import cloneproject.Instagram.domain.feed.dto.PostDto;
 import cloneproject.Instagram.domain.feed.dto.PostResponse;
 import cloneproject.Instagram.domain.feed.dto.PostUploadRequest;
 import cloneproject.Instagram.domain.feed.service.PostService;
-import cloneproject.Instagram.domain.member.dto.LikeMembersDto;
+import cloneproject.Instagram.domain.member.dto.LikeMemberDto;
 import cloneproject.Instagram.global.result.ResultResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -159,7 +159,7 @@ public class PostController {
 	@GetMapping("/{postId}/likes")
 	public ResponseEntity<ResultResponse> getMembersLikedPost(
 		@PathVariable Long postId, @RequestParam int page, @RequestParam int size) {
-		final Page<LikeMembersDto> response = postService.getPostLikeMembersDtoPage(postId, page, size);
+		final Page<LikeMemberDto> response = postService.getPostLikeMembersDtoPage(postId, page, size);
 
 		return ResponseEntity.ok(ResultResponse.of(GET_POST_LIKES_SUCCESS, response));
 	}

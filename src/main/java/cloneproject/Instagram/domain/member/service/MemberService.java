@@ -20,7 +20,7 @@ import cloneproject.Instagram.domain.follow.dto.FollowDto;
 import cloneproject.Instagram.domain.follow.repository.FollowRepository;
 import cloneproject.Instagram.domain.member.dto.EditProfileRequest;
 import cloneproject.Instagram.domain.member.dto.EditProfileResponse;
-import cloneproject.Instagram.domain.member.dto.MenuMemberDTO;
+import cloneproject.Instagram.domain.member.dto.MenuMemberProfile;
 import cloneproject.Instagram.domain.member.dto.MiniProfileResponse;
 import cloneproject.Instagram.domain.member.dto.UserProfileResponse;
 import cloneproject.Instagram.domain.member.entity.Gender;
@@ -51,10 +51,10 @@ public class MemberService {
 	private static final int MAX_MINI_PROFILE_FOLLOWING_MEMBER_FOLLOW_COUNT = 1;
 
 	@Transactional(readOnly = true)
-	public MenuMemberDTO getMenuMemberProfile() {
+	public MenuMemberProfile getMenuMemberProfile() {
 		final Member member = authUtil.getLoginMember();
 
-		return MenuMemberDTO.builder()
+		return MenuMemberProfile.builder()
 			.memberId(member.getId())
 			.memberUsername(member.getUsername())
 			.memberName(member.getName())
@@ -69,7 +69,7 @@ public class MemberService {
 		final Member member = memberRepository.findByUsername(username)
 			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
-		final UserProfileResponse result = memberRepository.getUserProfile(memberId, member.getUsername());
+		final UserProfileResponse result = memberRepository.findUserProfile(memberId, member.getUsername());
 		final List<FollowDto> followDtos = followRepository.getFollowingMemberFollowList(memberId, username);
 
 		result.setFollowingMemberFollow(followDtos, MAX_PROFILE_FOLLOWING_MEMBER_FOLLOW_COUNT);
@@ -85,7 +85,7 @@ public class MemberService {
 		final Member member = memberRepository.findByUsername(username)
 			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
-		final MiniProfileResponse result = memberRepository.getMiniProfile(memberId, member.getUsername());
+		final MiniProfileResponse result = memberRepository.findMiniProfile(memberId, member.getUsername());
 		final List<FollowDto> followDtos = followRepository.getFollowingMemberFollowList(memberId, username);
 
 		result.setFollowingMemberFollow(followDtos, MAX_MINI_PROFILE_FOLLOWING_MEMBER_FOLLOW_COUNT);

@@ -30,6 +30,9 @@ public class ReissueAuthenticationFilter extends AbstractAuthenticationProcessin
 		if (!request.getMethod().equals("POST")) {
 			throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
 		} else {
+			if (request.getCookies() == null) {
+				throw new JwtInvalidException();
+			}
 			final Cookie refreshToken = Arrays.stream(request.getCookies())
 				.filter(c -> c.getName().equals("refreshToken"))
 				.findFirst()

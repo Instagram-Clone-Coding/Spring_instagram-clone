@@ -3,7 +3,6 @@ package cloneproject.Instagram.domain.member.service;
 import static cloneproject.Instagram.global.error.ErrorCode.*;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,17 +13,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cloneproject.Instagram.domain.member.dto.JwtDto;
-import cloneproject.Instagram.domain.member.dto.LoginDevicesDTO;
+import cloneproject.Instagram.domain.member.dto.LoginDevicesDto;
 import cloneproject.Instagram.domain.member.dto.LoginRequest;
-import cloneproject.Instagram.domain.member.dto.LoginWithCodeRequest;
 import cloneproject.Instagram.domain.member.dto.RegisterRequest;
 import cloneproject.Instagram.domain.member.dto.ResetPasswordRequest;
 import cloneproject.Instagram.domain.member.dto.UpdatePasswordRequest;
 import cloneproject.Instagram.domain.member.entity.Member;
-import cloneproject.Instagram.domain.member.entity.redis.RefreshToken;
 import cloneproject.Instagram.domain.member.exception.AccountMismatchException;
-import cloneproject.Instagram.domain.member.exception.JwtExpiredException;
-import cloneproject.Instagram.domain.member.exception.JwtInvalidException;
 import cloneproject.Instagram.domain.member.exception.PasswordResetFailException;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.search.entity.SearchMember;
@@ -35,8 +30,6 @@ import cloneproject.Instagram.global.util.AuthUtil;
 import cloneproject.Instagram.global.util.JwtUtil;
 import cloneproject.Instagram.infra.geoip.GeoIPLocationService;
 import cloneproject.Instagram.infra.geoip.dto.GeoIP;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -161,7 +154,7 @@ public class MemberAuthService {
 		refreshTokenService.deleteRefreshTokenWithValue(authUtil.getLoginMemberId(), refreshToken);
 	}
 
-	public List<LoginDevicesDTO> getLoginDevices() {
+	public List<LoginDevicesDto> getLoginDevices() {
 		final Member member = authUtil.getLoginMember();
 		return refreshTokenService.getLoginDevices(member.getId());
 	}
