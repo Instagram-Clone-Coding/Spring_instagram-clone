@@ -1,4 +1,4 @@
-package cloneproject.Instagram.infra.geoip.dto;
+package cloneproject.Instagram.infra.location.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class GeoIP {
+public class Location {
     
     private String city;
     private String longitude;

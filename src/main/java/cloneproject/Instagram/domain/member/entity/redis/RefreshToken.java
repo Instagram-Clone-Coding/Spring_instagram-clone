@@ -10,7 +10,7 @@ import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 import org.springframework.data.redis.core.index.Indexed;
 
-import cloneproject.Instagram.infra.geoip.dto.GeoIP;
+import cloneproject.Instagram.infra.location.dto.Location;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -50,18 +50,18 @@ public class RefreshToken implements Serializable {
 		this.value = newValue;
 	}
 
-	public GeoIP getGeoIP() {
-		return new GeoIP(city, longitude, latitude);
+	public Location getLocation() {
+		return new Location(city, longitude, latitude);
 	}
 
 	@Builder
-	public RefreshToken(Long memberId, String value, GeoIP geoip, String device) {
+	public RefreshToken(Long memberId, String value, Location location, String device) {
 		this.lastUpdateDate = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 		this.memberId = memberId;
 		this.value = value;
-		this.city = geoip.getCity();
-		this.longitude = geoip.getLongitude();
-		this.latitude = geoip.getLatitude();
+		this.city = location.getCity();
+		this.longitude = location.getLongitude();
+		this.latitude = location.getLatitude();
 		this.device = device;
 	}
 
