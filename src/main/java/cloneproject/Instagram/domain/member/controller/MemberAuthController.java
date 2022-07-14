@@ -298,8 +298,9 @@ public class MemberAuthController {
 		@ApiResponse(code = 401, message = "M003 - 로그인이 필요한 화면입니다.\n")
 	})
 	@GetMapping(value = "/accounts/login/device")
-	public ResponseEntity<ResultResponse> getLoginDevices() {
-		final List<LoginDevicesDto> loginDevicesDtos = memberAuthService.getLoginDevices();
+	public ResponseEntity<ResultResponse> getLoginDevices(
+		@CookieValue(value = "refreshToken", required = true) Cookie refreshCookie) {
+		final List<LoginDevicesDto> loginDevicesDtos = memberAuthService.getLoginDevices(refreshCookie.getValue());
 
 		return ResponseEntity.ok(ResultResponse.of(GET_LOGIN_DEVICES_SUCCESS, loginDevicesDtos));
 	}

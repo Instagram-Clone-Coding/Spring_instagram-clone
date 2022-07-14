@@ -16,5 +16,6 @@ public class LoginDevicesDto {
 	private Location location;
 	private String device;
 	private LocalDateTime lastLoginDate;
+	private boolean isCurrent;
 
 }

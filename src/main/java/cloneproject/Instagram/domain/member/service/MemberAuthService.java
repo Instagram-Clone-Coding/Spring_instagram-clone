@@ -154,9 +154,9 @@ public class MemberAuthService {
 		refreshTokenService.deleteRefreshTokenWithValue(authUtil.getLoginMemberId(), refreshToken);
 	}
 
-	public List<LoginDevicesDto> getLoginDevices() {
+	public List<LoginDevicesDto> getLoginDevices(String currentToken) {
 		final Member member = authUtil.getLoginMember();
-		return refreshTokenService.getLoginDevices(member.getId());
+		return refreshTokenService.getLoginDevices(member.getId(), currentToken);
 	}
 
 	@Transactional
