@@ -27,7 +27,7 @@ public class KakaoMap {
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	public String getCity(String longitude, String latitude) {
-		URI uri = UriComponentsBuilder
+		final URI uri = UriComponentsBuilder
 			.fromUriString("https://dapi.kakao.com")
 			.path("/v2/local/geo/coord2address.json")
 			.queryParam("x", longitude)
@@ -37,13 +37,13 @@ public class KakaoMap {
 			.build()
 			.toUri();
 
-		RequestEntity<Void> req = RequestEntity
+		final RequestEntity<Void> req = RequestEntity
 			.get(uri)
 			.header("Host", "dapi.kakao.com")
 			.header("Authorization", "KakaoAK " + kakaoKey)
 			.build();
 
-		ResponseEntity<String> result = restTemplate.exchange(req, String.class);
+		final ResponseEntity<String> result = restTemplate.exchange(req, String.class);
 		try {
 			final KakaoSearchResponse kakaoSearchResponse = objectMapper.readValue(result.getBody(),
 				KakaoSearchResponse.class);
