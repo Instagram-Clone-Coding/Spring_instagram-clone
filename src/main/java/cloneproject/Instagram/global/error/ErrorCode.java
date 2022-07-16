@@ -92,6 +92,10 @@ public enum ErrorCode {
 	INVALID_STORY_IMAGE(400, "S001", "스토리 이미지는 필수입니다."),
 	INVALID_STORY_IMAGE_INDEX(400, "S002", "스토리 이미지 인덱스가 올바르지 않습니다."),
 	MEMBER_STORY_NOT_FOUND(400, "S003", "해당 회원은 24시간 이내에 스토리를 업로드하지 않았습니다."),
+
+	// Map api(kakao)
+	KAKAO_MAP_API_FAIL(400, "K001", "카카오 맵 API 호출에 실패하였습니다."),
+	
 	;
 
 	private int status;

@@ -28,8 +28,8 @@ import cloneproject.Instagram.global.error.exception.EntityAlreadyExistException
 import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 import cloneproject.Instagram.global.util.AuthUtil;
 import cloneproject.Instagram.global.util.JwtUtil;
-import cloneproject.Instagram.infra.geoip.GeoIPLocationService;
-import cloneproject.Instagram.infra.geoip.dto.GeoIP;
+import cloneproject.Instagram.infra.location.LocationService;
+import cloneproject.Instagram.infra.location.dto.Location;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,7 +44,7 @@ public class MemberAuthService {
 	private final EmailCodeService emailCodeService;
 	private final MemberRepository memberRepository;
 	private final RefreshTokenService refreshTokenService;
-	private final GeoIPLocationService geoIPLocationService;
+	private final LocationService locationService;
 	private final SearchMemberRepository searchMemberRepository;
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -91,10 +91,10 @@ public class MemberAuthService {
 				.authenticate(authenticationToken);
 			final JwtDto jwtDto = jwtUtil.generateJwtDto(authentication);
 
-			final GeoIP geoIP = geoIPLocationService.getLocation(ip);
+			final Location location = locationService.getLocation(ip);
 
 			refreshTokenService.addRefreshToken(Long.valueOf(authentication.getName()), jwtDto.getRefreshToken(),
-				device, geoIP);
+				device, location);
 			return jwtDto;
 		} catch (BadCredentialsException e) {
 			throw new AccountMismatchException();
@@ -154,9 +154,9 @@ public class MemberAuthService {
 		refreshTokenService.deleteRefreshTokenWithValue(authUtil.getLoginMemberId(), refreshToken);
 	}
 
-	public List<LoginDevicesDto> getLoginDevices() {
+	public List<LoginDevicesDto> getLoginDevices(String currentToken) {
 		final Member member = authUtil.getLoginMember();
-		return refreshTokenService.getLoginDevices(member.getId());
+		return refreshTokenService.getLoginDevices(member.getId(), currentToken);
 	}
 
 	@Transactional

@@ -28,8 +28,8 @@ import cloneproject.Instagram.global.result.ResultCode;
 import cloneproject.Instagram.global.result.ResultResponse;
 import cloneproject.Instagram.global.util.JwtUtil;
 import cloneproject.Instagram.global.util.RequestExtractor;
-import cloneproject.Instagram.infra.geoip.GeoIPLocationService;
-import cloneproject.Instagram.infra.geoip.dto.GeoIP;
+import cloneproject.Instagram.infra.location.LocationService;
+import cloneproject.Instagram.infra.location.dto.Location;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -37,7 +37,7 @@ import lombok.RequiredArgsConstructor;
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
 	private final JwtUtil jwtUtil;
-	private final GeoIPLocationService geoIPLocationService;
+	private final LocationService locationService;
 	private final RefreshTokenService refreshTokenService;
 	private Map<String, ResultCode> resultCodeMap;
 	private final int REFRESH_TOKEN_EXPIRES = 60 * 60 * 24 * 7; // 7일
@@ -56,9 +56,9 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 		Authentication authentication) throws IOException, ServletException {
 		final JwtDto jwtDto = jwtUtil.generateJwtDto(authentication);
-		final GeoIP geoIP = geoIPLocationService.getLocation(RequestExtractor.getClientIP(request));
+		final Location location = locationService.getLocation(RequestExtractor.getClientIP(request));
 		refreshTokenService.addRefreshToken(Long.valueOf(authentication.getName()), jwtDto.getRefreshToken(),
-			RequestExtractor.getDevice(request), geoIP);
+			RequestExtractor.getDevice(request), location);
 
 		final JwtResponse jwtResponse = JwtResponse.builder()
 			.type(jwtDto.getType())

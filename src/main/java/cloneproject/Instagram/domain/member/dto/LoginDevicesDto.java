@@ -2,7 +2,7 @@ package cloneproject.Instagram.domain.member.dto;
 
 import java.time.LocalDateTime;
 
-import cloneproject.Instagram.infra.geoip.dto.GeoIP;
+import cloneproject.Instagram.infra.location.dto.Location;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,8 +13,9 @@ import lombok.Getter;
 public class LoginDevicesDto {
 
 	private String tokenId;
-	private GeoIP location;
+	private Location location;
 	private String device;
 	private LocalDateTime lastLoginDate;
+	private boolean isCurrent;
 
 }

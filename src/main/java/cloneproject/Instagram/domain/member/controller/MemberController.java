@@ -24,6 +24,7 @@ import cloneproject.Instagram.domain.member.dto.MiniProfileResponse;
 import cloneproject.Instagram.domain.member.dto.UserProfileResponse;
 import cloneproject.Instagram.domain.member.service.MemberService;
 import cloneproject.Instagram.global.result.ResultResponse;
+import cloneproject.Instagram.infra.kakao.KakaoMap;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -40,6 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/accounts")
 public class MemberController {
 
+	private final KakaoMap kakaoMap;
 	private final MemberService memberService;
 
 	@ApiOperation(value = "상단 메뉴 로그인한 유저 프로필 조회")
