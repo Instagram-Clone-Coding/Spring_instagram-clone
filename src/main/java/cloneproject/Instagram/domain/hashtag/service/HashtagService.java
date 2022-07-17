@@ -4,8 +4,8 @@ import static cloneproject.Instagram.global.error.ErrorCode.*;
 
 import cloneproject.Instagram.domain.feed.entity.Comment;
 import cloneproject.Instagram.domain.feed.entity.Post;
-import cloneproject.Instagram.domain.follow.exception.CantFollowHashtagException;
-import cloneproject.Instagram.domain.follow.exception.CantUnfollowHashtagException;
+import cloneproject.Instagram.domain.follow.exception.HashtagFollowFailException;
+import cloneproject.Instagram.domain.follow.exception.HashtagUnfollowFailException;
 import cloneproject.Instagram.domain.follow.repository.HashtagFollowRepository;
 import cloneproject.Instagram.domain.hashtag.entity.Hashtag;
 import cloneproject.Instagram.domain.hashtag.entity.HashtagPost;
@@ -43,7 +43,7 @@ public class HashtagService {
 		final Hashtag hashtag = getHashtag(hashtagName);
 
 		if (hashtagFollowRepository.existsByMemberIdAndHashtagId(loginMember.getId(), hashtag.getId())) {
-			throw new CantFollowHashtagException();
+			throw new HashtagFollowFailException();
 		}
 
 		final HashtagFollow hashtagFollow = HashtagFollow.builder()
@@ -61,7 +61,7 @@ public class HashtagService {
 
 		final HashtagFollow hashtagFollow =
 			hashtagFollowRepository.findByMemberIdAndHashtagId(loginMember.getId(), hashtag.getId())
-				.orElseThrow(CantUnfollowHashtagException::new);
+				.orElseThrow(HashtagUnfollowFailException::new);
 
 		hashtagFollowRepository.delete(hashtagFollow);
 	}

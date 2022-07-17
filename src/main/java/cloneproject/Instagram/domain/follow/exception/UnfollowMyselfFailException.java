@@ -3,8 +3,10 @@ package cloneproject.Instagram.domain.follow.exception;
 import cloneproject.Instagram.global.error.ErrorCode;
 import cloneproject.Instagram.global.error.exception.BusinessException;
 
-public class CantUnfollowMyselfException extends BusinessException{
-    public CantUnfollowMyselfException(){
-        super(ErrorCode.CANT_UNFOLLOW_MYSELF);
+public class UnfollowMyselfFailException extends BusinessException {
+
+    public UnfollowMyselfFailException() {
+        super(ErrorCode.UNFOLLOW_MYSELF_FAIL);
     }
+
 }

@@ -9,16 +9,17 @@ import org.springframework.transaction.annotation.Transactional;
 import cloneproject.Instagram.domain.alarm.service.AlarmService;
 import cloneproject.Instagram.domain.follow.dto.FollowerDto;
 import cloneproject.Instagram.domain.follow.entity.Follow;
-import cloneproject.Instagram.domain.follow.exception.AlreadyFollowException;
-import cloneproject.Instagram.domain.follow.exception.CantDeleteFollowerException;
-import cloneproject.Instagram.domain.follow.exception.CantFollowMyselfException;
-import cloneproject.Instagram.domain.follow.exception.CantUnfollowException;
-import cloneproject.Instagram.domain.follow.exception.CantUnfollowMyselfException;
+import cloneproject.Instagram.domain.follow.exception.FollowerDeleteFailException;
+import cloneproject.Instagram.domain.follow.exception.FollowMyselfFailException;
+import cloneproject.Instagram.domain.follow.exception.UnfollowFailException;
+import cloneproject.Instagram.domain.follow.exception.UnfollowMyselfFailException;
 import cloneproject.Instagram.domain.follow.repository.FollowRepository;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.domain.member.repository.BlockRepository;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
+import cloneproject.Instagram.global.error.ErrorCode;
+import cloneproject.Instagram.global.error.exception.EntityAlreadyExistException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,9 +42,9 @@ public class FollowService {
                 .orElseThrow(MemberDoesNotExistException::new);
 
         if (member.getId().equals(followMember.getId()))
-            throw new CantFollowMyselfException();
+            throw new FollowMyselfFailException();
         if (followRepository.existsByMemberIdAndFollowMemberId(member.getId(), followMember.getId()))
-            throw new AlreadyFollowException();
+            throw new EntityAlreadyExistException(ErrorCode.FOLLOW_ALREADY_EXIST);
 
         // 차단당했다면
         if (blockRepository.existsByMemberIdAndBlockMemberId(followMember.getId(), member.getId()))
@@ -65,10 +66,10 @@ public class FollowService {
         final Member followMember = memberRepository.findByUsername(followMemberUsername)
                 .orElseThrow(MemberDoesNotExistException::new);
         if (Long.valueOf(memberId).equals(followMember.getId())) {
-            throw new CantUnfollowMyselfException();
+            throw new UnfollowMyselfFailException();
         }
         final Follow follow = followRepository.findByMemberIdAndFollowMemberId(Long.valueOf(memberId), followMember.getId())
-                .orElseThrow(CantUnfollowException::new);
+                .orElseThrow(UnfollowFailException::new);
         alarmService.delete(followMember, follow);
         followRepository.delete(follow);
 
@@ -81,10 +82,10 @@ public class FollowService {
         final Member followMember = memberRepository.findByUsername(followMemberUsername)
                 .orElseThrow(MemberDoesNotExistException::new);
         if (Long.valueOf(memberId).equals(followMember.getId())) {
-            throw new CantDeleteFollowerException();
+            throw new FollowerDeleteFailException();
         }
         final Follow follow = followRepository.findByMemberIdAndFollowMemberId(followMember.getId(), Long.valueOf(memberId))
-            .orElseThrow(CantDeleteFollowerException::new);
+            .orElseThrow(FollowerDeleteFailException::new);
         followRepository.delete(follow);
         return true;
     }
@@ -96,7 +97,7 @@ public class FollowService {
         final Member toMember = memberRepository.findByUsername(memberUsername)
                 .orElseThrow(MemberDoesNotExistException::new);
 
-        final List<FollowerDto> result = followRepository.getFollowings(Long.valueOf(memberId), toMember.getId());
+        final List<FollowerDto> result = followRepository.findFollowings(Long.valueOf(memberId), toMember.getId());
 
         return result;
     }
@@ -108,7 +109,7 @@ public class FollowService {
         final Member toMember = memberRepository.findByUsername(memberUsername)
                 .orElseThrow(MemberDoesNotExistException::new);
 
-        final List<FollowerDto> result = followRepository.getFollowers(Long.valueOf(memberId), toMember.getId());
+        final List<FollowerDto> result = followRepository.findFollowers(Long.valueOf(memberId), toMember.getId());
 
         return result;
     }

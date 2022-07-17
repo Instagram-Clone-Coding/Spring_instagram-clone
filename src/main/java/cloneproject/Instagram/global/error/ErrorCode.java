@@ -40,12 +40,13 @@ public enum ErrorCode {
 	CANT_UNBLOCK_MYSELF(400, "M012", "자기 자신을 차단해제 할 수 없습니다."),
 	PASSWORD_ALREADY_EXIST(400, "M013", "기존 비밀번호와 동일하게 변경할 수 없습니다."),
 	LOGOUT_BY_ANOTHER(401, "M014", "다른 기기에 의해 로그아웃되었습니다."),
+	
 	// Follow
-	ALREADY_FOLLOW(400, "F001", "이미 팔로우한 유저입니다."),
-	CANT_UNFOLLOW(400, "F002", "팔로우하지 않은 유저는 언팔로우 할 수 없습니다."),
-	CANT_FOLLOW_MYSELF(400, "F003", "자기 자신을 팔로우 할 수 없습니다."),
-	CANT_UNFOLLOW_MYSELF(400, "F004", "자기 자신을 언팔로우 할 수 없습니다."),
-	CANT_DELETE_FOLLOWER(400, "F005", "팔로워 삭제할 수 없는 대상입니다."),
+	FOLLOW_ALREADY_EXIST(400, "F001", "이미 팔로우한 유저입니다."),
+	UNFOLLOW_FAIL(400, "F002", "팔로우하지 않은 유저는 언팔로우 할 수 없습니다."),
+	FOLLOW_MYSELF_FAIL(400, "F003", "자기 자신을 팔로우 할 수 없습니다."),
+	UNFOLLOW_MYSELF_FAIL(400, "F004", "자기 자신을 언팔로우 할 수 없습니다."),
+	FOLLOWER_DELETE_FAIL(400, "F005", "팔로워 삭제할 수 없는 대상입니다."),
 
 	// Jwt
 	JWT_INVALID(401, "J001", "유효하지 않은 토큰입니다."),
@@ -84,8 +85,8 @@ public enum ErrorCode {
 
 	// HashTag
 	HASHTAG_NOT_FOUND(400, "H001", "존재하지 않는 해시태그 입니다"),
-	CANT_FOLLOW_HASHTAG(400, "H002", "해시태그 팔로우 실패"),
-	CANT_UNFOLLOW_HASHTAG(400, "H003", "해시태그 언팔로우 실패"),
+	HASHTAG_FOLLOW_FAIL(400, "H002", "해시태그 팔로우 실패"),
+	HASHTAG_UNFOLLOW_FAIL(400, "H003", "해시태그 언팔로우 실패"),
 	HASHTAG_PREFIX_MISMATCH(400, "H004", "해시태그는 #으로 시작해야 합니다"),
 
 	// Story

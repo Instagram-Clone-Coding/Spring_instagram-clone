@@ -32,4 +32,5 @@ public class Follow {
         this.member = member;
         this.followMember = followMember;
     }
+
 }

@@ -9,13 +9,13 @@ import cloneproject.Instagram.domain.follow.entity.Follow;
 
 public interface FollowRepositoryQuerydsl {
 
-	List<FollowerDto> getFollowings(Long loginedMemberId, Long memberId);
+	List<FollowerDto> findFollowings(Long loginedMemberId, Long memberId);
 
-	List<FollowerDto> getFollowers(Long loginedMemberId, Long memberId);
+	List<FollowerDto> findFollowers(Long loginedMemberId, Long memberId);
 
-	Map<String, List<FollowDto>> getFollowingMemberFollowMap(Long loginId, List<String> usernames);
+	Map<String, List<FollowDto>> findFollowingMemberFollowMap(Long loginId, List<String> usernames);
 
-	List<FollowDto> getFollowingMemberFollowList(Long loginId, String username);
+	List<FollowDto> findFollowingMemberFollowList(Long loginId, String username);
 
 	List<Follow> findFollows(Long memberId, List<Long> agentIds);
 

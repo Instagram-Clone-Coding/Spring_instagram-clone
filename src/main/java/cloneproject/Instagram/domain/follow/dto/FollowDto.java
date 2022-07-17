@@ -3,11 +3,9 @@ package cloneproject.Instagram.domain.follow.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.querydsl.core.annotations.QueryProjection;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 
-@Data
-@NoArgsConstructor
+@Getter
 public class FollowDto {
     
     public String memberUsername;
