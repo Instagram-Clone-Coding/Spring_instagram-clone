@@ -70,6 +70,7 @@ public class PostService {
 			.content(request.getContent())
 			.member(loginMember)
 			.commentFlag(request.isCommentFlag())
+			.likeFlag(request.isLikeFlag())
 			.build();
 
 		postRepository.save(post);

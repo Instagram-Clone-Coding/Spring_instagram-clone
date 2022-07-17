@@ -55,11 +55,15 @@ public class Post {
 	@Column(name = "post_comment_flag")
 	private boolean commentFlag;
 
+	@Column(name = "post_like_flag")
+	private boolean likeFlag;
+
 	@Builder
-	public Post(Member member, String content, boolean commentFlag) {
+	public Post(Member member, String content, boolean commentFlag, boolean likeFlag) {
 		this.member = member;
 		this.content = content;
 		this.commentFlag = commentFlag;
+		this.likeFlag = likeFlag;
 	}
 
 }
