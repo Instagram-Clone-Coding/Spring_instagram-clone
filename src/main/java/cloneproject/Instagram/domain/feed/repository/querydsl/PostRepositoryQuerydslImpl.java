@@ -41,7 +41,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 				post.postLikes.size(),
 				isExistBookmarkWherePostEqMemberIdEq(memberId),
 				isExistPostLikeWherePostEqAndMemberIdEq(memberId),
-				post.commentFlag
+				post.commentFlag,
+				post.likeFlag
 			))
 			.from(post)
 			.innerJoin(post.member, QMember.member)
@@ -71,7 +72,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 				post.postLikes.size(),
 				isExistBookmarkWherePostEqMemberIdEq(memberId),
 				isExistPostLikeWherePostEqAndMemberIdEq(memberId),
-				post.commentFlag
+				post.commentFlag,
+				post.likeFlag
 			))
 			.from(post)
 			.where(post.id.eq(postId))
@@ -97,7 +99,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 				post.postLikes.size(),
 				isExistBookmarkWherePostEqMemberIdEq(memberId),
 				isExistPostLikeWherePostEqAndMemberIdEq(memberId),
-				post.commentFlag
+				post.commentFlag,
+				post.likeFlag
 			))
 			.from(post)
 			.innerJoin(post.member, QMember.member)

@@ -148,7 +148,8 @@ public class PostController {
 	@ApiResponses({
 		@ApiResponse(code = 200, message = "F014 - 게시물에 좋아요한 회원 목록 페이지 조회에 성공하였습니다."),
 		@ApiResponse(code = 400, message = "G003 - 유효하지 않은 입력입니다.\n"
-			+ "G004 - 입력 타입이 유효하지 않습니다."),
+			+ "G004 - 입력 타입이 유효하지 않습니다.\n"
+			+ "F014 - 좋아요 목록을 숨긴 게시물입니다."),
 		@ApiResponse(code = 401, message = "M003 - 로그인이 필요한 화면입니다."),
 	})
 	@ApiImplicitParams({

@@ -298,6 +298,11 @@ public class PostService {
 	}
 
 	public Page<LikeMemberDto> getPostLikeMembersDtoPage(Long postId, int page, int size) {
+		final Post post = getPost(postId);
+		if (!post.isLikeFlag()) {
+			final List<FieldError> errors = FieldError.of("postId", postId.toString(), POST_LIKES_PRIVATE.getMessage());
+			throw new InvalidInputException(errors);
+		}
 		final Member loginMember = authUtil.getLoginMember();
 		page = (page == 0 ? 0 : page - 1);
 		final Pageable pageable = PageRequest.of(page, size);
