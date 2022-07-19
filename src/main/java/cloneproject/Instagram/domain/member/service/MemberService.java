@@ -70,7 +70,7 @@ public class MemberService {
 			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
 		final UserProfileResponse result = memberRepository.findUserProfile(memberId, member.getUsername());
-		final List<FollowDto> followDtos = followRepository.getFollowingMemberFollowList(memberId, username);
+		final List<FollowDto> followDtos = followRepository.findFollowingMemberFollowList(memberId, username);
 
 		result.setFollowingMemberFollow(followDtos, MAX_PROFILE_FOLLOWING_MEMBER_FOLLOW_COUNT);
 		result.setHasStory(memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0);
@@ -86,7 +86,7 @@ public class MemberService {
 			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
 		final MiniProfileResponse result = memberRepository.findMiniProfile(memberId, member.getUsername());
-		final List<FollowDto> followDtos = followRepository.getFollowingMemberFollowList(memberId, username);
+		final List<FollowDto> followDtos = followRepository.findFollowingMemberFollowList(memberId, username);
 
 		result.setFollowingMemberFollow(followDtos, MAX_MINI_PROFILE_FOLLOWING_MEMBER_FOLLOW_COUNT);
 		result.setHasStory(memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0);

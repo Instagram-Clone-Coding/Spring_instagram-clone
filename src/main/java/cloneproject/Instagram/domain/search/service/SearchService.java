@@ -171,7 +171,7 @@ public class SearchService {
 		});
 
 		// 팔로우 주입
-		final Map<String, List<FollowDto>> followsMap = followRepository.getFollowingMemberFollowMap(loginId,
+		final Map<String, List<FollowDto>> followsMap = followRepository.findFollowingMemberFollowMap(loginId,
 			searchUsernames);
 		memberMap.forEach(
 			(id, member) -> member.setFollowingMemberFollow(

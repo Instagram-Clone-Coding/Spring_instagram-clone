@@ -3,8 +3,10 @@ package cloneproject.Instagram.domain.follow.exception;
 import cloneproject.Instagram.global.error.ErrorCode;
 import cloneproject.Instagram.global.error.exception.BusinessException;
 
-public class CantFollowHashtagException extends BusinessException{
-    public CantFollowHashtagException(){
-        super(ErrorCode.CANT_FOLLOW_HASHTAG);
+public class FollowMyselfFailException extends BusinessException {
+
+    public FollowMyselfFailException() {
+        super(ErrorCode.FOLLOW_MYSELF_FAIL);
     }
+
 }

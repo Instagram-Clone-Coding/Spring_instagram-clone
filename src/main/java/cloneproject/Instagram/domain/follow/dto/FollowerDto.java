@@ -5,11 +5,9 @@ import cloneproject.Instagram.domain.member.entity.Member;
 
 import com.querydsl.core.annotations.QueryProjection;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 
-@Data
-@NoArgsConstructor
+@Getter
 public class FollowerDto {
 
     private MemberDto member;
