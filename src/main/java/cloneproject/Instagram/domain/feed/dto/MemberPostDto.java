@@ -6,10 +6,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberPostDto {
 
@@ -26,6 +24,10 @@ public class MemberPostDto {
 		this.hasManyPosts = hasManyPosts;
 		this.postCommentsCount = postCommentsCount;
 		this.postLikesCount = postLikesCount;
+	}
+
+	public void setPostImages(PostImageDto postImageDto) {
+		this.postImages = postImageDto;
 	}
 
 }

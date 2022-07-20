@@ -4,7 +4,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -12,7 +11,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PostImageTagRequest {
 
@@ -35,5 +33,9 @@ public class PostImageTagRequest {
 	@ApiModelProperty(value = "게시물 이미지 태그 사용자 아이디", example = "dlwlrma", required = true)
 	@NotBlank(message = "게시물 이미지 태그 사용자 아이디는 필수입니다.")
 	private String username;
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 
 }

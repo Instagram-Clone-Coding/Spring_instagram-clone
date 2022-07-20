@@ -2,7 +2,7 @@ package cloneproject.Instagram.domain.feed.dto;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -15,7 +15,7 @@ import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostUploadRequest {

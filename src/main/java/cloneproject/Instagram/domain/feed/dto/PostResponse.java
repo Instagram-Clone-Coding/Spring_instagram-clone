@@ -7,17 +7,13 @@ import com.querydsl.core.annotations.QueryProjection;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Setter
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
 public class PostResponse {
 
 	private Long postId;
@@ -45,6 +41,18 @@ public class PostResponse {
 		this.postLikeFlag = postLikeFlag;
 		this.commentFlag = commentFlag;
 		this.likeFlag = likeFlag;
+	}
+
+	public void setCommentDtos(List<CommentDto> commentDtos) {
+		this.commentDtos = commentDtos;
+	}
+
+	public void setPostImageDtos(List<PostImageDto> postImageDtos) {
+		this.postImageDtos = postImageDtos;
+	}
+
+	public void setFollowingMemberUsernameLikedPost(String followingMemberUsernameLikedPost) {
+		this.followingMemberUsernameLikedPost = followingMemberUsernameLikedPost;
 	}
 
 }

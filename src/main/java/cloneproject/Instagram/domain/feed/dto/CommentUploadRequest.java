@@ -2,6 +2,7 @@ package cloneproject.Instagram.domain.feed.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,7 +13,7 @@ import javax.validation.constraints.NotNull;
 
 @ApiModel(description = "게시물 댓글 작성 요청 데이터 모델")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommentUploadRequest {
 
 	@ApiModelProperty(value = "게시물 PK", example = "1", required = true)

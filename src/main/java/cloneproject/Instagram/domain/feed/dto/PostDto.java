@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PostDto {
 
@@ -46,6 +45,18 @@ public class PostDto {
 		this.postLikeFlag = postLikeFlag;
 		this.commentFlag = commentFlag;
 		this.likeFlag = likeFlag;
+	}
+
+	public void setPostImages(List<PostImageDto> postImageDtos) {
+		this.postImages = postImageDtos;
+	}
+
+	public void setFollowingMemberUsernameLikedPost(String followingMemberUsernameLikedPost) {
+		this.followingMemberUsernameLikedPost = followingMemberUsernameLikedPost;
+	}
+
+	public void setRecentComments(List<CommentDto> commentDtos) {
+		this.recentComments = commentDtos;
 	}
 
 }
