@@ -14,8 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.mysql.cj.x.protobuf.MysqlxCrud.Collection;
-
 import cloneproject.Instagram.domain.follow.dto.FollowDto;
 import cloneproject.Instagram.domain.follow.repository.FollowRepository;
 import cloneproject.Instagram.domain.hashtag.dto.HashtagDTO;
