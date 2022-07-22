@@ -1,9 +1,12 @@
 package cloneproject.Instagram.domain.search.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import org.hibernate.query.criteria.internal.ListJoinImplementor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -11,13 +14,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mysql.cj.x.protobuf.MysqlxCrud.Collection;
+
 import cloneproject.Instagram.domain.follow.dto.FollowDto;
 import cloneproject.Instagram.domain.follow.repository.FollowRepository;
+import cloneproject.Instagram.domain.hashtag.dto.HashtagDTO;
 import cloneproject.Instagram.domain.hashtag.entity.Hashtag;
 import cloneproject.Instagram.domain.hashtag.exception.HashtagNotFoundException;
 import cloneproject.Instagram.domain.hashtag.exception.HashtagPrefixMismatchException;
+import cloneproject.Instagram.domain.hashtag.repository.HashtagRepository;
+import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.exception.MemberDoesNotExistException;
+import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.search.dto.SearchDto;
 import cloneproject.Instagram.domain.search.dto.SearchHashtagDto;
 import cloneproject.Instagram.domain.search.dto.SearchMemberDto;
@@ -47,6 +56,8 @@ public class SearchService {
 	private final RecentSearchRepository recentSearchRepository;
 	private final MemberStoryRedisRepository memberStoryRedisRepository;
 	private final FollowRepository followRepository;
+	private final MemberRepository memberRepository;
+	private final HashtagRepository hashtagRepository;
 
 	private static final int FIRST_PAGE_SIZE = 15;
 	private static final int PAGE_SIZE = 5;
@@ -67,10 +78,35 @@ public class SearchService {
 			.map(Search::getId)
 			.collect(Collectors.toList());
 
-		searchRepository.checkMatchingHashtag(text, searches, searchIds);
-		searchRepository.checkMatchingMember(loginId, text, searches, searchIds);
+		searchRepository.checkMatchingHashtag(text.substring(1), searches, searchIds);
+		searchRepository.checkMatchingMember(text, searches, searchIds);
 
 		return setSearchContent(loginId, searches, searchIds);
+	}
+	
+	public List<MemberDto> getMemberAutoComplete(String text) {
+		text = text.trim();
+		final List<Long> memberIds = searchRepository.findMemberIdsByTextLike(text);
+		
+		searchRepository.checkMatchingMember(text, memberIds);
+		final List<Member> members = memberRepository.findAllByIdIn(memberIds);
+		return members.stream()
+			.map(MemberDto::new)
+			.collect(Collectors.toList());
+	}
+
+	public List<HashtagDTO> getHashtagAutoComplete(String text) {
+		text = text.trim();
+		if (!text.startsWith("#")) {
+			throw new HashtagPrefixMismatchException();
+		}
+		final List<Long> hashtagIds = searchRepository.findHashtagIdsByTextLike(text.substring(1));
+
+		searchRepository.checkMatchingMember(text.substring(1), hashtagIds);
+		final List<Hashtag> hashtags = hashtagRepository.findAllByIdIn(hashtagIds);
+		return hashtags.stream()
+			.map(HashtagDTO::new)
+			.collect(Collectors.toList());
 	}
 
 	public Page<SearchDto> getTop15RecentSearches() {
@@ -110,7 +146,7 @@ public class SearchService {
 					.ifPresent(recentSearchRepository::delete);
 				break;
 			case "HASHTAG":
-				if(!entityName.startsWith("#")){
+				if (!entityName.startsWith("#")) {
 					throw new HashtagPrefixMismatchException();
 				}
 				recentSearchRepository.findRecentSearchByHashtagName(loginId, entityName.substring(1))
@@ -137,7 +173,7 @@ public class SearchService {
 					.orElseThrow(MemberDoesNotExistException::new);
 				break;
 			case "HASHTAG":
-				if(!entityName.startsWith("#")){
+				if (!entityName.startsWith("#")) {
 					throw new HashtagPrefixMismatchException();
 				}
 				search = searchHashtagRepository.findByHashtagName(entityName.substring(1))
@@ -150,7 +186,7 @@ public class SearchService {
 		searchRepository.save(search);
 
 		final RecentSearch recentSearch = recentSearchRepository.findByMemberIdAndSearchId(loginMember.getId(),
-				search.getId())
+			search.getId())
 			.orElse(RecentSearch.builder()
 				.member(loginMember)
 				.search(search)
@@ -176,9 +212,8 @@ public class SearchService {
 		memberMap.forEach(
 			(id, member) -> member.setFollowingMemberFollow(
 				followsMap.get(
-						member.getMember().getUsername()
-					), MAX_FOLLOWING_MEMBER_FOLLOW_COUNT)
-		);
+					member.getMember().getUsername()),
+				MAX_FOLLOWING_MEMBER_FOLLOW_COUNT));
 
 		return searches.stream()
 			.map(search -> {

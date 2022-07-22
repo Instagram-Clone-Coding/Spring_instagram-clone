@@ -19,6 +19,8 @@ import cloneproject.Instagram.domain.search.dto.QSearchMemberDto;
 import cloneproject.Instagram.domain.search.dto.SearchHashtagDto;
 import cloneproject.Instagram.domain.search.dto.SearchMemberDto;
 import cloneproject.Instagram.domain.search.entity.Search;
+import cloneproject.Instagram.domain.search.entity.SearchHashtag;
+import cloneproject.Instagram.domain.search.entity.SearchMember;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,7 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 
 	private final JPAQueryFactory queryFactory;
-
+	private static final int SEARCH_SIZE = 50;
+	
 	@Override
 	public List<Search> findAllByTextLike(String text) {
 		final String keyword = text + "%";
@@ -41,16 +44,43 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 					.from(searchMember)
 					.innerJoin(searchMember.member, member)
 					.where(searchMember.member.username.like(keyword)
-						.or(searchMember.member.name.like(keyword)))
-			).or(search.id.in(
-				JPAExpressions
-					.select(searchHashtag.id)
-					.from(searchHashtag)
-					.innerJoin(searchHashtag.hashtag, hashtag)
-					.where(searchHashtag.hashtag.name.like(keyword))
-			)))
+						.or(searchMember.member.name.like(keyword))))
+				.or(search.id.in(
+					JPAExpressions
+						.select(searchHashtag.id)
+						.from(searchHashtag)
+						.innerJoin(searchHashtag.hashtag, hashtag)
+						.where(searchHashtag.hashtag.name.like(keyword)))))
 			.orderBy(search.count.desc())
-			.limit(50)
+			.limit(SEARCH_SIZE)
+			.distinct()
+			.fetch();
+	}
+
+	@Override
+	public List<Long> findMemberIdsByTextLike(String text) {
+		final String keyword = text + "%";
+
+		return queryFactory
+			.select(searchMember.member.id)
+			.from(searchMember)
+			.where(searchMember.member.username.like(keyword))
+			.orderBy(searchMember.count.desc())
+			.limit(SEARCH_SIZE)
+			.distinct()
+			.fetch();
+	}
+
+	@Override
+	public List<Long> findHashtagIdsByTextLike(String text) {
+		final String keyword = text + "%";
+
+		return queryFactory
+			.select(searchHashtag.hashtag.id)
+			.from(searchHashtag)
+			.where(searchHashtag.hashtag.name.like(keyword))
+			.orderBy(searchHashtag.count.desc())
+			.limit(SEARCH_SIZE)
 			.distinct()
 			.fetch();
 	}
@@ -60,23 +90,43 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 		final String keyword = text + "%";
 
 		return queryFactory
-			.select(search)
-			.from(search)
-			.where(search.id.in(
-				JPAExpressions
-					.select(searchHashtag.id)
-					.from(searchHashtag)
-					.innerJoin(searchHashtag.hashtag, hashtag)
-					.where(searchHashtag.hashtag.name.like(keyword))
-			))
-			.orderBy(search.count.desc())
-			.limit(50)
+			.select(searchHashtag._super)
+			.from(searchHashtag)
+			.where(searchHashtag.hashtag.name.like(keyword))
+			.orderBy(searchHashtag.count.desc())
+			.limit(SEARCH_SIZE)
 			.distinct()
 			.fetch();
 	}
 
 	@Override
-	public void checkMatchingMember(Long loginId, String text, List<Search> searches, List<Long> searchIds) {
+	public void checkMatchingMember(String text, List<Long> memberIds) {
+		final SearchMember matchingSearch = queryFactory
+			.select(searchMember)
+			.from(searchMember)
+			.where(searchMember.member.username.eq(text))
+			.fetchOne();
+		if (matchingSearch != null && !memberIds.contains(matchingSearch.getMember().getId())) {
+			memberIds.add(0, matchingSearch.getMember().getId());
+			checkSearchSize(memberIds);
+		}
+	}
+
+	@Override
+	public void checkMatchingHashtag(String text, List<Long> hashtagIds) {
+		final SearchHashtag matchingSearch = queryFactory
+			.select(searchHashtag)
+			.from(searchHashtag)
+			.where(searchHashtag.hashtag.name.eq(text))
+			.fetchOne();
+		if (matchingSearch != null && !hashtagIds.contains(matchingSearch.getHashtag().getId())) {
+			hashtagIds.add(0, matchingSearch.getHashtag().getId());
+			checkSearchSize(hashtagIds);
+		}
+	}
+
+	@Override
+	public void checkMatchingMember(String text, List<Search> searches, List<Long> searchIds) {
 		final Search matchingSearch = queryFactory
 			.select(searchMember._super)
 			.from(searchMember)
@@ -85,10 +135,8 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 		if (matchingSearch != null && !searchIds.contains(matchingSearch.getId())) {
 			searches.add(0, matchingSearch);
 			searchIds.add(0, matchingSearch.getId());
-			log.warn(searches.get(searches.size() - 1).getId().toString());
-			log.warn(searchIds.get(searchIds.size() - 1).toString());
-			searches.remove(searches.size() - 1);
-			searchIds.remove(searchIds.size() - 1);
+			checkSearchSize(searches);
+			checkSearchSize(searchIds);
 		}
 	}
 
@@ -102,10 +150,8 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 		if (matchingSearch != null && !searchIds.contains(matchingSearch.getId())) {
 			searches.add(0, matchingSearch);
 			searchIds.add(0, matchingSearch.getId());
-			log.warn(searches.get(searches.size() - 1).getId().toString());
-			log.warn(searchIds.get(searchIds.size() - 1).toString());
-			searches.remove(searches.size() - 1);
-			searchIds.remove(searchIds.size() - 1);
+			checkSearchSize(searches);
+			checkSearchSize(searchIds);
 		}
 	}
 
@@ -116,10 +162,8 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 			.innerJoin(searchHashtag.hashtag, hashtag)
 			.where(searchHashtag.id.in(searchIds))
 			.transform(GroupBy.groupBy(searchHashtag.id).as(new QSearchHashtagDto(
-					searchHashtag.dtype,
-					searchHashtag.hashtag
-				))
-			);
+				searchHashtag.dtype,
+				searchHashtag.hashtag)));
 	}
 
 	@Override
@@ -129,19 +173,22 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 			.innerJoin(searchMember.member, member)
 			.where(searchMember.id.in(searchIds))
 			.transform(GroupBy.groupBy(searchMember.id).as(new QSearchMemberDto(
-						searchMember._super.dtype,
-						searchMember.member,
-						JPAExpressions
-							.selectFrom(follow)
-							.where(follow.member.id.eq(loginId).and(follow.followMember.id.eq(searchMember.member.id)))
-							.exists(),
-						JPAExpressions
-							.selectFrom(follow)
-							.where(follow.member.id.eq(searchMember.member.id).and(follow.followMember.id.eq(loginId)))
-							.exists()
-					)
-				)
-			);
+				searchMember._super.dtype,
+				searchMember.member,
+				JPAExpressions
+					.selectFrom(follow)
+					.where(follow.member.id.eq(loginId).and(follow.followMember.id.eq(searchMember.member.id)))
+					.exists(),
+				JPAExpressions
+					.selectFrom(follow)
+					.where(follow.member.id.eq(searchMember.member.id).and(follow.followMember.id.eq(loginId)))
+					.exists())));
+	}
+
+	private <T> void checkSearchSize(List<T> list){
+		while(list.size() > SEARCH_SIZE){
+			list.remove(list.size()-1);
+		}
 	}
 
 }

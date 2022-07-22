@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import cloneproject.Instagram.domain.hashtag.dto.HashtagDTO;
+import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.search.dto.SearchDto;
 import cloneproject.Instagram.domain.search.service.SearchService;
 import cloneproject.Instagram.global.result.ResultResponse;
@@ -43,6 +45,24 @@ public class SearchController {
 		final List<SearchDto> searchDtos = searchService.searchByText(text);
 
 		return ResponseEntity.ok(ResultResponse.of(SEARCH_SUCCESS, searchDtos));
+	}
+
+	@ApiOperation(value = "멤버 자동완성")
+	@ApiImplicitParam(name = "text", value = "검색내용", required = true, example = "dlwl")
+	@GetMapping("/auto/member")
+	public ResponseEntity<ResultResponse> getMemberAutoComplete(@RequestParam String text) {
+		final List<MemberDto> searchDtos = searchService.getMemberAutoComplete(text);
+
+		return ResponseEntity.ok(ResultResponse.of(GET_MEMBER_AUTO_COMPLETE_SUCCESS, searchDtos));
+	}
+
+	@ApiOperation(value = "해시태그 자동완성")
+	@ApiImplicitParam(name = "text", value = "검색내용", required = true, example = "#dlwl")
+	@GetMapping("/auto/hashtag")
+	public ResponseEntity<ResultResponse> getHashtagAutoComplete(@RequestParam String text) {
+		final List<HashtagDTO> searchDtos = searchService.getHashtagAutoComplete(text);
+
+		return ResponseEntity.ok(ResultResponse.of(GET_HASHTAG_AUTO_COMPLETE_SUCCESS, searchDtos));
 	}
 
 	@ApiOperation(value = "검색 조회수 증가, 최근 검색 기록 업데이트")

@@ -106,7 +106,9 @@ public enum ResultCode {
 	GET_TOP_15_RECENT_SEARCH_SUCCESS(200, "SE003", "최근 검색 기록 15개 조회 성공"),
 	GET_RECENT_SEARCH_SUCCESS(200, "SE004", "최근 검색 기록 페이지(무한스크롤) 조회 성공"),
 	DELETE_RECENT_SEARCH_SUCCESS(200, "SE005", "최근 검색 기록 삭제 성공"),
-	DELETE_ALL_RECENT_SEARCH_SUCCESS(200, "SE006", "최근 검색 기록 전체 삭제 성공");
+	DELETE_ALL_RECENT_SEARCH_SUCCESS(200, "SE006", "최근 검색 기록 전체 삭제 성공"),
+	GET_MEMBER_AUTO_COMPLETE_SUCCESS(200, "SE007", "멤버 자동완성 조회 성공"),
+	GET_HASHTAG_AUTO_COMPLETE_SUCCESS(200, "SE008", "해시태그 자동완성 조회 성공");
 
 	private int status;
 	private final String code;
