@@ -100,7 +100,7 @@ public class SearchService {
 		}
 		final List<Long> hashtagIds = searchRepository.findHashtagIdsByTextLike(text.substring(1));
 
-		searchRepository.checkMatchingMember(text.substring(1), hashtagIds);
+		searchRepository.checkMatchingHashtag(text.substring(1), hashtagIds);
 		final List<Hashtag> hashtags = hashtagRepository.findAllByIdIn(hashtagIds);
 		return hashtags.stream()
 			.map(HashtagDTO::new)
