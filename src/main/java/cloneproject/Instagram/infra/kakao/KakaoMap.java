@@ -47,8 +47,8 @@ public class KakaoMap {
 		try {
 			final KakaoSearchResponse kakaoSearchResponse = objectMapper.readValue(result.getBody(),
 				KakaoSearchResponse.class);
-			return kakaoSearchResponse.getDocuments()[0].getRoadAddress().getRegion1DepthName() + " "
-				+ kakaoSearchResponse.getDocuments()[0].getRoadAddress().getRegion2DepthName();
+			return kakaoSearchResponse.getDocuments()[0].getAddress().getRegion1DepthName() + " "
+				+ kakaoSearchResponse.getDocuments()[0].getAddress().getRegion2DepthName();
 		} catch (IOException e) {
 			throw new KakaoMapApiFailException();
 		} catch (NullPointerException e) {
