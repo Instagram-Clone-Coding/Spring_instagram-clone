@@ -7,4 +7,5 @@ import cloneproject.Instagram.domain.hashtag.entity.HashtagPost;
 public interface HashtagPostRepositoryJdbc {
 
     void saveAllBatch(List<HashtagPost> newHashtagPost);
+
 }

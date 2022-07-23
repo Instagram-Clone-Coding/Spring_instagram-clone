@@ -41,4 +41,5 @@ public class Hashtag {
     public void downCount(int count) {
         this.count -= count;
     }
+
 }

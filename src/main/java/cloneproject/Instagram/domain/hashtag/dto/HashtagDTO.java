@@ -18,4 +18,5 @@ public class HashtagDTO {
         this.name = hashtag.getName();
         this.count = hashtag.getCount();
     }
+
 }

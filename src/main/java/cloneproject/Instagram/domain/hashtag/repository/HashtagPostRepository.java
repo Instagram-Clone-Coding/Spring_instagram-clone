@@ -13,11 +13,12 @@ import java.util.List;
 
 public interface HashtagPostRepository extends JpaRepository<HashtagPost, Long>, HashtagPostRepositoryJdbc {
 
-    List<HashtagPost> findAllByPost(Post post);
+	List<HashtagPost> findAllByPost(Post post);
 
 	List<HashtagPost> findByHashtagAndPost(Hashtag hashtag, Post post);
 
 	List<HashtagPost> findAllByPostAndHashtagIn(Post post, List<Hashtag> hashtags);
 
 	Page<HashtagPost> findAllByHashtagOrderByPostIdDesc(Pageable pageable, Hashtag hashtag);
+
 }

@@ -59,9 +59,9 @@ public class HashtagService {
 		final Member loginMember = authUtil.getLoginMember();
 		final Hashtag hashtag = getHashtag(hashtagName);
 
-		final HashtagFollow hashtagFollow =
-			hashtagFollowRepository.findByMemberIdAndHashtagId(loginMember.getId(), hashtag.getId())
-				.orElseThrow(HashtagUnfollowFailException::new);
+		final HashtagFollow hashtagFollow = hashtagFollowRepository
+			.findByMemberIdAndHashtagId(loginMember.getId(), hashtag.getId())
+			.orElseThrow(HashtagUnfollowFailException::new);
 
 		hashtagFollowRepository.delete(hashtagFollow);
 	}
@@ -165,4 +165,5 @@ public class HashtagService {
 		return hashtagRepository.findByName(hashtagName.substring(1))
 			.orElseThrow(() -> new EntityNotFoundException(HASHTAG_NOT_FOUND));
 	}
+
 }

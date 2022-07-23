@@ -32,4 +32,5 @@ public class HashtagPost {
         this.hashtag = hashtag;
         this.post = post;
     }
+
 }
