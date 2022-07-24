@@ -1,9 +1,21 @@
 package cloneproject.Instagram.domain.hashtag.service;
 
-import static cloneproject.Instagram.global.error.ErrorCode.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
 
 import cloneproject.Instagram.domain.feed.entity.Comment;
 import cloneproject.Instagram.domain.feed.entity.Post;
+import cloneproject.Instagram.domain.follow.entity.HashtagFollow;
 import cloneproject.Instagram.domain.follow.exception.HashtagFollowFailException;
 import cloneproject.Instagram.domain.follow.exception.HashtagUnfollowFailException;
 import cloneproject.Instagram.domain.follow.repository.HashtagFollowRepository;
@@ -12,19 +24,13 @@ import cloneproject.Instagram.domain.hashtag.entity.HashtagPost;
 import cloneproject.Instagram.domain.hashtag.exception.HashtagPrefixMismatchException;
 import cloneproject.Instagram.domain.hashtag.repository.HashtagPostRepository;
 import cloneproject.Instagram.domain.hashtag.repository.HashtagRepository;
-import cloneproject.Instagram.domain.follow.entity.HashtagFollow;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.search.service.SearchService;
 import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 import cloneproject.Instagram.global.util.AuthUtil;
 import cloneproject.Instagram.global.util.StringExtractUtil;
-import lombok.RequiredArgsConstructor;
 
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
-import java.util.stream.Collectors;
+import static cloneproject.Instagram.global.error.ErrorCode.HASHTAG_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor

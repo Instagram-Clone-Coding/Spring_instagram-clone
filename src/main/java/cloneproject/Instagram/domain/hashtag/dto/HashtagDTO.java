@@ -2,8 +2,9 @@ package cloneproject.Instagram.domain.hashtag.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
 
-import cloneproject.Instagram.domain.hashtag.entity.Hashtag;
 import lombok.Getter;
+
+import cloneproject.Instagram.domain.hashtag.entity.Hashtag;
 
 @Getter
 public class HashtagDto {

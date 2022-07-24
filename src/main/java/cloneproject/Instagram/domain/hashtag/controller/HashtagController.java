@@ -1,13 +1,6 @@
 package cloneproject.Instagram.domain.hashtag.controller;
 
-import cloneproject.Instagram.domain.hashtag.service.HashtagService;
-import cloneproject.Instagram.global.result.ResultResponse;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import lombok.RequiredArgsConstructor;
+import javax.validation.constraints.NotBlank;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -16,9 +9,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import static cloneproject.Instagram.global.result.ResultCode.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import lombok.RequiredArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
+import cloneproject.Instagram.domain.hashtag.service.HashtagService;
+import cloneproject.Instagram.global.result.ResultResponse;
+
+import static cloneproject.Instagram.global.result.ResultCode.FOLLOW_HASHTAG_SUCCESS;
+import static cloneproject.Instagram.global.result.ResultCode.UNFOLLOW_HASHTAG_SUCCESS;
 
 @Api(tags = "해시태그 API")
 @Validated
