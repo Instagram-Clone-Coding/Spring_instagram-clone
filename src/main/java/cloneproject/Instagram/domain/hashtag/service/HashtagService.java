@@ -9,6 +9,7 @@ import cloneproject.Instagram.domain.follow.exception.HashtagUnfollowFailExcepti
 import cloneproject.Instagram.domain.follow.repository.HashtagFollowRepository;
 import cloneproject.Instagram.domain.hashtag.entity.Hashtag;
 import cloneproject.Instagram.domain.hashtag.entity.HashtagPost;
+import cloneproject.Instagram.domain.hashtag.exception.HashtagPrefixMismatchException;
 import cloneproject.Instagram.domain.hashtag.repository.HashtagPostRepository;
 import cloneproject.Instagram.domain.hashtag.repository.HashtagRepository;
 import cloneproject.Instagram.domain.follow.entity.HashtagFollow;
@@ -162,6 +163,9 @@ public class HashtagService {
 	}
 
 	private Hashtag getHashtag(String hashtagName) {
+		if (!hashtagName.startsWith("#")) {
+			throw new HashtagPrefixMismatchException();
+		}
 		return hashtagRepository.findByName(hashtagName.substring(1))
 			.orElseThrow(() -> new EntityNotFoundException(HASHTAG_NOT_FOUND));
 	}
