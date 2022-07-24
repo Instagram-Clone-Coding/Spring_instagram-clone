@@ -1,13 +1,20 @@
 package cloneproject.Instagram.domain.hashtag.entity;
 
-import cloneproject.Instagram.domain.feed.entity.Post;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
-
-import cloneproject.Instagram.domain.hashtag.entity.Hashtag;
+import cloneproject.Instagram.domain.feed.entity.Post;
 
 @Getter
 @Entity
@@ -32,4 +39,5 @@ public class HashtagPost {
         this.hashtag = hashtag;
         this.post = post;
     }
+
 }

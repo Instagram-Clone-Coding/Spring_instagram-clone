@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import cloneproject.Instagram.domain.hashtag.dto.HashtagDTO;
+import cloneproject.Instagram.domain.hashtag.dto.HashtagDto;
 import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.search.dto.SearchDto;
 import cloneproject.Instagram.domain.search.service.SearchService;
@@ -81,7 +81,7 @@ public class SearchController {
 	@ApiImplicitParam(name = "text", value = "검색내용", required = true, example = "#dlwl")
 	@GetMapping("/auto/hashtag")
 	public ResponseEntity<ResultResponse> getHashtagAutoComplete(@RequestParam String text) {
-		final List<HashtagDTO> searchDtos = searchService.getHashtagAutoComplete(text);
+		final List<HashtagDto> searchDtos = searchService.getHashtagAutoComplete(text);
 
 		return ResponseEntity.ok(ResultResponse.of(GET_HASHTAG_AUTO_COMPLETE_SUCCESS, searchDtos));
 	}

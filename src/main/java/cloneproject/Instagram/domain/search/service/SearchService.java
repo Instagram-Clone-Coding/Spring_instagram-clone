@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import cloneproject.Instagram.domain.follow.dto.FollowDto;
 import cloneproject.Instagram.domain.follow.repository.FollowRepository;
-import cloneproject.Instagram.domain.hashtag.dto.HashtagDTO;
+import cloneproject.Instagram.domain.hashtag.dto.HashtagDto;
 import cloneproject.Instagram.domain.hashtag.entity.Hashtag;
 import cloneproject.Instagram.domain.hashtag.exception.HashtagNotFoundException;
 import cloneproject.Instagram.domain.hashtag.exception.HashtagPrefixMismatchException;
@@ -93,7 +93,7 @@ public class SearchService {
 			.collect(Collectors.toList());
 	}
 
-	public List<HashtagDTO> getHashtagAutoComplete(String text) {
+	public List<HashtagDto> getHashtagAutoComplete(String text) {
 		text = text.trim();
 		if (!text.startsWith("#")) {
 			throw new HashtagPrefixMismatchException();
@@ -103,7 +103,7 @@ public class SearchService {
 		searchRepository.checkMatchingHashtag(text.substring(1), hashtagIds);
 		final List<Hashtag> hashtags = hashtagRepository.findAllByIdIn(hashtagIds);
 		return hashtags.stream()
-			.map(HashtagDTO::new)
+			.map(HashtagDto::new)
 			.collect(Collectors.toList());
 	}
 
