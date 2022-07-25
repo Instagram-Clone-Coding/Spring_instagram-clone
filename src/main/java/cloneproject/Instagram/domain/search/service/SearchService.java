@@ -1,18 +1,18 @@
 package cloneproject.Instagram.domain.search.service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import org.hibernate.query.criteria.internal.ListJoinImplementor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import cloneproject.Instagram.domain.follow.dto.FollowDto;
 import cloneproject.Instagram.domain.follow.repository.FollowRepository;
@@ -38,8 +38,6 @@ import cloneproject.Instagram.domain.search.repository.SearchRepository;
 import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
 import cloneproject.Instagram.global.error.exception.EntityTypeInvalidException;
 import cloneproject.Instagram.global.util.AuthUtil;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -47,6 +45,10 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional(readOnly = true)
 public class SearchService {
 
+	private static final int FIRST_PAGE_SIZE = 15;
+	private static final int PAGE_SIZE = 5;
+	private static final int PAGE_OFFSET = 2;
+	private static final int MAX_FOLLOWING_MEMBER_FOLLOW_COUNT = 3;
 	private final AuthUtil authUtil;
 	private final SearchRepository searchRepository;
 	private final SearchMemberRepository searchMemberRepository;
@@ -56,11 +58,6 @@ public class SearchService {
 	private final FollowRepository followRepository;
 	private final MemberRepository memberRepository;
 	private final HashtagRepository hashtagRepository;
-
-	private static final int FIRST_PAGE_SIZE = 15;
-	private static final int PAGE_SIZE = 5;
-	private static final int PAGE_OFFSET = 2;
-	private static final int MAX_FOLLOWING_MEMBER_FOLLOW_COUNT = 3;
 
 	public List<SearchDto> searchByText(String text) {
 		text = text.trim();
@@ -81,11 +78,11 @@ public class SearchService {
 
 		return setSearchContent(loginId, searches, searchIds);
 	}
-	
+
 	public List<MemberDto> getMemberAutoComplete(String text) {
 		text = text.trim();
 		final List<Long> memberIds = searchRepository.findMemberIdsByTextLike(text);
-		
+
 		searchRepository.checkMatchingMember(text, memberIds);
 		final List<Member> members = memberRepository.findAllByIdIn(memberIds);
 		return members.stream()
@@ -184,7 +181,7 @@ public class SearchService {
 		searchRepository.save(search);
 
 		final RecentSearch recentSearch = recentSearchRepository.findByMemberIdAndSearchId(loginMember.getId(),
-			search.getId())
+				search.getId())
 			.orElse(RecentSearch.builder()
 				.member(loginMember)
 				.search(search)

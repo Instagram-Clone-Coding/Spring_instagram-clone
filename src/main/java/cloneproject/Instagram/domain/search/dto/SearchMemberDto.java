@@ -6,12 +6,13 @@ import java.util.stream.Collectors;
 
 import com.querydsl.core.annotations.QueryProjection;
 
-import cloneproject.Instagram.domain.follow.dto.FollowDto;
-import cloneproject.Instagram.domain.member.dto.MemberDto;
-import cloneproject.Instagram.domain.member.entity.Member;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import cloneproject.Instagram.domain.follow.dto.FollowDto;
+import cloneproject.Instagram.domain.member.dto.MemberDto;
+import cloneproject.Instagram.domain.member.entity.Member;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
