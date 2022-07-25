@@ -1,5 +1,7 @@
 package cloneproject.Instagram.domain.hashtag.service;
 
+import static cloneproject.Instagram.global.error.ErrorCode.*;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -29,8 +31,6 @@ import cloneproject.Instagram.domain.search.service.SearchService;
 import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 import cloneproject.Instagram.global.util.AuthUtil;
 import cloneproject.Instagram.global.util.StringExtractUtil;
-
-import static cloneproject.Instagram.global.error.ErrorCode.HASHTAG_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor

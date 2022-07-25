@@ -11,10 +11,10 @@ import cloneproject.Instagram.domain.hashtag.entity.Hashtag;
 
 public interface HashtagRepository extends JpaRepository<Hashtag, Long> {
 
-    List<Hashtag> findAllByNameIn(Set<String> names);
+	List<Hashtag> findAllByNameIn(Set<String> names);
 
-    List<Hashtag> findAllByIdIn(Collection<Long> ids);
+	List<Hashtag> findAllByIdIn(Collection<Long> ids);
 
-    Optional<Hashtag> findByName(String name);
+	Optional<Hashtag> findByName(String name);
 
 }
