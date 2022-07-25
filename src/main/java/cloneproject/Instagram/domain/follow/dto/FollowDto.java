@@ -7,16 +7,16 @@ import lombok.Getter;
 
 @Getter
 public class FollowDto {
-    
-    public String memberUsername;
 
-    @JsonIgnore
-    public String followMemberUsername;
+	public String memberUsername;
 
-    @QueryProjection
-    public FollowDto(String memberUsername, String followMemberUsername){
-        this.memberUsername = memberUsername;
-        this.followMemberUsername = followMemberUsername;
-    }
+	@JsonIgnore
+	public String followMemberUsername;
+
+	@QueryProjection
+	public FollowDto(String memberUsername, String followMemberUsername) {
+		this.memberUsername = memberUsername;
+		this.followMemberUsername = followMemberUsername;
+	}
 
 }
