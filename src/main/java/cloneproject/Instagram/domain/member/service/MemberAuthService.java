@@ -12,6 +12,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import cloneproject.Instagram.domain.member.dto.JwtDto;
 import cloneproject.Instagram.domain.member.dto.LoginDevicesDto;
 import cloneproject.Instagram.domain.member.dto.LoginRequest;
@@ -30,8 +33,6 @@ import cloneproject.Instagram.global.util.AuthUtil;
 import cloneproject.Instagram.global.util.JwtUtil;
 import cloneproject.Instagram.infra.location.LocationService;
 import cloneproject.Instagram.infra.location.dto.Location;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service

@@ -17,6 +17,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import cloneproject.Instagram.domain.member.dto.EditProfileRequest;
 import cloneproject.Instagram.domain.member.dto.EditProfileResponse;
 import cloneproject.Instagram.domain.member.dto.MenuMemberProfile;
@@ -25,13 +33,6 @@ import cloneproject.Instagram.domain.member.dto.UserProfileResponse;
 import cloneproject.Instagram.domain.member.service.MemberService;
 import cloneproject.Instagram.global.result.ResultResponse;
 import cloneproject.Instagram.infra.kakao.KakaoMap;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Validated

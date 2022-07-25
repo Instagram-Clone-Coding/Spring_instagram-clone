@@ -1,20 +1,21 @@
 package cloneproject.Instagram.domain.member.repository.querydsl;
 
-import java.util.List;
+import static cloneproject.Instagram.domain.feed.entity.QBookmark.*;
+import static cloneproject.Instagram.domain.feed.entity.QPost.*;
+import static cloneproject.Instagram.domain.feed.entity.QPostTag.*;
 
-import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import cloneproject.Instagram.domain.feed.dto.MemberPostDto;
-import cloneproject.Instagram.domain.feed.dto.QMemberPostDto;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+
 import lombok.RequiredArgsConstructor;
 
-import static cloneproject.Instagram.domain.feed.entity.QPost.post;
-import static cloneproject.Instagram.domain.feed.entity.QBookmark.bookmark;
-import static cloneproject.Instagram.domain.feed.entity.QPostTag.postTag;
+import cloneproject.Instagram.domain.feed.dto.MemberPostDto;
+import cloneproject.Instagram.domain.feed.dto.QMemberPostDto;
 
 @RequiredArgsConstructor
 public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQuerydsl {

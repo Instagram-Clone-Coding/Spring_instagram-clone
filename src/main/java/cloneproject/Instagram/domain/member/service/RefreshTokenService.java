@@ -9,26 +9,25 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import cloneproject.Instagram.domain.member.dto.LoginDevicesDto;
 import cloneproject.Instagram.domain.member.entity.redis.RefreshToken;
 import cloneproject.Instagram.domain.member.exception.JwtInvalidException;
 import cloneproject.Instagram.domain.member.repository.redis.RefreshTokenRedisRepository;
 import cloneproject.Instagram.infra.location.dto.Location;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class RefreshTokenService {
 
+	private final RefreshTokenRedisRepository refreshTokenRedisRepository;
 	@Value("${max-login-device}")
 	private long MAX_LOGIN_DEVICE;
-
 	@Value("${refresh-token-expires}")
 	private long REFRESH_TOKEN_EXPIRES;
-
-	private final RefreshTokenRedisRepository refreshTokenRedisRepository;
 
 	@Transactional
 	public void addRefreshToken(Long memberId, String tokenValue, String device, Location location) {

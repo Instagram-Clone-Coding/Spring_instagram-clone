@@ -22,6 +22,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import cloneproject.Instagram.domain.member.dto.JwtDto;
 import cloneproject.Instagram.domain.member.dto.JwtResponse;
 import cloneproject.Instagram.domain.member.dto.LoginDevicesDto;
@@ -35,14 +44,6 @@ import cloneproject.Instagram.domain.member.service.MemberAuthService;
 import cloneproject.Instagram.global.error.exception.FilterMustRespondException;
 import cloneproject.Instagram.global.result.ResultResponse;
 import cloneproject.Instagram.global.util.RequestExtractor;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Api(tags = "멤버 인증 API")

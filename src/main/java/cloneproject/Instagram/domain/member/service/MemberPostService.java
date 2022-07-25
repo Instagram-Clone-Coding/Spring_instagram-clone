@@ -12,6 +12,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import lombok.RequiredArgsConstructor;
+
 import cloneproject.Instagram.domain.feed.dto.MemberPostDto;
 import cloneproject.Instagram.domain.feed.dto.PostImageDto;
 import cloneproject.Instagram.domain.feed.repository.PostImageRepository;
@@ -20,18 +22,17 @@ import cloneproject.Instagram.domain.member.repository.BlockRepository;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 import cloneproject.Instagram.global.util.AuthUtil;
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class MemberPostService {
 
+	private static final int FIRST_PAGE_SIZE = 15;
+	private static final int PAGE_OFFSET = 4;
 	private final AuthUtil authUtil;
 	private final MemberRepository memberRepository;
 	private final BlockRepository blockRepository;
 	private final PostImageRepository postImageRepository;
-	private static final int FIRST_PAGE_SIZE = 15;
-	private static final int PAGE_OFFSET = 4;
 
 	public Page<MemberPostDto> getMemberPostDtos(String username, int size, int page) {
 		final Long loginMemberId = authUtil.getLoginMemberIdOrNull();

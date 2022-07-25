@@ -7,6 +7,9 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import cloneproject.Instagram.domain.follow.entity.Follow;
 import cloneproject.Instagram.domain.follow.repository.FollowRepository;
 import cloneproject.Instagram.domain.member.entity.Block;
@@ -19,8 +22,6 @@ import cloneproject.Instagram.domain.member.repository.BlockRepository;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 import cloneproject.Instagram.global.util.AuthUtil;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service

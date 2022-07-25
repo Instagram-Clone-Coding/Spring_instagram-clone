@@ -12,6 +12,9 @@ import javax.annotation.PostConstruct;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.entity.redis.EmailCode;
 import cloneproject.Instagram.domain.member.entity.redis.ResetPasswordCode;
@@ -23,8 +26,6 @@ import cloneproject.Instagram.domain.member.repository.redis.ResetPasswordCodeRe
 import cloneproject.Instagram.global.error.exception.CantConvertFileException;
 import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 import cloneproject.Instagram.infra.email.EmailService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor

@@ -5,11 +5,12 @@ import java.util.stream.Collectors;
 
 import com.querydsl.core.annotations.QueryProjection;
 
-import cloneproject.Instagram.domain.follow.dto.FollowDto;
-import cloneproject.Instagram.global.vo.Image;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+
+import cloneproject.Instagram.domain.follow.dto.FollowDto;
+import cloneproject.Instagram.global.vo.Image;
 
 @ApiModel("유저 프로필 조회 응답 모델")
 @Getter
