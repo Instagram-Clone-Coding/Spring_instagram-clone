@@ -190,6 +190,17 @@ public class SearchService {
 		recentSearchRepository.save(recentSearch);
 	}
 
+	@Transactional
+	public void createSearchHashtag(Hashtag hashtag) {
+		searchHashtagRepository.save(new SearchHashtag(hashtag));
+	}
+
+	@Transactional
+	public void deleteSearchHashtags(List<Hashtag> hashtags) {
+		final List<SearchHashtag> searchHashtags = searchHashtagRepository.findAllByHashtagIn(hashtags);
+		searchHashtagRepository.deleteAllInBatch(searchHashtags);
+	}
+
 	private List<SearchDto> setSearchContent(Long loginId, List<Search> searches, List<Long> searchIds) {
 		final Map<Long, SearchMemberDto> memberMap = searchRepository.findAllSearchMemberDtoByIdIn(loginId, searchIds);
 		final Map<Long, SearchHashtagDto> hashtagMap = searchRepository.findAllSearchHashtagDtoByIdIn(searchIds);
@@ -222,17 +233,6 @@ public class SearchService {
 				}
 			})
 			.collect(Collectors.toList());
-	}
-
-	@Transactional
-	public void createSearchHashtag(Hashtag hashtag) {
-		searchHashtagRepository.save(new SearchHashtag(hashtag));
-	}
-
-	@Transactional
-	public void deleteSearchHashtags(List<Hashtag> hashtags) {
-		final List<SearchHashtag> searchHashtags = searchHashtagRepository.findAllByHashtagIn(hashtags);
-		searchHashtagRepository.deleteAllInBatch(searchHashtags);
 	}
 
 }

@@ -40,19 +40,6 @@ public class EmailCodeService {
 	private String confirmEmailUI;
 	private String resetPasswordEmailUI;
 
-	@PostConstruct
-	private void loadEmailUI() {
-		try {
-			ClassPathResource resource = new ClassPathResource("confirmEmailUI.html");
-			confirmEmailUI = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-
-			resource = new ClassPathResource("resetPasswordEmailUI.html");
-			resetPasswordEmailUI = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-		} catch (IOException e) {
-			throw new CantConvertFileException();
-		}
-	}
-
 	public void sendEmailConfirmationCode(String username, String email) {
 		final String code = createConfirmationCode(6);
 		final String text = String.format(confirmEmailUI, email, code, email);
@@ -134,6 +121,19 @@ public class EmailCodeService {
 			}
 		}
 		return key.toString();
+	}
+
+	@PostConstruct
+	private void loadEmailUI() {
+		try {
+			ClassPathResource resource = new ClassPathResource("confirmEmailUI.html");
+			confirmEmailUI = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+
+			resource = new ClassPathResource("resetPasswordEmailUI.html");
+			resetPasswordEmailUI = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+		} catch (IOException e) {
+			throw new CantConvertFileException();
+		}
 	}
 
 }

@@ -95,26 +95,6 @@ public class MemberService {
 		return result;
 	}
 
-	private void setMemberPostImages(MiniProfileResponse miniProfileResponse, Long memberId) {
-		final List<Post> posts = postRepository.findTop3ByMemberIdOrderByIdDesc(memberId);
-		final List<Long> postIds = posts.stream()
-			.map(Post::getId)
-			.collect(Collectors.toList());
-		final List<PostImageDto> postImages = postImageRepository.findAllPostImageDto(postIds);
-
-		final Map<Long, List<PostImageDto>> postDTOMap = postImages.stream()
-			.collect(Collectors.groupingBy(PostImageDto::getPostId));
-
-		final List<MiniProfilePostDto> results = new ArrayList<>();
-		postDTOMap.forEach((id, p) -> results.add(
-			MiniProfilePostDto.builder()
-				.postId(id)
-				.postImageUrl(p.get(0).getPostImageUrl())
-				.build()));
-
-		miniProfileResponse.setMemberPosts(results);
-	}
-
 	@Transactional
 	public void uploadMemberImage(MultipartFile uploadedImage) {
 		final Member member = authUtil.getLoginMember();
@@ -168,6 +148,26 @@ public class MemberService {
 		member.updatePhone(editProfileRequest.getMemberPhone());
 		member.updateGender(Gender.valueOf(editProfileRequest.getMemberGender()));
 		memberRepository.save(member);
+	}
+
+	private void setMemberPostImages(MiniProfileResponse miniProfileResponse, Long memberId) {
+		final List<Post> posts = postRepository.findTop3ByMemberIdOrderByIdDesc(memberId);
+		final List<Long> postIds = posts.stream()
+			.map(Post::getId)
+			.collect(Collectors.toList());
+		final List<PostImageDto> postImages = postImageRepository.findAllPostImageDto(postIds);
+
+		final Map<Long, List<PostImageDto>> postDTOMap = postImages.stream()
+			.collect(Collectors.groupingBy(PostImageDto::getPostId));
+
+		final List<MiniProfilePostDto> results = new ArrayList<>();
+		postDTOMap.forEach((id, p) -> results.add(
+			MiniProfilePostDto.builder()
+				.postId(id)
+				.postImageUrl(p.get(0).getPostImageUrl())
+				.build()));
+
+		miniProfileResponse.setMemberPosts(results);
 	}
 
 }
