@@ -12,19 +12,19 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
+
 import cloneproject.Instagram.infra.kakao.dto.KakaoSearchResponse;
 import cloneproject.Instagram.infra.kakao.exception.KakaoMapApiFailException;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
 public class KakaoMap {
 
-	@Value("${kakao.rest.key}")
-	private String kakaoKey;
-
 	private final RestTemplate restTemplate = new RestTemplate();
 	private final ObjectMapper objectMapper = new ObjectMapper();
+	@Value("${kakao.rest.key}")
+	private String kakaoKey;
 
 	public String getCity(String longitude, String latitude) {
 		final URI uri = UriComponentsBuilder

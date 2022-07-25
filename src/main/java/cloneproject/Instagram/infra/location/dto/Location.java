@@ -10,9 +10,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Location {
-    
-    private String city;
-    private String longitude;
-    private String latitude;
+
+	private String city;
+	private String longitude;
+	private String latitude;
 
 }
