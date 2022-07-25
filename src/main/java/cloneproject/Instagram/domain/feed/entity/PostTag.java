@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+import com.querydsl.core.annotations.QueryInit;
+
 import cloneproject.Instagram.domain.feed.vo.Tag;
 
 @Getter
@@ -20,8 +22,13 @@ public class PostTag {
 	@Column(name = "post_tag_id")
 	private Long id;
 
+	/**
+	 * @QueryInit : to resolve Querydsl's depth limit
+	 * @Ref https://github.com/querydsl/querydsl/issues/2129
+	 */
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "post_image_id")
+	@QueryInit({"*.*", "post.member"})
 	private PostImage postImage;
 
 	@Embedded
