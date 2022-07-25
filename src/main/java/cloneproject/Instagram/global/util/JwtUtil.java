@@ -7,55 +7,50 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
-import cloneproject.Instagram.domain.member.dto.JwtDto;
-import cloneproject.Instagram.domain.member.entity.Member;
-import cloneproject.Instagram.domain.member.exception.JwtExpiredException;
-import cloneproject.Instagram.domain.member.exception.JwtInvalidException;
-import cloneproject.Instagram.global.config.security.token.JwtAuthenticationToken;
-import cloneproject.Instagram.global.error.exception.BusinessException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
+import cloneproject.Instagram.domain.member.dto.JwtDto;
+import cloneproject.Instagram.domain.member.exception.JwtExpiredException;
+import cloneproject.Instagram.domain.member.exception.JwtInvalidException;
+import cloneproject.Instagram.global.config.security.token.JwtAuthenticationToken;
+import cloneproject.Instagram.global.error.exception.BusinessException;
+
 @Component
 public class JwtUtil {
-
-	@Value("${access-token-expires}")
-	private long ACCESS_TOKEN_EXPIRES;
-	@Value("${refresh-token-expires}")
-	private long REFRESH_TOKEN_EXPIRES;
 
 	private final static String CLAIM_AUTHORITIES_KEY = "authorities";
 	private final static String CLAIM_JWT_TYPE_KEY = "type";
 	private final static String BEARER_TYPE_PREFIX = "Bearer ";
 	private final static String BEARER_TYPE = "Bearer";
 	private static final int JWT_PREFIX_LENGTH = 7;
-
 	private final Key JWT_KEY;
+	@Value("${access-token-expires}")
+	private long ACCESS_TOKEN_EXPIRES;
+	@Value("${refresh-token-expires}")
+	private long REFRESH_TOKEN_EXPIRES;
 
-	public JwtUtil(@Value("${jwt.key}") byte[] key){
+	public JwtUtil(@Value("${jwt.key}") byte[] key) {
 		this.JWT_KEY = Keys.hmacShaKeyFor(key);
 	}
 
-	public String extractJwt(String authenticationHeader){
-		if(authenticationHeader == null){
+	public String extractJwt(String authenticationHeader) {
+		if (authenticationHeader == null) {
 			throw new JwtInvalidException();
-		}else if(!authenticationHeader.startsWith(BEARER_TYPE_PREFIX)){
+		} else if (!authenticationHeader.startsWith(BEARER_TYPE_PREFIX)) {
 			throw new JwtInvalidException();
 		}
 		return authenticationHeader.substring(JWT_PREFIX_LENGTH);
 	}
-
 
 	public Authentication getAuthentication(String token) throws BusinessException {
 		Claims claims = parseClaims(token);
@@ -100,11 +95,11 @@ public class JwtUtil {
 	}
 
 	private Claims parseClaims(String token) throws BusinessException {
-		try{
+		try {
 			return Jwts.parserBuilder().setSigningKey(JWT_KEY).build().parseClaimsJws(token).getBody();
-		}catch(ExpiredJwtException e){
+		} catch (ExpiredJwtException e) {
 			throw new JwtExpiredException();
-		}catch (Exception e){
+		} catch (Exception e) {
 			throw new JwtInvalidException();
 		}
 	}

@@ -1,5 +1,15 @@
 package cloneproject.Instagram.global.error;
 
+import static cloneproject.Instagram.global.error.ErrorCode.INTERNAL_SERVER_ERROR;
+import static cloneproject.Instagram.global.error.ErrorCode.METHOD_NOT_ALLOWED;
+import static cloneproject.Instagram.global.error.ErrorCode.*;
+import static org.springframework.http.HttpStatus.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.validation.ConstraintViolationException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -14,14 +24,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import cloneproject.Instagram.global.error.exception.BusinessException;
-
-import static cloneproject.Instagram.global.error.ErrorCode.*;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-
-import javax.validation.ConstraintViolationException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {

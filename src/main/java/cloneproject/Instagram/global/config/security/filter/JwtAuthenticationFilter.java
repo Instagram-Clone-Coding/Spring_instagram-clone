@@ -13,9 +13,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import lombok.extern.slf4j.Slf4j;
+
 import cloneproject.Instagram.global.config.security.token.JwtAuthenticationToken;
 import cloneproject.Instagram.global.util.JwtUtil;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
