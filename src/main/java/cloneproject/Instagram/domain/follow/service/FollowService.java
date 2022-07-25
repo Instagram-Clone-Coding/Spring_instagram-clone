@@ -113,4 +113,9 @@ public class FollowService {
         return result;
     }
 
+    @Transactional(readOnly = true)
+    public List<Follow> getFollowings(Member member) {
+        return followRepository.findAllByMember(member);
+    }
+
 }

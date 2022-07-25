@@ -23,4 +23,8 @@ public class PostLikeService {
 		postLikeRepository.deleteAllInBatch(postLikes);
 	}
 
+	public List<PostLike> getAllWithMember(Long postId) {
+		return postLikeRepository.findAllWithMemberByPostId(postId);
+	}
+
 }

@@ -1,12 +1,24 @@
 package cloneproject.Instagram.domain.feed.controller;
 
-import cloneproject.Instagram.domain.feed.dto.PostUploadResponse;
-import cloneproject.Instagram.domain.feed.dto.PostDto;
-import cloneproject.Instagram.domain.feed.dto.PostResponse;
-import cloneproject.Instagram.domain.feed.dto.PostUploadRequest;
-import cloneproject.Instagram.domain.feed.service.PostService;
-import cloneproject.Instagram.domain.member.dto.LikeMemberDto;
-import cloneproject.Instagram.global.result.ResultResponse;
+import static cloneproject.Instagram.global.result.ResultCode.*;
+import static org.springframework.http.MediaType.*;
+
+import java.util.List;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -15,17 +27,13 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
-import static cloneproject.Instagram.global.result.ResultCode.*;
-import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
+import cloneproject.Instagram.domain.feed.dto.PostDto;
+import cloneproject.Instagram.domain.feed.dto.PostResponse;
+import cloneproject.Instagram.domain.feed.dto.PostUploadRequest;
+import cloneproject.Instagram.domain.feed.dto.PostUploadResponse;
+import cloneproject.Instagram.domain.feed.service.PostService;
+import cloneproject.Instagram.domain.member.dto.LikeMemberDto;
+import cloneproject.Instagram.global.result.ResultResponse;
 
 @Api(tags = "게시물 API")
 @RestController

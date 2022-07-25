@@ -23,6 +23,7 @@ import cloneproject.Instagram.global.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -164,14 +165,23 @@ public class CommentService {
 
 	public Page<LikeMemberDto> getCommentLikeMembersDtoPage(Long commentId, int page, int size) {
 		final Member loginMember = authUtil.getLoginMember();
+		final Comment comment = commentRepository.findById(commentId)
+			.orElseThrow(() -> new EntityNotFoundException(COMMENT_NOT_FOUND));
 		page = (page == 0 ? 0 : page - 1);
 		final Pageable pageable = PageRequest.of(page, size);
-		final Page<LikeMemberDto> likeMembersDTOs =
+
+		Page<LikeMemberDto> likeMemberDtoPage =
 			postLikeRepository.findCommentLikeMembersDtoPage(pageable, commentId, loginMember.getId());
 
-		setHasStory(likeMembersDTOs);
+		if (commentLikeRepository.findByMemberAndComment(loginMember, comment).isPresent()) {
+			final List<LikeMemberDto> likeMemberDtos = new ArrayList<>();
+			likeMemberDtos.add(new LikeMemberDto(loginMember, false, false));
+			likeMemberDtos.addAll(likeMemberDtoPage.getContent());
+			likeMemberDtoPage = new PageImpl<>(likeMemberDtos, pageable, likeMemberDtoPage.getTotalElements() + 1);
+		}
+		setHasStory(likeMemberDtoPage);
 
-		return likeMembersDTOs;
+		return likeMemberDtoPage;
 	}
 
 	private void setHasStory(Page<LikeMemberDto> likeMembersDTOs) {

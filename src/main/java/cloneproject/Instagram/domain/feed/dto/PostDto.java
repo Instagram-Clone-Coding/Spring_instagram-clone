@@ -1,18 +1,17 @@
 package cloneproject.Instagram.domain.feed.dto;
 
-import cloneproject.Instagram.domain.member.dto.MemberDto;
-import cloneproject.Instagram.domain.member.entity.Member;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.querydsl.core.annotations.QueryProjection;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import cloneproject.Instagram.domain.member.dto.MemberDto;
+import cloneproject.Instagram.domain.member.entity.Member;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,14 +26,14 @@ public class PostDto {
 	private int postLikesCount;
 	private boolean postBookmarkFlag;
 	private boolean postLikeFlag;
-	private boolean commentFlag;
-	private boolean likeFlag;
+	private boolean commentOptionFlag;
+	private boolean likeOptionFlag;
 	private String followingMemberUsernameLikedPost = "";
 	private List<CommentDto> recentComments = new ArrayList<>();
 
 	@QueryProjection
 	public PostDto(Long postId, String postContent, LocalDateTime postUploadDate, Member member, int postCommentsCount,
-		int postLikesCount, boolean postBookmarkFlag, boolean postLikeFlag, boolean commentFlag, boolean likeFlag) {
+		int postLikesCount, boolean postBookmarkFlag, boolean postLikeFlag, boolean commentOptionFlag, boolean likeOptionFlag) {
 		this.postId = postId;
 		this.postContent = postContent;
 		this.postUploadDate = postUploadDate;
@@ -43,8 +42,8 @@ public class PostDto {
 		this.postLikesCount = postLikesCount;
 		this.postBookmarkFlag = postBookmarkFlag;
 		this.postLikeFlag = postLikeFlag;
-		this.commentFlag = commentFlag;
-		this.likeFlag = likeFlag;
+		this.commentOptionFlag = commentOptionFlag;
+		this.likeOptionFlag = likeOptionFlag;
 	}
 
 	public void setPostImages(List<PostImageDto> postImageDtos) {
@@ -57,6 +56,10 @@ public class PostDto {
 
 	public void setRecentComments(List<CommentDto> commentDtos) {
 		this.recentComments = commentDtos;
+	}
+
+	public void setPostLikesCount(int postLikesCount) {
+		this.postLikesCount = postLikesCount;
 	}
 
 }
