@@ -19,6 +19,8 @@ public class PostDto {
 
 	private Long postId;
 	private String postContent;
+	private List<String> mentionsOfContent = new ArrayList<>();
+	private List<String> hashtagsOfContent = new ArrayList<>();
 	private List<PostImageDto> postImages = new ArrayList<>();
 	private LocalDateTime postUploadDate;
 	private MemberDto member;
@@ -60,6 +62,14 @@ public class PostDto {
 
 	public void setPostLikesCount(int postLikesCount) {
 		this.postLikesCount = postLikesCount;
+	}
+
+	public void setHashtagsOfContent(List<String> hashtagsOfContent) {
+		this.hashtagsOfContent = hashtagsOfContent;
+	}
+
+	public void setMentionsOfContent(List<String> mentionsOfContent) {
+		this.mentionsOfContent = mentionsOfContent;
 	}
 
 }

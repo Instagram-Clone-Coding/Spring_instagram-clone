@@ -28,10 +28,13 @@ public class PostResponse {
 	private String followingMemberUsernameLikedPost = "";
 	private List<PostImageDto> postImageDtos = new ArrayList<>();
 	private List<CommentDto> commentDtos = new ArrayList<>();
+	private List<String> mentionsOfContent = new ArrayList<>();
+	private List<String> hashtagsOfContent = new ArrayList<>();
 
 	@QueryProjection
 	public PostResponse(Long postId, String postContent, LocalDateTime postUploadDate, Member member,
-		int postLikesCount, boolean postBookmarkFlag, boolean postLikeFlag, boolean commentOptionFlag, boolean likeOptionFlag) {
+		int postLikesCount, boolean postBookmarkFlag, boolean postLikeFlag, boolean commentOptionFlag,
+		boolean likeOptionFlag) {
 		this.postId = postId;
 		this.postContent = postContent;
 		this.postUploadDate = postUploadDate;
@@ -57,6 +60,14 @@ public class PostResponse {
 
 	public void setPostLikesCount(int postLikesCount) {
 		this.postLikesCount = postLikesCount;
+	}
+
+	public void setMentionsOfContent(List<String> mentions) {
+		this.mentionsOfContent = mentions;
+	}
+
+	public void setHashtagsOfContent(List<String> hashtags) {
+		this.hashtagsOfContent = hashtags;
 	}
 
 }

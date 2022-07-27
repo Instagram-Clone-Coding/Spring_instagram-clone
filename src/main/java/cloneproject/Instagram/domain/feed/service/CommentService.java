@@ -1,16 +1,35 @@
 package cloneproject.Instagram.domain.feed.service;
 
+import static cloneproject.Instagram.domain.alarm.dto.AlarmType.*;
+import static cloneproject.Instagram.global.error.ErrorCode.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+
 import cloneproject.Instagram.domain.alarm.service.AlarmService;
+import cloneproject.Instagram.domain.feed.dto.CommentDto;
 import cloneproject.Instagram.domain.feed.dto.CommentUploadRequest;
 import cloneproject.Instagram.domain.feed.dto.CommentUploadResponse;
-import cloneproject.Instagram.domain.feed.dto.CommentDto;
 import cloneproject.Instagram.domain.feed.entity.Comment;
 import cloneproject.Instagram.domain.feed.entity.CommentLike;
 import cloneproject.Instagram.domain.feed.entity.Post;
-import cloneproject.Instagram.domain.feed.exception.CantUploadCommentException;
 import cloneproject.Instagram.domain.feed.exception.CantDeleteCommentException;
+import cloneproject.Instagram.domain.feed.exception.CantUploadCommentException;
 import cloneproject.Instagram.domain.feed.exception.CantUploadReplyException;
-import cloneproject.Instagram.domain.feed.repository.*;
+import cloneproject.Instagram.domain.feed.repository.CommentLikeRepository;
+import cloneproject.Instagram.domain.feed.repository.CommentRepository;
+import cloneproject.Instagram.domain.feed.repository.PostLikeRepository;
+import cloneproject.Instagram.domain.feed.repository.PostRepository;
 import cloneproject.Instagram.domain.hashtag.service.HashtagService;
 import cloneproject.Instagram.domain.member.dto.LikeMemberDto;
 import cloneproject.Instagram.domain.member.dto.MemberDto;
@@ -20,21 +39,7 @@ import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository
 import cloneproject.Instagram.global.error.exception.EntityAlreadyExistException;
 import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 import cloneproject.Instagram.global.util.AuthUtil;
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static cloneproject.Instagram.domain.alarm.dto.AlarmType.*;
-import static cloneproject.Instagram.global.error.ErrorCode.*;
+import cloneproject.Instagram.global.util.StringExtractUtil;
 
 @Service
 @Transactional(readOnly = true)
@@ -52,6 +57,7 @@ public class CommentService {
 	private final RecentCommentService recentCommentService;
 	private final MentionService mentionService;
 	private final MemberStoryRedisRepository memberStoryRedisRepository;
+	private final StringExtractUtil stringExtractUtil;
 
 	@Transactional
 	public CommentUploadResponse uploadComment(CommentUploadRequest request) {
@@ -117,7 +123,9 @@ public class CommentService {
 
 		final Page<CommentDto> commentDtoPage = commentRepository.findCommentDtoPage(loginMember.getId(), postId,
 			pageable);
-		setHasStory(commentDtoPage.getContent());
+		final List<CommentDto> content = commentDtoPage.getContent();
+		setHasStory(content);
+		setMentionAndHashtagList(content);
 
 		return commentDtoPage;
 	}
@@ -129,17 +137,11 @@ public class CommentService {
 
 		final Page<CommentDto> replyDtoPage = commentRepository.findReplyDtoPage(loginMember.getId(), commentId,
 			pageable);
-		setHasStory(replyDtoPage.getContent());
+		final List<CommentDto> content = replyDtoPage.getContent();
+		setHasStory(content);
+		setMentionAndHashtagList(content);
 
 		return replyDtoPage;
-	}
-
-	private void setHasStory(List<CommentDto> commentDtos) {
-		commentDtos.forEach(comment -> {
-			final MemberDto member = comment.getMember();
-			final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0;
-			member.setHasStory(hasStory);
-		});
 	}
 
 	@Transactional
@@ -184,17 +186,34 @@ public class CommentService {
 		return likeMemberDtoPage;
 	}
 
-	private void setHasStory(Page<LikeMemberDto> likeMembersDTOs) {
-		likeMembersDTOs.getContent()
-			.forEach(dto -> dto.setHasStory(
-				memberStoryRedisRepository.findAllByMemberId(dto.getMember().getId()).size() > 0));
-	}
-
 	@Transactional
 	public void deleteAllInPost(Post post) {
 		final List<Comment> comments = commentRepository.findAllByPost(post);
 		commentLikeService.deleteAll(comments);
 		recentCommentService.deleteAll(post);
+	}
+
+	private void setMentionAndHashtagList(List<CommentDto> content) {
+		content.forEach(comment -> {
+			final List<String> mentions = stringExtractUtil.extractMentions(comment.getContent(), List.of());
+			comment.setMentionsOfContent(mentions);
+			final List<String> hashtags = stringExtractUtil.extractHashtags(comment.getContent());
+			comment.setHashtagsOfContent(hashtags);
+		});
+	}
+
+	private void setHasStory(List<CommentDto> commentDtos) {
+		commentDtos.forEach(comment -> {
+			final MemberDto member = comment.getMember();
+			final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0;
+			member.setHasStory(hasStory);
+		});
+	}
+
+	private void setHasStory(Page<LikeMemberDto> likeMembersDTOs) {
+		likeMembersDTOs.getContent()
+			.forEach(dto -> dto.setHasStory(
+				memberStoryRedisRepository.findAllByMemberId(dto.getMember().getId()).size() > 0));
 	}
 
 	private Post getPostWithMember(Long postId) {

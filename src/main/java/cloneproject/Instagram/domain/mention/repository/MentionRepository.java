@@ -14,4 +14,7 @@ public interface MentionRepository extends JpaRepository<Mention, Long>, Mention
     List<Mention> findAllByPost(Post post);
 
 	List<Mention> findAllByCommentIn(List<Comment> comments);
+
+	List<Mention> findAllByPostId(Long postId);
+
 }

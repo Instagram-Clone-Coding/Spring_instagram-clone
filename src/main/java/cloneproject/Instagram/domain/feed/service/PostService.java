@@ -51,6 +51,7 @@ import cloneproject.Instagram.domain.member.dto.LikeMemberDto;
 import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
+import cloneproject.Instagram.domain.mention.entity.Mention;
 import cloneproject.Instagram.domain.mention.service.MentionService;
 import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
 import cloneproject.Instagram.global.error.ErrorResponse.FieldError;
@@ -58,6 +59,7 @@ import cloneproject.Instagram.global.error.exception.EntityAlreadyExistException
 import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 import cloneproject.Instagram.global.error.exception.InvalidInputException;
 import cloneproject.Instagram.global.util.AuthUtil;
+import cloneproject.Instagram.global.util.StringExtractUtil;
 
 @Service
 @Transactional(readOnly = true)
@@ -83,6 +85,7 @@ public class PostService {
 	private final PostImageService postImageService;
 	private final FollowService followService;
 	private final MemberStoryRedisRepository memberStoryRedisRepository;
+	private final StringExtractUtil stringExtractUtil;
 
 	@Transactional
 	public PostUploadResponse upload(PostUploadRequest request) {
@@ -175,6 +178,11 @@ public class PostService {
 		} else if (postResponse.isPostLikeFlag()) {
 			postResponse.setPostLikesCount(postResponse.getPostLikesCount() + 1);
 		}
+
+		final List<String> mentions = stringExtractUtil.extractMentions(postResponse.getPostContent(), List.of());
+		postResponse.setMentionsOfContent(mentions);
+		final List<String> hashtags = stringExtractUtil.extractHashtags(postResponse.getPostContent());
+		postResponse.setHashtagsOfContent(hashtags);
 
 		return postResponse;
 	}
@@ -346,6 +354,11 @@ public class PostService {
 			} else if (post.isPostLikeFlag()) {
 				post.setPostLikesCount(post.getPostLikesCount() + 1);
 			}
+
+			final List<String> mentions = stringExtractUtil.extractMentions(post.getPostContent(), List.of());
+			post.setMentionsOfContent(mentions);
+			final List<String> hashtags = stringExtractUtil.extractHashtags(post.getPostContent());
+			post.setHashtagsOfContent(hashtags);
 		});
 	}
 
