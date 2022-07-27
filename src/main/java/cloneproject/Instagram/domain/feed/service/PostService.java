@@ -51,7 +51,6 @@ import cloneproject.Instagram.domain.member.dto.LikeMemberDto;
 import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
-import cloneproject.Instagram.domain.mention.entity.Mention;
 import cloneproject.Instagram.domain.mention.service.MentionService;
 import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
 import cloneproject.Instagram.global.error.ErrorResponse.FieldError;

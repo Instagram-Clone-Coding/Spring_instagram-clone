@@ -35,7 +35,8 @@ public class PostDto {
 
 	@QueryProjection
 	public PostDto(Long postId, String postContent, LocalDateTime postUploadDate, Member member, int postCommentsCount,
-		int postLikesCount, boolean postBookmarkFlag, boolean postLikeFlag, boolean commentOptionFlag, boolean likeOptionFlag) {
+		int postLikesCount, boolean postBookmarkFlag, boolean postLikeFlag, boolean commentOptionFlag,
+		boolean likeOptionFlag) {
 		this.postId = postId;
 		this.postContent = postContent;
 		this.postUploadDate = postUploadDate;

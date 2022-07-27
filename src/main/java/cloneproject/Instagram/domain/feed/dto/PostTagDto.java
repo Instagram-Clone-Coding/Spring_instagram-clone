@@ -3,8 +3,9 @@ package cloneproject.Instagram.domain.feed.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.querydsl.core.annotations.QueryProjection;
 
-import cloneproject.Instagram.domain.feed.vo.Tag;
 import lombok.Getter;
+
+import cloneproject.Instagram.domain.feed.vo.Tag;
 
 @Getter
 public class PostTagDto {

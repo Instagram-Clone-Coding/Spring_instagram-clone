@@ -1,19 +1,20 @@
 package cloneproject.Instagram.domain.feed.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import lombok.RequiredArgsConstructor;
+
 import cloneproject.Instagram.domain.feed.dto.PostImageTagRequest;
 import cloneproject.Instagram.domain.feed.entity.Post;
 import cloneproject.Instagram.domain.feed.entity.PostImage;
 import cloneproject.Instagram.domain.feed.repository.PostImageRepository;
 import cloneproject.Instagram.global.vo.Image;
 import cloneproject.Instagram.infra.aws.S3Uploader;
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -41,8 +42,8 @@ public class PostImageService {
 
 		postImageRepository.savePostImages(images, post.getId(), altTexts);
 		for (int i = 0; i < images.size(); i++) {
-            post.getPostImages().add(new PostImage(post, images.get(i), altTexts.get(i)));
-        }
+			post.getPostImages().add(new PostImage(post, images.get(i), altTexts.get(i)));
+		}
 
 		if (!tags.isEmpty()) {
 			linkWithTags(tags, post);

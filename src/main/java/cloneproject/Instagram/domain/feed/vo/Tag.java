@@ -1,10 +1,14 @@
 package cloneproject.Instagram.domain.feed.vo;
 
-import lombok.*;
+import java.util.Objects;
 
 import javax.persistence.Embeddable;
 
-import java.util.Objects;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder

@@ -1,15 +1,15 @@
 package cloneproject.Instagram.domain.feed.repository;
 
-import cloneproject.Instagram.domain.feed.entity.Comment;
-import cloneproject.Instagram.domain.feed.entity.Post;
-import cloneproject.Instagram.domain.feed.repository.querydsl.CommentRepositoryQuerydsl;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
-import java.util.Optional;
+import cloneproject.Instagram.domain.feed.entity.Comment;
+import cloneproject.Instagram.domain.feed.entity.Post;
+import cloneproject.Instagram.domain.feed.repository.querydsl.CommentRepositoryQuerydsl;
 
 public interface CommentRepository extends JpaRepository<Comment, Long>, CommentRepositoryQuerydsl {
 

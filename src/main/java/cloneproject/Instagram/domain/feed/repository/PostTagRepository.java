@@ -1,16 +1,15 @@
 package cloneproject.Instagram.domain.feed.repository;
 
-import cloneproject.Instagram.domain.feed.dto.PostTagDto;
-import cloneproject.Instagram.domain.feed.entity.PostImage;
-import cloneproject.Instagram.domain.feed.entity.PostTag;
-
-import cloneproject.Instagram.domain.feed.repository.jdbc.PostTagRepositoryJdbc;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
+import cloneproject.Instagram.domain.feed.dto.PostTagDto;
+import cloneproject.Instagram.domain.feed.entity.PostImage;
+import cloneproject.Instagram.domain.feed.entity.PostTag;
+import cloneproject.Instagram.domain.feed.repository.jdbc.PostTagRepositoryJdbc;
 
 public interface PostTagRepository extends JpaRepository<PostTag, Long>, PostTagRepositoryJdbc {
 

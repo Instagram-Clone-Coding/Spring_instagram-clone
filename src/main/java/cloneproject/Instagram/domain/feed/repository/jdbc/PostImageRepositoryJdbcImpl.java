@@ -1,14 +1,15 @@
 package cloneproject.Instagram.domain.feed.repository.jdbc;
 
-import cloneproject.Instagram.global.vo.Image;
-import lombok.RequiredArgsConstructor;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.List;
 
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
+
+import cloneproject.Instagram.global.vo.Image;
 
 @RequiredArgsConstructor
 public class PostImageRepositoryJdbcImpl implements PostImageRepositoryJdbc {
