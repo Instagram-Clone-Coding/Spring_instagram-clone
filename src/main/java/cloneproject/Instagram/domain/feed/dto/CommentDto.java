@@ -1,7 +1,8 @@
 package cloneproject.Instagram.domain.feed.dto;
 
-import cloneproject.Instagram.domain.member.dto.MemberDto;
-import cloneproject.Instagram.domain.member.entity.Member;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.querydsl.core.annotations.QueryProjection;
@@ -9,7 +10,8 @@ import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import cloneproject.Instagram.domain.member.dto.MemberDto;
+import cloneproject.Instagram.domain.member.entity.Member;
 
 @Data
 @NoArgsConstructor
@@ -25,6 +27,8 @@ public class CommentDto {
 	private int commentLikesCount;
 	private boolean commentLikeFlag;
 	private int repliesCount;
+	private List<String> mentionsOfContent = new ArrayList<>();
+	private List<String> hashtagsOfContent = new ArrayList<>();
 
 	@QueryProjection
 	public CommentDto(Long postId, Long id, Member member, String content, LocalDateTime uploadDate,
@@ -37,6 +41,14 @@ public class CommentDto {
 		this.commentLikesCount = commentLikesCount;
 		this.commentLikeFlag = commentLikeFlag;
 		this.repliesCount = repliesCount;
+	}
+
+	public void setMentionsOfContent(List<String> mentionsOfContent) {
+		this.mentionsOfContent = mentionsOfContent;
+	}
+
+	public void setHashtagsOfContent(List<String> hashtagsOfContent) {
+		this.hashtagsOfContent = hashtagsOfContent;
 	}
 
 }

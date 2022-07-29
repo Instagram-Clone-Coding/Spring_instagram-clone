@@ -1,18 +1,19 @@
 package cloneproject.Instagram.domain.feed.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+
 import cloneproject.Instagram.domain.feed.entity.Comment;
 import cloneproject.Instagram.domain.feed.entity.Post;
 import cloneproject.Instagram.domain.feed.entity.RecentComment;
 import cloneproject.Instagram.domain.feed.repository.CommentRepository;
 import cloneproject.Instagram.domain.feed.repository.RecentCommentRepository;
 import cloneproject.Instagram.domain.member.entity.Member;
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)

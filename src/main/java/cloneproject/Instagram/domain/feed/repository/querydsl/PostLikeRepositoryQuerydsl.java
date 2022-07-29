@@ -7,12 +7,16 @@ import org.springframework.data.domain.Pageable;
 
 import cloneproject.Instagram.domain.feed.dto.PostLikeDto;
 import cloneproject.Instagram.domain.member.dto.LikeMemberDto;
+import cloneproject.Instagram.domain.member.entity.Member;
 
 public interface PostLikeRepositoryQuerydsl {
 
-	List<PostLikeDto> findAllPostLikeDtoOfFollowings(Long memberId, List<Long> postIds);
+	List<PostLikeDto> findAllPostLikeDtoInFollowings(Long memberId, List<Long> postIds, List<Member> followings);
 
 	Page<LikeMemberDto> findPostLikeMembersDtoPage(Pageable pageable, Long postId, Long memberId);
+
+	Page<LikeMemberDto> findPostLikeMembersDtoPageInFollowings(Pageable pageable, Long postId, Long memberId,
+		List<Member> followings);
 
 	Page<LikeMemberDto> findCommentLikeMembersDtoPage(Pageable pageable, Long commentId, Long memberId);
 

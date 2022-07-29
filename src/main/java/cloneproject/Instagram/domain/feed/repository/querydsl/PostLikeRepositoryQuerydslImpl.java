@@ -1,29 +1,28 @@
 package cloneproject.Instagram.domain.feed.repository.querydsl;
 
-import cloneproject.Instagram.domain.feed.dto.PostLikeDto;
-import cloneproject.Instagram.domain.feed.dto.QPostLikeDto;
-import cloneproject.Instagram.domain.member.dto.LikeMemberDto;
-import cloneproject.Instagram.domain.member.entity.Member;
-import cloneproject.Instagram.domain.member.entity.QMember;
-import cloneproject.Instagram.domain.member.dto.QLikeMemberDto;
+import static cloneproject.Instagram.domain.feed.entity.QCommentLike.*;
+import static cloneproject.Instagram.domain.feed.entity.QPostLike.*;
+import static cloneproject.Instagram.domain.follow.entity.QFollow.*;
+import static cloneproject.Instagram.domain.member.entity.QMember.*;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.JPQLQuery;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-
-import lombok.RequiredArgsConstructor;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import static cloneproject.Instagram.domain.feed.entity.QCommentLike.commentLike;
-import static cloneproject.Instagram.domain.follow.entity.QFollow.follow;
-import static cloneproject.Instagram.domain.member.entity.QMember.member;
-import static cloneproject.Instagram.domain.feed.entity.QPostLike.postLike;;
+import lombok.RequiredArgsConstructor;
+
+import cloneproject.Instagram.domain.feed.dto.PostLikeDto;
+import cloneproject.Instagram.domain.feed.dto.QPostLikeDto;
+import cloneproject.Instagram.domain.member.dto.LikeMemberDto;
+import cloneproject.Instagram.domain.member.dto.QLikeMemberDto;
+import cloneproject.Instagram.domain.member.entity.Member;
+import cloneproject.Instagram.domain.member.entity.QMember;
 
 @RequiredArgsConstructor
 public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQuerydsl {
@@ -31,7 +30,8 @@ public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQueryds
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public List<PostLikeDto> findAllPostLikeDtoOfFollowings(Long memberId, List<Long> postIds) {
+	public List<PostLikeDto> findAllPostLikeDtoInFollowings(Long memberId, List<Long> postIds,
+		List<Member> followings) {
 		return queryFactory
 			.select(new QPostLikeDto(
 				postLike.post.id,
@@ -41,18 +41,9 @@ public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQueryds
 			.innerJoin(postLike.member, member)
 			.where(
 				postLike.post.id.in(postIds)
-					.and(postLike.member.in(getFollowings(memberId)))
+					.and(postLike.member.in(followings))
 			)
 			.fetch();
-	}
-
-	private JPQLQuery<Member> getFollowings(Long memberId) {
-		return JPAExpressions
-			.select(follow.followMember)
-			.from(follow)
-			.innerJoin(follow.member, member)
-			.innerJoin(follow.followMember, member)
-			.where(follow.member.id.eq(memberId));
 	}
 
 	@Override
@@ -79,6 +70,37 @@ public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQueryds
 			.where(
 				postLike.post.id.eq(postId)
 					.and(postLike.member.id.ne(memberId))
+			)
+			.fetchCount();
+
+		return new PageImpl<>(likeMembersDtos, pageable, total);
+	}
+
+	@Override
+	public Page<LikeMemberDto> findPostLikeMembersDtoPageInFollowings(Pageable pageable, Long postId, Long memberId,
+		List<Member> followings) {
+		final List<LikeMemberDto> likeMembersDtos = queryFactory
+			.select(new QLikeMemberDto(
+				postLike.member,
+				isFollowing(memberId, postLike.member),
+				isFollower(memberId, postLike.member)
+			))
+			.from(postLike)
+			.innerJoin(postLike.member, member)
+			.where(
+				postLike.post.id.eq(postId)
+					.and(postLike.member.in(followings))
+			)
+			.orderBy(postLike.id.desc())
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
+			.fetch();
+
+		final long total = queryFactory
+			.selectFrom(postLike)
+			.where(
+				postLike.post.id.eq(postId)
+					.and(postLike.member.in(followings))
 			)
 			.fetchCount();
 

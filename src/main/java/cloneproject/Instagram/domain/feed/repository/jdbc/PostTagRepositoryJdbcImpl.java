@@ -1,14 +1,15 @@
 package cloneproject.Instagram.domain.feed.repository.jdbc;
 
-import cloneproject.Instagram.domain.feed.dto.PostImageTagRequest;
-import lombok.RequiredArgsConstructor;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.List;
 
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
+
+import cloneproject.Instagram.domain.feed.dto.PostImageTagRequest;
 
 @RequiredArgsConstructor
 public class PostTagRepositoryJdbcImpl implements PostTagRepositoryJdbc {
