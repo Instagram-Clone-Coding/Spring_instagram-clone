@@ -77,7 +77,7 @@ public class ErrorResponse {
 		}
 
 		public static List<FieldError> of(final String field, final String value, final String reason) {
-			List<FieldError> fieldErrors = new ArrayList<>();
+			final List<FieldError> fieldErrors = new ArrayList<>();
 			fieldErrors.add(new FieldError(field, value, reason));
 			return fieldErrors;
 		}
@@ -93,7 +93,7 @@ public class ErrorResponse {
 		}
 
 		private static List<FieldError> of(final Set<ConstraintViolation<?>> constraintViolations) {
-			List<ConstraintViolation<?>> lists = new ArrayList<>(constraintViolations);
+			final List<ConstraintViolation<?>> lists = new ArrayList<>(constraintViolations);
 			return lists.stream()
 				.map(error -> {
 					final String invalidValue =

@@ -1,10 +1,16 @@
 package cloneproject.Instagram.domain.feed.repository.querydsl;
 
-import cloneproject.Instagram.domain.feed.dto.PostDto;
-import cloneproject.Instagram.domain.feed.dto.PostResponse;
-import cloneproject.Instagram.domain.feed.dto.QPostDto;
-import cloneproject.Instagram.domain.feed.dto.QPostResponse;
-import cloneproject.Instagram.domain.member.entity.QMember;
+import static cloneproject.Instagram.domain.feed.entity.QBookmark.*;
+import static cloneproject.Instagram.domain.feed.entity.QPost.*;
+import static cloneproject.Instagram.domain.feed.entity.QPostLike.*;
+import static cloneproject.Instagram.domain.follow.entity.QFollow.*;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
@@ -12,17 +18,11 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-
-import java.util.List;
-import java.util.Optional;
-
-import static cloneproject.Instagram.domain.follow.entity.QFollow.follow;
-import static cloneproject.Instagram.domain.feed.entity.QBookmark.bookmark;
-import static cloneproject.Instagram.domain.feed.entity.QPost.post;
-import static cloneproject.Instagram.domain.feed.entity.QPostLike.postLike;
+import cloneproject.Instagram.domain.feed.dto.PostDto;
+import cloneproject.Instagram.domain.feed.dto.PostResponse;
+import cloneproject.Instagram.domain.feed.dto.QPostDto;
+import cloneproject.Instagram.domain.feed.dto.QPostResponse;
+import cloneproject.Instagram.domain.member.entity.QMember;
 
 @RequiredArgsConstructor
 public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
@@ -41,7 +41,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 				post.postLikes.size(),
 				isExistBookmarkWherePostEqMemberIdEq(memberId),
 				isExistPostLikeWherePostEqAndMemberIdEq(memberId),
-				post.commentFlag
+				post.commentFlag,
+				post.likeFlag
 			))
 			.from(post)
 			.innerJoin(post.member, QMember.member)
@@ -71,7 +72,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 				post.postLikes.size(),
 				isExistBookmarkWherePostEqMemberIdEq(memberId),
 				isExistPostLikeWherePostEqAndMemberIdEq(memberId),
-				post.commentFlag
+				post.commentFlag,
+				post.likeFlag
 			))
 			.from(post)
 			.where(post.id.eq(postId))
@@ -97,7 +99,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 				post.postLikes.size(),
 				isExistBookmarkWherePostEqMemberIdEq(memberId),
 				isExistPostLikeWherePostEqAndMemberIdEq(memberId),
-				post.commentFlag
+				post.commentFlag,
+				post.likeFlag
 			))
 			.from(post)
 			.innerJoin(post.member, QMember.member)
@@ -108,9 +111,9 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 
 	private long countByPostIdIn(List<Long> ids) {
 		return queryFactory
-				.selectFrom(post)
-				.where(post.id.in(ids))
-				.fetchCount();
+			.selectFrom(post)
+			.where(post.id.in(ids))
+			.fetchCount();
 	}
 
 	private BooleanExpression isExistPostLikeWherePostEqAndMemberIdEq(Long id) {

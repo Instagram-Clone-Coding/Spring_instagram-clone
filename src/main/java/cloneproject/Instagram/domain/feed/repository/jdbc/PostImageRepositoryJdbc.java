@@ -1,8 +1,8 @@
 package cloneproject.Instagram.domain.feed.repository.jdbc;
 
-import cloneproject.Instagram.global.vo.Image;
-
 import java.util.List;
+
+import cloneproject.Instagram.global.vo.Image;
 
 public interface PostImageRepositoryJdbc {
 

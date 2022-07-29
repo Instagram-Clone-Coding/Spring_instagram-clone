@@ -1,12 +1,12 @@
 package cloneproject.Instagram.domain.feed.repository;
 
-import cloneproject.Instagram.domain.feed.entity.Bookmark;
-import cloneproject.Instagram.domain.feed.entity.Post;
-import cloneproject.Instagram.domain.member.entity.Member;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+import cloneproject.Instagram.domain.feed.entity.Bookmark;
+import cloneproject.Instagram.domain.feed.entity.Post;
+import cloneproject.Instagram.domain.member.entity.Member;
 
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
 

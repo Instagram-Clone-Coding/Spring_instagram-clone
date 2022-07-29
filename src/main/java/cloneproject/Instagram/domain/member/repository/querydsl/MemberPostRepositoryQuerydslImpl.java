@@ -1,21 +1,25 @@
 package cloneproject.Instagram.domain.member.repository.querydsl;
 
-import static cloneproject.Instagram.domain.feed.entity.QBookmark.*;
-import static cloneproject.Instagram.domain.feed.entity.QPost.*;
-import static cloneproject.Instagram.domain.feed.entity.QPostTag.*;
-
 import java.util.List;
+
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import com.querydsl.jpa.impl.JPAQueryFactory;
+import cloneproject.Instagram.domain.feed.dto.MemberPostDto;
+import cloneproject.Instagram.domain.feed.dto.QMemberPostDto;
+import cloneproject.Instagram.domain.member.entity.Member;
 
 import lombok.RequiredArgsConstructor;
 
-import cloneproject.Instagram.domain.feed.dto.MemberPostDto;
-import cloneproject.Instagram.domain.feed.dto.QMemberPostDto;
+import static cloneproject.Instagram.domain.feed.entity.QPost.post;
+import static cloneproject.Instagram.domain.feed.entity.QBookmark.bookmark;
+import static cloneproject.Instagram.domain.feed.entity.QPostLike.*;
+import static cloneproject.Instagram.domain.feed.entity.QPostTag.postTag;
 
 @RequiredArgsConstructor
 public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQuerydsl {
@@ -23,11 +27,14 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public Page<MemberPostDto> findMemberPostDtos(String username, Pageable pageable) {
+	public Page<MemberPostDto> findMemberPostDtos(Member loginMember, String username, Pageable pageable) {
 		final List<MemberPostDto> posts = queryFactory
 			.select(new QMemberPostDto(
 				post.id,
+				post.member,
 				post.postImages.size().gt(1),
+				post.likeFlag,
+				isExistPostLikeWherePostEqAndMemberUsernameEq(loginMember.getUsername()),
 				post.comments.size(),
 				post.postLikes.size()))
 			.from(post)
@@ -50,6 +57,7 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 		final List<MemberPostDto> posts = queryFactory
 			.select(new QMemberPostDto(
 				bookmark.post.id,
+				bookmark.post.member,
 				bookmark.post.postImages.size().gt(1),
 				bookmark.post.comments.size(),
 				bookmark.post.postLikes.size()))
@@ -69,11 +77,14 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 	}
 
 	@Override
-	public Page<MemberPostDto> findMemberTaggedPostDtos(String username, Pageable pageable) {
+	public Page<MemberPostDto> findMemberTaggedPostDtos(Member loginMember, String username, Pageable pageable) {
 		final List<MemberPostDto> posts = queryFactory
 			.select(new QMemberPostDto(
 				postTag.postImage.post.id,
+				postTag.postImage.post.member,
 				postTag.postImage.post.postImages.size().gt(1),
+				postTag.postImage.post.likeFlag,
+				isExistPostLikeWherePostEqAndMemberUsernameEq(loginMember.getUsername()),
 				postTag.postImage.post.comments.size(),
 				postTag.postImage.post.postLikes.size()))
 			.from(postTag)
@@ -89,6 +100,13 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 			.where(postTag.tag.username.eq(username))
 			.fetchCount();
 		return new PageImpl<>(posts, pageable, total);
+	}
+
+	private BooleanExpression isExistPostLikeWherePostEqAndMemberUsernameEq(String username) {
+		return JPAExpressions
+			.selectFrom(postLike)
+			.where(postLike.post.eq(post).and(postLike.member.username.eq(username)))
+			.exists();
 	}
 
 }

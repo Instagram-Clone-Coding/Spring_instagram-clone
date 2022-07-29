@@ -1,7 +1,15 @@
 package cloneproject.Instagram.domain.feed.repository.querydsl;
 
-import cloneproject.Instagram.domain.feed.dto.CommentDto;
-import cloneproject.Instagram.domain.feed.dto.QCommentDto;
+import static cloneproject.Instagram.domain.feed.entity.QComment.*;
+import static cloneproject.Instagram.domain.feed.entity.QCommentLike.*;
+import static cloneproject.Instagram.domain.feed.entity.QRecentComment.*;
+import static cloneproject.Instagram.domain.member.entity.QMember.*;
+
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
@@ -9,16 +17,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-
-import java.util.List;
-
-import static cloneproject.Instagram.domain.feed.entity.QComment.comment;
-import static cloneproject.Instagram.domain.feed.entity.QCommentLike.commentLike;
-import static cloneproject.Instagram.domain.feed.entity.QRecentComment.*;
-import static cloneproject.Instagram.domain.member.entity.QMember.member;
+import cloneproject.Instagram.domain.feed.dto.CommentDto;
+import cloneproject.Instagram.domain.feed.dto.QCommentDto;
 
 @RequiredArgsConstructor
 public class CommentRepositoryQuerydslImpl implements CommentRepositoryQuerydsl {

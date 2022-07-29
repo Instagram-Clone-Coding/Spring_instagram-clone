@@ -1,23 +1,19 @@
 package cloneproject.Instagram.domain.feed.dto;
 
-import cloneproject.Instagram.domain.member.dto.MemberDto;
-import cloneproject.Instagram.domain.member.entity.Member;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.querydsl.core.annotations.QueryProjection;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import cloneproject.Instagram.domain.member.dto.MemberDto;
+import cloneproject.Instagram.domain.member.entity.Member;
 
-@Setter
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
 public class PostResponse {
 
 	private Long postId;
@@ -27,14 +23,18 @@ public class PostResponse {
 	private int postLikesCount;
 	private boolean postBookmarkFlag;
 	private boolean postLikeFlag;
-	private boolean commentFlag;
-	private String followingMemberUsernameLikedPost;
+	private boolean commentOptionFlag;
+	private boolean likeOptionFlag;
+	private String followingMemberUsernameLikedPost = "";
 	private List<PostImageDto> postImageDtos = new ArrayList<>();
 	private List<CommentDto> commentDtos = new ArrayList<>();
+	private List<String> mentionsOfContent = new ArrayList<>();
+	private List<String> hashtagsOfContent = new ArrayList<>();
 
 	@QueryProjection
 	public PostResponse(Long postId, String postContent, LocalDateTime postUploadDate, Member member,
-		int postLikesCount, boolean postBookmarkFlag, boolean postLikeFlag, boolean commentFlag) {
+		int postLikesCount, boolean postBookmarkFlag, boolean postLikeFlag, boolean commentOptionFlag,
+		boolean likeOptionFlag) {
 		this.postId = postId;
 		this.postContent = postContent;
 		this.postUploadDate = postUploadDate;
@@ -42,7 +42,32 @@ public class PostResponse {
 		this.postLikesCount = postLikesCount;
 		this.postBookmarkFlag = postBookmarkFlag;
 		this.postLikeFlag = postLikeFlag;
-		this.commentFlag = commentFlag;
+		this.commentOptionFlag = commentOptionFlag;
+		this.likeOptionFlag = likeOptionFlag;
+	}
+
+	public void setCommentDtos(List<CommentDto> commentDtos) {
+		this.commentDtos = commentDtos;
+	}
+
+	public void setPostImageDtos(List<PostImageDto> postImageDtos) {
+		this.postImageDtos = postImageDtos;
+	}
+
+	public void setFollowingMemberUsernameLikedPost(String followingMemberUsernameLikedPost) {
+		this.followingMemberUsernameLikedPost = followingMemberUsernameLikedPost;
+	}
+
+	public void setPostLikesCount(int postLikesCount) {
+		this.postLikesCount = postLikesCount;
+	}
+
+	public void setMentionsOfContent(List<String> mentions) {
+		this.mentionsOfContent = mentions;
+	}
+
+	public void setHashtagsOfContent(List<String> hashtags) {
+		this.hashtagsOfContent = hashtags;
 	}
 
 }

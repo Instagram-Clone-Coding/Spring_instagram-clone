@@ -80,7 +80,7 @@ public class MemberPostController {
 		@ApiResponse(code = 401, message = "M003 - 로그인이 필요한 화면입니다.")
 	})
 	@GetMapping("/posts/saved/recent")
-	public ResponseEntity<ResultResponse> getRecent1SavedPosts() {
+	public ResponseEntity<ResultResponse> getRecent15SavedPosts() {
 		final List<MemberPostDto> postList = memberPostService.getRecent15SavedPostDtos();
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_RECENT15_MEMBER_SAVED_POSTS_SUCCESS, postList));

@@ -1,18 +1,16 @@
 package cloneproject.Instagram.domain.feed.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.querydsl.core.annotations.QueryProjection;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
-
-@Data
+@Getter
 @AllArgsConstructor
-@NoArgsConstructor
 public class PostImageDto {
 
 	@JsonIgnore
@@ -28,6 +26,10 @@ public class PostImageDto {
 		this.id = id;
 		this.postImageUrl = postImageUrl;
 		this.altText = altText;
+	}
+
+	public void setPostTags(List<PostTagDto> postTagDtos) {
+		this.postTags = postTagDtos;
 	}
 
 }

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import cloneproject.Instagram.domain.follow.entity.Follow;
 import cloneproject.Instagram.domain.follow.repository.querydsl.FollowRepositoryQuerydsl;
+import cloneproject.Instagram.domain.member.entity.Member;
 
 public interface FollowRepository extends JpaRepository<Follow, Long>, FollowRepositoryQuerydsl {
 
@@ -21,5 +22,7 @@ public interface FollowRepository extends JpaRepository<Follow, Long>, FollowRep
 	public int countByMemberId(Long memberId);
 
 	public int countByFollowMemberId(Long followMemberId);
+
+    List<Follow> findAllByMember(Member member);
 
 }

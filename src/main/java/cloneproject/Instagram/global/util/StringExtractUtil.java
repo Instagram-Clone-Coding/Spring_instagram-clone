@@ -18,10 +18,12 @@ public class StringExtractUtil {
 		final Pattern pattern = Pattern.compile(regex);
 		final Matcher matcher = pattern.matcher(input);
 
-		while (matcher.find())
+		while (matcher.find()) {
 			mentions.add(matcher.group().substring(1));
-		for (String username : exceptUsernames)
+		}
+		for (String username : exceptUsernames) {
 			mentions.remove(username);
+		}
 
 		return new ArrayList<>(mentions);
 	}
@@ -32,9 +34,11 @@ public class StringExtractUtil {
 		final Pattern pattern = Pattern.compile(regex);
 		final Matcher matcher = pattern.matcher(input);
 
-		while (matcher.find())
+		while (matcher.find()) {
 			hashtags.add(matcher.group().substring(1));
+		}
 
 		return new ArrayList<>(hashtags);
 	}
+
 }
