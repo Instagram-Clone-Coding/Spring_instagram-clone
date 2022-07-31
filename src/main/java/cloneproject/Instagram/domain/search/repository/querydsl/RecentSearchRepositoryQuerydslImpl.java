@@ -1,8 +1,8 @@
 package cloneproject.Instagram.domain.search.repository.querydsl;
 
 import static cloneproject.Instagram.domain.search.entity.QRecentSearch.*;
-import static cloneproject.Instagram.domain.search.entity.QSearchMember.*;
 import static cloneproject.Instagram.domain.search.entity.QSearchHashtag.*;
+import static cloneproject.Instagram.domain.search.entity.QSearchMember.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,10 +11,11 @@ import org.springframework.data.domain.Pageable;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import cloneproject.Instagram.domain.search.entity.RecentSearch;
-import cloneproject.Instagram.domain.search.entity.Search;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import cloneproject.Instagram.domain.search.entity.RecentSearch;
+import cloneproject.Instagram.domain.search.entity.Search;
 
 @Slf4j
 @RequiredArgsConstructor

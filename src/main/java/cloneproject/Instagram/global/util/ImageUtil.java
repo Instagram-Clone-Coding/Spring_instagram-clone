@@ -2,10 +2,10 @@ package cloneproject.Instagram.global.util;
 
 import java.util.UUID;
 
-import com.google.common.base.Enums;
-
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.google.common.base.Enums;
 
 import cloneproject.Instagram.global.error.exception.NotSupportedImageTypeException;
 import cloneproject.Instagram.global.vo.Image;

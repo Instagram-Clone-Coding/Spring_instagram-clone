@@ -11,6 +11,8 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
+import lombok.RequiredArgsConstructor;
+
 import cloneproject.Instagram.domain.follow.dto.FollowDto;
 import cloneproject.Instagram.domain.follow.dto.FollowerDto;
 import cloneproject.Instagram.domain.follow.dto.QFollowDto;
@@ -18,7 +20,6 @@ import cloneproject.Instagram.domain.follow.dto.QFollowerDto;
 import cloneproject.Instagram.domain.follow.entity.Follow;
 import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
-import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl {

@@ -20,13 +20,14 @@ import javax.persistence.Table;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import cloneproject.Instagram.domain.follow.entity.Follow;
-import cloneproject.Instagram.global.vo.Image;
-import cloneproject.Instagram.global.vo.ImageType;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import cloneproject.Instagram.domain.follow.entity.Follow;
+import cloneproject.Instagram.global.vo.Image;
+import cloneproject.Instagram.global.vo.ImageType;
 
 @Getter
 @Entity
@@ -82,6 +83,24 @@ public class Member {
 	})
 	private Image image;
 
+	@Builder
+	public Member(String username, String name, String password, String email) {
+		this.username = username;
+		this.name = name;
+		this.password = password;
+		this.email = email;
+
+		// 자동 초기화
+		this.role = MemberRole.ROLE_USER;
+		this.gender = Gender.PRIVATE;
+		this.image = Image.builder()
+			.imageName("base")
+			.imageType(ImageType.PNG)
+			.imageUrl("https://bluetifulc-spring-bucket.s3.ap-northeast-2.amazonaws.com/member/base-UUID_base.PNG")
+			.imageUUID("base-UUID")
+			.build();
+	}
+
 	public void updateUsername(String username) {
 		this.username = username;
 	}
@@ -123,24 +142,6 @@ public class Member {
 		if (this.image.getImageUUID().equals("base-UUID"))
 			return;
 
-		this.image = Image.builder()
-			.imageName("base")
-			.imageType(ImageType.PNG)
-			.imageUrl("https://bluetifulc-spring-bucket.s3.ap-northeast-2.amazonaws.com/member/base-UUID_base.PNG")
-			.imageUUID("base-UUID")
-			.build();
-	}
-
-	@Builder
-	public Member(String username, String name, String password, String email) {
-		this.username = username;
-		this.name = name;
-		this.password = password;
-		this.email = email;
-
-		// 자동 초기화
-		this.role = MemberRole.ROLE_USER;
-		this.gender = Gender.PRIVATE;
 		this.image = Image.builder()
 			.imageName("base")
 			.imageType(ImageType.PNG)

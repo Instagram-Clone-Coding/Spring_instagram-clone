@@ -4,7 +4,7 @@ import cloneproject.Instagram.global.error.ErrorCode;
 
 public class EntityAlreadyExistException extends BusinessException {
 
-    public EntityAlreadyExistException(ErrorCode errorCode) {
-        super(errorCode);
-    }
+	public EntityAlreadyExistException(ErrorCode errorCode) {
+		super(errorCode);
+	}
 }

@@ -1,5 +1,7 @@
 package cloneproject.Instagram.domain.hashtag.controller;
 
+import static cloneproject.Instagram.global.result.ResultCode.*;
+
 import javax.validation.constraints.NotBlank;
 
 import org.springframework.http.ResponseEntity;
@@ -18,9 +20,6 @@ import lombok.RequiredArgsConstructor;
 
 import cloneproject.Instagram.domain.hashtag.service.HashtagService;
 import cloneproject.Instagram.global.result.ResultResponse;
-
-import static cloneproject.Instagram.global.result.ResultCode.FOLLOW_HASHTAG_SUCCESS;
-import static cloneproject.Instagram.global.result.ResultCode.UNFOLLOW_HASHTAG_SUCCESS;
 
 @Api(tags = "해시태그 API")
 @Validated

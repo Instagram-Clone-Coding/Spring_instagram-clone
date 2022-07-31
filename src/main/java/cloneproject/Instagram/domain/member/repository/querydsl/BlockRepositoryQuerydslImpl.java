@@ -1,10 +1,10 @@
 package cloneproject.Instagram.domain.member.repository.querydsl;
 
-import lombok.RequiredArgsConstructor;
+import static cloneproject.Instagram.domain.member.entity.QBlock.*;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import static cloneproject.Instagram.domain.member.entity.QBlock.block;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class BlockRepositoryQuerydslImpl implements BlockRepositoryQuerydsl {

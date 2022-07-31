@@ -16,11 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import cloneproject.Instagram.domain.hashtag.dto.HashtagDto;
-import cloneproject.Instagram.domain.member.dto.MemberDto;
-import cloneproject.Instagram.domain.search.dto.SearchDto;
-import cloneproject.Instagram.domain.search.service.SearchService;
-import cloneproject.Instagram.global.result.ResultResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -29,6 +24,12 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import cloneproject.Instagram.domain.hashtag.dto.HashtagDto;
+import cloneproject.Instagram.domain.member.dto.MemberDto;
+import cloneproject.Instagram.domain.search.dto.SearchDto;
+import cloneproject.Instagram.domain.search.service.SearchService;
+import cloneproject.Instagram.global.result.ResultResponse;
 
 @Slf4j
 @Validated

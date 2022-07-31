@@ -5,8 +5,8 @@ import cloneproject.Instagram.global.error.exception.BusinessException;
 
 public class HashtagFollowFailException extends BusinessException {
 
-    public HashtagFollowFailException() {
-        super(ErrorCode.HASHTAG_FOLLOW_FAIL);
-    }
+	public HashtagFollowFailException() {
+		super(ErrorCode.HASHTAG_FOLLOW_FAIL);
+	}
 
 }

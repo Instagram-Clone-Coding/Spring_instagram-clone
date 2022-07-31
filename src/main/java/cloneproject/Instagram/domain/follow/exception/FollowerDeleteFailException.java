@@ -5,8 +5,8 @@ import cloneproject.Instagram.global.error.exception.BusinessException;
 
 public class FollowerDeleteFailException extends BusinessException {
 
-    public FollowerDeleteFailException() {
-        super(ErrorCode.FOLLOWER_DELETE_FAIL);
-    }
+	public FollowerDeleteFailException() {
+		super(ErrorCode.FOLLOWER_DELETE_FAIL);
+	}
 
 }

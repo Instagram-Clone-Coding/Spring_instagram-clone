@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import cloneproject.Instagram.domain.feed.dto.MiniProfilePostDto;
 import cloneproject.Instagram.domain.feed.dto.PostImageDto;
 import cloneproject.Instagram.domain.feed.entity.Post;
@@ -32,14 +35,14 @@ import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 import cloneproject.Instagram.global.util.AuthUtil;
 import cloneproject.Instagram.global.vo.Image;
 import cloneproject.Instagram.infra.aws.S3Uploader;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberService {
 
+	private static final int MAX_PROFILE_FOLLOWING_MEMBER_FOLLOW_COUNT = 3;
+	private static final int MAX_MINI_PROFILE_FOLLOWING_MEMBER_FOLLOW_COUNT = 1;
 	private final AuthUtil authUtil;
 	private final MemberRepository memberRepository;
 	private final FollowRepository followRepository;
@@ -47,8 +50,6 @@ public class MemberService {
 	private final MemberStoryRedisRepository memberStoryRedisRepository;
 	private final PostRepository postRepository;
 	private final PostImageRepository postImageRepository;
-	private static final int MAX_PROFILE_FOLLOWING_MEMBER_FOLLOW_COUNT = 3;
-	private static final int MAX_MINI_PROFILE_FOLLOWING_MEMBER_FOLLOW_COUNT = 1;
 
 	@Transactional(readOnly = true)
 	public MenuMemberProfile getMenuMemberProfile() {
@@ -92,26 +93,6 @@ public class MemberService {
 		result.setHasStory(memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0);
 		setMemberPostImages(result, member.getId());
 		return result;
-	}
-
-	private void setMemberPostImages(MiniProfileResponse miniProfileResponse, Long memberId) {
-		final List<Post> posts = postRepository.findTop3ByMemberIdOrderByIdDesc(memberId);
-		final List<Long> postIds = posts.stream()
-			.map(Post::getId)
-			.collect(Collectors.toList());
-		final List<PostImageDto> postImages = postImageRepository.findAllPostImageDto(postIds);
-
-		final Map<Long, List<PostImageDto>> postDTOMap = postImages.stream()
-			.collect(Collectors.groupingBy(PostImageDto::getPostId));
-
-		final List<MiniProfilePostDto> results = new ArrayList<>();
-		postDTOMap.forEach((id, p) -> results.add(
-			MiniProfilePostDto.builder()
-				.postId(id)
-				.postImageUrl(p.get(0).getPostImageUrl())
-				.build()));
-
-		miniProfileResponse.setMemberPosts(results);
 	}
 
 	@Transactional
@@ -167,6 +148,26 @@ public class MemberService {
 		member.updatePhone(editProfileRequest.getMemberPhone());
 		member.updateGender(Gender.valueOf(editProfileRequest.getMemberGender()));
 		memberRepository.save(member);
+	}
+
+	private void setMemberPostImages(MiniProfileResponse miniProfileResponse, Long memberId) {
+		final List<Post> posts = postRepository.findTop3ByMemberIdOrderByIdDesc(memberId);
+		final List<Long> postIds = posts.stream()
+			.map(Post::getId)
+			.collect(Collectors.toList());
+		final List<PostImageDto> postImages = postImageRepository.findAllPostImageDto(postIds);
+
+		final Map<Long, List<PostImageDto>> postDTOMap = postImages.stream()
+			.collect(Collectors.groupingBy(PostImageDto::getPostId));
+
+		final List<MiniProfilePostDto> results = new ArrayList<>();
+		postDTOMap.forEach((id, p) -> results.add(
+			MiniProfilePostDto.builder()
+				.postId(id)
+				.postImageUrl(p.get(0).getPostImageUrl())
+				.build()));
+
+		miniProfileResponse.setMemberPosts(results);
 	}
 
 }

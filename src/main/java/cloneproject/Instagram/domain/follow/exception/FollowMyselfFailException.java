@@ -5,8 +5,8 @@ import cloneproject.Instagram.global.error.exception.BusinessException;
 
 public class FollowMyselfFailException extends BusinessException {
 
-    public FollowMyselfFailException() {
-        super(ErrorCode.FOLLOW_MYSELF_FAIL);
-    }
+	public FollowMyselfFailException() {
+		super(ErrorCode.FOLLOW_MYSELF_FAIL);
+	}
 
 }

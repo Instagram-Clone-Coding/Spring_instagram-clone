@@ -11,12 +11,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.Assert;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import cloneproject.Instagram.domain.member.exception.PasswordResetFailException;
 import cloneproject.Instagram.domain.member.service.EmailCodeService;
 import cloneproject.Instagram.global.config.security.token.ResetPasswordCodeAuthenticationToken;
 import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -25,6 +26,11 @@ public class ResetPasswordCodeAuthenticationProvider extends AbstractUserDetails
 	private final UserDetailsService userDetailsService;
 
 	private final EmailCodeService emailCodeService;
+
+	@Override
+	public boolean supports(Class<?> aClass) {
+		return ResetPasswordCodeAuthenticationToken.class.isAssignableFrom(aClass);
+	}
 
 	protected void additionalAuthenticationChecks(
 		UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
@@ -74,11 +80,6 @@ public class ResetPasswordCodeAuthenticationProvider extends AbstractUserDetails
 
 	private String determineUsername(Authentication authentication) {
 		return authentication.getName();
-	}
-
-	@Override
-	public boolean supports(Class<?> aClass) {
-		return ResetPasswordCodeAuthenticationToken.class.isAssignableFrom(aClass);
 	}
 
 }

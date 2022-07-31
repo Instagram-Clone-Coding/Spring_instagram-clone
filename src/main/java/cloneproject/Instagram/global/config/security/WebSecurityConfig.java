@@ -26,8 +26,11 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import cloneproject.Instagram.domain.member.service.EmailCodeService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import cloneproject.Instagram.domain.member.service.CustomUserDetailsService;
+import cloneproject.Instagram.domain.member.service.EmailCodeService;
 import cloneproject.Instagram.domain.member.service.ResetPasswordCodeUserDetailService;
 import cloneproject.Instagram.global.config.security.filter.CustomExceptionHandleFilter;
 import cloneproject.Instagram.global.config.security.filter.CustomUsernamePasswordAuthenticationFilter;
@@ -43,8 +46,6 @@ import cloneproject.Instagram.global.config.security.provider.ReissueAuthenticat
 import cloneproject.Instagram.global.config.security.provider.ResetPasswordCodeAuthenticationProvider;
 import cloneproject.Instagram.global.result.ResultCode;
 import cloneproject.Instagram.global.util.JwtUtil;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
@@ -53,6 +54,13 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+	private static final String[] AUTH_WHITELIST_SWAGGER = {"/v2/api-docs", "/configuration/ui", "/swagger-resources",
+		"/configuration/security", "/swagger-ui.html", "/webjars/**", "/swagger/**"};
+	private static final String[] AUTH_WHITELIST_STATIC = {"/static/css/**", "/static/js/**", "*.ico"};
+	private static final String[] AUTH_WHITELIST = {"/login", "/login/recovery", "/accounts",
+		"/accounts/password/email",
+		"/accounts/password/reset", "/reissue", "/swagger-ui.html", "/swagger/**", "/swagger-resources/**",
+		"swagger-ui/**", "/accounts/email", "/accounts/check", "/logout/only/cookie", "/ws-connection/**"};
 	private final JwtUtil jwtUtil;
 	private final ResetPasswordCodeUserDetailService resetPasswordCodeUserDetailService;
 	private final CustomUserDetailsService jwtUserDetailsService;
@@ -60,22 +68,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	// Provider
 	private final JwtAuthenticationProvider jwtAuthenticationProvider;
 	private final ReissueAuthenticationProvider reissueAuthenticationProvider;
-
 	// Handler
 	private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 	private final CustomAccessDeniedHandler customAccessDeniedHandler;
 	private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
 	private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
-
 	// Filter
 	private final CustomExceptionHandleFilter customExceptionHandleFilter;
-
-	private static final String[] AUTH_WHITELIST_SWAGGER = {"/v2/api-docs", "/configuration/ui", "/swagger-resources",
-		"/configuration/security", "/swagger-ui.html", "/webjars/**", "/swagger/**"};
-	private static final String[] AUTH_WHITELIST_STATIC = {"/static/css/**", "/static/js/**", "*.ico"};
-	private static final String[] AUTH_WHITELIST = {"/login", "/login/recovery", "/accounts", "/accounts/password/email",
-		"/accounts/password/reset", "/reissue", "/swagger-ui.html", "/swagger/**", "/swagger-resources/**",
-		"swagger-ui/**", "/accounts/email", "/accounts/check", "/logout/only/cookie", "/ws-connection/**"};
 
 	@Bean
 	public BCryptPasswordEncoder bCryptPasswordEncoder() {

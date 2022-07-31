@@ -16,23 +16,23 @@ import redis.embedded.RedisServer;
 @Configuration
 @Profile("local")
 public class EmbeddedRedisConfig {
-    
-    @Value("${spring.redis.port}")
-    private int redisPort;
-    
-    private RedisServer redisServer;
 
-    @PostConstruct
-    public void redisServer() throws IOException {
-            redisServer = new RedisServer(redisPort);
-            redisServer.start();
-    }
+	@Value("${spring.redis.port}")
+	private int redisPort;
 
-    @PreDestroy
-    public void stopRedis() {
-        if (redisServer != null) {
-            redisServer.stop();
-        }
-    }
+	private RedisServer redisServer;
+
+	@PostConstruct
+	public void redisServer() throws IOException {
+		redisServer = new RedisServer(redisPort);
+		redisServer.start();
+	}
+
+	@PreDestroy
+	public void stopRedis() {
+		if (redisServer != null) {
+			redisServer.stop();
+		}
+	}
 
 }

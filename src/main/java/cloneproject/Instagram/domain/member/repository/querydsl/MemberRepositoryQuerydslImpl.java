@@ -1,5 +1,10 @@
 package cloneproject.Instagram.domain.member.repository.querydsl;
 
+import static cloneproject.Instagram.domain.feed.entity.QPost.*;
+import static cloneproject.Instagram.domain.follow.entity.QFollow.*;
+import static cloneproject.Instagram.domain.member.entity.QBlock.*;
+import static cloneproject.Instagram.domain.member.entity.QMember.*;
+
 import java.util.List;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -7,17 +12,13 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
+import lombok.RequiredArgsConstructor;
+
 import cloneproject.Instagram.domain.member.dto.MiniProfileResponse;
 import cloneproject.Instagram.domain.member.dto.QMiniProfileResponse;
 import cloneproject.Instagram.domain.member.dto.QUserProfileResponse;
 import cloneproject.Instagram.domain.member.dto.UserProfileResponse;
 import cloneproject.Instagram.domain.member.entity.Member;
-import lombok.RequiredArgsConstructor;
-
-import static cloneproject.Instagram.domain.feed.entity.QPost.*;
-import static cloneproject.Instagram.domain.follow.entity.QFollow.*;
-import static cloneproject.Instagram.domain.member.entity.QBlock.*;
-import static cloneproject.Instagram.domain.member.entity.QMember.*;
 
 @RequiredArgsConstructor
 public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl {

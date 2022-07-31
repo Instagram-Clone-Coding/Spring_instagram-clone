@@ -5,8 +5,8 @@ import cloneproject.Instagram.global.error.exception.BusinessException;
 
 public class UnfollowFailException extends BusinessException {
 
-    public UnfollowFailException() {
-        super(ErrorCode.UNFOLLOW_FAIL);
-    }
+	public UnfollowFailException() {
+		super(ErrorCode.UNFOLLOW_FAIL);
+	}
 
 }

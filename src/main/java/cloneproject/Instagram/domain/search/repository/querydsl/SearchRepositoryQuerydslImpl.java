@@ -14,6 +14,9 @@ import com.querydsl.core.group.GroupBy;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import cloneproject.Instagram.domain.search.dto.QSearchHashtagDto;
 import cloneproject.Instagram.domain.search.dto.QSearchMemberDto;
 import cloneproject.Instagram.domain.search.dto.SearchHashtagDto;
@@ -21,16 +24,14 @@ import cloneproject.Instagram.domain.search.dto.SearchMemberDto;
 import cloneproject.Instagram.domain.search.entity.Search;
 import cloneproject.Instagram.domain.search.entity.SearchHashtag;
 import cloneproject.Instagram.domain.search.entity.SearchMember;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
 public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 
-	private final JPAQueryFactory queryFactory;
 	private static final int SEARCH_SIZE = 50;
-	
+	private final JPAQueryFactory queryFactory;
+
 	@Override
 	public List<Search> findAllByTextLike(String text) {
 		final String keyword = text + "%";
@@ -39,12 +40,12 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 			.select(search)
 			.from(search)
 			.where(search.id.in(
-				JPAExpressions
-					.select(searchMember.id)
-					.from(searchMember)
-					.innerJoin(searchMember.member, member)
-					.where(searchMember.member.username.like(keyword)
-						.or(searchMember.member.name.like(keyword))))
+					JPAExpressions
+						.select(searchMember.id)
+						.from(searchMember)
+						.innerJoin(searchMember.member, member)
+						.where(searchMember.member.username.like(keyword)
+							.or(searchMember.member.name.like(keyword))))
 				.or(search.id.in(
 					JPAExpressions
 						.select(searchHashtag.id)
@@ -185,9 +186,9 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 					.exists())));
 	}
 
-	private <T> void checkSearchSize(List<T> list){
-		while(list.size() > SEARCH_SIZE){
-			list.remove(list.size()-1);
+	private <T> void checkSearchSize(List<T> list) {
+		while (list.size() > SEARCH_SIZE) {
+			list.remove(list.size() - 1);
 		}
 	}
 

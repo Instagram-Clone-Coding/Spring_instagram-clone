@@ -1,7 +1,5 @@
 package cloneproject.Instagram.domain.member.exception;
 
-import org.springframework.security.core.AuthenticationException;
-
 import cloneproject.Instagram.global.error.ErrorCode;
 import cloneproject.Instagram.global.error.exception.BusinessException;
 

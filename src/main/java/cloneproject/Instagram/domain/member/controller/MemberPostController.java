@@ -13,10 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import cloneproject.Instagram.domain.feed.dto.MemberPostDto;
-import cloneproject.Instagram.domain.member.service.MemberPostService;
-import cloneproject.Instagram.global.result.ResultCode;
-import cloneproject.Instagram.global.result.ResultResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -24,6 +20,11 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+
+import cloneproject.Instagram.domain.feed.dto.MemberPostDto;
+import cloneproject.Instagram.domain.member.service.MemberPostService;
+import cloneproject.Instagram.global.result.ResultCode;
+import cloneproject.Instagram.global.result.ResultResponse;
 
 @Api(tags = "멤버 게시물 API")
 @RestController

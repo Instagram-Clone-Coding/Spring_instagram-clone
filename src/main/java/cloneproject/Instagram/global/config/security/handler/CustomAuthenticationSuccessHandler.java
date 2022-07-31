@@ -21,6 +21,8 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.RequiredArgsConstructor;
+
 import cloneproject.Instagram.domain.member.dto.JwtDto;
 import cloneproject.Instagram.domain.member.dto.JwtResponse;
 import cloneproject.Instagram.domain.member.service.RefreshTokenService;
@@ -30,7 +32,6 @@ import cloneproject.Instagram.global.util.JwtUtil;
 import cloneproject.Instagram.global.util.RequestExtractor;
 import cloneproject.Instagram.infra.location.LocationService;
 import cloneproject.Instagram.infra.location.dto.Location;
-import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
@@ -39,10 +40,9 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 	private final JwtUtil jwtUtil;
 	private final LocationService locationService;
 	private final RefreshTokenService refreshTokenService;
-	private Map<String, ResultCode> resultCodeMap;
 	private final int REFRESH_TOKEN_EXPIRES = 60 * 60 * 24 * 7; // 7일
 	private final ResultCode DEFAULT_RESULT_CODE = LOGIN_SUCCESS;
-
+	private Map<String, ResultCode> resultCodeMap;
 	@Value("${cookie-domain}")
 	private String COOKIE_DOMAIN;
 
@@ -78,6 +78,10 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 		}
 	}
 
+	public void setResultCodeMap(Map<String, ResultCode> resultCodeMap) {
+		this.resultCodeMap = resultCodeMap;
+	}
+
 	protected ResultCode getResultCode(HttpServletRequest request) {
 		if (resultCodeMap != null && resultCodeMap.containsKey(request.getRequestURI())) {
 			return resultCodeMap.get(request.getRequestURI());
@@ -97,10 +101,6 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 		cookie.setDomain(COOKIE_DOMAIN);
 
 		response.addCookie(cookie);
-	}
-
-	public void setResultCodeMap(Map<String, ResultCode> resultCodeMap) {
-		this.resultCodeMap = resultCodeMap;
 	}
 
 }

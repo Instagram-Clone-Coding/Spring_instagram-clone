@@ -12,6 +12,9 @@ import javax.annotation.PostConstruct;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.entity.redis.EmailCode;
 import cloneproject.Instagram.domain.member.entity.redis.ResetPasswordCode;
@@ -23,8 +26,6 @@ import cloneproject.Instagram.domain.member.repository.redis.ResetPasswordCodeRe
 import cloneproject.Instagram.global.error.exception.CantConvertFileException;
 import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 import cloneproject.Instagram.infra.email.EmailService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -38,19 +39,6 @@ public class EmailCodeService {
 
 	private String confirmEmailUI;
 	private String resetPasswordEmailUI;
-
-	@PostConstruct
-	private void loadEmailUI() {
-		try {
-			ClassPathResource resource = new ClassPathResource("confirmEmailUI.html");
-			confirmEmailUI = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-
-			resource = new ClassPathResource("resetPasswordEmailUI.html");
-			resetPasswordEmailUI = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-		} catch (IOException e) {
-			throw new CantConvertFileException();
-		}
-	}
 
 	public void sendEmailConfirmationCode(String username, String email) {
 		final String code = createConfirmationCode(6);
@@ -133,6 +121,19 @@ public class EmailCodeService {
 			}
 		}
 		return key.toString();
+	}
+
+	@PostConstruct
+	private void loadEmailUI() {
+		try {
+			ClassPathResource resource = new ClassPathResource("confirmEmailUI.html");
+			confirmEmailUI = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+
+			resource = new ClassPathResource("resetPasswordEmailUI.html");
+			resetPasswordEmailUI = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+		} catch (IOException e) {
+			throw new CantConvertFileException();
+		}
 	}
 
 }

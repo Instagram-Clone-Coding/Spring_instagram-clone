@@ -10,11 +10,12 @@ import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 import org.springframework.data.redis.core.index.Indexed;
 
-import cloneproject.Instagram.infra.location.dto.Location;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import cloneproject.Instagram.infra.location.dto.Location;
 
 @RedisHash("refresh_tokens")
 @Getter
@@ -45,15 +46,6 @@ public class RefreshToken implements Serializable {
 
 	private String device;
 
-	public void updateToken(String newValue) {
-		this.lastUpdateDate = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-		this.value = newValue;
-	}
-
-	public Location getLocation() {
-		return new Location(city, longitude, latitude);
-	}
-
 	@Builder
 	public RefreshToken(Long memberId, String value, Location location, String device) {
 		this.lastUpdateDate = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
@@ -63,6 +55,15 @@ public class RefreshToken implements Serializable {
 		this.longitude = location.getLongitude();
 		this.latitude = location.getLatitude();
 		this.device = device;
+	}
+
+	public void updateToken(String newValue) {
+		this.lastUpdateDate = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+		this.value = newValue;
+	}
+
+	public Location getLocation() {
+		return new Location(city, longitude, latitude);
 	}
 
 }

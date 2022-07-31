@@ -15,8 +15,9 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import cloneproject.Instagram.global.error.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
+
+import cloneproject.Instagram.global.error.ErrorResponse;
 
 @Component
 @Slf4j

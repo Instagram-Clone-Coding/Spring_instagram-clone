@@ -5,13 +5,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import cloneproject.Instagram.domain.member.entity.redis.RefreshToken;
 import cloneproject.Instagram.domain.member.exception.LogoutByAnotherException;
 import cloneproject.Instagram.domain.member.service.RefreshTokenService;
 import cloneproject.Instagram.global.config.security.token.ReissueAuthenticationToken;
 import cloneproject.Instagram.global.util.JwtUtil;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
@@ -38,13 +39,13 @@ public class ReissueAuthenticationProvider implements AuthenticationProvider {
 		return authenticated;
 	}
 
-	private void deleteRefreshToken(RefreshToken refreshToken) {
-		refreshTokenService.deleteRefreshToken(refreshToken);
-	}
-
 	@Override
 	public boolean supports(Class<?> aClass) {
 		return ReissueAuthenticationToken.class.isAssignableFrom(aClass);
+	}
+
+	private void deleteRefreshToken(RefreshToken refreshToken) {
+		refreshTokenService.deleteRefreshToken(refreshToken);
 	}
 
 }

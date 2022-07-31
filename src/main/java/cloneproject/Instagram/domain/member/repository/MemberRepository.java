@@ -11,7 +11,7 @@ import cloneproject.Instagram.domain.member.repository.querydsl.MemberPostReposi
 import cloneproject.Instagram.domain.member.repository.querydsl.MemberRepositoryQuerydsl;
 
 public interface MemberRepository
-		extends JpaRepository<Member, Long>, MemberPostRepositoryQuerydsl, MemberRepositoryQuerydsl {
+	extends JpaRepository<Member, Long>, MemberPostRepositoryQuerydsl, MemberRepositoryQuerydsl {
 
 	Optional<Member> findByUsername(String username);
 
@@ -20,7 +20,7 @@ public interface MemberRepository
 	boolean existsByUsername(String username);
 
 	List<Member> findAllByUsernameIn(Collection<String> usernames);
-	
+
 	List<Member> findAllByIdIn(Collection<Long> ids);
 
 }

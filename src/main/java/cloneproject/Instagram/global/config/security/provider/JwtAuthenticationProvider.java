@@ -5,10 +5,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
-import cloneproject.Instagram.global.config.security.token.JwtAuthenticationToken;
-import cloneproject.Instagram.global.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import cloneproject.Instagram.global.config.security.token.JwtAuthenticationToken;
+import cloneproject.Instagram.global.util.JwtUtil;
 
 @Component
 @Slf4j

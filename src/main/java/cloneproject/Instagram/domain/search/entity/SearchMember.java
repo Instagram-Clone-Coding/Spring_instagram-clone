@@ -7,10 +7,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import cloneproject.Instagram.domain.member.entity.Member;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import cloneproject.Instagram.domain.member.entity.Member;
 
 @Getter
 @Entity

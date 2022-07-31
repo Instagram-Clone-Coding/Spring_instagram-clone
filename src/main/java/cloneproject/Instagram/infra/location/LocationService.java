@@ -7,9 +7,10 @@ import org.springframework.stereotype.Service;
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.model.CityResponse;
 
+import lombok.RequiredArgsConstructor;
+
 import cloneproject.Instagram.infra.kakao.KakaoMap;
 import cloneproject.Instagram.infra.location.dto.Location;
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor

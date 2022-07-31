@@ -1,5 +1,7 @@
 package cloneproject.Instagram.domain.hashtag.service;
 
+import static cloneproject.Instagram.global.error.ErrorCode.*;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -29,8 +31,6 @@ import cloneproject.Instagram.domain.search.service.SearchService;
 import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 import cloneproject.Instagram.global.util.AuthUtil;
 import cloneproject.Instagram.global.util.StringExtractUtil;
-
-import static cloneproject.Instagram.global.error.ErrorCode.HASHTAG_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -81,30 +81,6 @@ public class HashtagService {
 	@Transactional
 	public void registerHashtags(Post post, Comment comment) {
 		registerHashtags(post, comment.getContent());
-	}
-
-	private void registerHashtags(Post post, String content) {
-		final Set<String> names = new HashSet<>(stringExtractUtil.extractHashtags(content));
-		final Map<String, Hashtag> hashtagMap = hashtagRepository.findAllByNameIn(names).stream()
-			.collect(Collectors.toMap(Hashtag::getName, h -> h));
-		final List<HashtagPost> newHashtagPost = new ArrayList<>();
-
-		names.forEach(name -> {
-			final Hashtag hashtag;
-			if (hashtagMap.containsKey(name)) {
-				hashtag = hashtagMap.get(name);
-				hashtag.upCount();
-			} else {
-				hashtag = hashtagRepository.save(new Hashtag(name));
-				searchService.createSearchHashtag(hashtag);
-			}
-
-			if (hashtagPostRepository.findByHashtagAndPost(hashtag, post).isEmpty()) {
-				newHashtagPost.add(new HashtagPost(hashtag, post));
-			}
-		});
-
-		hashtagPostRepository.saveAllBatch(newHashtagPost);
 	}
 
 	@Transactional
@@ -166,6 +142,30 @@ public class HashtagService {
 		hashtagPostRepository.deleteAllInBatch(hashtagPosts);
 		searchService.deleteSearchHashtags(deleteHashtags);
 		hashtagRepository.deleteAllInBatch(deleteHashtags);
+	}
+
+	private void registerHashtags(Post post, String content) {
+		final Set<String> names = new HashSet<>(stringExtractUtil.extractHashtags(content));
+		final Map<String, Hashtag> hashtagMap = hashtagRepository.findAllByNameIn(names).stream()
+			.collect(Collectors.toMap(Hashtag::getName, h -> h));
+		final List<HashtagPost> newHashtagPost = new ArrayList<>();
+
+		names.forEach(name -> {
+			final Hashtag hashtag;
+			if (hashtagMap.containsKey(name)) {
+				hashtag = hashtagMap.get(name);
+				hashtag.upCount();
+			} else {
+				hashtag = hashtagRepository.save(new Hashtag(name));
+				searchService.createSearchHashtag(hashtag);
+			}
+
+			if (hashtagPostRepository.findByHashtagAndPost(hashtag, post).isEmpty()) {
+				newHashtagPost.add(new HashtagPost(hashtag, post));
+			}
+		});
+
+		hashtagPostRepository.saveAllBatch(newHashtagPost);
 	}
 
 	private Hashtag getHashtag(String hashtagName) {
