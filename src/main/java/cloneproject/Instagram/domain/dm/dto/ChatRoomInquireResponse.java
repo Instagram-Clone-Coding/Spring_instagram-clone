@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChatRoomInquireResponse {
 
-    private boolean status;
-    private Long unseenCount;
+	private boolean status;
+	private Long unseenCount;
 
 }

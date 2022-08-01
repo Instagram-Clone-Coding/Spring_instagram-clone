@@ -7,6 +7,6 @@ import cloneproject.Instagram.domain.dm.entity.RoomUnreadMember;
 
 public interface RoomUnreadMemberRepositoryJdbc {
 
-    void saveAllBatch(List<RoomUnreadMember> roomUnreadMembers, Message message);
+	void saveAllBatch(List<RoomUnreadMember> roomUnreadMembers, Message message);
 
 }

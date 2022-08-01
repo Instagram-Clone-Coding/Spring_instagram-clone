@@ -1,8 +1,17 @@
 package cloneproject.Instagram.domain.dm.repository.querydsl;
 
-import cloneproject.Instagram.domain.dm.dto.JoinRoomDto;
-import cloneproject.Instagram.domain.dm.dto.QJoinRoomDto;
-import cloneproject.Instagram.domain.dm.entity.JoinRoom;
+import static cloneproject.Instagram.domain.dm.entity.QJoinRoom.*;
+import static cloneproject.Instagram.domain.dm.entity.QMessage.*;
+import static cloneproject.Instagram.domain.dm.entity.QRoom.*;
+import static cloneproject.Instagram.domain.dm.entity.QRoomUnreadMember.*;
+import static cloneproject.Instagram.domain.member.entity.QMember.*;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
@@ -10,18 +19,9 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-
-import java.util.List;
-import java.util.Optional;
-
-import static cloneproject.Instagram.domain.dm.entity.QJoinRoom.joinRoom;
-import static cloneproject.Instagram.domain.dm.entity.QMessage.message;
-import static cloneproject.Instagram.domain.dm.entity.QRoom.room;
-import static cloneproject.Instagram.domain.dm.entity.QRoomUnreadMember.roomUnreadMember;
-import static cloneproject.Instagram.domain.member.entity.QMember.member;
+import cloneproject.Instagram.domain.dm.dto.JoinRoomDto;
+import cloneproject.Instagram.domain.dm.dto.QJoinRoomDto;
+import cloneproject.Instagram.domain.dm.entity.JoinRoom;
 
 @RequiredArgsConstructor
 public class JoinRoomRepositoryQuerydslImpl implements JoinRoomRepositoryQuerydsl {

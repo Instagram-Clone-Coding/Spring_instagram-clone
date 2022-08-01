@@ -1,12 +1,19 @@
 package cloneproject.Instagram.domain.dm.entity;
 
-import cloneproject.Instagram.domain.member.entity.Member;
-import cloneproject.Instagram.global.vo.Image;
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.Column;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import cloneproject.Instagram.domain.member.entity.Member;
+import cloneproject.Instagram.global.vo.Image;
 
 @Getter
 @Entity

@@ -7,7 +7,9 @@ import cloneproject.Instagram.domain.member.entity.Member;
 
 public interface MentionRepositoryJdbc {
 
-    void savePostMentionsBatch(Long memberId, List<Member> mentionedMembers, Long postId, LocalDateTime now);
+	void savePostMentionsBatch(Long memberId, List<Member> mentionedMembers, Long postId, LocalDateTime now);
 
-    void saveCommentMentionsBatch(Long memberId, List<Member> mentionedMembers, Long postId, Long commentId, LocalDateTime now);
+	void saveCommentMentionsBatch(Long memberId, List<Member> mentionedMembers, Long postId, Long commentId,
+		LocalDateTime now);
+
 }

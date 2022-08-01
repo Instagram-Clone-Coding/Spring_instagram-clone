@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MessageResponse {
-    
-    private MessageAction action;
-    private Object data;
+
+	private MessageAction action;
+	private Object data;
 
 }

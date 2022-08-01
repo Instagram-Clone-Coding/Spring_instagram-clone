@@ -5,8 +5,8 @@ import cloneproject.Instagram.global.error.exception.BusinessException;
 
 public class MessageLikeAlreadyExistException extends BusinessException {
 
-    public MessageLikeAlreadyExistException() {
-        super(ErrorCode.MESSAGE_LIKE_ALREADY_EXIST);
-    }
+	public MessageLikeAlreadyExistException() {
+		super(ErrorCode.MESSAGE_LIKE_ALREADY_EXIST);
+	}
 
 }

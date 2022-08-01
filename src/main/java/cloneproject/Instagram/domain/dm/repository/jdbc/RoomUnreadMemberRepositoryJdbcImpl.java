@@ -1,16 +1,16 @@
 package cloneproject.Instagram.domain.dm.repository.jdbc;
 
-import lombok.RequiredArgsConstructor;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.List;
 
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import lombok.RequiredArgsConstructor;
+
 import cloneproject.Instagram.domain.dm.entity.Message;
 import cloneproject.Instagram.domain.dm.entity.RoomUnreadMember;
-
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.List;
 
 @RequiredArgsConstructor
 public class RoomUnreadMemberRepositoryJdbcImpl implements RoomUnreadMemberRepositoryJdbc {
