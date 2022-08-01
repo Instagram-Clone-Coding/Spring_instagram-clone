@@ -1,5 +1,9 @@
 package cloneproject.Instagram.domain.alarm.repository;
 
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
 import cloneproject.Instagram.domain.alarm.dto.AlarmType;
 import cloneproject.Instagram.domain.alarm.entity.Alarm;
 import cloneproject.Instagram.domain.alarm.repository.jdbc.AlarmRepositoryJdbc;
@@ -8,10 +12,6 @@ import cloneproject.Instagram.domain.feed.entity.Comment;
 import cloneproject.Instagram.domain.feed.entity.Post;
 import cloneproject.Instagram.domain.follow.entity.Follow;
 import cloneproject.Instagram.domain.member.entity.Member;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
 
 public interface AlarmRepository extends JpaRepository<Alarm, Long>, AlarmRepositoryQuerydsl, AlarmRepositoryJdbc {
 

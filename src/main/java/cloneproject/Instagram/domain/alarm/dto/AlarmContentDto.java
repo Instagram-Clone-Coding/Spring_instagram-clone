@@ -1,11 +1,12 @@
 package cloneproject.Instagram.domain.alarm.dto;
 
-import cloneproject.Instagram.domain.alarm.entity.Alarm;
-import cloneproject.Instagram.domain.member.dto.MemberDto;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
+import cloneproject.Instagram.domain.alarm.entity.Alarm;
+import cloneproject.Instagram.domain.member.dto.MemberDto;
+
+@Getter
 @NoArgsConstructor
 public class AlarmContentDto extends AlarmDto {
 

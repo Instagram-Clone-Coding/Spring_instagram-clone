@@ -10,9 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class StoryContentRequest {
 
-    @ApiModelProperty(value = "스토리 이미지 순번", example = "1", required = true)
-    private Integer id;
+	@ApiModelProperty(value = "스토리 이미지 순번", example = "1", required = true)
+	private Integer id;
 
-    @ApiModelProperty(value = "스토리 텍스트 내용", example = "This is a story @dlwlrma", required = true)
-    private String content;
+	@ApiModelProperty(value = "스토리 텍스트 내용", example = "This is a story @dlwlrma", required = true)
+	private String content;
+
 }

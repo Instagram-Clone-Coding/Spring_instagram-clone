@@ -5,8 +5,8 @@ import cloneproject.Instagram.global.error.exception.BusinessException;
 
 public class MismatchedAlarmTypeException extends BusinessException {
 
-    public MismatchedAlarmTypeException() {
-        super(ErrorCode.MISMATCHED_ALARM_TYPE);
-    }
+	public MismatchedAlarmTypeException() {
+		super(ErrorCode.MISMATCHED_ALARM_TYPE);
+	}
 
 }

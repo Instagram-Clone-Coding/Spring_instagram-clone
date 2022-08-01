@@ -1,11 +1,11 @@
 package cloneproject.Instagram.domain.alarm.service;
 
-import cloneproject.Instagram.domain.alarm.dto.AlarmContentDto;
-import cloneproject.Instagram.domain.alarm.dto.AlarmFollowDto;
-import cloneproject.Instagram.domain.follow.repository.FollowRepository;
-import cloneproject.Instagram.domain.member.dto.MemberDto;
-import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
-import cloneproject.Instagram.global.util.AuthUtil;
+import static cloneproject.Instagram.domain.alarm.dto.AlarmType.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -14,7 +14,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.RequiredArgsConstructor;
+
+import cloneproject.Instagram.domain.alarm.dto.AlarmContentDto;
 import cloneproject.Instagram.domain.alarm.dto.AlarmDto;
+import cloneproject.Instagram.domain.alarm.dto.AlarmFollowDto;
 import cloneproject.Instagram.domain.alarm.dto.AlarmType;
 import cloneproject.Instagram.domain.alarm.entity.Alarm;
 import cloneproject.Instagram.domain.alarm.exception.MismatchedAlarmTypeException;
@@ -22,15 +26,11 @@ import cloneproject.Instagram.domain.alarm.repository.AlarmRepository;
 import cloneproject.Instagram.domain.feed.entity.Comment;
 import cloneproject.Instagram.domain.feed.entity.Post;
 import cloneproject.Instagram.domain.follow.entity.Follow;
+import cloneproject.Instagram.domain.follow.repository.FollowRepository;
+import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
-import lombok.RequiredArgsConstructor;
-
-import static cloneproject.Instagram.domain.alarm.dto.AlarmType.*;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
+import cloneproject.Instagram.global.util.AuthUtil;
 
 @Service
 @Transactional(readOnly = true)

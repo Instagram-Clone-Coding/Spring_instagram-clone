@@ -8,6 +8,6 @@ import cloneproject.Instagram.domain.dm.entity.Message;
 
 public interface MessageRepositoryQuerydsl {
 
-    Page<Message> findAllByJoinRoom(JoinRoom joinRoom, Pageable pageable);
+	Page<Message> findAllByJoinRoom(JoinRoom joinRoom, Pageable pageable);
 
 }
