@@ -4,10 +4,7 @@ import static cloneproject.Instagram.global.error.ErrorCode.*;
 
 import java.util.List;
 
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import cloneproject.Instagram.domain.member.dto.JwtDto;
 import cloneproject.Instagram.domain.member.dto.LoginDevicesDto;
-import cloneproject.Instagram.domain.member.dto.LoginRequest;
 import cloneproject.Instagram.domain.member.dto.RegisterRequest;
 import cloneproject.Instagram.domain.member.dto.ResetPasswordRequest;
 import cloneproject.Instagram.domain.member.dto.UpdatePasswordRequest;
@@ -84,25 +80,6 @@ public class MemberAuthService {
 	}
 
 	@Transactional
-	public JwtDto login(LoginRequest loginRequest, String device, String ip) {
-		try {
-			final UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-				loginRequest.getUsername(), loginRequest.getPassword());
-			final Authentication authentication = authenticationManagerBuilder.getObject()
-				.authenticate(authenticationToken);
-			final JwtDto jwtDto = jwtUtil.generateJwtDto(authentication);
-
-			final Location location = locationService.getLocation(ip);
-
-			refreshTokenService.addRefreshToken(Long.valueOf(authentication.getName()), jwtDto.getRefreshToken(),
-				device, location);
-			return jwtDto;
-		} catch (BadCredentialsException e) {
-			throw new AccountMismatchException();
-		}
-	}
-
-	@Transactional
 	public void updatePassword(UpdatePasswordRequest updatePasswordRequest) {
 		final Member member = authUtil.getLoginMember();
 		if (!bCryptPasswordEncoder.matches(updatePasswordRequest.getOldPassword(), member.getPassword())) {
@@ -138,10 +115,13 @@ public class MemberAuthService {
 		final String encryptedPassword = bCryptPasswordEncoder.encode(resetPasswordRequest.getNewPassword());
 		member.setEncryptedPassword(encryptedPassword);
 		memberRepository.save(member);
-		final JwtDto jwtDto = login(
-			new LoginRequest(resetPasswordRequest.getUsername(), resetPasswordRequest.getNewPassword()), device,
-			ip);
+
+		final JwtDto jwtDto = jwtUtil.generateJwtDto(member);
+		final Location location = locationService.getLocation(ip);
+
+		refreshTokenService.addRefreshToken(member.getId(), jwtDto.getRefreshToken(), device, location);
 		emailCodeService.deleteResetPasswordCode(resetPasswordRequest.getUsername());
+
 		return jwtDto;
 	}
 
