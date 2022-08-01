@@ -1,20 +1,20 @@
 package cloneproject.Instagram.domain.alarm.repository.querydsl;
 
-import cloneproject.Instagram.domain.alarm.entity.Alarm;
+import static cloneproject.Instagram.domain.alarm.entity.QAlarm.*;
+import static cloneproject.Instagram.domain.feed.entity.QPost.*;
+import static cloneproject.Instagram.domain.member.entity.QMember.*;
 
-import com.querydsl.jpa.impl.JPAQueryFactory;
-
-import lombok.RequiredArgsConstructor;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import static cloneproject.Instagram.domain.alarm.entity.QAlarm.alarm;
-import static cloneproject.Instagram.domain.member.entity.QMember.member;
-import static cloneproject.Instagram.domain.feed.entity.QPost.post;
+import lombok.RequiredArgsConstructor;
+
+import cloneproject.Instagram.domain.alarm.entity.Alarm;
 
 @RequiredArgsConstructor
 public class AlarmRepositoryQuerydslImpl implements AlarmRepositoryQuerydsl {

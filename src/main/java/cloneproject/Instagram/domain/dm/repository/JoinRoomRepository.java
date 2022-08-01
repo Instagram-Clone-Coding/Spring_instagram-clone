@@ -1,30 +1,31 @@
 package cloneproject.Instagram.domain.dm.repository;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import cloneproject.Instagram.domain.dm.entity.JoinRoom;
 import cloneproject.Instagram.domain.dm.entity.Room;
 import cloneproject.Instagram.domain.dm.repository.jdbc.JoinRomRepositoryJdbc;
 import cloneproject.Instagram.domain.dm.repository.querydsl.JoinRoomRepositoryQuerydsl;
 import cloneproject.Instagram.domain.member.entity.Member;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+public interface JoinRoomRepository
+	extends JpaRepository<JoinRoom, Long>, JoinRoomRepositoryQuerydsl, JoinRomRepositoryJdbc {
 
-import java.util.List;
-import java.util.Optional;
+	@Query(value = "select j from JoinRoom j join fetch j.member where j.room.id = :id")
+	List<JoinRoom> findAllWithMemberByRoomId(@Param("id") Long id);
 
-public interface JoinRoomRepository extends JpaRepository<JoinRoom, Long>, JoinRoomRepositoryQuerydsl, JoinRomRepositoryJdbc {
+	Optional<JoinRoom> findByMemberAndRoom(Member member, Room room);
 
-    @Query(value = "select j from JoinRoom j join fetch j.member where j.room.id = :id")
-    List<JoinRoom> findAllWithMemberByRoomId(@Param("id") Long id);
+	List<JoinRoom> findByRoomAndMemberIn(Room room, List<Member> members);
 
-    Optional<JoinRoom> findByMemberAndRoom(Member member, Room room);
+	void deleteByMemberAndRoom(Member member, Room room);
 
-    List<JoinRoom> findByRoomAndMemberIn(Room room, List<Member> members);
-
-    void deleteByMemberAndRoom(Member member, Room room);
-
-    @Query(value = "select j from JoinRoom j join fetch j.message where j.room.id = :id")
-    List<JoinRoom> findAllWithMessageByRoomId(@Param("id") Long id);
+	@Query(value = "select j from JoinRoom j join fetch j.message where j.room.id = :id")
+	List<JoinRoom> findAllWithMessageByRoomId(@Param("id") Long id);
 
 }

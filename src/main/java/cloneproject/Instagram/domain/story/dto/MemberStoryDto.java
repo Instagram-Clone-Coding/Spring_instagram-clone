@@ -1,17 +1,19 @@
 package cloneproject.Instagram.domain.story.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberStoryDto {
 
-    private Long seenId;
-    private List<StoryDto> stories = new ArrayList<>();
+	private Long seenId;
+	private List<StoryDto> stories = new ArrayList<>();
+
 }

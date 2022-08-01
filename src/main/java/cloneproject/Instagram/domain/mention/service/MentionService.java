@@ -2,6 +2,14 @@ package cloneproject.Instagram.domain.mention.service;
 
 import static cloneproject.Instagram.domain.alarm.dto.AlarmType.*;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+
 import cloneproject.Instagram.domain.alarm.service.AlarmService;
 import cloneproject.Instagram.domain.feed.entity.Comment;
 import cloneproject.Instagram.domain.feed.entity.Post;
@@ -10,13 +18,6 @@ import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.mention.entity.Mention;
 import cloneproject.Instagram.domain.mention.repository.MentionRepository;
 import cloneproject.Instagram.global.util.StringExtractUtil;
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -58,4 +59,5 @@ public class MentionService {
 			comment.getId(), LocalDateTime.now());
 		alarmService.alertBatch(MENTION_COMMENT, mentionedMembers, comment.getPost(), comment);
 	}
+
 }

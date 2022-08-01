@@ -1,11 +1,32 @@
 package cloneproject.Instagram.domain.dm.service;
 
+import static org.springframework.data.domain.Sort.Direction.*;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import lombok.RequiredArgsConstructor;
+
 import cloneproject.Instagram.domain.dm.dto.ChatRoomCreateResponse;
 import cloneproject.Instagram.domain.dm.dto.ChatRoomInquireResponse;
 import cloneproject.Instagram.domain.dm.dto.IndicateDto;
 import cloneproject.Instagram.domain.dm.dto.IndicateRequest;
-import cloneproject.Instagram.domain.dm.dto.JoinRoomDto;
 import cloneproject.Instagram.domain.dm.dto.JoinRoomDeleteResponse;
+import cloneproject.Instagram.domain.dm.dto.JoinRoomDto;
 import cloneproject.Instagram.domain.dm.dto.MemberSimpleInfo;
 import cloneproject.Instagram.domain.dm.dto.MessageAction;
 import cloneproject.Instagram.domain.dm.dto.MessageDto;
@@ -51,23 +72,6 @@ import cloneproject.Instagram.global.error.exception.InvalidInputException;
 import cloneproject.Instagram.global.util.AuthUtil;
 import cloneproject.Instagram.global.vo.Image;
 import cloneproject.Instagram.infra.aws.S3Uploader;
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
 @RequiredArgsConstructor
@@ -112,30 +116,6 @@ public class ChatService {
 			.collect(Collectors.toList());
 
 		return new ChatRoomCreateResponse(status, room.getId(), new MemberSimpleInfo(inviter), memberSimpleInfos);
-	}
-
-	private Optional<Room> getRoomByMembers(List<Member> members) {
-		final Map<Long, List<RoomMember>> roomMembersMap = roomMemberRepository.findAllByMemberIn(members)
-			.stream()
-			.collect(Collectors.groupingBy(r -> r.getRoom().getId()));
-
-		final List<Long> roomIds = new ArrayList<>();
-		roomMembersMap.forEach((rid, rms) -> {
-			if (rms.size() == members.size()) {
-				roomIds.add(rid);
-			}
-		});
-		final Map<Long, List<RoomMember>> roomMemberMapGroupByRoomId = roomMemberRepository.findAllByRoomIdIn(roomIds)
-			.stream()
-			.collect(Collectors.groupingBy(r -> r.getRoom().getId()));
-
-		for (final Long roomId : roomMemberMapGroupByRoomId.keySet()) {
-			if (roomMemberMapGroupByRoomId.get(roomId).size() == members.size()) {
-				return Optional.of(roomMemberMapGroupByRoomId.get(roomId).get(0).getRoom());
-			}
-		}
-
-		return Optional.empty();
 	}
 
 	@Transactional
@@ -209,38 +189,6 @@ public class ChatService {
 		return joinRoomDtoPage;
 	}
 
-	private void setMemberAndLastMessageToJoinRoomDto(List<JoinRoomDto> joinRoomDtos, List<Long> roomIds,
-		List<Long> messageIds) {
-		final Map<Long, MessagePost> messagePostMap = messagePostRepository.findAllWithPostByIdIn(messageIds)
-			.stream()
-			.collect(Collectors.toMap(mp -> mp.getRoom().getId(), mp -> mp));
-		final Map<Long, MessageImage> messageImageMap = messageImageRepository.findAllByIdIn(messageIds)
-			.stream()
-			.collect(Collectors.toMap(mi -> mi.getRoom().getId(), mi -> mi));
-		final Map<Long, MessageText> messageTextMap = messageTextRepository.findAllByIdIn(messageIds)
-			.stream()
-			.collect(Collectors.toMap(mt -> mt.getRoom().getId(), mt -> mt));
-
-		final Map<Long, List<RoomMember>> roomMembersMap = roomMemberRepository.findAllWithMemberByRoomIdIn(roomIds)
-			.stream()
-			.collect(Collectors.groupingBy(rm -> rm.getRoom().getId()));
-		joinRoomDtos.forEach(joinRoomDto -> {
-			joinRoomDto.setMembers(
-				roomMembersMap.get(joinRoomDto.getRoomId()).stream()
-					.map(r -> new MemberSimpleInfo(r.getMember()))
-					.collect(Collectors.toList())
-			);
-
-			if (messagePostMap.containsKey(joinRoomDto.getRoomId())) {
-				joinRoomDto.setLastMessage(new MessageDto(messagePostMap.get(joinRoomDto.getRoomId())));
-			} else if (messageImageMap.containsKey(joinRoomDto.getRoomId())) {
-				joinRoomDto.setLastMessage(new MessageDto(messageImageMap.get(joinRoomDto.getRoomId())));
-			} else if (messageTextMap.containsKey(joinRoomDto.getRoomId())) {
-				joinRoomDto.setLastMessage(new MessageDto(messageTextMap.get(joinRoomDto.getRoomId())));
-			}
-		});
-	}
-
 	@Transactional
 	public void sendMessage(MessageRequest request) {
 		final Member sender = memberRepository.findById(request.getSenderId())
@@ -291,52 +239,6 @@ public class ChatService {
 		return new PageImpl<>(messageDtos, pageable, messagePage.getTotalElements());
 	}
 
-	private void setMessageLikesToMessageDto(List<Long> messageIds, List<MessageDto> messageDtos) {
-		final Map<Long, List<MessageLike>> messageLikesMap = messageLikeRepository.findAllWithMemberByMessageIdIn(
-				messageIds)
-			.stream()
-			.collect(Collectors.groupingBy(ml -> ml.getMessage().getId()));
-		messageDtos.forEach(m -> {
-			if (messageLikesMap.containsKey(m.getMessageId())) {
-				final List<MemberDto> likeMembers = messageLikesMap.get(m.getMessageId()).stream()
-					.map(ml -> new MemberDto(ml.getMember()))
-					.collect(Collectors.toList());
-				m.setLikeMembers(likeMembers);
-			}
-		});
-	}
-
-	private List<MessageDto> convertToDto(List<Message> messages, List<Long> messageIds) {
-		final Map<Long, MessageStory> messageStoryMap = messageStoryRepository.findAllWithStoryByIdIn(messageIds)
-			.stream()
-			.collect(Collectors.toMap(Message::getId, ms -> ms));
-		final Map<Long, MessagePost> messagePostMap = messagePostRepository.findAllWithPostByIdIn(messageIds)
-			.stream()
-			.collect(Collectors.toMap(Message::getId, mp -> mp));
-		final Map<Long, MessageImage> messageImageMap = messageImageRepository.findAllByIdIn(messageIds)
-			.stream()
-			.collect(Collectors.toMap(Message::getId, mi -> mi));
-		final Map<Long, MessageText> messageTextMap = messageTextRepository.findAllByIdIn(messageIds)
-			.stream()
-			.collect(Collectors.toMap(Message::getId, mt -> mt));
-
-		return messages.stream()
-			.map(m -> {
-				switch (m.getDtype()) {
-					case "POST":
-						return new MessageDto(messagePostMap.get(m.getId()));
-					case "STORY":
-						return new MessageDto(messageStoryMap.get(m.getId()));
-					case "IMAGE":
-						return new MessageDto(messageImageMap.get(m.getId()));
-					case "TEXT":
-						return new MessageDto(messageTextMap.get(m.getId()));
-				}
-				return null;
-			})
-			.collect(Collectors.toList());
-	}
-
 	@Transactional
 	public StatusResponse sendImage(Long roomId, MultipartFile multipartFile) {
 		if (multipartFile.isEmpty()) {
@@ -361,34 +263,6 @@ public class ChatService {
 		roomMembers.forEach(r -> messagingTemplate.convertAndSend("/sub/" + r.getMember().getUsername(), response));
 
 		return new StatusResponse(true);
-	}
-
-	private void updateRoom(Long senderId, Room room, List<RoomMember> roomMembers, Message message) {
-		final List<Member> members = roomMembers.stream()
-			.map(RoomMember::getMember)
-			.collect(Collectors.toList());
-		final Map<Long, JoinRoom> joinRoomMap = joinRoomRepository.findByRoomAndMemberIn(room, members).stream()
-			.collect(Collectors.toMap(j -> j.getMember().getId(), j -> j));
-
-		final List<JoinRoom> newJoinRooms = new ArrayList<>();
-		final List<JoinRoom> updateJoinRooms = new ArrayList<>();
-		final List<RoomUnreadMember> newRoomUnreadMembers = new ArrayList<>();
-
-		for (final RoomMember roomMember : roomMembers) {
-			final Member member = roomMember.getMember();
-			if (!member.getId().equals(senderId)) {
-				newRoomUnreadMembers.add(new RoomUnreadMember(room, message, member));
-			}
-			if (joinRoomMap.containsKey(member.getId())) {
-				updateJoinRooms.add(joinRoomMap.get(member.getId()));
-			} else {
-				newJoinRooms.add(new JoinRoom(room, member, message));
-			}
-		}
-
-		roomUnreadMemberRepository.saveAllBatch(newRoomUnreadMembers, message);
-		joinRoomRepository.saveAllBatch(newJoinRooms, message);
-		joinRoomRepository.updateAllBatch(updateJoinRooms, message);
 	}
 
 	@Transactional
@@ -495,6 +369,136 @@ public class ChatService {
 		} else {
 			messagingTemplate.convertAndSend("/sub/home/" + member.getUsername(), response);
 		}
+	}
+
+	private Optional<Room> getRoomByMembers(List<Member> members) {
+		final Map<Long, List<RoomMember>> roomMembersMap = roomMemberRepository.findAllByMemberIn(members)
+			.stream()
+			.collect(Collectors.groupingBy(r -> r.getRoom().getId()));
+
+		final List<Long> roomIds = new ArrayList<>();
+		roomMembersMap.forEach((rid, rms) -> {
+			if (rms.size() == members.size()) {
+				roomIds.add(rid);
+			}
+		});
+		final Map<Long, List<RoomMember>> roomMemberMapGroupByRoomId = roomMemberRepository.findAllByRoomIdIn(roomIds)
+			.stream()
+			.collect(Collectors.groupingBy(r -> r.getRoom().getId()));
+
+		for (final Long roomId : roomMemberMapGroupByRoomId.keySet()) {
+			if (roomMemberMapGroupByRoomId.get(roomId).size() == members.size()) {
+				return Optional.of(roomMemberMapGroupByRoomId.get(roomId).get(0).getRoom());
+			}
+		}
+
+		return Optional.empty();
+	}
+
+	private void setMemberAndLastMessageToJoinRoomDto(List<JoinRoomDto> joinRoomDtos, List<Long> roomIds,
+		List<Long> messageIds) {
+		final Map<Long, MessagePost> messagePostMap = messagePostRepository.findAllWithPostByIdIn(messageIds)
+			.stream()
+			.collect(Collectors.toMap(mp -> mp.getRoom().getId(), mp -> mp));
+		final Map<Long, MessageImage> messageImageMap = messageImageRepository.findAllByIdIn(messageIds)
+			.stream()
+			.collect(Collectors.toMap(mi -> mi.getRoom().getId(), mi -> mi));
+		final Map<Long, MessageText> messageTextMap = messageTextRepository.findAllByIdIn(messageIds)
+			.stream()
+			.collect(Collectors.toMap(mt -> mt.getRoom().getId(), mt -> mt));
+
+		final Map<Long, List<RoomMember>> roomMembersMap = roomMemberRepository.findAllWithMemberByRoomIdIn(roomIds)
+			.stream()
+			.collect(Collectors.groupingBy(rm -> rm.getRoom().getId()));
+		joinRoomDtos.forEach(joinRoomDto -> {
+			joinRoomDto.setMembers(
+				roomMembersMap.get(joinRoomDto.getRoomId()).stream()
+					.map(r -> new MemberSimpleInfo(r.getMember()))
+					.collect(Collectors.toList())
+			);
+
+			if (messagePostMap.containsKey(joinRoomDto.getRoomId())) {
+				joinRoomDto.setLastMessage(new MessageDto(messagePostMap.get(joinRoomDto.getRoomId())));
+			} else if (messageImageMap.containsKey(joinRoomDto.getRoomId())) {
+				joinRoomDto.setLastMessage(new MessageDto(messageImageMap.get(joinRoomDto.getRoomId())));
+			} else if (messageTextMap.containsKey(joinRoomDto.getRoomId())) {
+				joinRoomDto.setLastMessage(new MessageDto(messageTextMap.get(joinRoomDto.getRoomId())));
+			}
+		});
+	}
+
+	private void setMessageLikesToMessageDto(List<Long> messageIds, List<MessageDto> messageDtos) {
+		final Map<Long, List<MessageLike>> messageLikesMap = messageLikeRepository.findAllWithMemberByMessageIdIn(
+				messageIds)
+			.stream()
+			.collect(Collectors.groupingBy(ml -> ml.getMessage().getId()));
+		messageDtos.forEach(m -> {
+			if (messageLikesMap.containsKey(m.getMessageId())) {
+				final List<MemberDto> likeMembers = messageLikesMap.get(m.getMessageId()).stream()
+					.map(ml -> new MemberDto(ml.getMember()))
+					.collect(Collectors.toList());
+				m.setLikeMembers(likeMembers);
+			}
+		});
+	}
+
+	private List<MessageDto> convertToDto(List<Message> messages, List<Long> messageIds) {
+		final Map<Long, MessageStory> messageStoryMap = messageStoryRepository.findAllWithStoryByIdIn(messageIds)
+			.stream()
+			.collect(Collectors.toMap(Message::getId, ms -> ms));
+		final Map<Long, MessagePost> messagePostMap = messagePostRepository.findAllWithPostByIdIn(messageIds)
+			.stream()
+			.collect(Collectors.toMap(Message::getId, mp -> mp));
+		final Map<Long, MessageImage> messageImageMap = messageImageRepository.findAllByIdIn(messageIds)
+			.stream()
+			.collect(Collectors.toMap(Message::getId, mi -> mi));
+		final Map<Long, MessageText> messageTextMap = messageTextRepository.findAllByIdIn(messageIds)
+			.stream()
+			.collect(Collectors.toMap(Message::getId, mt -> mt));
+
+		return messages.stream()
+			.map(m -> {
+				switch (m.getDtype()) {
+					case "POST":
+						return new MessageDto(messagePostMap.get(m.getId()));
+					case "STORY":
+						return new MessageDto(messageStoryMap.get(m.getId()));
+					case "IMAGE":
+						return new MessageDto(messageImageMap.get(m.getId()));
+					case "TEXT":
+						return new MessageDto(messageTextMap.get(m.getId()));
+				}
+				return null;
+			})
+			.collect(Collectors.toList());
+	}
+
+	private void updateRoom(Long senderId, Room room, List<RoomMember> roomMembers, Message message) {
+		final List<Member> members = roomMembers.stream()
+			.map(RoomMember::getMember)
+			.collect(Collectors.toList());
+		final Map<Long, JoinRoom> joinRoomMap = joinRoomRepository.findByRoomAndMemberIn(room, members).stream()
+			.collect(Collectors.toMap(j -> j.getMember().getId(), j -> j));
+
+		final List<JoinRoom> newJoinRooms = new ArrayList<>();
+		final List<JoinRoom> updateJoinRooms = new ArrayList<>();
+		final List<RoomUnreadMember> newRoomUnreadMembers = new ArrayList<>();
+
+		for (final RoomMember roomMember : roomMembers) {
+			final Member member = roomMember.getMember();
+			if (!member.getId().equals(senderId)) {
+				newRoomUnreadMembers.add(new RoomUnreadMember(room, message, member));
+			}
+			if (joinRoomMap.containsKey(member.getId())) {
+				updateJoinRooms.add(joinRoomMap.get(member.getId()));
+			} else {
+				newJoinRooms.add(new JoinRoom(room, member, message));
+			}
+		}
+
+		roomUnreadMemberRepository.saveAllBatch(newRoomUnreadMembers, message);
+		joinRoomRepository.saveAllBatch(newJoinRooms, message);
+		joinRoomRepository.updateAllBatch(updateJoinRooms, message);
 	}
 
 }

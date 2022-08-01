@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import cloneproject.Instagram.domain.alarm.entity.Alarm;
 
 public interface AlarmRepositoryQuerydsl {
-    
-    Page<Alarm> findAlarmPageByMemberId(Pageable pageable, Long memberId);
+
+	Page<Alarm> findAlarmPageByMemberId(Pageable pageable, Long memberId);
 
 }

@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class JoinRoomDeleteResponse {
 
-    private boolean status;
+	private boolean status;
 
 }
