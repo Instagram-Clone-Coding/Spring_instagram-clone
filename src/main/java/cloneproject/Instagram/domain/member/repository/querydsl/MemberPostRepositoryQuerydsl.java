@@ -9,10 +9,10 @@ import cloneproject.Instagram.domain.member.entity.Member;
 public interface MemberPostRepositoryQuerydsl {
 
 
-	Page<MemberPostDto> findMemberPostDtos(Member loginMember, String username, Pageable pageable);
+	Page<MemberPostDto> findMemberPostDtos(Long loginMemberId, String username, Pageable pageable);
 
-	Page<MemberPostDto> findMemberSavedPostDtos(Long loginUserId, Pageable pageable);
+	Page<MemberPostDto> findMemberSavedPostDtos(Long loginMemberId, Pageable pageable);
 
-	Page<MemberPostDto> findMemberTaggedPostDtos(Member loginMember, String username, Pageable pageable);
+	Page<MemberPostDto> findMemberTaggedPostDtos(Long loginMemberId, String username, Pageable pageable);
 
 }
