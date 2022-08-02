@@ -63,7 +63,7 @@ public class MemberService {
 			.build();
 	}
 
-	public UserProfileResponse getUserProfileWithLogin(String username) {
+	public UserProfileResponse getUserProfile(String username) {
 		final Long memberId = authUtil.getLoginMemberId();
 		return getUserProfile(username, memberId);
 	}

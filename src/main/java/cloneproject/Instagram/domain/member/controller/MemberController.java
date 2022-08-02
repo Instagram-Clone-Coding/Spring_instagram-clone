@@ -66,7 +66,7 @@ public class MemberController {
 	@ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma")
 	@GetMapping(value = "/{username}")
 	public ResponseEntity<ResultResponse> getUserProfile(@PathVariable("username") String username) {
-		final UserProfileResponse userProfileResponse = memberService.getUserProfileWithLogin(username);
+		final UserProfileResponse userProfileResponse = memberService.getUserProfile(username);
 
 		return ResponseEntity.ok(ResultResponse.of(GET_USERPROFILE_SUCCESS, userProfileResponse));
 	}
