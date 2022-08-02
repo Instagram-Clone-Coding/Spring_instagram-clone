@@ -57,7 +57,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	private static final String[] AUTH_WHITELIST_SWAGGER = {"/v2/api-docs", "/configuration/ui", "/swagger-resources",
 		"/configuration/security", "/swagger-ui.html", "/webjars/**", "/swagger/**"};
 	private static final String[] AUTH_WHITELIST_STATIC = {"/static/css/**", "/static/js/**", "*.ico"};
-	private static final String[] AUTH_WHITELIST = {"/login", "/login/recovery", "/accounts",
+	private static final String[] AUTH_WHITELIST = {"/login", "/login/recovery", "/accounts", "/**/without",
 		"/accounts/password/email",
 		"/accounts/password/reset", "/reissue", "/swagger-ui.html", "/swagger/**", "/swagger-resources/**",
 		"swagger-ui/**", "/accounts/email", "/accounts/check", "/logout/only/cookie", "/ws-connection/**"};

@@ -32,7 +32,6 @@ import cloneproject.Instagram.domain.member.dto.MiniProfileResponse;
 import cloneproject.Instagram.domain.member.dto.UserProfileResponse;
 import cloneproject.Instagram.domain.member.service.MemberService;
 import cloneproject.Instagram.global.result.ResultResponse;
-import cloneproject.Instagram.infra.kakao.KakaoMap;
 
 @Slf4j
 @Validated
@@ -42,7 +41,6 @@ import cloneproject.Instagram.infra.kakao.KakaoMap;
 @RequestMapping("/accounts")
 public class MemberController {
 
-	private final KakaoMap kakaoMap;
 	private final MemberService memberService;
 
 	@ApiOperation(value = "상단 메뉴 로그인한 유저 프로필 조회")
@@ -69,6 +67,21 @@ public class MemberController {
 	@GetMapping(value = "/{username}")
 	public ResponseEntity<ResultResponse> getUserProfile(@PathVariable("username") String username) {
 		final UserProfileResponse userProfileResponse = memberService.getUserProfile(username);
+
+		return ResponseEntity.ok(ResultResponse.of(GET_USERPROFILE_SUCCESS, userProfileResponse));
+	}
+
+	@ApiOperation(value = "로그인 없이 유저 프로필 조회")
+	@ApiResponses({
+		@ApiResponse(code = 200, message = "M004 - 회원 프로필을 조회하였습니다."),
+		@ApiResponse(code = 400, message = "G003 - 유효하지 않은 입력입니다.\n"
+			+ "G004 - 입력 타입이 유효하지 않습니다.\n"
+			+ "M001 - 존재 하지 않는 유저입니다.")
+	})
+	@ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma")
+	@GetMapping(value = "/{username}/without")
+	public ResponseEntity<ResultResponse> getUserProfileWithoutLogin(@PathVariable("username") String username) {
+		final UserProfileResponse userProfileResponse = memberService.getUserProfileWithoutLogin(username);
 
 		return ResponseEntity.ok(ResultResponse.of(GET_USERPROFILE_SUCCESS, userProfileResponse));
 	}
