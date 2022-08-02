@@ -173,7 +173,6 @@ public class MemberAuthController {
 		return ResponseEntity.ok(ResultResponse.of(SEND_RESET_PASSWORD_EMAIL_SUCCESS, email));
 	}
 
-	// TODO filter로 옮길 방법?
 	@ApiOperation(value = "코드를 통한 비밀번호 재설정")
 	@ApiResponses({
 		@ApiResponse(code = 200, message = "M018 - 비밀번호 재설정에 성공했습니다."),

@@ -39,6 +39,7 @@ import cloneproject.Instagram.infra.aws.S3Uploader;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MemberService {
 
 	private static final int MAX_PROFILE_FOLLOWING_MEMBER_FOLLOW_COUNT = 3;
@@ -51,7 +52,6 @@ public class MemberService {
 	private final PostRepository postRepository;
 	private final PostImageRepository postImageRepository;
 
-	@Transactional(readOnly = true)
 	public MenuMemberProfile getMenuMemberProfile() {
 		final Member member = authUtil.getLoginMember();
 
@@ -63,23 +63,15 @@ public class MemberService {
 			.build();
 	}
 
-	@Transactional(readOnly = true)
-	public UserProfileResponse getUserProfile(String username) {
-		final Long memberId = authUtil.getLoginMemberIdOrNull();
-
-		final Member member = memberRepository.findByUsername(username)
-			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
-
-		final UserProfileResponse result = memberRepository.findUserProfile(memberId, member.getUsername());
-		final List<FollowDto> followDtos = followRepository.findFollowingMemberFollowList(memberId, username);
-
-		result.setFollowingMemberFollow(followDtos, MAX_PROFILE_FOLLOWING_MEMBER_FOLLOW_COUNT);
-		result.setHasStory(memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0);
-
-		return result;
+	public UserProfileResponse getUserProfileWithLogin(String username) {
+		final Long memberId = authUtil.getLoginMemberId();
+		return getUserProfile(username, memberId);
 	}
 
-	@Transactional(readOnly = true)
+	public UserProfileResponse getUserProfileWithoutLogin(String username) {
+		return getUserProfile(username, -1L);
+	}
+
 	public MiniProfileResponse getMiniProfile(String username) {
 		final Long memberId = authUtil.getLoginMemberId();
 
@@ -148,6 +140,19 @@ public class MemberService {
 		member.updatePhone(editProfileRequest.getMemberPhone());
 		member.updateGender(Gender.valueOf(editProfileRequest.getMemberGender()));
 		memberRepository.save(member);
+	}
+
+	private UserProfileResponse getUserProfile(String username, Long memberId) {
+		final Member member = memberRepository.findByUsername(username)
+			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
+
+		final UserProfileResponse result = memberRepository.findUserProfile(memberId, member.getUsername());
+		final List<FollowDto> followDtos = followRepository.findFollowingMemberFollowList(memberId, username);
+
+		result.setFollowingMemberFollow(followDtos, MAX_PROFILE_FOLLOWING_MEMBER_FOLLOW_COUNT);
+		result.setHasStory(memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0);
+
+		return result;
 	}
 
 	private void setMemberPostImages(MiniProfileResponse miniProfileResponse, Long memberId) {
