@@ -66,7 +66,7 @@ public class MemberPostController {
 	@GetMapping("/{username}/posts")
 	public ResponseEntity<ResultResponse> getPostPage(@PathVariable("username") String username,
 		@Min(1) @RequestParam int page) {
-		final Page<MemberPostDto> postPage = memberPostService.getMemberPostDtos(username, 3, page);
+		final Page<MemberPostDto> postPage = memberPostService.getMemberPostDtoPage(username, 3, page);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_MEMBER_POSTS_SUCCESS, postPage));
 	}
@@ -100,7 +100,7 @@ public class MemberPostController {
 	@GetMapping("/{username}/posts/without")
 	public ResponseEntity<ResultResponse> getPostPageWithoutLogin(@PathVariable("username") String username,
 		@Min(1) @RequestParam int page) {
-		final Page<MemberPostDto> postPage = memberPostService.getMemberPostDtosWithoutLogin(username, 3, page);
+		final Page<MemberPostDto> postPage = memberPostService.getMemberPostDtoPageWithoutLogin(username, 3, page);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_MEMBER_POSTS_SUCCESS, postPage));
 	}
@@ -130,7 +130,7 @@ public class MemberPostController {
 	@GetMapping("/posts/saved")
 	@ApiImplicitParam(name = "page", value = "페이지", required = true, example = "1")
 	public ResponseEntity<ResultResponse> getSavedPostPage(@Min(1) @RequestParam int page) {
-		final Page<MemberPostDto> postPage = memberPostService.getMemberSavedPostDtos(3, page);
+		final Page<MemberPostDto> postPage = memberPostService.getMemberSavedPostPage(3, page);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_MEMBER_SAVED_POSTS_SUCCESS, postPage));
 	}
@@ -167,7 +167,7 @@ public class MemberPostController {
 	@GetMapping("/{username}/posts/tagged")
 	public ResponseEntity<ResultResponse> getTaggedPostPage(@PathVariable("username") String username,
 		@Min(1) @RequestParam int page) {
-		final Page<MemberPostDto> postPage = memberPostService.getMemberTaggedPostDtos(username, 3, page);
+		final Page<MemberPostDto> postPage = memberPostService.getMemberTaggedPostDtoPage(username, 3, page);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_MEMBER_TAGGED_POSTS_SUCCESS, postPage));
 	}

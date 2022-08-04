@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 
 import cloneproject.Instagram.domain.feed.dto.MemberPostDto;
 import cloneproject.Instagram.domain.feed.dto.QMemberPostDto;
-import cloneproject.Instagram.domain.member.entity.Member;
 
 @RequiredArgsConstructor
 public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQuerydsl {
@@ -34,7 +33,7 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 				post.member,
 				post.postImages.size().gt(1),
 				post.likeFlag,
-				isExistPostLikeWherePostEqAndMemberUsernameEq(loginMemberId),
+				existPostLikeWherePostEqAndMemberIdEq(loginMemberId),
 				post.comments.size(),
 				post.postLikes.size()))
 			.from(post)
@@ -53,7 +52,7 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 	}
 
 	@Override
-	public Page<MemberPostDto> findMemberSavedPostDtos(Long loginMemberId, Pageable pageable) {
+	public Page<MemberPostDto> findMemberSavedPostDtoPage(Long loginMemberId, Pageable pageable) {
 		final List<MemberPostDto> posts = queryFactory
 			.select(new QMemberPostDto(
 				bookmark.post.id,
@@ -77,14 +76,14 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 	}
 
 	@Override
-	public Page<MemberPostDto> findMemberTaggedPostDtos(Long loginMemberId, String username, Pageable pageable) {
+	public Page<MemberPostDto> findMemberTaggedPostDtoPage(Long loginMemberId, String username, Pageable pageable) {
 		final List<MemberPostDto> posts = queryFactory
 			.select(new QMemberPostDto(
 				postTag.postImage.post.id,
 				postTag.postImage.post.member,
 				postTag.postImage.post.postImages.size().gt(1),
 				postTag.postImage.post.likeFlag,
-				isExistPostLikeWherePostEqAndMemberUsernameEq(loginMemberId),
+				existPostLikeWherePostEqAndMemberIdEq(loginMemberId),
 				postTag.postImage.post.comments.size(),
 				postTag.postImage.post.postLikes.size()))
 			.from(postTag)
@@ -102,7 +101,7 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 		return new PageImpl<>(posts, pageable, total);
 	}
 
-	private BooleanExpression isExistPostLikeWherePostEqAndMemberUsernameEq(Long id) {
+	private BooleanExpression existPostLikeWherePostEqAndMemberIdEq(Long id) {
 		return JPAExpressions
 			.selectFrom(postLike)
 			.where(postLike.post.eq(post).and(postLike.member.id.eq(id)))

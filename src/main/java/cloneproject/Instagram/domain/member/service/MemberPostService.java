@@ -39,9 +39,9 @@ public class MemberPostService {
 	private final PostImageRepository postImageRepository;
 	private final PostService postService;
 
-	public Page<MemberPostDto> getMemberPostDtosWithoutLogin(String username, int size, int page) {
+	public Page<MemberPostDto> getMemberPostDtoPageWithoutLogin(String username, int size, int page) {
 		final Pageable pageable = PageRequest.of(page + PAGE_OFFSET, size);
-		final Page<MemberPostDto> posts = getMemberPostDtos(-1L, username, pageable);
+		final Page<MemberPostDto> posts = getMemberPostDtoPage(-1L, username, pageable);
 		final List<MemberPostDto> content = posts.getContent();
 		setMemberPostImageDtos(content);
 		setPostLikesCount(null, content);
@@ -50,17 +50,17 @@ public class MemberPostService {
 
 	public List<MemberPostDto> getRecent15PostDtosWithoutLogin(String username) {
 		final Pageable pageable = PageRequest.of(0, FIRST_PAGE_SIZE);
-		final Page<MemberPostDto> posts = getMemberPostDtos(-1L, username, pageable);
+		final Page<MemberPostDto> posts = getMemberPostDtoPage(-1L, username, pageable);
 		final List<MemberPostDto> content = posts.getContent();
 		setMemberPostImageDtos(content);
 		setPostLikesCount(null, content);
 		return content;
 	}
 
-	public Page<MemberPostDto> getMemberPostDtos(String username, int size, int page) {
+	public Page<MemberPostDto> getMemberPostDtoPage(String username, int size, int page) {
 		final Member loginMember = authUtil.getLoginMember();
 		final Pageable pageable = PageRequest.of(page + PAGE_OFFSET, size);
-		final Page<MemberPostDto> posts = getMemberPostDtos(loginMember.getId(), username, pageable);
+		final Page<MemberPostDto> posts = getMemberPostDtoPage(loginMember.getId(), username, pageable);
 		final List<MemberPostDto> content = posts.getContent();
 		setMemberPostImageDtos(content);
 		setPostLikesCount(loginMember, content);
@@ -70,17 +70,17 @@ public class MemberPostService {
 	public List<MemberPostDto> getRecent15PostDtos(String username) {
 		final Member loginMember = authUtil.getLoginMember();
 		final Pageable pageable = PageRequest.of(0, FIRST_PAGE_SIZE);
-		final Page<MemberPostDto> posts = getMemberPostDtos(loginMember.getId(), username, pageable);
+		final Page<MemberPostDto> posts = getMemberPostDtoPage(loginMember.getId(), username, pageable);
 		final List<MemberPostDto> content = posts.getContent();
 		setMemberPostImageDtos(content);
 		setPostLikesCount(loginMember, content);
 		return content;
 	}
 
-	public Page<MemberPostDto> getMemberSavedPostDtos(int size, int page) {
+	public Page<MemberPostDto> getMemberSavedPostPage(int size, int page) {
 		final Member loginMember = authUtil.getLoginMember();
 		final Pageable pageable = PageRequest.of(page + PAGE_OFFSET, size);
-		final Page<MemberPostDto> posts = memberRepository.findMemberSavedPostDtos(loginMember.getId(), pageable);
+		final Page<MemberPostDto> posts = memberRepository.findMemberSavedPostDtoPage(loginMember.getId(), pageable);
 		final List<MemberPostDto> content = posts.getContent();
 		setMemberPostImageDtos(content);
 		setPostLikesCount(loginMember, content);
@@ -90,13 +90,13 @@ public class MemberPostService {
 	public List<MemberPostDto> getRecent15SavedPostDtos() {
 		final Member loginMember = authUtil.getLoginMember();
 		final Pageable pageable = PageRequest.of(0, FIRST_PAGE_SIZE);
-		final Page<MemberPostDto> posts = memberRepository.findMemberSavedPostDtos(loginMember.getId(), pageable);
+		final Page<MemberPostDto> posts = memberRepository.findMemberSavedPostDtoPage(loginMember.getId(), pageable);
 		final List<MemberPostDto> content = posts.getContent();
 		setMemberPostImageDtos(content);
 		return content;
 	}
 
-	public Page<MemberPostDto> getMemberTaggedPostDtos(String username, int size, int page) {
+	public Page<MemberPostDto> getMemberTaggedPostDtoPage(String username, int size, int page) {
 		final Member loginMember = authUtil.getLoginMember();
 		final Member member = memberRepository.findByUsername(username)
 			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
@@ -106,7 +106,7 @@ public class MemberPostService {
 		}
 
 		final Pageable pageable = PageRequest.of(page + PAGE_OFFSET, size);
-		final Page<MemberPostDto> posts = memberRepository.findMemberTaggedPostDtos(loginMember.getId(), username,
+		final Page<MemberPostDto> posts = memberRepository.findMemberTaggedPostDtoPage(loginMember.getId(), username,
 			pageable);
 		final List<MemberPostDto> content = posts.getContent();
 		setMemberPostImageDtos(content);
@@ -124,7 +124,7 @@ public class MemberPostService {
 		}
 
 		final Pageable pageable = PageRequest.of(0, FIRST_PAGE_SIZE);
-		final Page<MemberPostDto> posts = memberRepository.findMemberTaggedPostDtos(loginMember.getId(), username,
+		final Page<MemberPostDto> posts = memberRepository.findMemberTaggedPostDtoPage(loginMember.getId(), username,
 			pageable);
 		final List<MemberPostDto> content = posts.getContent();
 		setMemberPostImageDtos(content);
@@ -132,7 +132,7 @@ public class MemberPostService {
 		return content;
 	}
 
-	private Page<MemberPostDto> getMemberPostDtos(Long memberId, String username, Pageable pageable) {
+	private Page<MemberPostDto> getMemberPostDtoPage(Long memberId, String username, Pageable pageable) {
 		final Member member = memberRepository.findByUsername(username)
 			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
