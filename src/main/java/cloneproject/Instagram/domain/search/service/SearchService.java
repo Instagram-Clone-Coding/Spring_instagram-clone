@@ -1,5 +1,6 @@
 package cloneproject.Instagram.domain.search.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -60,30 +61,33 @@ public class SearchService {
 	private final HashtagRepository hashtagRepository;
 
 	public List<SearchDto> searchByText(String text) {
-		text = text.trim();
+		String keyword = text.trim();
 		final Long loginId = authUtil.getLoginMemberId();
 		List<Search> searches;
-		if (text.charAt(0) == '#') {
-			searches = searchRepository.findHashtagsByTextLike(text.substring(1));
+		if (keyword.charAt(0) == '#') {
+			if (keyword.equals("#")) {
+				return Collections.emptyList();
+			}
+			searches = searchRepository.findHashtagsByTextLike(keyword.substring(1));
 		} else {
-			searches = searchRepository.findAllByTextLike(text);
+			searches = searchRepository.findAllByTextLike(keyword);
 		}
 
 		final List<Long> searchIds = searches.stream()
 			.map(Search::getId)
 			.collect(Collectors.toList());
 
-		searchRepository.checkMatchingHashtag(text.substring(1), searches, searchIds);
-		searchRepository.checkMatchingMember(text, searches, searchIds);
+		searchRepository.checkMatchingHashtag(keyword.substring(1), searches, searchIds);
+		searchRepository.checkMatchingMember(keyword, searches, searchIds);
 
 		return setSearchContent(loginId, searches, searchIds);
 	}
 
 	public List<MemberDto> getMemberAutoComplete(String text) {
-		text = text.trim();
-		final List<Long> memberIds = searchRepository.findMemberIdsByTextLike(text);
+		String keyword = text.trim();
+		final List<Long> memberIds = searchRepository.findMemberIdsByTextLike(keyword);
 
-		searchRepository.checkMatchingMember(text, memberIds);
+		searchRepository.checkMatchingMember(keyword, memberIds);
 		final List<Member> members = memberRepository.findAllByIdIn(memberIds);
 		return members.stream()
 			.map(MemberDto::new)
@@ -91,13 +95,15 @@ public class SearchService {
 	}
 
 	public List<HashtagDto> getHashtagAutoComplete(String text) {
-		text = text.trim();
-		if (!text.startsWith("#")) {
+		String keyword = text.trim();
+		if (!keyword.startsWith("#")) {
 			throw new HashtagPrefixMismatchException();
+		} else if (keyword.equals("#")) {
+			return Collections.emptyList();
 		}
-		final List<Long> hashtagIds = searchRepository.findHashtagIdsByTextLike(text.substring(1));
+		final List<Long> hashtagIds = searchRepository.findHashtagIdsByTextLike(keyword.substring(1));
 
-		searchRepository.checkMatchingHashtag(text.substring(1), hashtagIds);
+		searchRepository.checkMatchingHashtag(keyword.substring(1), hashtagIds);
 		final List<Hashtag> hashtags = hashtagRepository.findAllByIdIn(hashtagIds);
 		return hashtags.stream()
 			.map(HashtagDto::new)
@@ -208,9 +214,9 @@ public class SearchService {
 			.collect(Collectors.toList());
 
 		// 스토리 주입
-		memberMap.forEach((id, member) -> {
-			member.getMember().setHasStory(memberStoryRedisRepository.findById(id).isPresent());
-		});
+		memberMap.forEach(
+			(id, member) -> member.getMember().setHasStory(memberStoryRedisRepository.findById(id).isPresent())
+		);
 
 		// 팔로우 주입
 		final Map<String, List<FollowDto>> followsMap = followRepository.findFollowingMemberFollowMap(loginId,
