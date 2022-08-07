@@ -81,6 +81,23 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 	}
 
 	@Override
+	public Optional<PostResponse> findPostResponseWithoutLogin(Long postId) {
+		return Optional.ofNullable(queryFactory
+			.select(new QPostResponse(
+				post.id,
+				post.content,
+				post.uploadDate,
+				post.member,
+				post.postLikes.size(),
+				post.commentFlag,
+				post.likeFlag
+			))
+			.from(post)
+			.where(post.id.eq(postId))
+			.fetchOne());
+	}
+
+	@Override
 	public Page<PostDto> findPostDtoPage(Pageable pageable, Long memberId, List<Long> postIds) {
 		final List<PostDto> postDtos = findAllPostDtoByPostIdIn(memberId, postIds);
 		final long total = countByPostIdIn(postIds);

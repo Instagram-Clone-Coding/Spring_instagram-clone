@@ -75,6 +75,34 @@ public class CommentRepositoryQuerydslImpl implements CommentRepositoryQuerydsl 
 	}
 
 	@Override
+	public Page<CommentDto> findCommentDtoPageWithoutLogin(Long postId, Pageable pageable) {
+		final List<CommentDto> commentDtos = queryFactory
+			.select(new QCommentDto(
+				comment.post.id,
+				comment.id,
+				comment.member,
+				comment.content,
+				comment.uploadDate,
+				comment.commentLikes.size(),
+				comment.children.size()
+			))
+			.from(comment)
+			.where(comment.post.id.eq(postId).and(comment.parent.id.isNull()))
+			.innerJoin(comment.member, member)
+			.orderBy(comment.id.desc())
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
+			.fetch();
+
+		final long total = queryFactory
+			.selectFrom(comment)
+			.where(comment.post.id.eq(postId).and(comment.parent.id.isNull()))
+			.fetchCount();
+
+		return new PageImpl<>(commentDtos, pageable, total);
+
+	}
+	@Override
 	public Page<CommentDto> findReplyDtoPage(Long memberId, Long commentId, Pageable pageable) {
 		final List<CommentDto> commentDtos = queryFactory
 			.select(new QCommentDto(

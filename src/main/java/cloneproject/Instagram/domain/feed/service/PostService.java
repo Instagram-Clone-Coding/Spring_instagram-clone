@@ -186,6 +186,25 @@ public class PostService {
 		return postResponse;
 	}
 
+	public PostResponse getPostResponseWithoutLogin(Long postId) {
+		final PostResponse postResponse = postRepository.findPostResponseWithoutLogin(postId)
+			.orElseThrow(() -> new EntityNotFoundException(POST_NOT_FOUND));
+
+		setHasStory(postResponse);
+		setPostImages(postResponse);
+		setRecentCommentsWithoutLogin(postResponse);
+		if (postResponse.isPostLikeFlag()) {
+			postResponse.setPostLikesCount(0);
+		}
+
+		final List<String> mentions = stringExtractUtil.extractMentions(postResponse.getPostContent(), List.of());
+		postResponse.setMentionsOfContent(mentions);
+		final List<String> hashtags = stringExtractUtil.extractHashtags(postResponse.getPostContent());
+		postResponse.setHashtagsOfContent(hashtags);
+
+		return postResponse;
+	}
+
 	/**
 	 * 해당 게시물을 좋아요한 사람들 중, <br>
 	 * 현재 로그인한 유저가 팔로우하고 있는 사람들의 수를 구한다.
@@ -410,11 +429,22 @@ public class PostService {
 
 	private void setRecentComments(Long memberId, PostResponse postResponse) {
 		final Pageable pageable = PageRequest.of(0, 10);
-		final List<CommentDto> commentDtos = commentRepository.findCommentDtoPage(memberId, postResponse.getPostId(),
-			pageable).getContent();
-
+		final Page<CommentDto> commentDtoPage = commentRepository.findCommentDtoPage(memberId, postResponse.getPostId(),
+			pageable);
+		final List<CommentDto> commentDtos = commentDtoPage.getContent();
 		setHasStoryInCommentDto(commentDtos);
 		postResponse.setCommentDtos(commentDtos);
+		postResponse.setIsLastComment(commentDtoPage.isLast());
+	}
+
+	private void setRecentCommentsWithoutLogin(PostResponse postResponse) {
+		final Pageable pageable = PageRequest.of(0, 10);
+		final Page<CommentDto> commentDtoPage = commentRepository.findCommentDtoPageWithoutLogin(
+			postResponse.getPostId(), pageable);
+		final List<CommentDto> commentDtos = commentDtoPage.getContent();
+		setHasStoryInCommentDto(commentDtos);
+		postResponse.setCommentDtos(commentDtos);
+		postResponse.setIsLastComment(commentDtoPage.isLast());
 	}
 
 	private void setHasStoryInCommentDto(List<CommentDto> commentDtos) {
