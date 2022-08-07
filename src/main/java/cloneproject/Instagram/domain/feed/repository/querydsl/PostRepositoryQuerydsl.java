@@ -15,6 +15,8 @@ public interface PostRepositoryQuerydsl {
 
 	Optional<PostResponse> findPostResponse(Long postId, Long memberId);
 
+	Optional<PostResponse> findPostResponseWithoutLogin(Long postId);
+
 	Page<PostDto> findPostDtoPage(Pageable pageable, Long memberId, List<Long> postIds);
 
 }
