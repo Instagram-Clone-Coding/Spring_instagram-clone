@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import cloneproject.Instagram.domain.member.entity.Member;
+
 @ApiModel("유저 정보 수정 응답 모델")
 @Getter
 @Builder
@@ -35,5 +37,15 @@ public class EditProfileResponse {
 
 	@ApiModelProperty(value = "성별", example = "여성")
 	private String memberGender;
+
+	public EditProfileResponse(Member member) {
+		this.memberUsername = member.getUsername();
+		this.memberName = member.getName();
+		this.memberWebsite = member.getWebsite();
+		this.memberIntroduce = member.getIntroduce();
+		this.memberEmail = member.getEmail();
+		this.memberPhone = member.getPhone();
+		this.memberGender = member.getGender().toString();
+	}
 
 }

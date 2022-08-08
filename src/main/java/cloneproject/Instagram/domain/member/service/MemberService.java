@@ -26,7 +26,6 @@ import cloneproject.Instagram.domain.member.dto.EditProfileResponse;
 import cloneproject.Instagram.domain.member.dto.MenuMemberProfile;
 import cloneproject.Instagram.domain.member.dto.MiniProfileResponse;
 import cloneproject.Instagram.domain.member.dto.UserProfileResponse;
-import cloneproject.Instagram.domain.member.entity.Gender;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.exception.UsernameAlreadyExistException;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
@@ -54,13 +53,7 @@ public class MemberService {
 
 	public MenuMemberProfile getMenuMemberProfile() {
 		final Member member = authUtil.getLoginMember();
-
-		return MenuMemberProfile.builder()
-			.memberId(member.getId())
-			.memberUsername(member.getUsername())
-			.memberName(member.getName())
-			.memberImageUrl(member.getImage().getImageUrl())
-			.build();
+		return new MenuMemberProfile(member);
 	}
 
 	public UserProfileResponse getUserProfile(String username) {
@@ -103,27 +96,18 @@ public class MemberService {
 	@Transactional
 	public void deleteMemberImage() {
 		final Member member = authUtil.getLoginMember();
-		final Image image = member.getImage();
-		s3Uploader.deleteImage("member", image);
+		s3Uploader.deleteImage("member", member.getImage());
 		member.deleteImage();
 		memberRepository.save(member);
 	}
 
 	public EditProfileResponse getEditProfile() {
 		final Member member = authUtil.getLoginMember();
-		return EditProfileResponse.builder()
-			.memberUsername(member.getUsername())
-			.memberName(member.getName())
-			.memberImageUrl(member.getImage().getImageUrl())
-			.memberGender(member.getGender().toString())
-			.memberEmail(member.getEmail())
-			.memberIntroduce(member.getIntroduce())
-			.memberWebsite(member.getWebsite())
-			.memberPhone(member.getPhone())
-			.build();
+		return new EditProfileResponse(member);
 	}
 
 	// TODO 변경시 이메일 인증 로직은?
+	@Transactional
 	public void editProfile(EditProfileRequest editProfileRequest) {
 		final Member member = authUtil.getLoginMember();
 
@@ -132,13 +116,7 @@ public class MemberService {
 			throw new UsernameAlreadyExistException();
 		}
 
-		member.updateUsername(editProfileRequest.getMemberUsername());
-		member.updateName(editProfileRequest.getMemberName());
-		member.updateEmail(editProfileRequest.getMemberEmail());
-		member.updateIntroduce(editProfileRequest.getMemberIntroduce());
-		member.updateWebsite(editProfileRequest.getMemberWebsite());
-		member.updatePhone(editProfileRequest.getMemberPhone());
-		member.updateGender(Gender.valueOf(editProfileRequest.getMemberGender()));
+		member.editMember(editProfileRequest);
 		memberRepository.save(member);
 	}
 
