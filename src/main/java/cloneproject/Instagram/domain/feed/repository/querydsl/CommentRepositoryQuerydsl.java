@@ -13,6 +13,8 @@ public interface CommentRepositoryQuerydsl {
 
 	Page<CommentDto> findCommentDtoPage(Long memberId, Long postId, Pageable pageable);
 
+	Page<CommentDto> findCommentDtoPageWithoutLogin(Long postId, Pageable pageable);
+
 	Page<CommentDto> findReplyDtoPage(Long memberId, Long commentId, Pageable pageable);
 
 }

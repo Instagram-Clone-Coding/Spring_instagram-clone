@@ -118,6 +118,21 @@ public class PostController {
 		return ResponseEntity.ok(ResultResponse.of(FIND_POST_SUCCESS, response));
 	}
 
+	@ApiOperation(value = "로그인 없이 게시물 조회")
+	@ApiResponses({
+		@ApiResponse(code = 200, message = "F004 - 게시물 조회에 성공하였습니다."),
+		@ApiResponse(code = 400, message = "G003 - 유효하지 않은 입력입니다.\n"
+			+ "G004 - 입력 타입이 유효하지 않습니다.\n"
+			+ "F001 - 존재하지 않는 게시물입니다.\n"),
+	})
+	@ApiImplicitParam(name = "postId", value = "게시물 PK", example = "1", required = true)
+	@GetMapping("/{postId}/without")
+	public ResponseEntity<ResultResponse> getPostWithoutLogin(@PathVariable Long postId) {
+		final PostResponse response = postService.getPostResponseWithoutLogin(postId);
+
+		return ResponseEntity.ok(ResultResponse.of(FIND_POST_SUCCESS, response));
+	}
+
 	@ApiOperation(value = "게시물 좋아요")
 	@ApiResponses({
 		@ApiResponse(code = 200, message = "F006 - 게시물 좋아요에 성공하였습니다."),

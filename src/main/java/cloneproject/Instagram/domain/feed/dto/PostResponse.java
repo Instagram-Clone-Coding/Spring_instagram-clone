@@ -23,6 +23,7 @@ public class PostResponse {
 	private int postLikesCount;
 	private boolean postBookmarkFlag;
 	private boolean postLikeFlag;
+	private boolean isLastComment;
 	private boolean commentOptionFlag;
 	private boolean likeOptionFlag;
 	private String followingMemberUsernameLikedPost = "";
@@ -42,6 +43,21 @@ public class PostResponse {
 		this.postLikesCount = postLikesCount;
 		this.postBookmarkFlag = postBookmarkFlag;
 		this.postLikeFlag = postLikeFlag;
+		this.commentOptionFlag = commentOptionFlag;
+		this.likeOptionFlag = likeOptionFlag;
+	}
+
+	@QueryProjection
+	public PostResponse(Long postId, String postContent, LocalDateTime postUploadDate, Member member,
+		int postLikesCount, boolean commentOptionFlag,
+		boolean likeOptionFlag) {
+		this.postId = postId;
+		this.postContent = postContent;
+		this.postUploadDate = postUploadDate;
+		this.member = new MemberDto(member);
+		this.postLikesCount = postLikesCount;
+		this.postBookmarkFlag = false;
+		this.postLikeFlag = false;
 		this.commentOptionFlag = commentOptionFlag;
 		this.likeOptionFlag = likeOptionFlag;
 	}
@@ -68,6 +84,10 @@ public class PostResponse {
 
 	public void setHashtagsOfContent(List<String> hashtags) {
 		this.hashtagsOfContent = hashtags;
+	}
+
+	public void setIsLastComment(boolean isLastComment) {
+		this.isLastComment = isLastComment;
 	}
 
 }

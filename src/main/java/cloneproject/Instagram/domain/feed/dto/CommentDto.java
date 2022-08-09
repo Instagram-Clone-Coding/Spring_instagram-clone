@@ -43,6 +43,19 @@ public class CommentDto {
 		this.repliesCount = repliesCount;
 	}
 
+	@QueryProjection
+	public CommentDto(Long postId, Long id, Member member, String content, LocalDateTime uploadDate,
+		int commentLikesCount, int repliesCount) {
+		this.postId = postId;
+		this.id = id;
+		this.member = new MemberDto(member);
+		this.content = content;
+		this.uploadDate = uploadDate;
+		this.commentLikesCount = commentLikesCount;
+		this.commentLikeFlag = false;
+		this.repliesCount = repliesCount;
+	}
+
 	public void setMentionsOfContent(List<String> mentionsOfContent) {
 		this.mentionsOfContent = mentionsOfContent;
 	}
