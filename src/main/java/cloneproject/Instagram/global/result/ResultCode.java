@@ -110,7 +110,7 @@ public enum ResultCode {
 	GET_MEMBER_AUTO_COMPLETE_SUCCESS(200, "SE007", "멤버 자동완성 조회에 성공하였습니다."),
 	GET_HASHTAG_AUTO_COMPLETE_SUCCESS(200, "SE008", "해시태그 자동완성 조회에 성공하였습니다.");
 
-	private int status;
+	private final int status;
 	private final String code;
 	private final String message;
 
