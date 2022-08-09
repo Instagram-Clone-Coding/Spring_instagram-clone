@@ -43,6 +43,7 @@ public class MemberService {
 
 	private static final int MAX_PROFILE_FOLLOWING_MEMBER_FOLLOW_COUNT = 3;
 	private static final int MAX_MINI_PROFILE_FOLLOWING_MEMBER_FOLLOW_COUNT = 1;
+	private static final String MEMBER_S3_DIRNAME = "member";
 	private final AuthUtil authUtil;
 	private final MemberRepository memberRepository;
 	private final FollowRepository followRepository;
@@ -86,9 +87,9 @@ public class MemberService {
 
 		// 기존 사진 삭제
 		final Image originalImage = member.getImage();
-		s3Uploader.deleteImage("member", originalImage);
+		s3Uploader.deleteImage(originalImage, MEMBER_S3_DIRNAME);
 
-		final Image image = s3Uploader.uploadImage(uploadedImage, "member");
+		final Image image = s3Uploader.uploadImage(uploadedImage, MEMBER_S3_DIRNAME);
 		member.uploadImage(image);
 		memberRepository.save(member);
 	}
@@ -96,7 +97,7 @@ public class MemberService {
 	@Transactional
 	public void deleteMemberImage() {
 		final Member member = authUtil.getLoginMember();
-		s3Uploader.deleteImage("member", member.getImage());
+		s3Uploader.deleteImage(member.getImage(), MEMBER_S3_DIRNAME);
 		member.deleteImage();
 		memberRepository.save(member);
 	}

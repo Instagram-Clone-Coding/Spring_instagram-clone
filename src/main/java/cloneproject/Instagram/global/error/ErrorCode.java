@@ -22,7 +22,7 @@ public enum ErrorCode {
 	HTTP_MESSAGE_NOT_READABLE(400, "G005", "request message body가 없거나, 값 타입이 올바르지 않습니다."),
 	HTTP_HEADER_INVALID(400, "G006", "request header가 유효하지 않습니다."),
 	IMAGE_TYPE_NOT_SUPPORTED(400, "G007", "지원하지 않는 이미지 타입입니다."),
-	FILE_CANT_CONVERT(500, "G008", "변환할 수 없는 파일입니다."),
+	FILE_CONVERT_FAIL(500, "G008", "변환할 수 없는 파일입니다."),
 	ENTITY_TYPE_INVALID(500, "G009", "올바르지 않은 entity type 입니다."),
 	FILTER_MUST_RESPOND(500, "G010", "필터에서 처리해야 할 요청이 Controller에 접근하였습니다."),
 
