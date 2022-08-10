@@ -19,7 +19,8 @@ public class PostDto {
 
 	private Long postId;
 	private String postContent;
-	private List<String> mentionsOfContent = new ArrayList<>();
+	private List<String> existentMentionsOfContent = new ArrayList<>();
+	private List<String> nonExistentMentionsOfContent = new ArrayList<>();
 	private List<String> hashtagsOfContent = new ArrayList<>();
 	private List<PostImageDto> postImages = new ArrayList<>();
 	private LocalDateTime postUploadDate;
@@ -69,8 +70,12 @@ public class PostDto {
 		this.hashtagsOfContent = hashtagsOfContent;
 	}
 
-	public void setMentionsOfContent(List<String> mentionsOfContent) {
-		this.mentionsOfContent = mentionsOfContent;
+	public void setExistentMentionsOfContent(List<String> existentMentionsOfContent) {
+		this.existentMentionsOfContent = existentMentionsOfContent;
+	}
+
+	public void setNonExistentMentionsOfContent(List<String> nonExistentMentionsOfContent) {
+		this.nonExistentMentionsOfContent = nonExistentMentionsOfContent;
 	}
 
 }

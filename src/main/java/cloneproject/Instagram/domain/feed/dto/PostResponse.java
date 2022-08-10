@@ -29,7 +29,8 @@ public class PostResponse {
 	private String followingMemberUsernameLikedPost = "";
 	private List<PostImageDto> postImageDtos = new ArrayList<>();
 	private List<CommentDto> commentDtos = new ArrayList<>();
-	private List<String> mentionsOfContent = new ArrayList<>();
+	private List<String> existentMentionsOfContent = new ArrayList<>();
+	private List<String> nonExistentMentionsOfContent = new ArrayList<>();
 	private List<String> hashtagsOfContent = new ArrayList<>();
 
 	@QueryProjection
@@ -78,8 +79,8 @@ public class PostResponse {
 		this.postLikesCount = postLikesCount;
 	}
 
-	public void setMentionsOfContent(List<String> mentions) {
-		this.mentionsOfContent = mentions;
+	public void setExistentMentionsOfContent(List<String> mentions) {
+		this.existentMentionsOfContent = mentions;
 	}
 
 	public void setHashtagsOfContent(List<String> hashtags) {
@@ -88,6 +89,10 @@ public class PostResponse {
 
 	public void setIsLastComment(boolean isLastComment) {
 		this.isLastComment = isLastComment;
+	}
+
+	public void setNonExistentMentionsOfContent(List<String> nonExistentMentionsOfContent) {
+		this.nonExistentMentionsOfContent = nonExistentMentionsOfContent;
 	}
 
 }

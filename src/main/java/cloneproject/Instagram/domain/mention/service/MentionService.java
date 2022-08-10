@@ -60,4 +60,8 @@ public class MentionService {
 		alarmService.alertBatch(MENTION_COMMENT, mentionedMembers, comment.getPost(), comment);
 	}
 
+	public List<Mention> getMentionsWithMember(Long postId) {
+		return mentionRepository.findAllWithTargetByPostId(postId);
+	}
+
 }

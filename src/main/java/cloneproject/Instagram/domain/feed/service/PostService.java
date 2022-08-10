@@ -51,6 +51,7 @@ import cloneproject.Instagram.domain.member.dto.LikeMemberDto;
 import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
+import cloneproject.Instagram.domain.mention.entity.Mention;
 import cloneproject.Instagram.domain.mention.service.MentionService;
 import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
 import cloneproject.Instagram.global.error.ErrorResponse.FieldError;
@@ -178,8 +179,13 @@ public class PostService {
 			postResponse.setPostLikesCount(postResponse.getPostLikesCount() + 1);
 		}
 
-		final List<String> mentions = stringExtractUtil.extractMentions(postResponse.getPostContent(), List.of());
-		postResponse.setMentionsOfContent(mentions);
+		final List<String> existentUsernames = mentionService.getMentionsWithMember(postResponse.getPostId()).stream()
+			.map(Mention::getTarget)
+			.map(Member::getUsername)
+			.collect(Collectors.toList());
+		postResponse.setExistentMentionsOfContent(existentUsernames);
+		final List<String> nonExistentUsernames = stringExtractUtil.extractMentions(postResponse.getPostContent(), existentUsernames);
+		postResponse.setNonExistentMentionsOfContent(nonExistentUsernames);
 		final List<String> hashtags = stringExtractUtil.extractHashtags(postResponse.getPostContent());
 		postResponse.setHashtagsOfContent(hashtags);
 
@@ -197,8 +203,13 @@ public class PostService {
 			postResponse.setPostLikesCount(0);
 		}
 
-		final List<String> mentions = stringExtractUtil.extractMentions(postResponse.getPostContent(), List.of());
-		postResponse.setMentionsOfContent(mentions);
+		final List<String> existentUsernames = mentionService.getMentionsWithMember(postResponse.getPostId()).stream()
+			.map(Mention::getTarget)
+			.map(Member::getUsername)
+			.collect(Collectors.toList());
+		postResponse.setExistentMentionsOfContent(existentUsernames);
+		final List<String> nonExistentUsernames = stringExtractUtil.extractMentions(postResponse.getPostContent(), existentUsernames);
+		postResponse.setNonExistentMentionsOfContent(nonExistentUsernames);
 		final List<String> hashtags = stringExtractUtil.extractHashtags(postResponse.getPostContent());
 		postResponse.setHashtagsOfContent(hashtags);
 
@@ -373,8 +384,13 @@ public class PostService {
 				post.setPostLikesCount(post.getPostLikesCount() + 1);
 			}
 
-			final List<String> mentions = stringExtractUtil.extractMentions(post.getPostContent(), List.of());
-			post.setMentionsOfContent(mentions);
+			final List<String> existentUsernames = mentionService.getMentionsWithMember(post.getPostId()).stream()
+				.map(Mention::getTarget)
+				.map(Member::getUsername)
+				.collect(Collectors.toList());
+			post.setExistentMentionsOfContent(existentUsernames);
+			final List<String> nonExistentUsernames = stringExtractUtil.extractMentions(post.getPostContent(), existentUsernames);
+			post.setNonExistentMentionsOfContent(nonExistentUsernames);
 			final List<String> hashtags = stringExtractUtil.extractHashtags(post.getPostContent());
 			post.setHashtagsOfContent(hashtags);
 		});
