@@ -30,7 +30,7 @@ import cloneproject.Instagram.domain.follow.repository.FollowRepository;
 import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.mention.entity.Mention;
-import cloneproject.Instagram.domain.mention.service.MentionService;
+import cloneproject.Instagram.domain.mention.repository.MentionRepository;
 import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
 import cloneproject.Instagram.global.util.AuthUtil;
 import cloneproject.Instagram.global.util.StringExtractUtil;
@@ -42,7 +42,7 @@ public class AlarmService {
 
 	private final AlarmRepository alarmRepository;
 	private final FollowRepository followRepository;
-	private final MentionService mentionService;
+	private final MentionRepository mentionRepository;
 	private final StringExtractUtil stringExtractUtil;
 	private final MemberStoryRedisRepository memberStoryRedisRepository;
 	private final AuthUtil authUtil;
@@ -184,7 +184,7 @@ public class AlarmService {
 					final AlarmContentDto dto = new AlarmContentDto(alarm);
 					if (alarm.getType().equals(COMMENT) || alarm.getType().equals(LIKE_COMMENT) ||
 						alarm.getType().equals(MENTION_COMMENT)) {
-						final List<String> existentUsernames = mentionService.getMentionsWithTargetByCommentId(
+						final List<String> existentUsernames = mentionRepository.findAllWithTargetByCommentId(
 								alarm.getComment().getId()).stream()
 							.map(Mention::getTarget)
 							.map(Member::getUsername)
@@ -194,7 +194,7 @@ public class AlarmService {
 							existentUsernames);
 						dto.setNonExistentMentionsOfContent(nonExistentUsernames);
 					} else if (alarm.getType().equals(LIKE_POST) || alarm.getType().equals(MENTION_POST)) {
-						final List<String> existentUsernames = mentionService.getMentionsWithTargetByPostId(
+						final List<String> existentUsernames = mentionRepository.findAllWithTargetByPostId(
 								alarm.getPost().getId()).stream()
 							.map(Mention::getTarget)
 							.map(Member::getUsername)
