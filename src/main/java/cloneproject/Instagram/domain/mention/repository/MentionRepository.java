@@ -20,4 +20,7 @@ public interface MentionRepository extends JpaRepository<Mention, Long>, Mention
 	@Query("select m from Mention m join fetch m.target where m.post.id = :postId")
 	List<Mention> findAllWithTargetByPostId(@Param("postId") Long postId);
 
+	@Query("select m from Mention m join fetch m.target where m.comment.id = :commentId")
+	List<Mention> findAllWithTargetByCommentId(@Param("commentId") Long commentId);
+
 }

@@ -6,6 +6,7 @@ import static cloneproject.Instagram.global.error.ErrorCode.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -34,6 +35,7 @@ import cloneproject.Instagram.domain.hashtag.service.HashtagService;
 import cloneproject.Instagram.domain.member.dto.LikeMemberDto;
 import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
+import cloneproject.Instagram.domain.mention.entity.Mention;
 import cloneproject.Instagram.domain.mention.service.MentionService;
 import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
 import cloneproject.Instagram.global.error.exception.EntityAlreadyExistException;
@@ -195,8 +197,15 @@ public class CommentService {
 
 	private void setMentionAndHashtagList(List<CommentDto> content) {
 		content.forEach(comment -> {
-			final List<String> mentions = stringExtractUtil.extractMentions(comment.getContent(), List.of());
-			comment.setMentionsOfContent(mentions);
+			final List<String> existentUsernames = mentionService.getMentionsWithTargetByCommentId(comment.getId())
+				.stream()
+				.map(Mention::getTarget)
+				.map(Member::getUsername)
+				.collect(Collectors.toList());
+			comment.setExistentMentionsOfContent(existentUsernames);
+			final List<String> nonExistentUsernames = stringExtractUtil.extractMentions(comment.getContent(),
+				existentUsernames);
+			comment.setNonExistentMentionsOfContent(nonExistentUsernames);
 			final List<String> hashtags = stringExtractUtil.extractHashtags(comment.getContent());
 			comment.setHashtagsOfContent(hashtags);
 		});

@@ -179,7 +179,7 @@ public class PostService {
 			postResponse.setPostLikesCount(postResponse.getPostLikesCount() + 1);
 		}
 
-		final List<String> existentUsernames = mentionService.getMentionsWithMember(postResponse.getPostId()).stream()
+		final List<String> existentUsernames = mentionService.getMentionsWithTargetByPostId(postResponse.getPostId()).stream()
 			.map(Mention::getTarget)
 			.map(Member::getUsername)
 			.collect(Collectors.toList());
@@ -203,7 +203,7 @@ public class PostService {
 			postResponse.setPostLikesCount(0);
 		}
 
-		final List<String> existentUsernames = mentionService.getMentionsWithMember(postResponse.getPostId()).stream()
+		final List<String> existentUsernames = mentionService.getMentionsWithTargetByPostId(postResponse.getPostId()).stream()
 			.map(Mention::getTarget)
 			.map(Member::getUsername)
 			.collect(Collectors.toList());
@@ -384,7 +384,7 @@ public class PostService {
 				post.setPostLikesCount(post.getPostLikesCount() + 1);
 			}
 
-			final List<String> existentUsernames = mentionService.getMentionsWithMember(post.getPostId()).stream()
+			final List<String> existentUsernames = mentionService.getMentionsWithTargetByPostId(post.getPostId()).stream()
 				.map(Mention::getTarget)
 				.map(Member::getUsername)
 				.collect(Collectors.toList());
