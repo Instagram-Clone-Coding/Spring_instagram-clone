@@ -29,8 +29,11 @@ import cloneproject.Instagram.domain.follow.entity.Follow;
 import cloneproject.Instagram.domain.follow.repository.FollowRepository;
 import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
+import cloneproject.Instagram.domain.mention.entity.Mention;
+import cloneproject.Instagram.domain.mention.service.MentionService;
 import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
 import cloneproject.Instagram.global.util.AuthUtil;
+import cloneproject.Instagram.global.util.StringExtractUtil;
 
 @Service
 @Transactional(readOnly = true)
@@ -39,6 +42,8 @@ public class AlarmService {
 
 	private final AlarmRepository alarmRepository;
 	private final FollowRepository followRepository;
+	private final MentionService mentionService;
+	private final StringExtractUtil stringExtractUtil;
 	private final MemberStoryRedisRepository memberStoryRedisRepository;
 	private final AuthUtil authUtil;
 
@@ -79,8 +84,9 @@ public class AlarmService {
 
 	@Transactional
 	public void alert(AlarmType type, Member target, Post post) {
-		if (!type.equals(LIKE_POST))
+		if (!type.equals(LIKE_POST)) {
 			throw new MismatchedAlarmTypeException();
+		}
 
 		final Member loginMember = authUtil.getLoginMember();
 		final Alarm alarm = Alarm.builder()
@@ -95,8 +101,9 @@ public class AlarmService {
 
 	@Transactional
 	public void alertBatch(AlarmType type, List<Member> targets, Post post) {
-		if (!type.equals(MENTION_POST))
+		if (!type.equals(MENTION_POST)) {
 			throw new MismatchedAlarmTypeException();
+		}
 
 		final Member loginMember = authUtil.getLoginMember();
 		alarmRepository.saveMentionPostAlarms(loginMember, targets, post, LocalDateTime.now());
@@ -104,8 +111,9 @@ public class AlarmService {
 
 	@Transactional
 	public void alertBatch(AlarmType type, List<Member> targets, Post post, Comment comment) {
-		if (!type.equals(MENTION_COMMENT))
+		if (!type.equals(MENTION_COMMENT)) {
 			throw new MismatchedAlarmTypeException();
+		}
 
 		final Member loginMember = authUtil.getLoginMember();
 		alarmRepository.saveMentionCommentAlarms(loginMember, targets, post, comment, LocalDateTime.now());
@@ -113,8 +121,9 @@ public class AlarmService {
 
 	@Transactional
 	public void alert(AlarmType type, Member target, Post post, Comment comment) {
-		if (!type.equals(COMMENT) && !type.equals(LIKE_COMMENT) && !type.equals(MENTION_COMMENT))
+		if (!type.equals(COMMENT) && !type.equals(LIKE_COMMENT) && !type.equals(MENTION_COMMENT)) {
 			throw new MismatchedAlarmTypeException();
+		}
 
 		final Member loginMember = authUtil.getLoginMember();
 		final Alarm alarm = Alarm.builder()
@@ -168,11 +177,35 @@ public class AlarmService {
 
 	private List<AlarmDto> convertToDto(List<Alarm> alarms, Map<Long, Follow> followMap) {
 		return alarms.stream()
-			.map(a -> {
-				if (a.getType().equals(AlarmType.FOLLOW))
-					return new AlarmFollowDto(a, followMap.containsKey(a.getAgent().getId()));
-				else
-					return new AlarmContentDto(a);
+			.map(alarm -> {
+				if (alarm.getType().equals(AlarmType.FOLLOW)) {
+					return new AlarmFollowDto(alarm, followMap.containsKey(alarm.getAgent().getId()));
+				} else {
+					final AlarmContentDto dto = new AlarmContentDto(alarm);
+					if (alarm.getType().equals(COMMENT) || alarm.getType().equals(LIKE_COMMENT) ||
+						alarm.getType().equals(MENTION_COMMENT)) {
+						final List<String> existentUsernames = mentionService.getMentionsWithTargetByCommentId(
+								alarm.getComment().getId()).stream()
+							.map(Mention::getTarget)
+							.map(Member::getUsername)
+							.collect(Collectors.toList());
+						dto.setExistentMentionsOfContent(existentUsernames);
+						final List<String> nonExistentUsernames = stringExtractUtil.extractMentions(dto.getContent(),
+							existentUsernames);
+						dto.setNonExistentMentionsOfContent(nonExistentUsernames);
+					} else if (alarm.getType().equals(LIKE_POST) || alarm.getType().equals(MENTION_POST)) {
+						final List<String> existentUsernames = mentionService.getMentionsWithTargetByPostId(
+								alarm.getPost().getId()).stream()
+							.map(Mention::getTarget)
+							.map(Member::getUsername)
+							.collect(Collectors.toList());
+						dto.setExistentMentionsOfContent(existentUsernames);
+						final List<String> nonExistentUsernames = stringExtractUtil.extractMentions(dto.getContent(),
+							existentUsernames);
+						dto.setNonExistentMentionsOfContent(nonExistentUsernames);
+					}
+					return dto;
+				}
 			})
 			.collect(Collectors.toList());
 	}

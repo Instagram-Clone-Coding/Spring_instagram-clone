@@ -1,6 +1,7 @@
 package cloneproject.Instagram.domain.alarm.repository.querydsl;
 
 import static cloneproject.Instagram.domain.alarm.entity.QAlarm.*;
+import static cloneproject.Instagram.domain.feed.entity.QComment.*;
 import static cloneproject.Instagram.domain.feed.entity.QPost.*;
 import static cloneproject.Instagram.domain.member.entity.QMember.*;
 
@@ -27,6 +28,7 @@ public class AlarmRepositoryQuerydslImpl implements AlarmRepositoryQuerydsl {
 			.selectFrom(alarm)
 			.innerJoin(alarm.agent, member).fetchJoin()
 			.innerJoin(alarm.post, post).fetchJoin()
+			.innerJoin(alarm.comment, comment).fetchJoin()
 			.where(alarm.target.id.eq(memberId))
 			.orderBy(alarm.id.desc())
 			.offset(pageable.getOffset())
