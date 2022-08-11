@@ -23,7 +23,7 @@ import cloneproject.Instagram.domain.member.exception.PasswordResetFailException
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.member.repository.redis.EmailCodeRedisRepository;
 import cloneproject.Instagram.domain.member.repository.redis.ResetPasswordCodeRedisRepository;
-import cloneproject.Instagram.global.error.exception.CantConvertFileException;
+import cloneproject.Instagram.global.error.exception.FileConvertFailException;
 import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 import cloneproject.Instagram.infra.email.EmailService;
 
@@ -132,7 +132,7 @@ public class EmailCodeService {
 			resource = new ClassPathResource("resetPasswordEmailUI.html");
 			resetPasswordEmailUI = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
 		} catch (IOException e) {
-			throw new CantConvertFileException();
+			throw new FileConvertFailException();
 		}
 	}
 

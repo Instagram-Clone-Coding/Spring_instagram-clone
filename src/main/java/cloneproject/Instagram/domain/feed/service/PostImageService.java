@@ -28,7 +28,7 @@ public class PostImageService {
 	@Transactional
 	public void deleteAll(Post post) {
 		final List<PostImage> postImages = postImageRepository.findAllByPost(post);
-		postImages.forEach(pi -> uploader.deleteImage("post", pi.getImage()));
+		postImages.forEach(pi -> uploader.deleteImage(pi.getImage(), "post"));
 		postTagService.deleteAll(postImages);
 		postImageRepository.deleteAllInBatch(postImages);
 	}

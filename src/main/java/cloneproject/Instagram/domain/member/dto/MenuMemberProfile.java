@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import cloneproject.Instagram.domain.member.entity.Member;
+
 @ApiModel("상단 메뉴 유저 프로필 모델")
 @Getter
 @Builder
@@ -23,5 +25,12 @@ public class MenuMemberProfile {
 
 	@ApiModelProperty(value = "이름", example = "이지금")
 	private String memberName;
+
+	public MenuMemberProfile(Member member) {
+		this.memberId = member.getId();
+		this.memberUsername = member.getUsername();
+		this.memberImageUrl = member.getImage().getImageUrl();
+		this.memberName = member.getName();
+	}
 
 }

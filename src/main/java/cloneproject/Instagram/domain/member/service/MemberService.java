@@ -44,6 +44,7 @@ public class MemberService {
 
 	private static final int MAX_PROFILE_FOLLOWING_MEMBER_FOLLOW_COUNT = 3;
 	private static final int MAX_MINI_PROFILE_FOLLOWING_MEMBER_FOLLOW_COUNT = 1;
+	private static final String MEMBER_S3_DIRNAME = "member";
 	private final AuthUtil authUtil;
 	private final MemberRepository memberRepository;
 	private final FollowRepository followRepository;
@@ -54,13 +55,7 @@ public class MemberService {
 
 	public MenuMemberProfile getMenuMemberProfile() {
 		final Member member = authUtil.getLoginMember();
-
-		return MenuMemberProfile.builder()
-			.memberId(member.getId())
-			.memberUsername(member.getUsername())
-			.memberName(member.getName())
-			.memberImageUrl(member.getImage().getImageUrl())
-			.build();
+		return new MenuMemberProfile(member);
 	}
 
 	public UserProfileResponse getUserProfile(String username) {
@@ -93,9 +88,9 @@ public class MemberService {
 
 		// 기존 사진 삭제
 		final Image originalImage = member.getImage();
-		s3Uploader.deleteImage("member", originalImage);
+		s3Uploader.deleteImage(originalImage, MEMBER_S3_DIRNAME);
 
-		final Image image = s3Uploader.uploadImage(uploadedImage, "member");
+		final Image image = s3Uploader.uploadImage(uploadedImage, MEMBER_S3_DIRNAME);
 		member.uploadImage(image);
 		memberRepository.save(member);
 	}
@@ -103,27 +98,17 @@ public class MemberService {
 	@Transactional
 	public void deleteMemberImage() {
 		final Member member = authUtil.getLoginMember();
-		final Image image = member.getImage();
-		s3Uploader.deleteImage("member", image);
+		s3Uploader.deleteImage(member.getImage(), MEMBER_S3_DIRNAME);
 		member.deleteImage();
 		memberRepository.save(member);
 	}
 
 	public EditProfileResponse getEditProfile() {
 		final Member member = authUtil.getLoginMember();
-		return EditProfileResponse.builder()
-			.memberUsername(member.getUsername())
-			.memberName(member.getName())
-			.memberImageUrl(member.getImage().getImageUrl())
-			.memberGender(member.getGender().toString())
-			.memberEmail(member.getEmail())
-			.memberIntroduce(member.getIntroduce())
-			.memberWebsite(member.getWebsite())
-			.memberPhone(member.getPhone())
-			.build();
+		return new EditProfileResponse(member);
 	}
 
-	// TODO 변경시 이메일 인증 로직은?
+	@Transactional
 	public void editProfile(EditProfileRequest editProfileRequest) {
 		final Member member = authUtil.getLoginMember();
 
@@ -132,14 +117,7 @@ public class MemberService {
 			throw new UsernameAlreadyExistException();
 		}
 
-		member.updateUsername(editProfileRequest.getMemberUsername());
-		member.updateName(editProfileRequest.getMemberName());
-		member.updateEmail(editProfileRequest.getMemberEmail());
-		member.updateIntroduce(editProfileRequest.getMemberIntroduce());
-		member.updateWebsite(editProfileRequest.getMemberWebsite());
-		member.updatePhone(editProfileRequest.getMemberPhone());
-		member.updateGender(Gender.valueOf(editProfileRequest.getMemberGender()));
-		memberRepository.save(member);
+		updateMemberProfile(member, editProfileRequest);
 	}
 
 	private UserProfileResponse getUserProfile(String username, Long memberId) {
@@ -173,6 +151,16 @@ public class MemberService {
 				.build()));
 
 		miniProfileResponse.setMemberPosts(results);
+	}
+
+	private void updateMemberProfile(Member member, EditProfileRequest editProfileRequest) {
+		member.updateUsername(editProfileRequest.getMemberUsername());
+		member.updateName(editProfileRequest.getMemberName());
+		member.updateEmail(editProfileRequest.getMemberEmail());
+		member.updateIntroduce(editProfileRequest.getMemberIntroduce());
+		member.updateWebsite(editProfileRequest.getMemberWebsite());
+		member.updatePhone(editProfileRequest.getMemberPhone());
+		member.updateGender(Gender.valueOf(editProfileRequest.getMemberGender()));
 	}
 
 }

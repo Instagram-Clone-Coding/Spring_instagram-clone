@@ -1,6 +1,5 @@
 package cloneproject.Instagram.domain.member.entity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.AttributeOverride;
@@ -72,7 +71,7 @@ public class Member {
 	private Gender gender;
 
 	@OneToMany(mappedBy = "member")
-	private List<Follow> followings = new ArrayList<>();
+	private List<Follow> followings;
 
 	@Embedded
 	@AttributeOverrides({
