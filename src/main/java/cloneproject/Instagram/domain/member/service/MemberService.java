@@ -26,6 +26,7 @@ import cloneproject.Instagram.domain.member.dto.EditProfileResponse;
 import cloneproject.Instagram.domain.member.dto.MenuMemberProfile;
 import cloneproject.Instagram.domain.member.dto.MiniProfileResponse;
 import cloneproject.Instagram.domain.member.dto.UserProfileResponse;
+import cloneproject.Instagram.domain.member.entity.Gender;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.exception.UsernameAlreadyExistException;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
@@ -107,7 +108,6 @@ public class MemberService {
 		return new EditProfileResponse(member);
 	}
 
-	// TODO 변경시 이메일 인증 로직은?
 	@Transactional
 	public void editProfile(EditProfileRequest editProfileRequest) {
 		final Member member = authUtil.getLoginMember();
@@ -117,8 +117,7 @@ public class MemberService {
 			throw new UsernameAlreadyExistException();
 		}
 
-		member.editMember(editProfileRequest);
-		memberRepository.save(member);
+		updateMemberProfile(member, editProfileRequest);
 	}
 
 	private UserProfileResponse getUserProfile(String username, Long memberId) {
@@ -152,6 +151,16 @@ public class MemberService {
 				.build()));
 
 		miniProfileResponse.setMemberPosts(results);
+	}
+
+	private void updateMemberProfile(Member member, EditProfileRequest editProfileRequest) {
+		member.updateUsername(editProfileRequest.getMemberUsername());
+		member.updateName(editProfileRequest.getMemberName());
+		member.updateEmail(editProfileRequest.getMemberEmail());
+		member.updateIntroduce(editProfileRequest.getMemberIntroduce());
+		member.updateWebsite(editProfileRequest.getMemberWebsite());
+		member.updatePhone(editProfileRequest.getMemberPhone());
+		member.updateGender(Gender.valueOf(editProfileRequest.getMemberGender()));
 	}
 
 }

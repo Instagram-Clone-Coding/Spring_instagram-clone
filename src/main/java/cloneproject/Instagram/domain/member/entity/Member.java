@@ -1,6 +1,5 @@
 package cloneproject.Instagram.domain.member.entity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.AttributeOverride;
@@ -26,7 +25,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import cloneproject.Instagram.domain.follow.entity.Follow;
-import cloneproject.Instagram.domain.member.dto.EditProfileRequest;
 import cloneproject.Instagram.global.vo.Image;
 import cloneproject.Instagram.global.vo.ImageType;
 
@@ -102,14 +100,32 @@ public class Member {
 			.build();
 	}
 
-	public void editMember(EditProfileRequest editProfileRequest){
-		this.username = editProfileRequest.getMemberUsername();
-		this.name = editProfileRequest.getMemberName();
-		this.email = editProfileRequest.getMemberEmail();
-		this.introduce = editProfileRequest.getMemberIntroduce();
-		this.website = editProfileRequest.getMemberWebsite();
-		this.phone = editProfileRequest.getMemberPhone();
-		this.gender = Gender.valueOf(editProfileRequest.getMemberGender());
+	public void updateUsername(String username) {
+		this.username = username;
+	}
+
+	public void updateName(String name) {
+		this.name = name;
+	}
+
+	public void updateWebsite(String website) {
+		this.website = website;
+	}
+
+	public void updateIntroduce(String introduce) {
+		this.introduce = introduce;
+	}
+
+	public void updatePhone(String phone) {
+		this.phone = phone;
+	}
+
+	public void updateEmail(String email) {
+		this.email = email;
+	}
+
+	public void updateGender(Gender gender) {
+		this.gender = gender;
 	}
 
 	public void setEncryptedPassword(String encryptedPassword) {
