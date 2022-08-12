@@ -35,6 +35,7 @@ import cloneproject.Instagram.domain.hashtag.service.HashtagService;
 import cloneproject.Instagram.domain.member.dto.LikeMemberDto;
 import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
+import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.mention.entity.Mention;
 import cloneproject.Instagram.domain.mention.service.MentionService;
 import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
@@ -60,6 +61,7 @@ public class CommentService {
 	private final MentionService mentionService;
 	private final MemberStoryRedisRepository memberStoryRedisRepository;
 	private final StringExtractUtil stringExtractUtil;
+	private final MemberRepository memberRepository;
 
 	@Transactional
 	public CommentUploadResponse uploadComment(CommentUploadRequest request) {
@@ -197,15 +199,14 @@ public class CommentService {
 
 	private void setMentionAndHashtagList(List<CommentDto> content) {
 		content.forEach(comment -> {
-			final List<String> existentUsernames = mentionService.getMentionsWithTargetByCommentId(comment.getId())
-				.stream()
-				.map(Mention::getTarget)
+			final List<String> mentionedUsernames = stringExtractUtil.extractMentions(comment.getContent(), List.of());
+			final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
 				.map(Member::getUsername)
 				.collect(Collectors.toList());
 			comment.setExistentMentionsOfContent(existentUsernames);
-			final List<String> nonExistentUsernames = stringExtractUtil.extractMentions(comment.getContent(),
-				existentUsernames);
-			comment.setNonExistentMentionsOfContent(nonExistentUsernames);
+			mentionedUsernames.removeAll(existentUsernames);
+			comment.setNonExistentMentionsOfContent(mentionedUsernames);
+
 			final List<String> hashtags = stringExtractUtil.extractHashtags(comment.getContent());
 			comment.setHashtagsOfContent(hashtags);
 		});
