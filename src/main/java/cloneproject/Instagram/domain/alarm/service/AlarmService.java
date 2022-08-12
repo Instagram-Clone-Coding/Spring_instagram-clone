@@ -29,6 +29,7 @@ import cloneproject.Instagram.domain.follow.entity.Follow;
 import cloneproject.Instagram.domain.follow.repository.FollowRepository;
 import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
+import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.mention.entity.Mention;
 import cloneproject.Instagram.domain.mention.repository.MentionRepository;
 import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
@@ -43,6 +44,7 @@ public class AlarmService {
 	private final AlarmRepository alarmRepository;
 	private final FollowRepository followRepository;
 	private final MentionRepository mentionRepository;
+	private final MemberRepository memberRepository;
 	private final StringExtractUtil stringExtractUtil;
 	private final MemberStoryRedisRepository memberStoryRedisRepository;
 	private final AuthUtil authUtil;
@@ -184,25 +186,29 @@ public class AlarmService {
 					final AlarmContentDto dto = new AlarmContentDto(alarm);
 					if (alarm.getType().equals(COMMENT) || alarm.getType().equals(LIKE_COMMENT) ||
 						alarm.getType().equals(MENTION_COMMENT)) {
-						final List<String> existentUsernames = mentionRepository.findAllWithTargetByCommentId(
+						final List<String> mentionedUsernames = mentionRepository.findAllWithTargetByCommentId(
 								alarm.getComment().getId()).stream()
 							.map(Mention::getTarget)
 							.map(Member::getUsername)
 							.collect(Collectors.toList());
+						final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
+							.map(Member::getUsername)
+							.collect(Collectors.toList());
 						dto.setExistentMentionsOfContent(existentUsernames);
-						final List<String> nonExistentUsernames = stringExtractUtil.extractMentions(dto.getContent(),
-							existentUsernames);
-						dto.setNonExistentMentionsOfContent(nonExistentUsernames);
+						mentionedUsernames.removeAll(existentUsernames);
+						dto.setNonExistentMentionsOfContent(mentionedUsernames);
 					} else if (alarm.getType().equals(LIKE_POST) || alarm.getType().equals(MENTION_POST)) {
-						final List<String> existentUsernames = mentionRepository.findAllWithTargetByPostId(
+						final List<String> mentionedUsernames = mentionRepository.findAllWithTargetByPostId(
 								alarm.getPost().getId()).stream()
 							.map(Mention::getTarget)
 							.map(Member::getUsername)
 							.collect(Collectors.toList());
+						final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
+							.map(Member::getUsername)
+							.collect(Collectors.toList());
 						dto.setExistentMentionsOfContent(existentUsernames);
-						final List<String> nonExistentUsernames = stringExtractUtil.extractMentions(dto.getContent(),
-							existentUsernames);
-						dto.setNonExistentMentionsOfContent(nonExistentUsernames);
+						mentionedUsernames.removeAll(existentUsernames);
+						dto.setNonExistentMentionsOfContent(mentionedUsernames);
 					}
 					return dto;
 				}
