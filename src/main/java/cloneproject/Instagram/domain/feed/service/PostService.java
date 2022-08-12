@@ -384,13 +384,13 @@ public class PostService {
 				post.setPostLikesCount(post.getPostLikesCount() + 1);
 			}
 
-			final List<String> existentUsernames = mentionService.getMentionsWithTargetByPostId(post.getPostId()).stream()
-				.map(Mention::getTarget)
+			final List<String> mentionedUsernames = stringExtractUtil.extractMentions(post.getPostContent(), List.of());
+			final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
 				.map(Member::getUsername)
 				.collect(Collectors.toList());
 			post.setExistentMentionsOfContent(existentUsernames);
-			final List<String> nonExistentUsernames = stringExtractUtil.extractMentions(post.getPostContent(), existentUsernames);
-			post.setNonExistentMentionsOfContent(nonExistentUsernames);
+			mentionedUsernames.removeAll(existentUsernames);
+			post.setNonExistentMentionsOfContent(mentionedUsernames);
 			final List<String> hashtags = stringExtractUtil.extractHashtags(post.getPostContent());
 			post.setHashtagsOfContent(hashtags);
 		});
