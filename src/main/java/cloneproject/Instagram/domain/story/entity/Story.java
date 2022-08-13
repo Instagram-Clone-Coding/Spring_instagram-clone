@@ -20,6 +20,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -55,6 +56,7 @@ public class Story {
 	@CreatedDate
 	private LocalDateTime uploadDate;
 
+	@Builder
 	public Story(Member member, Image image) {
 		this.member = member;
 		this.image = image;
