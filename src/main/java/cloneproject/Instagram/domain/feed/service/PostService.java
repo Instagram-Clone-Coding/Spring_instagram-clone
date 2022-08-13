@@ -51,7 +51,6 @@ import cloneproject.Instagram.domain.member.dto.LikeMemberDto;
 import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
-import cloneproject.Instagram.domain.mention.entity.Mention;
 import cloneproject.Instagram.domain.mention.service.MentionService;
 import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
 import cloneproject.Instagram.global.error.ErrorResponse.FieldError;
@@ -170,25 +169,12 @@ public class PostService {
 
 		setHasStory(postResponse);
 		setPostImages(postResponse);
-		setRecentComments(loginMember.getId(), postResponse);
+		setRecentComments(postResponse);
 		setFollowingMemberUsernameLikedPost(loginMember, postResponse);
-		if (!postResponse.getMember().getId().equals(loginMember.getId()) && !postResponse.isLikeOptionFlag()) {
-			final int count = countOfFollowingsFromPostLikes(postResponse.getPostId(), loginMember);
-			postResponse.setPostLikesCount(count);
-		} else if (postResponse.isPostLikeFlag()) {
-			postResponse.setPostLikesCount(postResponse.getPostLikesCount() + 1);
-		}
-
-		final List<String> mentionedUsernames = stringExtractUtil.extractMentions(postResponse.getPostContent(), List.of());
-		final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
-			.map(Member::getUsername)
-			.collect(Collectors.toList());
-		postResponse.setExistentMentionsOfContent(existentUsernames);
-		mentionedUsernames.removeAll(existentUsernames);
-		postResponse.setNonExistentMentionsOfContent(mentionedUsernames);
-
-		final List<String> hashtags = stringExtractUtil.extractHashtags(postResponse.getPostContent());
-		postResponse.setHashtagsOfContent(hashtags);
+		setMentionAndHashtagList(postResponse);
+		commentService.setHasStory(postResponse.getCommentDtos());
+		commentService.setMentionAndHashtagList(postResponse.getCommentDtos());
+		setPostLikesCount(loginMember, postResponse);
 
 		return postResponse;
 	}
@@ -200,19 +186,12 @@ public class PostService {
 		setHasStory(postResponse);
 		setPostImages(postResponse);
 		setRecentCommentsWithoutLogin(postResponse);
+		setMentionAndHashtagList(postResponse);
+		commentService.setHasStory(postResponse.getCommentDtos());
+		commentService.setMentionAndHashtagList(postResponse.getCommentDtos());
 		if (postResponse.isPostLikeFlag()) {
 			postResponse.setPostLikesCount(0);
 		}
-
-		final List<String> existentUsernames = mentionService.getMentionsWithTargetByPostId(postResponse.getPostId()).stream()
-			.map(Mention::getTarget)
-			.map(Member::getUsername)
-			.collect(Collectors.toList());
-		postResponse.setExistentMentionsOfContent(existentUsernames);
-		final List<String> nonExistentUsernames = stringExtractUtil.extractMentions(postResponse.getPostContent(), existentUsernames);
-		postResponse.setNonExistentMentionsOfContent(nonExistentUsernames);
-		final List<String> hashtags = stringExtractUtil.extractHashtags(postResponse.getPostContent());
-		postResponse.setHashtagsOfContent(hashtags);
 
 		return postResponse;
 	}
@@ -340,6 +319,28 @@ public class PostService {
 		return getPostDtoPage(pageable, postIds);
 	}
 
+	private void setPostLikesCount(Member loginMember, PostResponse postResponse) {
+		if (!postResponse.getMember().getId().equals(loginMember.getId()) && !postResponse.isLikeOptionFlag()) {
+			final int count = countOfFollowingsFromPostLikes(postResponse.getPostId(), loginMember);
+			postResponse.setPostLikesCount(count);
+		} else if (postResponse.isPostLikeFlag()) {
+			postResponse.setPostLikesCount(postResponse.getPostLikesCount() + 1);
+		}
+	}
+
+	private void setMentionAndHashtagList(PostResponse postResponse) {
+		final List<String> mentionedUsernames = stringExtractUtil.extractMentions(postResponse.getPostContent(),
+			List.of());
+		final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
+			.map(Member::getUsername)
+			.collect(Collectors.toList());
+		postResponse.setExistentMentionsOfContent(existentUsernames);
+		mentionedUsernames.removeAll(existentUsernames);
+		postResponse.setNonExistentMentionsOfContent(mentionedUsernames);
+		final List<String> hashtags = stringExtractUtil.extractHashtags(postResponse.getPostContent());
+		postResponse.setHashtagsOfContent(hashtags);
+	}
+
 	private void validateParameters(int multipartFileSize, int altTextSize, List<PostImageTagRequest> tags) {
 		final List<FieldError> errors = new ArrayList<>();
 
@@ -378,24 +379,30 @@ public class PostService {
 		setRecentComments(loginMember.getId(), postDtos, postIds);
 		setFollowingMemberUsernameLikedPost(loginMember, postDtos, postIds);
 		postDtos.forEach(post -> {
-			if (!post.getMember().getId().equals(loginMember.getId()) && !post.isLikeOptionFlag()) {
-				final int count = countOfFollowingsFromPostLikes(post.getPostId(), loginMember);
-				post.setPostLikesCount(count);
-			} else if (post.isPostLikeFlag()) {
-				post.setPostLikesCount(post.getPostLikesCount() + 1);
-			}
-
-			final List<String> mentionedUsernames = stringExtractUtil.extractMentions(post.getPostContent(), List.of());
-			final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
-				.map(Member::getUsername)
-				.collect(Collectors.toList());
-			post.setExistentMentionsOfContent(existentUsernames);
-			mentionedUsernames.removeAll(existentUsernames);
-			post.setNonExistentMentionsOfContent(mentionedUsernames);
-
-			final List<String> hashtags = stringExtractUtil.extractHashtags(post.getPostContent());
-			post.setHashtagsOfContent(hashtags);
+			setPostLikesCount(loginMember, post);
+			setMentionAndHashtagList(post);
 		});
+	}
+
+	private void setPostLikesCount(Member loginMember, PostDto post) {
+		if (!post.getMember().getId().equals(loginMember.getId()) && !post.isLikeOptionFlag()) {
+			final int count = countOfFollowingsFromPostLikes(post.getPostId(), loginMember);
+			post.setPostLikesCount(count);
+		} else if (post.isPostLikeFlag()) {
+			post.setPostLikesCount(post.getPostLikesCount() + 1);
+		}
+	}
+
+	private void setMentionAndHashtagList(PostDto post) {
+		final List<String> mentionedUsernames = stringExtractUtil.extractMentions(post.getPostContent(), List.of());
+		final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
+			.map(Member::getUsername)
+			.collect(Collectors.toList());
+		post.setExistentMentionsOfContent(existentUsernames);
+		mentionedUsernames.removeAll(existentUsernames);
+		post.setNonExistentMentionsOfContent(mentionedUsernames);
+		final List<String> hashtags = stringExtractUtil.extractHashtags(post.getPostContent());
+		post.setHashtagsOfContent(hashtags);
 	}
 
 	private void setPostImages(List<PostDto> postDtos, List<Long> postIds) {
@@ -442,17 +449,18 @@ public class PostService {
 		final Map<Long, List<CommentDto>> recentCommentMap =
 			commentRepository.findAllRecentCommentDto(memberId, postIds).stream()
 				.collect(Collectors.groupingBy(CommentDto::getPostId));
-		postDtos.forEach(p -> p.setRecentComments(recentCommentMap.get(p.getPostId())));
+		postDtos.forEach(p -> {
+			final List<CommentDto> commentDtos = recentCommentMap.get(p.getPostId());
+			commentService.setHasStory(commentDtos);
+			commentService.setMentionAndHashtagList(commentDtos);
+			p.setRecentComments(commentDtos);
+		});
 	}
 
-	private void setRecentComments(Long memberId, PostResponse postResponse) {
-		final Pageable pageable = PageRequest.of(0, 10);
-		final Page<CommentDto> commentDtoPage = commentRepository.findCommentDtoPage(memberId, postResponse.getPostId(),
-			pageable);
+	private void setRecentComments(PostResponse postResponse) {
+		final Page<CommentDto> commentDtoPage = commentService.getCommentDtoPage(postResponse.getPostId(), 0);
 		final List<CommentDto> commentDtos = commentDtoPage.getContent();
-		setHasStoryInCommentDto(commentDtos);
 		postResponse.setCommentDtos(commentDtos);
-		postResponse.setIsLastComment(commentDtoPage.isLast());
 	}
 
 	private void setRecentCommentsWithoutLogin(PostResponse postResponse) {
@@ -460,17 +468,8 @@ public class PostService {
 		final Page<CommentDto> commentDtoPage = commentRepository.findCommentDtoPageWithoutLogin(
 			postResponse.getPostId(), pageable);
 		final List<CommentDto> commentDtos = commentDtoPage.getContent();
-		setHasStoryInCommentDto(commentDtos);
+		commentService.setHasStory(commentDtos);
 		postResponse.setCommentDtos(commentDtos);
-		postResponse.setIsLastComment(commentDtoPage.isLast());
-	}
-
-	private void setHasStoryInCommentDto(List<CommentDto> commentDtos) {
-		commentDtos.forEach(comment -> {
-			final MemberDto member = comment.getMember();
-			final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0;
-			member.setHasStory(hasStory);
-		});
 	}
 
 	private void setPostImages(PostResponse postResponse) {

@@ -1,5 +1,7 @@
 package cloneproject.Instagram.domain.alarm.dto;
 
+import static cloneproject.Instagram.domain.alarm.dto.AlarmType.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +27,17 @@ public class AlarmContentDto extends AlarmDto {
 			alarm.getCreatedDate());
 		this.postId = alarm.getPost().getId();
 		this.postImageUrl = alarm.getPost().getPostImages().get(0).getImage().getImageUrl();
-		this.content = alarm.getPost().getContent();
+		this.content = getContent(alarm);
+	}
+
+	private String getContent(Alarm alarm) {
+		final AlarmType type = alarm.getType();
+		if (type.equals(COMMENT) || type.equals(LIKE_COMMENT) || type.equals(MENTION_COMMENT)) {
+			return alarm.getComment().getContent();
+		} else if (type.equals(LIKE_POST) || type.equals(MENTION_POST)) {
+			return alarm.getPost().getContent();
+		}
+		return "";
 	}
 
 	public void setExistentMentionsOfContent(List<String> existentMentionsOfContent) {

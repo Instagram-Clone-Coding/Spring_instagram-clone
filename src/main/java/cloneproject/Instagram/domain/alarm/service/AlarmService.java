@@ -30,8 +30,6 @@ import cloneproject.Instagram.domain.follow.repository.FollowRepository;
 import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
-import cloneproject.Instagram.domain.mention.entity.Mention;
-import cloneproject.Instagram.domain.mention.repository.MentionRepository;
 import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
 import cloneproject.Instagram.global.util.AuthUtil;
 import cloneproject.Instagram.global.util.StringExtractUtil;
@@ -43,7 +41,6 @@ public class AlarmService {
 
 	private final AlarmRepository alarmRepository;
 	private final FollowRepository followRepository;
-	private final MentionRepository mentionRepository;
 	private final MemberRepository memberRepository;
 	private final StringExtractUtil stringExtractUtil;
 	private final MemberStoryRedisRepository memberStoryRedisRepository;
@@ -57,7 +54,7 @@ public class AlarmService {
 		final Page<Alarm> alarmPage = alarmRepository.findAlarmPageByMemberId(pageable, loginMember.getId());
 		final List<Alarm> alarms = alarmPage.getContent();
 		final List<Long> agentIds = alarms.stream()
-			.filter(a -> a.getType().equals(AlarmType.FOLLOW))
+			.filter(a -> a.getType().equals(FOLLOW))
 			.map(a -> a.getAgent().getId())
 			.collect(Collectors.toList());
 
@@ -180,40 +177,32 @@ public class AlarmService {
 	private List<AlarmDto> convertToDto(List<Alarm> alarms, Map<Long, Follow> followMap) {
 		return alarms.stream()
 			.map(alarm -> {
-				if (alarm.getType().equals(AlarmType.FOLLOW)) {
+				final AlarmType type = alarm.getType();
+				if (type.equals(FOLLOW)) {
 					return new AlarmFollowDto(alarm, followMap.containsKey(alarm.getAgent().getId()));
 				} else {
 					final AlarmContentDto dto = new AlarmContentDto(alarm);
-					if (alarm.getType().equals(COMMENT) || alarm.getType().equals(LIKE_COMMENT) ||
-						alarm.getType().equals(MENTION_COMMENT)) {
-						final List<String> mentionedUsernames = mentionRepository.findAllWithTargetByCommentId(
-								alarm.getComment().getId()).stream()
-							.map(Mention::getTarget)
-							.map(Member::getUsername)
-							.collect(Collectors.toList());
-						final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
-							.map(Member::getUsername)
-							.collect(Collectors.toList());
-						dto.setExistentMentionsOfContent(existentUsernames);
-						mentionedUsernames.removeAll(existentUsernames);
-						dto.setNonExistentMentionsOfContent(mentionedUsernames);
-					} else if (alarm.getType().equals(LIKE_POST) || alarm.getType().equals(MENTION_POST)) {
-						final List<String> mentionedUsernames = mentionRepository.findAllWithTargetByPostId(
-								alarm.getPost().getId()).stream()
-							.map(Mention::getTarget)
-							.map(Member::getUsername)
-							.collect(Collectors.toList());
-						final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
-							.map(Member::getUsername)
-							.collect(Collectors.toList());
-						dto.setExistentMentionsOfContent(existentUsernames);
-						mentionedUsernames.removeAll(existentUsernames);
-						dto.setNonExistentMentionsOfContent(mentionedUsernames);
+					if (type.equals(COMMENT) || type.equals(LIKE_COMMENT) || type.equals(MENTION_COMMENT)) {
+						setMentionAndHashtagList(alarm.getComment().getContent(), dto);
+					} else if (type.equals(LIKE_POST) || type.equals(MENTION_POST)) {
+						setMentionAndHashtagList(alarm.getPost().getContent(), dto);
 					}
 					return dto;
 				}
 			})
 			.collect(Collectors.toList());
+	}
+
+	private void setMentionAndHashtagList(String content, AlarmContentDto dto) {
+		final List<String> mentionedUsernames = stringExtractUtil.extractMentions(content, List.of());
+		final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
+			.map(Member::getUsername)
+			.collect(Collectors.toList());
+		dto.setExistentMentionsOfContent(existentUsernames);
+		mentionedUsernames.removeAll(existentUsernames);
+		dto.setNonExistentMentionsOfContent(mentionedUsernames);
+		final List<String> hashtags = stringExtractUtil.extractHashtags(content);
+		dto.setHashtagsOfContent(hashtags);
 	}
 
 }

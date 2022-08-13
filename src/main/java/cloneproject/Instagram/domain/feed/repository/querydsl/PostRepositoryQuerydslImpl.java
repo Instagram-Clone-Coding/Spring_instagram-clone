@@ -70,6 +70,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 				post.uploadDate,
 				post.member,
 				post.postLikes.size(),
+				post.comments.size(),
 				isExistBookmarkWherePostEqMemberIdEq(memberId),
 				isExistPostLikeWherePostEqAndMemberIdEq(memberId),
 				post.commentFlag,
@@ -89,6 +90,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 				post.uploadDate,
 				post.member,
 				post.postLikes.size(),
+				post.comments.size(),
 				post.commentFlag,
 				post.likeFlag
 			))

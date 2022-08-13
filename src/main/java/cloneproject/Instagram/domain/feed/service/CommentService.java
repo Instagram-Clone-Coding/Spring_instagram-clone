@@ -197,7 +197,7 @@ public class CommentService {
 		recentCommentService.deleteAll(post);
 	}
 
-	private void setMentionAndHashtagList(List<CommentDto> content) {
+	public void setMentionAndHashtagList(List<CommentDto> content) {
 		content.forEach(comment -> {
 			final List<String> mentionedUsernames = stringExtractUtil.extractMentions(comment.getContent(), List.of());
 			final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
@@ -212,7 +212,7 @@ public class CommentService {
 		});
 	}
 
-	private void setHasStory(List<CommentDto> commentDtos) {
+	public void setHasStory(List<CommentDto> commentDtos) {
 		commentDtos.forEach(comment -> {
 			final MemberDto member = comment.getMember();
 			final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0;

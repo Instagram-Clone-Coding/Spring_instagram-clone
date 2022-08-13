@@ -21,9 +21,9 @@ public class PostResponse {
 	private LocalDateTime postUploadDate;
 	private MemberDto member;
 	private int postLikesCount;
+	private int postCommentsCount;
 	private boolean postBookmarkFlag;
 	private boolean postLikeFlag;
-	private boolean isLastComment;
 	private boolean commentOptionFlag;
 	private boolean likeOptionFlag;
 	private String followingMemberUsernameLikedPost = "";
@@ -35,13 +35,14 @@ public class PostResponse {
 
 	@QueryProjection
 	public PostResponse(Long postId, String postContent, LocalDateTime postUploadDate, Member member,
-		int postLikesCount, boolean postBookmarkFlag, boolean postLikeFlag, boolean commentOptionFlag,
+		int postLikesCount, int postCommentsCount, boolean postBookmarkFlag, boolean postLikeFlag, boolean commentOptionFlag,
 		boolean likeOptionFlag) {
 		this.postId = postId;
 		this.postContent = postContent;
 		this.postUploadDate = postUploadDate;
 		this.member = new MemberDto(member);
 		this.postLikesCount = postLikesCount;
+		this.postCommentsCount = postCommentsCount;
 		this.postBookmarkFlag = postBookmarkFlag;
 		this.postLikeFlag = postLikeFlag;
 		this.commentOptionFlag = commentOptionFlag;
@@ -50,13 +51,14 @@ public class PostResponse {
 
 	@QueryProjection
 	public PostResponse(Long postId, String postContent, LocalDateTime postUploadDate, Member member,
-		int postLikesCount, boolean commentOptionFlag,
+		int postLikesCount, int postCommentsCount, boolean commentOptionFlag,
 		boolean likeOptionFlag) {
 		this.postId = postId;
 		this.postContent = postContent;
 		this.postUploadDate = postUploadDate;
 		this.member = new MemberDto(member);
 		this.postLikesCount = postLikesCount;
+		this.postCommentsCount = postCommentsCount;
 		this.postBookmarkFlag = false;
 		this.postLikeFlag = false;
 		this.commentOptionFlag = commentOptionFlag;
@@ -85,10 +87,6 @@ public class PostResponse {
 
 	public void setHashtagsOfContent(List<String> hashtags) {
 		this.hashtagsOfContent = hashtags;
-	}
-
-	public void setIsLastComment(boolean isLastComment) {
-		this.isLastComment = isLastComment;
 	}
 
 	public void setNonExistentMentionsOfContent(List<String> nonExistentMentionsOfContent) {
