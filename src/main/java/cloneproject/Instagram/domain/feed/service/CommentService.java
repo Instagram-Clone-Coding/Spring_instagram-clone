@@ -134,6 +134,18 @@ public class CommentService {
 		return commentDtoPage;
 	}
 
+	public Page<CommentDto> getCommentDtoPageWithoutLogin(Long postId, int page) {
+		page = (page == 0 ? 0 : page - 1);
+		final Pageable pageable = PageRequest.of(page, 10);
+
+		final Page<CommentDto> commentDtoPage = commentRepository.findCommentDtoPageWithoutLogin( postId, pageable);
+		final List<CommentDto> content = commentDtoPage.getContent();
+		setHasStory(content);
+		setMentionAndHashtagList(content);
+
+		return commentDtoPage;
+	}
+
 	public Page<CommentDto> getReplyDtoPage(Long commentId, int page) {
 		final Member loginMember = authUtil.getLoginMember();
 		page = (page == 0 ? 0 : page - 1);

@@ -28,7 +28,6 @@ import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 
 import cloneproject.Instagram.domain.feed.dto.PostDto;
-import cloneproject.Instagram.domain.feed.dto.PostResponse;
 import cloneproject.Instagram.domain.feed.dto.PostUploadRequest;
 import cloneproject.Instagram.domain.feed.dto.PostUploadResponse;
 import cloneproject.Instagram.domain.feed.service.PostService;
@@ -113,7 +112,7 @@ public class PostController {
 	@ApiImplicitParam(name = "postId", value = "게시물 PK", example = "1", required = true)
 	@GetMapping("/{postId}")
 	public ResponseEntity<ResultResponse> getPost(@PathVariable Long postId) {
-		final PostResponse response = postService.getPostResponse(postId);
+		final PostDto response = postService.getPostDto(postId);
 
 		return ResponseEntity.ok(ResultResponse.of(FIND_POST_SUCCESS, response));
 	}
@@ -128,7 +127,7 @@ public class PostController {
 	@ApiImplicitParam(name = "postId", value = "게시물 PK", example = "1", required = true)
 	@GetMapping("/{postId}/without")
 	public ResponseEntity<ResultResponse> getPostWithoutLogin(@PathVariable Long postId) {
-		final PostResponse response = postService.getPostResponseWithoutLogin(postId);
+		final PostDto response = postService.getPostDtoWithoutLogin(postId);
 
 		return ResponseEntity.ok(ResultResponse.of(FIND_POST_SUCCESS, response));
 	}

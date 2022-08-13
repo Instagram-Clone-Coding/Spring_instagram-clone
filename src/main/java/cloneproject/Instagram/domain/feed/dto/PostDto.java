@@ -50,6 +50,21 @@ public class PostDto {
 		this.likeOptionFlag = likeOptionFlag;
 	}
 
+	@QueryProjection
+	public PostDto(Long postId, String postContent, LocalDateTime postUploadDate, Member member, int postCommentsCount,
+		int postLikesCount, boolean commentOptionFlag, boolean likeOptionFlag) {
+		this.postId = postId;
+		this.postContent = postContent;
+		this.postUploadDate = postUploadDate;
+		this.member = new MemberDto(member);
+		this.postCommentsCount = postCommentsCount;
+		this.postLikesCount = postLikesCount;
+		this.postBookmarkFlag = false;
+		this.postLikeFlag = false;
+		this.commentOptionFlag = commentOptionFlag;
+		this.likeOptionFlag = likeOptionFlag;
+	}
+
 	public void setPostImages(List<PostImageDto> postImageDtos) {
 		this.postImages = postImageDtos;
 	}
