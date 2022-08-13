@@ -3,6 +3,8 @@ package cloneproject.Instagram.domain.mention.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import cloneproject.Instagram.domain.feed.entity.Comment;
 import cloneproject.Instagram.domain.feed.entity.Post;
@@ -14,5 +16,11 @@ public interface MentionRepository extends JpaRepository<Mention, Long>, Mention
 	List<Mention> findAllByPost(Post post);
 
 	List<Mention> findAllByCommentIn(List<Comment> comments);
+
+	@Query("select m from Mention m join fetch m.target where m.post.id = :postId")
+	List<Mention> findAllWithTargetByPostId(@Param("postId") Long postId);
+
+	@Query("select m from Mention m join fetch m.target where m.comment.id = :commentId")
+	List<Mention> findAllWithTargetByCommentId(@Param("commentId") Long commentId);
 
 }

@@ -19,9 +19,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import cloneproject.Instagram.domain.feed.dto.PostDto;
-import cloneproject.Instagram.domain.feed.dto.PostResponse;
 import cloneproject.Instagram.domain.feed.dto.QPostDto;
-import cloneproject.Instagram.domain.feed.dto.QPostResponse;
 import cloneproject.Instagram.domain.member.entity.QMember;
 
 @RequiredArgsConstructor
@@ -62,13 +60,14 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 	}
 
 	@Override
-	public Optional<PostResponse> findPostResponse(Long postId, Long memberId) {
+	public Optional<PostDto> findPostDto(Long postId, Long memberId) {
 		return Optional.ofNullable(queryFactory
-			.select(new QPostResponse(
+			.select(new QPostDto(
 				post.id,
 				post.content,
 				post.uploadDate,
 				post.member,
+				post.comments.size(),
 				post.postLikes.size(),
 				isExistBookmarkWherePostEqMemberIdEq(memberId),
 				isExistPostLikeWherePostEqAndMemberIdEq(memberId),
@@ -81,13 +80,14 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 	}
 
 	@Override
-	public Optional<PostResponse> findPostResponseWithoutLogin(Long postId) {
+	public Optional<PostDto> findPostDtoWithoutLogin(Long postId) {
 		return Optional.ofNullable(queryFactory
-			.select(new QPostResponse(
+			.select(new QPostDto(
 				post.id,
 				post.content,
 				post.uploadDate,
 				post.member,
+				post.comments.size(),
 				post.postLikes.size(),
 				post.commentFlag,
 				post.likeFlag

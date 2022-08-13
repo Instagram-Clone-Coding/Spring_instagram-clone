@@ -7,15 +7,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import cloneproject.Instagram.domain.feed.dto.PostDto;
-import cloneproject.Instagram.domain.feed.dto.PostResponse;
 
 public interface PostRepositoryQuerydsl {
 
 	Page<PostDto> findPostDtoPage(Long memberId, Pageable pageable);
 
-	Optional<PostResponse> findPostResponse(Long postId, Long memberId);
+	Optional<PostDto> findPostDto(Long postId, Long memberId);
 
-	Optional<PostResponse> findPostResponseWithoutLogin(Long postId);
+	Optional<PostDto> findPostDtoWithoutLogin(Long postId);
 
 	Page<PostDto> findPostDtoPage(Pageable pageable, Long memberId, List<Long> postIds);
 

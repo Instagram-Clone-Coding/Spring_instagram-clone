@@ -19,7 +19,8 @@ public class PostDto {
 
 	private Long postId;
 	private String postContent;
-	private List<String> mentionsOfContent = new ArrayList<>();
+	private List<String> existentMentionsOfContent = new ArrayList<>();
+	private List<String> nonExistentMentionsOfContent = new ArrayList<>();
 	private List<String> hashtagsOfContent = new ArrayList<>();
 	private List<PostImageDto> postImages = new ArrayList<>();
 	private LocalDateTime postUploadDate;
@@ -49,6 +50,21 @@ public class PostDto {
 		this.likeOptionFlag = likeOptionFlag;
 	}
 
+	@QueryProjection
+	public PostDto(Long postId, String postContent, LocalDateTime postUploadDate, Member member, int postCommentsCount,
+		int postLikesCount, boolean commentOptionFlag, boolean likeOptionFlag) {
+		this.postId = postId;
+		this.postContent = postContent;
+		this.postUploadDate = postUploadDate;
+		this.member = new MemberDto(member);
+		this.postCommentsCount = postCommentsCount;
+		this.postLikesCount = postLikesCount;
+		this.postBookmarkFlag = false;
+		this.postLikeFlag = false;
+		this.commentOptionFlag = commentOptionFlag;
+		this.likeOptionFlag = likeOptionFlag;
+	}
+
 	public void setPostImages(List<PostImageDto> postImageDtos) {
 		this.postImages = postImageDtos;
 	}
@@ -69,8 +85,12 @@ public class PostDto {
 		this.hashtagsOfContent = hashtagsOfContent;
 	}
 
-	public void setMentionsOfContent(List<String> mentionsOfContent) {
-		this.mentionsOfContent = mentionsOfContent;
+	public void setExistentMentionsOfContent(List<String> existentMentionsOfContent) {
+		this.existentMentionsOfContent = existentMentionsOfContent;
+	}
+
+	public void setNonExistentMentionsOfContent(List<String> nonExistentMentionsOfContent) {
+		this.nonExistentMentionsOfContent = nonExistentMentionsOfContent;
 	}
 
 }

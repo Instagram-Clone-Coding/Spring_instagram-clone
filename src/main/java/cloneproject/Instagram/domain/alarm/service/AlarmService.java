@@ -29,8 +29,10 @@ import cloneproject.Instagram.domain.follow.entity.Follow;
 import cloneproject.Instagram.domain.follow.repository.FollowRepository;
 import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
+import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
 import cloneproject.Instagram.global.util.AuthUtil;
+import cloneproject.Instagram.global.util.StringExtractUtil;
 
 @Service
 @Transactional(readOnly = true)
@@ -39,6 +41,8 @@ public class AlarmService {
 
 	private final AlarmRepository alarmRepository;
 	private final FollowRepository followRepository;
+	private final MemberRepository memberRepository;
+	private final StringExtractUtil stringExtractUtil;
 	private final MemberStoryRedisRepository memberStoryRedisRepository;
 	private final AuthUtil authUtil;
 
@@ -50,7 +54,7 @@ public class AlarmService {
 		final Page<Alarm> alarmPage = alarmRepository.findAlarmPageByMemberId(pageable, loginMember.getId());
 		final List<Alarm> alarms = alarmPage.getContent();
 		final List<Long> agentIds = alarms.stream()
-			.filter(a -> a.getType().equals(AlarmType.FOLLOW))
+			.filter(a -> a.getType().equals(FOLLOW))
 			.map(a -> a.getAgent().getId())
 			.collect(Collectors.toList());
 
@@ -79,8 +83,9 @@ public class AlarmService {
 
 	@Transactional
 	public void alert(AlarmType type, Member target, Post post) {
-		if (!type.equals(LIKE_POST))
+		if (!type.equals(LIKE_POST)) {
 			throw new MismatchedAlarmTypeException();
+		}
 
 		final Member loginMember = authUtil.getLoginMember();
 		final Alarm alarm = Alarm.builder()
@@ -95,8 +100,9 @@ public class AlarmService {
 
 	@Transactional
 	public void alertBatch(AlarmType type, List<Member> targets, Post post) {
-		if (!type.equals(MENTION_POST))
+		if (!type.equals(MENTION_POST)) {
 			throw new MismatchedAlarmTypeException();
+		}
 
 		final Member loginMember = authUtil.getLoginMember();
 		alarmRepository.saveMentionPostAlarms(loginMember, targets, post, LocalDateTime.now());
@@ -104,8 +110,9 @@ public class AlarmService {
 
 	@Transactional
 	public void alertBatch(AlarmType type, List<Member> targets, Post post, Comment comment) {
-		if (!type.equals(MENTION_COMMENT))
+		if (!type.equals(MENTION_COMMENT)) {
 			throw new MismatchedAlarmTypeException();
+		}
 
 		final Member loginMember = authUtil.getLoginMember();
 		alarmRepository.saveMentionCommentAlarms(loginMember, targets, post, comment, LocalDateTime.now());
@@ -113,8 +120,9 @@ public class AlarmService {
 
 	@Transactional
 	public void alert(AlarmType type, Member target, Post post, Comment comment) {
-		if (!type.equals(COMMENT) && !type.equals(LIKE_COMMENT) && !type.equals(MENTION_COMMENT))
+		if (!type.equals(COMMENT) && !type.equals(LIKE_COMMENT) && !type.equals(MENTION_COMMENT)) {
 			throw new MismatchedAlarmTypeException();
+		}
 
 		final Member loginMember = authUtil.getLoginMember();
 		final Alarm alarm = Alarm.builder()
@@ -168,13 +176,33 @@ public class AlarmService {
 
 	private List<AlarmDto> convertToDto(List<Alarm> alarms, Map<Long, Follow> followMap) {
 		return alarms.stream()
-			.map(a -> {
-				if (a.getType().equals(AlarmType.FOLLOW))
-					return new AlarmFollowDto(a, followMap.containsKey(a.getAgent().getId()));
-				else
-					return new AlarmContentDto(a);
+			.map(alarm -> {
+				final AlarmType type = alarm.getType();
+				if (type.equals(FOLLOW)) {
+					return new AlarmFollowDto(alarm, followMap.containsKey(alarm.getAgent().getId()));
+				} else {
+					final AlarmContentDto dto = new AlarmContentDto(alarm);
+					if (type.equals(COMMENT) || type.equals(LIKE_COMMENT) || type.equals(MENTION_COMMENT)) {
+						setMentionAndHashtagList(alarm.getComment().getContent(), dto);
+					} else if (type.equals(LIKE_POST) || type.equals(MENTION_POST)) {
+						setMentionAndHashtagList(alarm.getPost().getContent(), dto);
+					}
+					return dto;
+				}
 			})
 			.collect(Collectors.toList());
+	}
+
+	private void setMentionAndHashtagList(String content, AlarmContentDto dto) {
+		final List<String> mentionedUsernames = stringExtractUtil.extractMentions(content, List.of());
+		final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
+			.map(Member::getUsername)
+			.collect(Collectors.toList());
+		dto.setExistentMentionsOfContent(existentUsernames);
+		mentionedUsernames.removeAll(existentUsernames);
+		dto.setNonExistentMentionsOfContent(mentionedUsernames);
+		final List<String> hashtags = stringExtractUtil.extractHashtags(content);
+		dto.setHashtagsOfContent(hashtags);
 	}
 
 }

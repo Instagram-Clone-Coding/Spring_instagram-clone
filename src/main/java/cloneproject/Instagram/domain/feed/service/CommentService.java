@@ -6,6 +6,7 @@ import static cloneproject.Instagram.global.error.ErrorCode.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -34,6 +35,8 @@ import cloneproject.Instagram.domain.hashtag.service.HashtagService;
 import cloneproject.Instagram.domain.member.dto.LikeMemberDto;
 import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
+import cloneproject.Instagram.domain.member.repository.MemberRepository;
+import cloneproject.Instagram.domain.mention.entity.Mention;
 import cloneproject.Instagram.domain.mention.service.MentionService;
 import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
 import cloneproject.Instagram.global.error.exception.EntityAlreadyExistException;
@@ -58,6 +61,7 @@ public class CommentService {
 	private final MentionService mentionService;
 	private final MemberStoryRedisRepository memberStoryRedisRepository;
 	private final StringExtractUtil stringExtractUtil;
+	private final MemberRepository memberRepository;
 
 	@Transactional
 	public CommentUploadResponse uploadComment(CommentUploadRequest request) {
@@ -130,6 +134,18 @@ public class CommentService {
 		return commentDtoPage;
 	}
 
+	public Page<CommentDto> getCommentDtoPageWithoutLogin(Long postId, int page) {
+		page = (page == 0 ? 0 : page - 1);
+		final Pageable pageable = PageRequest.of(page, 10);
+
+		final Page<CommentDto> commentDtoPage = commentRepository.findCommentDtoPageWithoutLogin( postId, pageable);
+		final List<CommentDto> content = commentDtoPage.getContent();
+		setHasStory(content);
+		setMentionAndHashtagList(content);
+
+		return commentDtoPage;
+	}
+
 	public Page<CommentDto> getReplyDtoPage(Long commentId, int page) {
 		final Member loginMember = authUtil.getLoginMember();
 		page = (page == 0 ? 0 : page - 1);
@@ -193,16 +209,22 @@ public class CommentService {
 		recentCommentService.deleteAll(post);
 	}
 
-	private void setMentionAndHashtagList(List<CommentDto> content) {
+	public void setMentionAndHashtagList(List<CommentDto> content) {
 		content.forEach(comment -> {
-			final List<String> mentions = stringExtractUtil.extractMentions(comment.getContent(), List.of());
-			comment.setMentionsOfContent(mentions);
+			final List<String> mentionedUsernames = stringExtractUtil.extractMentions(comment.getContent(), List.of());
+			final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
+				.map(Member::getUsername)
+				.collect(Collectors.toList());
+			comment.setExistentMentionsOfContent(existentUsernames);
+			mentionedUsernames.removeAll(existentUsernames);
+			comment.setNonExistentMentionsOfContent(mentionedUsernames);
+
 			final List<String> hashtags = stringExtractUtil.extractHashtags(comment.getContent());
 			comment.setHashtagsOfContent(hashtags);
 		});
 	}
 
-	private void setHasStory(List<CommentDto> commentDtos) {
+	public void setHasStory(List<CommentDto> commentDtos) {
 		commentDtos.forEach(comment -> {
 			final MemberDto member = comment.getMember();
 			final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0;
