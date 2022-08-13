@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem://localhost/~/instagram;MODE=MySQL
+    username: sa
+    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      data-source-properties:
+        rewriteBatchedStatements: true
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 1000
+        dialect: org.hibernate.dialect.MySQL55Dialect
+    open-in-view: false
+
+  redis:
+    host: localhost
+    port: 6379
