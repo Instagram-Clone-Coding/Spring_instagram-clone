@@ -23,7 +23,7 @@ class MemberStoryRedisRepositoryTest {
 
 	@Test
 	void findAllByMemberId_MemberSaved3Stories_Find3Stories() throws Exception {
-	    // given
+		// given
 		final long memberId = 1L;
 		final int storyCount = 3;
 
