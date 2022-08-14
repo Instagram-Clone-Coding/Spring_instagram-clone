@@ -14,7 +14,6 @@ spring:
       hibernate:
         format_sql: true
         default_batch_fetch_size: 1000
-        dialect: org.hibernate.dialect.MySQL55Dialect
     open-in-view: false
 
   redis:
