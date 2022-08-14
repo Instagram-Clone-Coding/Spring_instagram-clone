@@ -9,9 +9,9 @@ import cloneproject.Instagram.domain.follow.entity.Follow;
 
 public interface FollowRepositoryQuerydsl {
 
-	List<FollowerDto> findFollowings(Long loginedMemberId, Long memberId);
+	List<FollowerDto> findFollowings(Long loginId, Long memberId);
 
-	List<FollowerDto> findFollowers(Long loginedMemberId, Long memberId);
+	List<FollowerDto> findFollowers(Long loginId, Long memberId);
 
 	Map<String, List<FollowDto>> findFollowingMemberFollowMap(Long loginId, List<String> usernames);
 

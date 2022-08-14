@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -18,73 +19,20 @@ import cloneproject.Instagram.domain.follow.dto.FollowerDto;
 import cloneproject.Instagram.domain.follow.dto.QFollowDto;
 import cloneproject.Instagram.domain.follow.dto.QFollowerDto;
 import cloneproject.Instagram.domain.follow.entity.Follow;
-import cloneproject.Instagram.domain.member.dto.MemberDto;
-import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
 
 @RequiredArgsConstructor
 public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl {
 
 	private final JPAQueryFactory queryFactory;
-	private final MemberStoryRedisRepository memberStoryRedisRepository;
 
 	@Override
-	public List<FollowerDto> findFollowings(Long loginedMemberId, Long memberId) {
-		final List<FollowerDto> followerDtos = queryFactory
-			.select(new QFollowerDto(
-				member,
-				JPAExpressions
-					.selectFrom(follow)
-					.where(follow.member.id.eq(loginedMemberId).and(follow.followMember.eq(member)))
-					.exists(),
-				JPAExpressions
-					.selectFrom(follow)
-					.where(follow.member.eq(member).and(follow.followMember.id.eq(loginedMemberId)))
-					.exists(),
-				member.id.eq(loginedMemberId)))
-			.from(member)
-			.where(member.id.in(JPAExpressions
-				.select(follow.followMember.id)
-				.from(follow)
-				.where(follow.member.id.eq(memberId))))
-			.fetch();
-
-		followerDtos.forEach(follower -> {
-			final MemberDto member = follower.getMember();
-			final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0;
-			member.setHasStory(hasStory);
-		});
-
-		return followerDtos;
+	public List<FollowerDto> findFollowings(Long loginId, Long memberId) {
+		return findFollowerDtoInMemberIdList(loginId, findFollowingIdList(memberId));
 	}
 
 	@Override
-	public List<FollowerDto> findFollowers(Long loginedMemberId, Long memberId) {
-		final List<FollowerDto> followerDtos = queryFactory
-			.select(new QFollowerDto(
-				member,
-				JPAExpressions
-					.selectFrom(follow)
-					.where(follow.member.id.eq(loginedMemberId).and(follow.followMember.eq(member)))
-					.exists(),
-				JPAExpressions
-					.selectFrom(follow)
-					.where(follow.member.eq(member).and(follow.followMember.id.eq(loginedMemberId)))
-					.exists(),
-				member.id.eq(loginedMemberId)))
-			.from(member)
-			.where(member.id.in(JPAExpressions
-				.select(follow.member.id)
-				.from(follow)
-				.where(follow.followMember.id.eq(memberId))))
-			.fetch();
-
-		followerDtos.forEach(follower -> {
-			final MemberDto member = follower.getMember();
-			final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0;
-			member.setHasStory(hasStory);
-		});
-
-		return followerDtos;
+	public List<FollowerDto> findFollowers(Long loginId, Long memberId) {
+		return findFollowerDtoInMemberIdList(loginId, findFollowerIdList(memberId));
 	}
 
 	@Override
@@ -95,11 +43,7 @@ public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl {
 				follow.followMember.username))
 			.from(follow)
 			.where(follow.followMember.username.in(usernames)
-				.and(follow.member.id.in(
-					JPAExpressions
-						.select(follow.followMember.id)
-						.from(follow)
-						.where(follow.member.id.eq(loginId)))))
+				.and(follow.member.id.in(findFollowingIdList(loginId))))
 			.fetch();
 		return follows.stream()
 			.collect(Collectors.groupingBy(FollowDto::getFollowMemberUsername));
@@ -113,11 +57,7 @@ public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl {
 				follow.followMember.username))
 			.from(follow)
 			.where(follow.followMember.username.eq(username)
-				.and(follow.member.id.in(
-					JPAExpressions
-						.select(follow.followMember.id)
-						.from(follow)
-						.where(follow.member.id.eq(loginId)))))
+				.and(follow.member.id.in(findFollowingIdList(loginId))))
 			.fetch();
 	}
 
@@ -134,6 +74,38 @@ public class FollowRepositoryQuerydslImpl implements FollowRepositoryQuerydsl {
 	private BooleanExpression isFollowing(Long memberId, List<Long> agentIds) {
 		return follow.member.id.eq(memberId).and(
 			follow.followMember.id.in(agentIds));
+	}
+
+	private List<FollowerDto> findFollowerDtoInMemberIdList(Long loginId, JPQLQuery<Long> memberIdList) {
+		return queryFactory
+			.select(new QFollowerDto(
+				member,
+				JPAExpressions
+					.selectFrom(follow)
+					.where(follow.member.id.eq(loginId).and(follow.followMember.eq(member)))
+					.exists(),
+				JPAExpressions
+					.selectFrom(follow)
+					.where(follow.member.eq(member).and(follow.followMember.id.eq(loginId)))
+					.exists(),
+				member.id.eq(loginId)))
+			.from(member)
+			.where(member.id.in(memberIdList))
+			.fetch();
+	}
+
+	private JPQLQuery<Long> findFollowingIdList(Long memberId) {
+		return JPAExpressions
+			.select(follow.followMember.id)
+			.from(follow)
+			.where(follow.member.id.eq(memberId));
+	}
+
+	private JPQLQuery<Long> findFollowerIdList(Long memberId) {
+		return JPAExpressions
+			.select(follow.member.id)
+			.from(follow)
+			.where(follow.followMember.id.eq(memberId));
 	}
 
 }

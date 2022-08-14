@@ -18,9 +18,11 @@ import cloneproject.Instagram.domain.follow.exception.FollowerDeleteFailExceptio
 import cloneproject.Instagram.domain.follow.exception.UnfollowFailException;
 import cloneproject.Instagram.domain.follow.exception.UnfollowMyselfFailException;
 import cloneproject.Instagram.domain.follow.repository.FollowRepository;
+import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.repository.BlockRepository;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
+import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
 import cloneproject.Instagram.global.error.ErrorCode;
 import cloneproject.Instagram.global.error.exception.EntityAlreadyExistException;
 import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
@@ -35,6 +37,7 @@ public class FollowService {
 	private final MemberRepository memberRepository;
 	private final BlockRepository blockRepository;
 	private final AlarmService alarmService;
+	private final MemberStoryRedisRepository memberStoryRedisRepository;
 	private final AuthUtil authUtil;
 
 	@Transactional
@@ -105,7 +108,7 @@ public class FollowService {
 			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
 		final List<FollowerDto> result = followRepository.findFollowings(memberId, toMember.getId());
-
+		setHasStory(result);
 		return result;
 	}
 
@@ -117,13 +120,21 @@ public class FollowService {
 			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
 		final List<FollowerDto> result = followRepository.findFollowers(memberId, toMember.getId());
-
+		setHasStory(result);
 		return result;
 	}
 
-    @Transactional(readOnly = true)
-    public List<Follow> getFollowings(Member member) {
-        return followRepository.findAllByMember(member);
-    }
+	@Transactional(readOnly = true)
+	public List<Follow> getFollowings(Member member) {
+		return followRepository.findAllByMember(member);
+	}
+
+	private void setHasStory(List<FollowerDto> followerDtos) {
+		followerDtos.forEach(follower -> {
+			final MemberDto member = follower.getMember();
+			final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0;
+			member.setHasStory(hasStory);
+		});
+	}
 
 }
