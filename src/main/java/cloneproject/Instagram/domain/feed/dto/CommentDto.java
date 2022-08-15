@@ -27,8 +27,7 @@ public class CommentDto {
 	private int commentLikesCount;
 	private boolean commentLikeFlag;
 	private int repliesCount;
-	private List<String> existentMentionsOfContent = new ArrayList<>();
-	private List<String> nonExistentMentionsOfContent = new ArrayList<>();
+	private List<String> mentionsOfContent = new ArrayList<>();
 	private List<String> hashtagsOfContent = new ArrayList<>();
 
 	@QueryProjection
@@ -57,16 +56,12 @@ public class CommentDto {
 		this.repliesCount = repliesCount;
 	}
 
-	public void setExistentMentionsOfContent(List<String> existentMentionsOfContent) {
-		this.existentMentionsOfContent = existentMentionsOfContent;
+	public void setMentionsOfContent(List<String> mentionsOfContent) {
+		this.mentionsOfContent = mentionsOfContent;
 	}
 
 	public void setHashtagsOfContent(List<String> hashtagsOfContent) {
 		this.hashtagsOfContent = hashtagsOfContent;
-	}
-
-	public void setNonExistentMentionsOfContent(List<String> nonExistentMentionsOfContent) {
-		this.nonExistentMentionsOfContent = nonExistentMentionsOfContent;
 	}
 
 }

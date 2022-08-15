@@ -36,7 +36,6 @@ import cloneproject.Instagram.domain.member.dto.LikeMemberDto;
 import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
-import cloneproject.Instagram.domain.mention.entity.Mention;
 import cloneproject.Instagram.domain.mention.service.MentionService;
 import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
 import cloneproject.Instagram.global.error.exception.EntityAlreadyExistException;
@@ -215,9 +214,7 @@ public class CommentService {
 			final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
 				.map(Member::getUsername)
 				.collect(Collectors.toList());
-			comment.setExistentMentionsOfContent(existentUsernames);
-			mentionedUsernames.removeAll(existentUsernames);
-			comment.setNonExistentMentionsOfContent(mentionedUsernames);
+			comment.setMentionsOfContent(existentUsernames);
 
 			final List<String> hashtags = stringExtractUtil.extractHashtags(comment.getContent());
 			comment.setHashtagsOfContent(hashtags);

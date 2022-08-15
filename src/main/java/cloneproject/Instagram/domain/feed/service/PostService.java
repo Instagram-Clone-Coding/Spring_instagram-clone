@@ -375,9 +375,7 @@ public class PostService {
 		final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
 			.map(Member::getUsername)
 			.collect(Collectors.toList());
-		post.setExistentMentionsOfContent(existentUsernames);
-		mentionedUsernames.removeAll(existentUsernames);
-		post.setNonExistentMentionsOfContent(mentionedUsernames);
+		post.setMentionsOfContent(existentUsernames);
 		final List<String> hashtags = stringExtractUtil.extractHashtags(post.getPostContent());
 		post.setHashtagsOfContent(hashtags);
 	}

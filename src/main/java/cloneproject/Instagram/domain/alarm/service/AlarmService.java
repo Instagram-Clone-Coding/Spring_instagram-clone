@@ -198,9 +198,7 @@ public class AlarmService {
 		final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
 			.map(Member::getUsername)
 			.collect(Collectors.toList());
-		dto.setExistentMentionsOfContent(existentUsernames);
-		mentionedUsernames.removeAll(existentUsernames);
-		dto.setNonExistentMentionsOfContent(mentionedUsernames);
+		dto.setMentionsOfContent(existentUsernames);
 		final List<String> hashtags = stringExtractUtil.extractHashtags(content);
 		dto.setHashtagsOfContent(hashtags);
 	}

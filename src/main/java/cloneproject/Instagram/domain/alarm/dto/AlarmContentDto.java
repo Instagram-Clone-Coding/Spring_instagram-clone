@@ -18,8 +18,7 @@ public class AlarmContentDto extends AlarmDto {
 	private Long postId;
 	private String postImageUrl;
 	private String content;
-	private List<String> existentMentionsOfContent = new ArrayList<>();
-	private List<String> nonExistentMentionsOfContent = new ArrayList<>();
+	private List<String> mentionsOfContent = new ArrayList<>();
 	private List<String> hashtagsOfContent = new ArrayList<>();
 
 	public AlarmContentDto(Alarm alarm) {
@@ -40,12 +39,8 @@ public class AlarmContentDto extends AlarmDto {
 		return "";
 	}
 
-	public void setExistentMentionsOfContent(List<String> existentMentionsOfContent) {
-		this.existentMentionsOfContent = existentMentionsOfContent;
-	}
-
-	public void setNonExistentMentionsOfContent(List<String> nonExistentMentionsOfContent) {
-		this.nonExistentMentionsOfContent = nonExistentMentionsOfContent;
+	public void setMentionsOfContent(List<String> mentionsOfContent) {
+		this.mentionsOfContent = mentionsOfContent;
 	}
 
 	public void setHashtagsOfContent(List<String> hashtagsOfContent) {
