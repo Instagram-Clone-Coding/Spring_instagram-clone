@@ -390,28 +390,28 @@ public class PostService {
 
 		setPostTags(postImageDtos, postImageIds);
 
-		final Map<Long, List<PostImageDto>> postDTOMap = postImageDtos.stream()
+		final Map<Long, List<PostImageDto>> postDtoMap = postImageDtos.stream()
 			.collect(Collectors.groupingBy(PostImageDto::getPostId));
-		postDtos.forEach(p -> p.setPostImages(postDTOMap.get(p.getPostId())));
+		postDtos.forEach(p -> p.setPostImages(postDtoMap.get(p.getPostId())));
 	}
 
 	private void setPostTags(List<PostImageDto> postImageDtos, List<Long> postImageIds) {
 		final List<PostTagDto> postTagDtos = postTagRepository.findAllPostTagDto(postImageIds);
 
-		final Map<Long, List<PostTagDto>> postImageDTOMap = postTagDtos.stream()
+		final Map<Long, List<PostTagDto>> postImageDtoMap = postTagDtos.stream()
 			.collect(Collectors.groupingBy(PostTagDto::getPostImageId));
-		postImageDtos.forEach(i -> i.setPostTags(postImageDTOMap.get(i.getId())));
+		postImageDtos.forEach(i -> i.setPostTags(postImageDtoMap.get(i.getId())));
 	}
 
 	private void setFollowingMemberUsernameLikedPost(Member member, List<PostDto> postDtos, List<Long> postIds) {
 		final List<Member> followings = followService.getFollowings(member).stream()
 			.map(Follow::getFollowMember)
 			.collect(Collectors.toList());
-		final Map<Long, List<PostLikeDto>> postLikeDTOMap =
+		final Map<Long, List<PostLikeDto>> postLikeDtoMap =
 			postLikeRepository.findAllPostLikeDtoInFollowings(member.getId(), postIds, followings).stream()
 				.collect(Collectors.groupingBy(PostLikeDto::getPostId));
 		postDtos.forEach(p -> p.setFollowingMemberUsernameLikedPost(
-			postLikeDTOMap.containsKey(p.getPostId()) ? postLikeDTOMap.get(p.getPostId()).get(0).getUsername() : ""));
+			postLikeDtoMap.containsKey(p.getPostId()) ? postLikeDtoMap.get(p.getPostId()).get(0).getUsername() : ""));
 	}
 
 	private void setHasStoryInPostDto(List<PostDto> postDtos) {
@@ -427,7 +427,8 @@ public class PostService {
 			commentRepository.findAllRecentCommentDto(memberId, postIds).stream()
 				.collect(Collectors.groupingBy(CommentDto::getPostId));
 		postDtos.forEach(p -> {
-			final List<CommentDto> commentDtos = recentCommentMap.get(p.getPostId());
+			final List<CommentDto> commentDtos = recentCommentMap.containsKey(p.getPostId()) ?
+					recentCommentMap.get(p.getPostId()) : new ArrayList<>();
 			commentService.setHasStory(commentDtos);
 			commentService.setMentionAndHashtagList(commentDtos);
 			p.setRecentComments(commentDtos);
