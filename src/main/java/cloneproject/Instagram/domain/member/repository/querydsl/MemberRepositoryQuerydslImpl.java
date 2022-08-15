@@ -5,8 +5,6 @@ import static cloneproject.Instagram.domain.follow.entity.QFollow.*;
 import static cloneproject.Instagram.domain.member.entity.QBlock.*;
 import static cloneproject.Instagram.domain.member.entity.QMember.*;
 
-import java.util.List;
-
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
@@ -18,7 +16,6 @@ import cloneproject.Instagram.domain.member.dto.MiniProfileResponse;
 import cloneproject.Instagram.domain.member.dto.QMiniProfileResponse;
 import cloneproject.Instagram.domain.member.dto.QUserProfileResponse;
 import cloneproject.Instagram.domain.member.dto.UserProfileResponse;
-import cloneproject.Instagram.domain.member.entity.Member;
 
 @RequiredArgsConstructor
 public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl {
@@ -65,14 +62,6 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl {
 			.from(member)
 			.where(member.username.eq(username))
 			.fetchOne();
-	}
-
-	@Override
-	public List<Member> findAllByUsernames(List<String> usernames) {
-		return queryFactory
-			.selectFrom(member)
-			.where(member.username.in(usernames))
-			.fetch();
 	}
 
 	private JPQLQuery<Long> getPostCount(String targetUsername) {
