@@ -62,13 +62,12 @@ class MemberPostRepositoryQuerydslTest {
 		// given
 		final long postCount = 3;
 		final long postImageCount = 2;
-		final long postTagCount = 3;
 		final long postCommentCount = 3;
 		final long postLikeCount = 3;
 		final Member member = MemberUtils.newInstance();
 		memberRepository.save(member);
 
-		preparePosts(member, postCount, postImageCount, postTagCount, postCommentCount, postLikeCount);
+		preparePosts(member, postCount, postImageCount, postCommentCount, postLikeCount);
 
 		// when
 		Pageable pageable = PageRequest.of(0, 15);
@@ -87,13 +86,12 @@ class MemberPostRepositoryQuerydslTest {
 	void findMemberSavedPostDtoPage_MemberSaved3Posts_Find3MemberPostDtos() {
 		final long postCount = 3;
 		final long postImageCount = 3;
-		final long postTagCount = 3;
 		final long postCommentCount = 4;
 		final long postLikeCount = 2;
 		final Member member = MemberUtils.newInstance();
 		memberRepository.save(member);
 
-		preparePosts(member, postCount, postImageCount, postTagCount, postCommentCount, postLikeCount);
+		preparePosts(member, postCount, postImageCount, postCommentCount, postLikeCount);
 
 		// when
 		Pageable pageable = PageRequest.of(0, 15);
@@ -112,13 +110,12 @@ class MemberPostRepositoryQuerydslTest {
 		// given
 		final long postCount = 3;
 		final long postImageCount = 3;
-		final long postTagCount = 3;
 		final long postCommentCount = 4;
 		final long postLikeCount = 2;
 		final Member member = MemberUtils.newInstance();
 		memberRepository.save(member);
 
-		preparePosts(member, postCount, postImageCount, postTagCount, postCommentCount, postLikeCount);
+		preparePosts(member, postCount, postImageCount, postCommentCount, postLikeCount);
 
 		// when
 		Pageable pageable = PageRequest.of(0, 15);
@@ -133,8 +130,8 @@ class MemberPostRepositoryQuerydslTest {
 		assertThat(memberPostDtoPage.getContent().get(0).isPostLikeFlag()).isFalse();
 	}
 
-	private void preparePosts(Member member, long postCount, long postImageCount, long postTagCount,
-		long postCommentCount, long postLikeCount) {
+	private void preparePosts(Member member, long postCount, long postImageCount, long postCommentCount,
+		long postLikeCount) {
 		for (long count = 1; count <= postCount; count++) {
 			final Post post = PostUtils.newInstance(member);
 			postRepository.save(post);
