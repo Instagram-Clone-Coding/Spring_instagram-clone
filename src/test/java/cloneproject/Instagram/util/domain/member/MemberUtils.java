@@ -1,5 +1,11 @@
 package cloneproject.Instagram.util.domain.member;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.RandomStringUtils;
 
 import cloneproject.Instagram.domain.member.entity.Member;
@@ -14,6 +20,19 @@ public class MemberUtils {
 		return of(username, password, email, name);
 	}
 
+	public static List<Member> newDistinctInstances(long memberCount) {
+		final List<Member> memberList = new ArrayList<>();
+		final Set<String> usernames = new HashSet<>();
+		while (usernames.size() < memberCount) {
+			final Member member = newInstance();
+			if (usernames.contains(member.getUsername())) {
+				continue;
+			}
+			usernames.add(member.getUsername());
+		}
+		return memberList;
+	}
+
 	public static Member of(String username, String password, String email, String name) {
 		return Member.builder()
 			.username(username)
@@ -21,6 +40,12 @@ public class MemberUtils {
 			.email(email)
 			.name(name)
 			.build();
+	}
+
+	public static List<String> getUsernamesFromMemberList(List<Member> members) {
+		return members.stream()
+			.map(Member::getUsername)
+			.collect(Collectors.toList());
 	}
 
 }
