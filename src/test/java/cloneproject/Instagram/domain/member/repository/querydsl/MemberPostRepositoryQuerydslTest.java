@@ -2,6 +2,8 @@ package cloneproject.Instagram.domain.member.repository.querydsl;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -28,6 +30,7 @@ import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.global.config.QuerydslConfig;
 import cloneproject.Instagram.util.domain.feed.CommentUtils;
 import cloneproject.Instagram.util.domain.feed.PostImageUtils;
+import cloneproject.Instagram.util.domain.feed.PostLikeUtils;
 import cloneproject.Instagram.util.domain.feed.PostTagUtils;
 import cloneproject.Instagram.util.domain.feed.PostUtils;
 import cloneproject.Instagram.util.domain.member.MemberUtils;
@@ -61,22 +64,44 @@ class MemberPostRepositoryQuerydslTest {
 	void findMemberPostDtos_MemberUploaded3Posts_Find3MemberPostDtos() {
 		// given
 		final long postCount = 3;
-		final long postImageCount = 2;
-		final long postCommentCount = 3;
-		final long postLikeCount = 3;
 		final Member member = MemberUtils.newInstance();
 		memberRepository.save(member);
 
-		preparePosts(member, postCount, postImageCount, postCommentCount, postLikeCount);
+		final List<Post> posts = PostUtils.newInstances(member, postCount);
+		postRepository.saveAll(posts);
 
 		// when
-		Pageable pageable = PageRequest.of(0, 15);
-		Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtos(member.getId(),
+		final Pageable pageable = PageRequest.of(0, 15);
+		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtos(member.getId(),
 			member.getUsername(), pageable);
 
 		// then
 		assertThat(memberPostDtoPage.getContent().size()).isEqualTo(postCount);
-		assertThat(memberPostDtoPage.getContent().get(0).isHasManyPosts()).isTrue();
+	}
+
+	@Test
+	void findMemberPostDtos_PostHasDetail_FindMemberPostDtoWithDetail() {
+		// given
+		final long postImageCount = 2;
+		final long postCommentCount = 3;
+		final long postLikeCount = 3;
+
+		final Member member = MemberUtils.newInstance();
+		memberRepository.save(member);
+
+		final Post post = PostUtils.newInstance(member);
+		postRepository.save(post);
+
+		preparePostDetail(post, member, postImageCount, postCommentCount, postLikeCount);
+
+		// when
+		final Pageable pageable = PageRequest.of(0, 1);
+		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtos(member.getId(),
+			member.getUsername(), pageable);
+
+		// then
+		assertThat(memberPostDtoPage.getContent().size()).isNotZero();
+		assertThat(memberPostDtoPage.getContent().get(0).isHasManyPostImages()).isTrue();
 		assertThat(memberPostDtoPage.getContent().get(0).getPostCommentsCount()).isEqualTo(postCommentCount);
 		assertThat(memberPostDtoPage.getContent().get(0).getPostLikesCount()).isEqualTo(postLikeCount);
 		assertThat(memberPostDtoPage.getContent().get(0).isPostLikeFlag()).isFalse();
@@ -84,22 +109,49 @@ class MemberPostRepositoryQuerydslTest {
 
 	@Test
 	void findMemberSavedPostDtoPage_MemberSaved3Posts_Find3MemberPostDtos() {
+		// given
 		final long postCount = 3;
-		final long postImageCount = 3;
-		final long postCommentCount = 4;
-		final long postLikeCount = 2;
 		final Member member = MemberUtils.newInstance();
 		memberRepository.save(member);
 
-		preparePosts(member, postCount, postImageCount, postCommentCount, postLikeCount);
+		final List<Post> posts = PostUtils.newInstances(member, postCount);
+		postRepository.saveAll(posts);
+
+		prepareBookmarks(posts, member);
 
 		// when
-		Pageable pageable = PageRequest.of(0, 15);
-		Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPage(member.getId(), pageable);
+		final Pageable pageable = PageRequest.of(0, 15);
+		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPage(member.getId(),
+			pageable);
 
 		// then
 		assertThat(memberPostDtoPage.getContent().size()).isEqualTo(postCount);
-		assertThat(memberPostDtoPage.getContent().get(0).isHasManyPosts()).isTrue();
+	}
+
+	@Test
+	void findMemberSavedPostDtoPage_PostHasDetail_FindMemberPostDtoWithDetail() {
+		// given
+		final long postImageCount = 2;
+		final long postCommentCount = 3;
+		final long postLikeCount = 3;
+
+		final Member member = MemberUtils.newInstance();
+		memberRepository.save(member);
+
+		final Post post = PostUtils.newInstance(member);
+		postRepository.save(post);
+
+		prepareBookmark(post, member);
+		preparePostDetail(post, member, postImageCount, postCommentCount, postLikeCount);
+
+		// when
+		final Pageable pageable = PageRequest.of(0, 1);
+		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPage(member.getId(),
+			pageable);
+
+		// then
+		assertThat(memberPostDtoPage.getContent().size()).isNotZero();
+		assertThat(memberPostDtoPage.getContent().get(0).isHasManyPostImages()).isTrue();
 		assertThat(memberPostDtoPage.getContent().get(0).getPostCommentsCount()).isEqualTo(postCommentCount);
 		assertThat(memberPostDtoPage.getContent().get(0).getPostLikesCount()).isEqualTo(postLikeCount);
 		assertThat(memberPostDtoPage.getContent().get(0).isPostLikeFlag()).isFalse();
@@ -109,62 +161,88 @@ class MemberPostRepositoryQuerydslTest {
 	void findMemberTaggedPostDtoPage_MemberTagged3Posts_Find3MemberPostDtos() {
 		// given
 		final long postCount = 3;
-		final long postImageCount = 3;
-		final long postCommentCount = 4;
-		final long postLikeCount = 2;
 		final Member member = MemberUtils.newInstance();
 		memberRepository.save(member);
 
-		preparePosts(member, postCount, postImageCount, postCommentCount, postLikeCount);
+		final List<Post> posts = PostUtils.newInstances(member, postCount);
+		postRepository.saveAll(posts);
+
+		final List<PostImage> postImages = PostImageUtils.newInstancesForEachPost(posts, 1);
+		postImageRepository.saveAll(postImages);
+		preparePostTags(postImages, member);
 
 		// when
-		Pageable pageable = PageRequest.of(0, 15);
-		Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPage(member.getId(),
+		final Pageable pageable = PageRequest.of(0, 15);
+		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPage(member.getId(),
 			member.getUsername(), pageable);
 
 		// then
 		assertThat(memberPostDtoPage.getContent().size()).isEqualTo(postCount);
-		assertThat(memberPostDtoPage.getContent().get(0).isHasManyPosts()).isTrue();
+	}
+
+	@Test
+	void findMemberTaggedPostDtoPage_PostHasDetail_FindMemberPostDtoWithDetail() {
+		// given
+		final long postImageCount = 3;
+		final long postCommentCount = 4;
+		final long postLikeCount = 5;
+
+		final Member member = MemberUtils.newInstance();
+		memberRepository.save(member);
+
+		final Post post = PostUtils.newInstance(member);
+		postRepository.save(post);
+
+		final List<PostImage> postImages = preparePostDetail(post, member, postImageCount, postCommentCount, postLikeCount);
+		preparePostTags(postImages, member);
+
+		// when
+		final Pageable pageable = PageRequest.of(0, 1);
+		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPage(member.getId(),
+			member.getUsername(), pageable);
+
+		// then
+		assertThat(memberPostDtoPage.getContent().size()).isNotZero();
+		assertThat(memberPostDtoPage.getContent().get(0).isHasManyPostImages()).isTrue();
 		assertThat(memberPostDtoPage.getContent().get(0).getPostCommentsCount()).isEqualTo(postCommentCount);
 		assertThat(memberPostDtoPage.getContent().get(0).getPostLikesCount()).isEqualTo(postLikeCount);
 		assertThat(memberPostDtoPage.getContent().get(0).isPostLikeFlag()).isFalse();
 	}
 
-	private void preparePosts(Member member, long postCount, long postImageCount, long postCommentCount,
+	private List<PostImage> preparePostDetail(Post post, Member member, long postImageCount, long postCommentCount,
 		long postLikeCount) {
-		for (long count = 1; count <= postCount; count++) {
-			final Post post = PostUtils.newInstance(member);
-			postRepository.save(post);
+		final List<PostImage> postImages = PostImageUtils.newInstances(post, postImageCount);
+		postImageRepository.saveAll(postImages);
 
-			final Bookmark bookmark = Bookmark.builder()
-				.member(member)
-				.post(post)
-				.build();
-			bookmarkRepository.save(bookmark);
+		final List<Comment> comments = CommentUtils.newInstances(post, member, postCommentCount);
+		commentRepository.saveAll(comments);
 
-			for (long imageCount = 1; imageCount <= postImageCount; imageCount++) {
-				final PostImage postImage = PostImageUtils.newInstance(post);
-				postImageRepository.save(postImage);
+		final List<Member> members = MemberUtils.newDistinctInstances(postLikeCount);
+		memberRepository.saveAll(members);
 
-				final PostTag postTag = PostTagUtils.newInstance(postImage, member.getUsername());
-				postTagRepository.save(postTag);
-			}
+		final List<PostLike> postLikes = PostLikeUtils.newInstancesForEachMember(post, members);
+		postLikeRepository.saveAll(postLikes);
 
-			for (long commentCount = 1; commentCount <= postCommentCount; commentCount++) {
-				final Comment comment = CommentUtils.newInstance(post, member);
-				commentRepository.save(comment);
-			}
+		return postImages;
+	}
 
-			for (long likeCount = 1; likeCount <= postLikeCount; likeCount++) {
-				final Member likeMember = MemberUtils.newInstance();
-				memberRepository.save(likeMember);
-				final PostLike postLike = PostLike.builder()
-					.post(post)
-					.member(likeMember)
-					.build();
-				postLikeRepository.save(postLike);
-			}
+	private void prepareBookmarks(List<Post> posts, Member member) {
+		for (Post post : posts) {
+			prepareBookmark(post, member);
 		}
+	}
+
+	private void preparePostTags(List<PostImage> postImages, Member member) {
+		final List<PostTag> postTags = PostTagUtils.newInstancesForEachPostImage(postImages, member.getUsername());
+		postTagRepository.saveAll(postTags);
+	}
+
+	private void prepareBookmark(Post post, Member member) {
+		final Bookmark bookmark = Bookmark.builder()
+			.member(member)
+			.post(post)
+			.build();
+		bookmarkRepository.save(bookmark);
 	}
 
 }
