@@ -2,10 +2,7 @@ package cloneproject.Instagram.domain.member.repository;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
@@ -31,22 +28,22 @@ public class MemberRepositoryTest {
 		memberRepository.save(givenMember);
 
 		// when
-		final Optional<Member> member = memberRepository.findByUsername(givenMember.getUsername());
+		final boolean isPresent = memberRepository.findByUsername(givenMember.getUsername()).isPresent();
 
 		// then
-		assertThat(member.isPresent()).isTrue();
+		assertThat(isPresent).isTrue();
 	}
 
 	@Test
 	void findByUsername_MemberNotExist_ReturnEmpty() {
 		// given
-		final String randomUsername = RandomStringUtils.random(20, true, true);
+		final String randomUsername = RandomStringUtils.random(15, true, true);
 
 		// when
-		final Optional<Member> member = memberRepository.findByUsername(randomUsername);
+		final boolean isEmpty = memberRepository.findByUsername(randomUsername).isEmpty();
 
 		// then
-		assertThat(member.isEmpty()).isTrue();
+		assertThat(isEmpty).isTrue();
 	}
 
 	@Test
@@ -77,43 +74,31 @@ public class MemberRepositoryTest {
 	@Test
 	void findAllByUsernameIn_3MembersExist_Find3Members() {
 		// given
-		final Set<String> usernames = new HashSet<>();
-		while (usernames.size() < 3) {
-			final Member givenMember = MemberUtils.newInstance();
-			if (usernames.contains(givenMember.getUsername())) {
-				continue;
-			}
-			memberRepository.save(givenMember);
-			usernames.add(givenMember.getUsername());
-		}
+		final long memberCount = 3;
+		final List<Member> givenMembers = MemberUtils.newDistinctInstances(memberCount);
+		memberRepository.saveAll(givenMembers);
+		final List<String> usernames = MemberUtils.getUsernamesFromMemberList(givenMembers);
 
 		// when
 		final List<Member> members = memberRepository.findAllByUsernameIn(usernames);
 
 		// then
-		assertThat(members.size()).isEqualTo(usernames.size());
+		assertThat(members.size()).isEqualTo(memberCount);
 	}
 
 	@Test
 	void findAllByIdIn_3MembersExist_Find3Members() {
 		// given
-		final Set<String> usernames = new HashSet<>();
-		final Set<Long> ids = new HashSet<>();
-		while (usernames.size() < 3) {
-			final Member givenMember = MemberUtils.newInstance();
-			if (usernames.contains(givenMember.getUsername())) {
-				continue;
-			}
-			memberRepository.save(givenMember);
-			usernames.add(givenMember.getUsername());
-			ids.add(givenMember.getId());
-		}
+		final long memberCount = 3;
+		final List<Member> givenMembers = MemberUtils.newDistinctInstances(memberCount);
+		memberRepository.saveAll(givenMembers);
+		final List<Long> ids = MemberUtils.getIdsFromMemberList(givenMembers);
 
 		// when
 		final List<Member> members = memberRepository.findAllByIdIn(ids);
 
 		// then
-		assertThat(members.size()).isEqualTo(usernames.size());
+		assertThat(members.size()).isEqualTo(memberCount);
 	}
 
 }
