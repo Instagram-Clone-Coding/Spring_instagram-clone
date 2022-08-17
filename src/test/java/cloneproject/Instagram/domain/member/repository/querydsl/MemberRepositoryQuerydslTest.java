@@ -38,7 +38,7 @@ public class MemberRepositoryQuerydslTest {
 	private BlockRepository blockRepository;
 
 	@Test
-	void findUserProfile_MemberNotBlocking_FindUserProfile() {
+	void findUserProfile_MemberNotBlocking_FindUserProfileWithDetail() {
 		// given
 		final long postCount = 3;
 		final long followerCount = 4;
@@ -50,7 +50,7 @@ public class MemberRepositoryQuerydslTest {
 		final Member member = MemberUtils.newInstance();
 		memberRepository.save(member);
 
-		Follow follow = Follow.builder()
+		final Follow follow = Follow.builder()
 			.member(member)
 			.followMember(followingMember)
 			.build();
@@ -83,7 +83,7 @@ public class MemberRepositoryQuerydslTest {
 		final Member member = MemberUtils.newInstance();
 		memberRepository.save(member);
 
-		Block block = Block.builder()
+		final Block block = Block.builder()
 			.member(member)
 			.blockMember(blockedMember)
 			.build();
@@ -104,7 +104,7 @@ public class MemberRepositoryQuerydslTest {
 	}
 
 	@Test
-	void findMiniProfile_MemberNotBlocking_FindMiniProfile() {
+	void findMiniProfile_MemberNotBlocking_FindMiniProfileWithDetail() {
 		// given
 		final long postCount = 3;
 		final long followerCount = 4;
@@ -116,7 +116,7 @@ public class MemberRepositoryQuerydslTest {
 		final Member member = MemberUtils.newInstance();
 		memberRepository.save(member);
 
-		Follow follow = Follow.builder()
+		final Follow follow = Follow.builder()
 			.member(member)
 			.followMember(followingMember)
 			.build();
@@ -149,7 +149,7 @@ public class MemberRepositoryQuerydslTest {
 		final Member member = MemberUtils.newInstance();
 		memberRepository.save(member);
 
-		Block block = Block.builder()
+		final Block block = Block.builder()
 			.member(member)
 			.blockMember(blockedMember)
 			.build();
