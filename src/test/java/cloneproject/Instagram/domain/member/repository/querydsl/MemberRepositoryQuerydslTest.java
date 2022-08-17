@@ -2,6 +2,8 @@ package cloneproject.Instagram.domain.member.repository.querydsl;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -19,6 +21,7 @@ import cloneproject.Instagram.domain.member.repository.BlockRepository;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.global.config.QuerydslConfig;
 import cloneproject.Instagram.util.domain.feed.PostUtils;
+import cloneproject.Instagram.util.domain.member.FollowUtils;
 import cloneproject.Instagram.util.domain.member.MemberUtils;
 
 @DataJpaTest
@@ -44,30 +47,20 @@ public class MemberRepositoryQuerydslTest {
 		final long followerCount = 4;
 		final long followingCount = 5;
 
-		final Member followingMember = MemberUtils.newInstance();
-		memberRepository.save(followingMember);
-
 		final Member member = MemberUtils.newInstance();
 		memberRepository.save(member);
 
-		final Follow follow = Follow.builder()
-			.member(member)
-			.followMember(followingMember)
-			.build();
-		followRepository.save(follow);
-
-		prepareProfileDetail(member, postCount, followerCount, followingCount);
+		preparePosts(member, postCount);
+		prepareFollow(member, followerCount, followingCount);
 
 		// when
-		final UserProfileResponse userProfileResponse = memberRepository.findUserProfile(followingMember.getId(),
-			member.getUsername());
+		final UserProfileResponse userProfileResponse = memberRepository.findUserProfile(-1L, member.getUsername());
 
 		// then
 		assertThat(userProfileResponse.getMemberUsername()).isEqualTo(member.getUsername());
 		assertThat(userProfileResponse.getMemberPostsCount()).isEqualTo(postCount);
 		assertThat(userProfileResponse.getMemberFollowersCount()).isEqualTo(followerCount);
-		assertThat(userProfileResponse.getMemberFollowingsCount()).isEqualTo(followingCount + 1);
-		assertThat(userProfileResponse.isFollower()).isTrue();
+		assertThat(userProfileResponse.getMemberFollowingsCount()).isEqualTo(followingCount);
 	}
 
 	@Test
@@ -89,7 +82,8 @@ public class MemberRepositoryQuerydslTest {
 			.build();
 		blockRepository.save(block);
 
-		prepareProfileDetail(member, postCount, followerCount, followingCount);
+		preparePosts(member, postCount);
+		prepareFollow(member, followerCount, followingCount);
 
 		// when
 		final UserProfileResponse userProfileResponse = memberRepository.findUserProfile(blockedMember.getId(),
@@ -104,12 +98,8 @@ public class MemberRepositoryQuerydslTest {
 	}
 
 	@Test
-	void findMiniProfile_MemberNotBlocking_FindMiniProfileWithDetail() {
+	void findUserProfile_MemberIsFollowing_FindUserProfileWithFollowerFlagTrue() {
 		// given
-		final long postCount = 3;
-		final long followerCount = 4;
-		final long followingCount = 5;
-
 		final Member followingMember = MemberUtils.newInstance();
 		memberRepository.save(followingMember);
 
@@ -122,18 +112,35 @@ public class MemberRepositoryQuerydslTest {
 			.build();
 		followRepository.save(follow);
 
-		prepareProfileDetail(member, postCount, followerCount, followingCount);
+		// when
+		final UserProfileResponse userProfileResponse = memberRepository.findUserProfile(followingMember.getId(),
+			member.getUsername());
+
+		// then
+		assertThat(userProfileResponse.isFollower()).isTrue();
+	}
+
+	@Test
+	void findMiniProfile_MemberNotBlocking_FindMiniProfileWithDetail() {
+		// given
+		final long postCount = 3;
+		final long followerCount = 4;
+		final long followingCount = 5;
+
+		final Member member = MemberUtils.newInstance();
+		memberRepository.save(member);
+
+		preparePosts(member, postCount);
+		prepareFollow(member, followerCount, followingCount);
 
 		// when
-		final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfile(followingMember.getId(),
-			member.getUsername());
+		final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfile(-1L, member.getUsername());
 
 		// then
 		assertThat(miniProfileResponse.getMemberUsername()).isEqualTo(member.getUsername());
 		assertThat(miniProfileResponse.getMemberPostsCount()).isEqualTo(postCount);
 		assertThat(miniProfileResponse.getMemberFollowersCount()).isEqualTo(followerCount);
-		assertThat(miniProfileResponse.getMemberFollowingsCount()).isEqualTo(followingCount + 1);
-		assertThat(miniProfileResponse.isFollower()).isTrue();
+		assertThat(miniProfileResponse.getMemberFollowingsCount()).isEqualTo(followingCount);
 	}
 
 	@Test
@@ -155,7 +162,8 @@ public class MemberRepositoryQuerydslTest {
 			.build();
 		blockRepository.save(block);
 
-		prepareProfileDetail(member, postCount, followerCount, followingCount);
+		preparePosts(member, postCount);
+		prepareFollow(member, followerCount, followingCount);
 
 		// when
 		final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfile(blockedMember.getId(),
@@ -169,33 +177,46 @@ public class MemberRepositoryQuerydslTest {
 		assertThat(miniProfileResponse.getMemberFollowingsCount()).isEqualTo(0);
 	}
 
-	private void prepareProfileDetail(Member member, long postCount, long followerCount, long followingCount) {
-		for (long count = 1; count <= postCount; count++) {
-			final Post post = PostUtils.newInstance(member);
-			postRepository.save(post);
-		}
+	@Test
+	void findMiniProfile_MemberIsFollowing_FindUserProfileWithFollowerFlagTrue() {
+		// given
+		final Member followingMember = MemberUtils.newInstance();
+		memberRepository.save(followingMember);
 
-		for (long count = 1; count <= followerCount; count++) {
-			final Member followerMember = MemberUtils.newInstance();
-			memberRepository.save(followerMember);
+		final Member member = MemberUtils.newInstance();
+		memberRepository.save(member);
 
-			final Follow follow = Follow.builder()
-				.member(followerMember)
-				.followMember(member)
-				.build();
-			followRepository.save(follow);
-		}
+		final Follow follow = Follow.builder()
+			.member(member)
+			.followMember(followingMember)
+			.build();
+		followRepository.save(follow);
 
-		for (long count = 1; count <= followingCount; count++) {
-			final Member followingMember = MemberUtils.newInstance();
-			memberRepository.save(followingMember);
+		// when
+		final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfile(followingMember.getId(),
+			member.getUsername());
 
-			final Follow follow = Follow.builder()
-				.member(member)
-				.followMember(followingMember)
-				.build();
-			followRepository.save(follow);
-		}
+		// then
+		assertThat(miniProfileResponse.isFollower()).isTrue();
+	}
+
+	private void preparePosts(Member member, long postCount) {
+		final List<Post> posts = PostUtils.newInstances(member, postCount);
+		postRepository.saveAll(posts);
+	}
+
+	private void prepareFollow(Member member, long followerCount, long followingCount) {
+		final List<Member> followerMembers = MemberUtils.newDistinctInstances(followerCount);
+		memberRepository.saveAll(followerMembers);
+
+		final List<Follow> followers = FollowUtils.newFollowerInstances(followerMembers, member);
+		followRepository.saveAll(followers);
+
+		final List<Member> followingMembers = MemberUtils.newDistinctInstances(followingCount);
+		memberRepository.saveAll(followingMembers);
+
+		final List<Follow> followings = FollowUtils.newFollowingInstances(member, followingMembers);
+		followRepository.saveAll(followings);
 	}
 
 }
