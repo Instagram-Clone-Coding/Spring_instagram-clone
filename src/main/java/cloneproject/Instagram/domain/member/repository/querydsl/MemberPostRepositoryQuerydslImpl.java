@@ -61,6 +61,8 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 				bookmark.post.id,
 				bookmark.post.member,
 				bookmark.post.postImages.size().gt(1),
+				post.likeFlag,
+				existPostLikeWherePostEqAndMemberIdEq(loginMemberId),
 				bookmark.post.comments.size(),
 				bookmark.post.postLikes.size()))
 			.from(bookmark)
