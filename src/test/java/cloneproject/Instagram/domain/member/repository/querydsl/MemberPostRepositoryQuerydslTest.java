@@ -61,11 +61,14 @@ class MemberPostRepositoryQuerydslTest {
 	private BookmarkRepository bookmarkRepository;
 
 	@Test
-	void findMemberPostDtos_MemberUploaded3Posts_Find3MemberPostDtos() {
+	void findMemberPostDtos_20PostsExistAndPage0AndSize15_FindTotal20PostsAnd2PageAndCurrent15PostsAnd0Page() {
 		// given
-		final long postCount = 3;
+		final long postCount = 20;
 		final int page = 0;
 		final int pageSize = 15;
+
+		final int expectedTotalPage = 2;
+		final int expectedCurrentPage = 0;
 
 		final Member member = MemberUtils.newInstance();
 		memberRepository.save(member);
@@ -74,12 +77,46 @@ class MemberPostRepositoryQuerydslTest {
 		postRepository.saveAll(posts);
 
 		final Pageable pageable = PageRequest.of(page, pageSize);
+
 		// when
 		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtos(member.getId(),
 			member.getUsername(), pageable);
 
 		// then
-		assertThat(memberPostDtoPage.getContent().size()).isEqualTo(postCount);
+		assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(postCount);
+		assertThat(memberPostDtoPage.getTotalPages()).isEqualTo(expectedTotalPage);
+		assertThat(memberPostDtoPage.getContent().size()).isEqualTo(pageSize);
+		assertThat(memberPostDtoPage.getNumber()).isEqualTo(expectedCurrentPage);
+	}
+
+	@Test
+	void findMemberPostDtos_20PostsExistAndPage1AndSize15_FindTotal20PostsAnd2PageAndCurrent5PostsAnd1Page() {
+		// given
+		final long postCount = 20;
+		final int page = 1;
+		final int pageSize = 15;
+
+		final int expectedTotalPage = 2;
+		final int expectedCurrentPage = 1;
+		final int expectedCurrentPostCount = 5;
+
+		final Member member = MemberUtils.newInstance();
+		memberRepository.save(member);
+
+		final List<Post> posts = PostUtils.newInstances(member, postCount);
+		postRepository.saveAll(posts);
+
+		final Pageable pageable = PageRequest.of(page, pageSize);
+
+		// when
+		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtos(member.getId(),
+			member.getUsername(), pageable);
+
+		// then
+		assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(postCount);
+		assertThat(memberPostDtoPage.getTotalPages()).isEqualTo(expectedTotalPage);
+		assertThat(memberPostDtoPage.getContent().size()).isEqualTo(expectedCurrentPostCount);
+		assertThat(memberPostDtoPage.getNumber()).isEqualTo(expectedCurrentPage);
 	}
 
 	@Test
@@ -113,19 +150,26 @@ class MemberPostRepositoryQuerydslTest {
 	}
 
 	@Test
-	void findMemberSavedPostDtoPage_MemberSaved3Posts_Find3MemberPostDtos() {
+	void findMemberSavedPostDtoPage_30PostsExistAnd20PostsSavedAndPage1AndSize15_FindTotal20PostsAnd2PageAndCurrent5PostsAnd1Page() {
 		// given
-		final long postCount = 3;
+		final long unsavedPostCount = 10;
+		final long savedPostCount = 20;
 		final int page = 0;
 		final int pageSize = 15;
+
+		final int expectedTotalPage = 2;
+		final int expectedCurrentPage = 0;
 
 		final Member member = MemberUtils.newInstance();
 		memberRepository.save(member);
 
-		final List<Post> posts = PostUtils.newInstances(member, postCount);
-		postRepository.saveAll(posts);
+		final List<Post> unsavedPosts = PostUtils.newInstances(member, unsavedPostCount);
+		postRepository.saveAll(unsavedPosts);
 
-		prepareBookmarks(posts, member);
+		final List<Post> savedPosts = PostUtils.newInstances(member, savedPostCount);
+		postRepository.saveAll(savedPosts);
+
+		prepareBookmarks(savedPosts, member);
 		final Pageable pageable = PageRequest.of(page, pageSize);
 
 		// when
@@ -133,7 +177,45 @@ class MemberPostRepositoryQuerydslTest {
 			pageable);
 
 		// then
-		assertThat(memberPostDtoPage.getContent().size()).isEqualTo(postCount);
+		assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(savedPostCount);
+		assertThat(memberPostDtoPage.getTotalPages()).isEqualTo(expectedTotalPage);
+		assertThat(memberPostDtoPage.getContent().size()).isEqualTo(pageSize);
+		assertThat(memberPostDtoPage.getNumber()).isEqualTo(expectedCurrentPage);
+	}
+
+	@Test
+	void findMemberSavedPostDtoPage_30PostsExistAnd20PostsSavedAndPage0AndSize15_FindTotal20PostsAnd2PageAndCurrent15PostsAnd0Page() {
+		// given
+		final long unsavedPostCount = 10;
+		final long savedPostCount = 20;
+		final int page = 1;
+		final int pageSize = 15;
+
+		final int expectedTotalPage = 2;
+		final int expectedCurrentPage = 1;
+		final int expectedCurrentPostCount = 5;
+
+		final Member member = MemberUtils.newInstance();
+		memberRepository.save(member);
+
+		final List<Post> unsavedPosts = PostUtils.newInstances(member, unsavedPostCount);
+		postRepository.saveAll(unsavedPosts);
+
+		final List<Post> savedPosts = PostUtils.newInstances(member, savedPostCount);
+		postRepository.saveAll(savedPosts);
+
+		prepareBookmarks(savedPosts, member);
+		final Pageable pageable = PageRequest.of(page, pageSize);
+
+		// when
+		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPage(member.getId(),
+			pageable);
+
+		// then
+		assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(savedPostCount);
+		assertThat(memberPostDtoPage.getTotalPages()).isEqualTo(expectedTotalPage);
+		assertThat(memberPostDtoPage.getContent().size()).isEqualTo(expectedCurrentPostCount);
+		assertThat(memberPostDtoPage.getNumber()).isEqualTo(expectedCurrentPage);
 	}
 
 	@Test
@@ -168,19 +250,27 @@ class MemberPostRepositoryQuerydslTest {
 	}
 
 	@Test
-	void findMemberTaggedPostDtoPage_MemberTagged3Posts_Find3MemberPostDtos() {
+	void findMemberTaggedPostDtoPage_30PostsExistAnd20PostsTaggedAndPage0AndSize15_FindTotal20PostsAnd2PageAndCurrent15PostsAnd0Page() {
 		// given
-		final long postCount = 3;
+		final long untaggedPostCount = 10;
+		final long taggedPostCount = 20;
+		final long postImageCount = 1;
 		final int page = 0;
 		final int pageSize = 15;
+
+		final int expectedTotalPage = 2;
+		final int expectedCurrentPage = 0;
 
 		final Member member = MemberUtils.newInstance();
 		memberRepository.save(member);
 
-		final List<Post> posts = PostUtils.newInstances(member, postCount);
-		postRepository.saveAll(posts);
+		final List<Post> untaggedPosts = PostUtils.newInstances(member, untaggedPostCount);
+		postRepository.saveAll(untaggedPosts);
 
-		final List<PostImage> postImages = PostImageUtils.newInstancesForEachPost(posts, 1);
+		final List<Post> taggedPosts = PostUtils.newInstances(member, taggedPostCount);
+		postRepository.saveAll(taggedPosts);
+
+		final List<PostImage> postImages = PostImageUtils.newInstancesForEachPost(taggedPosts, postImageCount);
 		postImageRepository.saveAll(postImages);
 
 		preparePostTags(postImages, member);
@@ -191,7 +281,49 @@ class MemberPostRepositoryQuerydslTest {
 			member.getUsername(), pageable);
 
 		// then
-		assertThat(memberPostDtoPage.getContent().size()).isEqualTo(postCount);
+		assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(taggedPostCount);
+		assertThat(memberPostDtoPage.getTotalPages()).isEqualTo(expectedTotalPage);
+		assertThat(memberPostDtoPage.getContent().size()).isEqualTo(pageSize);
+		assertThat(memberPostDtoPage.getNumber()).isEqualTo(expectedCurrentPage);
+	}
+
+	@Test
+	void findMemberTaggedPostDtoPage_30PostsExistAnd20PostsTaggedAndPage1AndSize15_FindTotal20PostsAnd2PageAndCurrent5PostsAnd1Page() {
+		// given
+		final long untaggedPostCount = 10;
+		final long taggedPostCount = 20;
+		final long postImageCount = 1;
+		final int page = 1;
+		final int pageSize = 15;
+
+		final int expectedTotalPage = 2;
+		final int expectedCurrentPage = 1;
+		final int expectedCurrentPostCount = 5;
+
+		final Member member = MemberUtils.newInstance();
+		memberRepository.save(member);
+
+		final List<Post> untaggedPosts = PostUtils.newInstances(member, untaggedPostCount);
+		postRepository.saveAll(untaggedPosts);
+
+		final List<Post> taggedPosts = PostUtils.newInstances(member, taggedPostCount);
+		postRepository.saveAll(taggedPosts);
+
+		final List<PostImage> postImages = PostImageUtils.newInstancesForEachPost(taggedPosts, postImageCount);
+		postImageRepository.saveAll(postImages);
+
+		preparePostTags(postImages, member);
+		final Pageable pageable = PageRequest.of(page, pageSize);
+
+		// when
+		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPage(member.getId(),
+			member.getUsername(), pageable);
+
+		// then
+		assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(taggedPostCount);
+		assertThat(memberPostDtoPage.getTotalPages()).isEqualTo(expectedTotalPage);
+		assertThat(memberPostDtoPage.getContent().size()).isEqualTo(expectedCurrentPostCount);
+		assertThat(memberPostDtoPage.getNumber()).isEqualTo(expectedCurrentPage);
 	}
 
 	@Test
