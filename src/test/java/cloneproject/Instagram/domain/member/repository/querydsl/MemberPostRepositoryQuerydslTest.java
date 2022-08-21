@@ -64,14 +64,17 @@ class MemberPostRepositoryQuerydslTest {
 	void findMemberPostDtos_MemberUploaded3Posts_Find3MemberPostDtos() {
 		// given
 		final long postCount = 3;
+		final int page = 0;
+		final int pageSize = 15;
+
 		final Member member = MemberUtils.newInstance();
 		memberRepository.save(member);
 
 		final List<Post> posts = PostUtils.newInstances(member, postCount);
 		postRepository.saveAll(posts);
 
+		final Pageable pageable = PageRequest.of(page, pageSize);
 		// when
-		final Pageable pageable = PageRequest.of(0, 15);
 		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtos(member.getId(),
 			member.getUsername(), pageable);
 
@@ -85,6 +88,8 @@ class MemberPostRepositoryQuerydslTest {
 		final long postImageCount = 2;
 		final long postCommentCount = 3;
 		final long postLikeCount = 3;
+		final int page = 0;
+		final int pageSize = 1;
 
 		final Member member = MemberUtils.newInstance();
 		memberRepository.save(member);
@@ -93,9 +98,9 @@ class MemberPostRepositoryQuerydslTest {
 		postRepository.save(post);
 
 		preparePostDetail(post, member, postImageCount, postCommentCount, postLikeCount);
+		final Pageable pageable = PageRequest.of(page, pageSize);
 
 		// when
-		final Pageable pageable = PageRequest.of(0, 1);
 		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtos(member.getId(),
 			member.getUsername(), pageable);
 
@@ -111,6 +116,9 @@ class MemberPostRepositoryQuerydslTest {
 	void findMemberSavedPostDtoPage_MemberSaved3Posts_Find3MemberPostDtos() {
 		// given
 		final long postCount = 3;
+		final int page = 0;
+		final int pageSize = 15;
+
 		final Member member = MemberUtils.newInstance();
 		memberRepository.save(member);
 
@@ -118,9 +126,9 @@ class MemberPostRepositoryQuerydslTest {
 		postRepository.saveAll(posts);
 
 		prepareBookmarks(posts, member);
+		final Pageable pageable = PageRequest.of(page, pageSize);
 
 		// when
-		final Pageable pageable = PageRequest.of(0, 15);
 		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPage(member.getId(),
 			pageable);
 
@@ -134,6 +142,8 @@ class MemberPostRepositoryQuerydslTest {
 		final long postImageCount = 2;
 		final long postCommentCount = 3;
 		final long postLikeCount = 3;
+		final int page = 0;
+		final int pageSize = 1;
 
 		final Member member = MemberUtils.newInstance();
 		memberRepository.save(member);
@@ -143,9 +153,9 @@ class MemberPostRepositoryQuerydslTest {
 
 		prepareBookmark(post, member);
 		preparePostDetail(post, member, postImageCount, postCommentCount, postLikeCount);
+		final Pageable pageable = PageRequest.of(page, pageSize);
 
 		// when
-		final Pageable pageable = PageRequest.of(0, 1);
 		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPage(member.getId(),
 			pageable);
 
@@ -161,6 +171,9 @@ class MemberPostRepositoryQuerydslTest {
 	void findMemberTaggedPostDtoPage_MemberTagged3Posts_Find3MemberPostDtos() {
 		// given
 		final long postCount = 3;
+		final int page = 0;
+		final int pageSize = 15;
+
 		final Member member = MemberUtils.newInstance();
 		memberRepository.save(member);
 
@@ -169,10 +182,11 @@ class MemberPostRepositoryQuerydslTest {
 
 		final List<PostImage> postImages = PostImageUtils.newInstancesForEachPost(posts, 1);
 		postImageRepository.saveAll(postImages);
+
 		preparePostTags(postImages, member);
+		final Pageable pageable = PageRequest.of(page, pageSize);
 
 		// when
-		final Pageable pageable = PageRequest.of(0, 15);
 		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPage(member.getId(),
 			member.getUsername(), pageable);
 
@@ -186,6 +200,8 @@ class MemberPostRepositoryQuerydslTest {
 		final long postImageCount = 3;
 		final long postCommentCount = 4;
 		final long postLikeCount = 5;
+		final int page = 0;
+		final int pageSize = 15;
 
 		final Member member = MemberUtils.newInstance();
 		memberRepository.save(member);
@@ -194,10 +210,11 @@ class MemberPostRepositoryQuerydslTest {
 		postRepository.save(post);
 
 		final List<PostImage> postImages = preparePostDetail(post, member, postImageCount, postCommentCount, postLikeCount);
+
 		preparePostTags(postImages, member);
+		final Pageable pageable = PageRequest.of(page, pageSize);
 
 		// when
-		final Pageable pageable = PageRequest.of(0, 1);
 		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPage(member.getId(),
 			member.getUsername(), pageable);
 

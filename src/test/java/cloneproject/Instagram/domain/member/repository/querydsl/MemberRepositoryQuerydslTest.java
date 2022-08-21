@@ -28,6 +28,8 @@ import cloneproject.Instagram.util.domain.member.MemberUtils;
 @Import(QuerydslConfig.class)
 public class MemberRepositoryQuerydslTest {
 
+	private static final long UNLOGIN_MEMBER_ID = -1L;
+
 	@Autowired
 	private MemberRepository memberRepository;
 
@@ -54,7 +56,7 @@ public class MemberRepositoryQuerydslTest {
 		prepareFollow(member, followerCount, followingCount);
 
 		// when
-		final UserProfileResponse userProfileResponse = memberRepository.findUserProfile(-1L, member.getUsername());
+		final UserProfileResponse userProfileResponse = memberRepository.findUserProfile(UNLOGIN_MEMBER_ID, member.getUsername());
 
 		// then
 		assertThat(userProfileResponse.getMemberUsername()).isEqualTo(member.getUsername());
@@ -134,7 +136,7 @@ public class MemberRepositoryQuerydslTest {
 		prepareFollow(member, followerCount, followingCount);
 
 		// when
-		final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfile(-1L, member.getUsername());
+		final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfile(UNLOGIN_MEMBER_ID, member.getUsername());
 
 		// then
 		assertThat(miniProfileResponse.getMemberUsername()).isEqualTo(member.getUsername());
