@@ -53,7 +53,7 @@ public class MemberRepositoryQuerydslTest {
 		memberRepository.save(member);
 
 		preparePosts(member, postCount);
-		prepareFollow(member, followerCount, followingCount);
+		prepareFollows(member, followerCount, followingCount);
 
 		// when
 		final UserProfileResponse userProfileResponse = memberRepository.findUserProfile(UNLOGIN_MEMBER_ID, member.getUsername());
@@ -85,7 +85,7 @@ public class MemberRepositoryQuerydslTest {
 		blockRepository.save(block);
 
 		preparePosts(member, postCount);
-		prepareFollow(member, followerCount, followingCount);
+		prepareFollows(member, followerCount, followingCount);
 
 		// when
 		final UserProfileResponse userProfileResponse = memberRepository.findUserProfile(blockedMember.getId(),
@@ -133,7 +133,7 @@ public class MemberRepositoryQuerydslTest {
 		memberRepository.save(member);
 
 		preparePosts(member, postCount);
-		prepareFollow(member, followerCount, followingCount);
+		prepareFollows(member, followerCount, followingCount);
 
 		// when
 		final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfile(UNLOGIN_MEMBER_ID, member.getUsername());
@@ -165,7 +165,7 @@ public class MemberRepositoryQuerydslTest {
 		blockRepository.save(block);
 
 		preparePosts(member, postCount);
-		prepareFollow(member, followerCount, followingCount);
+		prepareFollows(member, followerCount, followingCount);
 
 		// when
 		final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfile(blockedMember.getId(),
@@ -207,7 +207,7 @@ public class MemberRepositoryQuerydslTest {
 		postRepository.saveAll(posts);
 	}
 
-	private void prepareFollow(Member member, long followerCount, long followingCount) {
+	private void prepareFollows(Member member, long followerCount, long followingCount) {
 		final List<Member> followerMembers = MemberUtils.newDistinctInstances(followerCount);
 		memberRepository.saveAll(followerMembers);
 

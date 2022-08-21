@@ -97,7 +97,7 @@ class MemberPostRepositoryQuerydslTest {
 		final Post post = PostUtils.newInstance(member);
 		postRepository.save(post);
 
-		preparePostDetail(post, member, postImageCount, postCommentCount, postLikeCount);
+		preparePostImagesAndCommentsAndLikes(post, member, postImageCount, postCommentCount, postLikeCount);
 		final Pageable pageable = PageRequest.of(page, pageSize);
 
 		// when
@@ -152,7 +152,7 @@ class MemberPostRepositoryQuerydslTest {
 		postRepository.save(post);
 
 		prepareBookmark(post, member);
-		preparePostDetail(post, member, postImageCount, postCommentCount, postLikeCount);
+		preparePostImagesAndCommentsAndLikes(post, member, postImageCount, postCommentCount, postLikeCount);
 		final Pageable pageable = PageRequest.of(page, pageSize);
 
 		// when
@@ -209,7 +209,8 @@ class MemberPostRepositoryQuerydslTest {
 		final Post post = PostUtils.newInstance(member);
 		postRepository.save(post);
 
-		final List<PostImage> postImages = preparePostDetail(post, member, postImageCount, postCommentCount, postLikeCount);
+		final List<PostImage> postImages = preparePostImagesAndCommentsAndLikes(post, member, postImageCount,
+			postCommentCount, postLikeCount);
 
 		preparePostTags(postImages, member);
 		final Pageable pageable = PageRequest.of(page, pageSize);
@@ -226,8 +227,8 @@ class MemberPostRepositoryQuerydslTest {
 		assertThat(memberPostDtoPage.getContent().get(0).isPostLikeFlag()).isFalse();
 	}
 
-	private List<PostImage> preparePostDetail(Post post, Member member, long postImageCount, long postCommentCount,
-		long postLikeCount) {
+	private List<PostImage> preparePostImagesAndCommentsAndLikes(Post post, Member member, long postImageCount,
+		long postCommentCount, long postLikeCount) {
 		final List<PostImage> postImages = PostImageUtils.newInstances(post, postImageCount);
 		postImageRepository.saveAll(postImages);
 
