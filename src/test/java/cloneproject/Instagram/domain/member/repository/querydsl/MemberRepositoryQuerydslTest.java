@@ -67,6 +67,11 @@ public class MemberRepositoryQuerydslTest {
 		assertThat(userProfileResponse.getMemberPostsCount()).isEqualTo(postCount);
 		assertThat(userProfileResponse.getMemberFollowersCount()).isEqualTo(followerCount);
 		assertThat(userProfileResponse.getMemberFollowingsCount()).isEqualTo(followingCount);
+		assertThat(userProfileResponse.isMe()).isFalse();
+		assertThat(userProfileResponse.isFollowing()).isFalse();
+		assertThat(userProfileResponse.isFollower()).isFalse();
+		assertThat(userProfileResponse.isBlocking()).isFalse();
+		assertThat(userProfileResponse.isBlocked()).isFalse();
 	}
 
 	@Test
@@ -208,6 +213,11 @@ public class MemberRepositoryQuerydslTest {
 		assertThat(miniProfileResponse.getMemberPostsCount()).isEqualTo(postCount);
 		assertThat(miniProfileResponse.getMemberFollowersCount()).isEqualTo(followerCount);
 		assertThat(miniProfileResponse.getMemberFollowingsCount()).isEqualTo(followingCount);
+		assertThat(miniProfileResponse.isMe()).isFalse();
+		assertThat(miniProfileResponse.isFollowing()).isFalse();
+		assertThat(miniProfileResponse.isFollower()).isFalse();
+		assertThat(miniProfileResponse.isBlocking()).isFalse();
+		assertThat(miniProfileResponse.isBlocked()).isFalse();
 	}
 
 	@Test
