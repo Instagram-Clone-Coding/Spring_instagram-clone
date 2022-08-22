@@ -39,6 +39,8 @@ import cloneproject.Instagram.util.domain.member.MemberUtils;
 @Import(QuerydslConfig.class)
 class MemberPostRepositoryQuerydslTest {
 
+	private static final int FIRST_ELEMENT_INDEX = 0;
+
 	@Autowired
 	private MemberRepository memberRepository;
 
@@ -174,10 +176,12 @@ class MemberPostRepositoryQuerydslTest {
 
 		// then
 		assertThat(memberPostDtoPage.getContent().size()).isNotZero();
-		assertThat(memberPostDtoPage.getContent().get(0).isHasManyPostImages()).isFalse();
-		assertThat(memberPostDtoPage.getContent().get(0).getPostCommentsCount()).isEqualTo(postCommentCount);
-		assertThat(memberPostDtoPage.getContent().get(0).getPostLikesCount()).isEqualTo(postLikeCount);
-		assertThat(memberPostDtoPage.getContent().get(0).isPostLikeFlag()).isFalse();
+		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isHasManyPostImages()).isFalse();
+		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostCommentsCount()).isEqualTo(
+			postCommentCount);
+		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostLikesCount()).isEqualTo(
+			postLikeCount);
+		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isPostLikeFlag()).isFalse();
 	}
 
 	@Test
@@ -202,7 +206,7 @@ class MemberPostRepositoryQuerydslTest {
 
 		// then
 		assertThat(memberPostDtoPage.getContent().size()).isNotZero();
-		assertThat(memberPostDtoPage.getContent().get(0).isHasManyPostImages()).isTrue();
+		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isHasManyPostImages()).isTrue();
 	}
 
 	@Test
@@ -228,7 +232,7 @@ class MemberPostRepositoryQuerydslTest {
 
 		// then
 		assertThat(memberPostDtoPage.getContent().size()).isNotZero();
-		assertThat(memberPostDtoPage.getContent().get(0).isPostLikeFlag()).isTrue();
+		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isPostLikeFlag()).isTrue();
 	}
 
 	@Test
@@ -345,10 +349,12 @@ class MemberPostRepositoryQuerydslTest {
 
 		// then
 		assertThat(memberPostDtoPage.getContent().size()).isNotZero();
-		assertThat(memberPostDtoPage.getContent().get(0).isHasManyPostImages()).isFalse();
-		assertThat(memberPostDtoPage.getContent().get(0).getPostCommentsCount()).isEqualTo(postCommentCount);
-		assertThat(memberPostDtoPage.getContent().get(0).getPostLikesCount()).isEqualTo(postLikeCount);
-		assertThat(memberPostDtoPage.getContent().get(0).isPostLikeFlag()).isFalse();
+		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isHasManyPostImages()).isFalse();
+		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostCommentsCount()).isEqualTo(
+			postCommentCount);
+		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostLikesCount()).isEqualTo(
+			postLikeCount);
+		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isPostLikeFlag()).isFalse();
 	}
 
 	@Test
@@ -374,7 +380,7 @@ class MemberPostRepositoryQuerydslTest {
 
 		// then
 		assertThat(memberPostDtoPage.getContent().size()).isNotZero();
-		assertThat(memberPostDtoPage.getContent().get(0).isHasManyPostImages()).isTrue();
+		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isHasManyPostImages()).isTrue();
 	}
 
 	@Test
@@ -401,7 +407,7 @@ class MemberPostRepositoryQuerydslTest {
 
 		// then
 		assertThat(memberPostDtoPage.getContent().size()).isNotZero();
-		assertThat(memberPostDtoPage.getContent().get(0).isPostLikeFlag()).isTrue();
+		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isPostLikeFlag()).isTrue();
 	}
 
 	@Test
@@ -532,10 +538,12 @@ class MemberPostRepositoryQuerydslTest {
 
 		// then
 		assertThat(memberPostDtoPage.getContent().size()).isNotZero();
-		assertThat(memberPostDtoPage.getContent().get(0).isHasManyPostImages()).isFalse();
-		assertThat(memberPostDtoPage.getContent().get(0).getPostCommentsCount()).isEqualTo(postCommentCount);
-		assertThat(memberPostDtoPage.getContent().get(0).getPostLikesCount()).isEqualTo(postLikeCount);
-		assertThat(memberPostDtoPage.getContent().get(0).isPostLikeFlag()).isFalse();
+		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isHasManyPostImages()).isFalse();
+		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostCommentsCount()).isEqualTo(
+			postCommentCount);
+		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostLikesCount()).isEqualTo(
+			postLikeCount);
+		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isPostLikeFlag()).isFalse();
 	}
 
 	@Test
@@ -562,7 +570,7 @@ class MemberPostRepositoryQuerydslTest {
 
 		// then
 		assertThat(memberPostDtoPage.getContent().size()).isNotZero();
-		assertThat(memberPostDtoPage.getContent().get(0).isHasManyPostImages()).isTrue();
+		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isHasManyPostImages()).isTrue();
 	}
 
 	@Test
@@ -594,7 +602,7 @@ class MemberPostRepositoryQuerydslTest {
 
 		// then
 		assertThat(memberPostDtoPage.getContent().size()).isNotZero();
-		assertThat(memberPostDtoPage.getContent().get(0).isPostLikeFlag()).isTrue();
+		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isPostLikeFlag()).isTrue();
 	}
 
 	private List<PostImage> preparePostImagesAndCommentsAndLikes(Post post, Member member, long postImageCount,
