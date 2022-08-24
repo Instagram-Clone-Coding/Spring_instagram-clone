@@ -64,6 +64,10 @@ public class MemberRepositoryQuerydslTest {
 
 		// then
 		assertThat(userProfileResponse.getMemberUsername()).isEqualTo(member.getUsername());
+		assertThat(userProfileResponse.getMemberName()).isEqualTo(member.getName());
+		assertThat(userProfileResponse.getMemberIntroduce()).isEqualTo(member.getIntroduce());
+		assertThat(userProfileResponse.getMemberWebsite()).isEqualTo(member.getWebsite());
+		assertThat(userProfileResponse.getMemberImage()).isEqualTo(member.getImage());
 		assertThat(userProfileResponse.getMemberPostsCount()).isEqualTo(postCount);
 		assertThat(userProfileResponse.getMemberFollowersCount()).isEqualTo(followerCount);
 		assertThat(userProfileResponse.getMemberFollowingsCount()).isEqualTo(followingCount);
@@ -210,6 +214,9 @@ public class MemberRepositoryQuerydslTest {
 
 		// then
 		assertThat(miniProfileResponse.getMemberUsername()).isEqualTo(member.getUsername());
+		assertThat(miniProfileResponse.getMemberName()).isEqualTo(member.getName());
+		assertThat(miniProfileResponse.getMemberWebsite()).isEqualTo(member.getWebsite());
+		assertThat(miniProfileResponse.getMemberImage()).isEqualTo(member.getImage());
 		assertThat(miniProfileResponse.getMemberPostsCount()).isEqualTo(postCount);
 		assertThat(miniProfileResponse.getMemberFollowersCount()).isEqualTo(followerCount);
 		assertThat(miniProfileResponse.getMemberFollowingsCount()).isEqualTo(followingCount);
@@ -235,7 +242,7 @@ public class MemberRepositoryQuerydslTest {
 	}
 
 	@Test
-	void findMiniProfile_MemberIsBlocking_FindUserProfileWithCountHidden() {
+	void findMiniProfile_MemberIsBlocking_FindMiniProfileWithCountHidden() {
 		// given
 		final long postCount = 1;
 		final long followerCount = 2;

@@ -53,10 +53,10 @@ public class MemberRepositoryTest {
 		memberRepository.save(givenMember);
 
 		// when
-		final boolean memberExists = memberRepository.existsByUsername(givenMember.getUsername());
+		final boolean isPresent = memberRepository.existsByUsername(givenMember.getUsername());
 
 		// then
-		assertThat(memberExists).isTrue();
+		assertThat(isPresent).isTrue();
 	}
 
 	@Test
@@ -65,10 +65,10 @@ public class MemberRepositoryTest {
 		final String randomUsername = RandomStringUtils.random(20, true, true);
 
 		// when
-		final boolean memberExists = memberRepository.existsByUsername(randomUsername);
+		final boolean isPresent = memberRepository.existsByUsername(randomUsername);
 
 		// then
-		assertThat(memberExists).isFalse();
+		assertThat(isPresent).isFalse();
 	}
 
 	@Test
