@@ -137,7 +137,6 @@ public class PostService {
 		final Pageable pageable = PageRequest.of(page, size);
 		final Page<PostDto> postDtoPage = postRepository.findPostDtoPage(loginMember.getId(), pageable);
 		setContents(loginMember, postDtoPage.getContent());
-
 		return postDtoPage;
 	}
 
@@ -225,8 +224,8 @@ public class PostService {
 			likeMemberDtos.add(new LikeMemberDto(loginMember, false, false));
 			likeMemberDtos.addAll(likeMemberDtoPage.getContent());
 			final int countByMe = 1;
-			likeMemberDtoPage = new PageImpl<>(likeMemberDtos, pageable,
-				likeMemberDtoPage.getTotalElements() + countByMe);
+			final long total = likeMemberDtoPage.getTotalElements() + countByMe;
+			likeMemberDtoPage = new PageImpl<>(likeMemberDtos, pageable, total);
 		}
 		setHasStory(likeMemberDtoPage);
 
@@ -273,7 +272,6 @@ public class PostService {
 		final Member loginMember = authUtil.getLoginMember();
 		final Page<PostDto> postDtoPage = postRepository.findPostDtoPage(pageable, loginMember.getId(), postIds);
 		setContents(loginMember, postDtoPage.getContent());
-
 		return postDtoPage;
 	}
 
@@ -287,7 +285,7 @@ public class PostService {
 		setRecentComments(loginMember.getId(), postDtos, postIds);
 		setFollowingMemberUsernameLikedPost(loginMember, postDtos, postIds);
 		postDtos.forEach(post -> {
-			setPostLikesCount(loginMember, post);
+			hidePostLikesCountIfPostLikeFlagIsFalse(loginMember, post);
 			setMentionAndHashtagList(post);
 		});
 	}
@@ -297,7 +295,7 @@ public class PostService {
 		setPostImages(List.of(postDto), List.of(postDto.getPostId()));
 		setFollowingMemberUsernameLikedPost(loginMember, List.of(postDto), List.of(postDto.getPostId()));
 		setComments(postDto);
-		setPostLikesCount(loginMember, postDto);
+		hidePostLikesCountIfPostLikeFlagIsFalse(loginMember, postDto);
 		setMentionAndHashtagList(postDto);
 	}
 
@@ -327,11 +325,9 @@ public class PostService {
 
 		for (int i = 0; i < usernames.size(); i++) {
 			final String username = usernames.get(i);
-
 			if (!usernameMap.containsKey(username)) {
-				errors.add(
-					new FieldError(String.format("postImageTags[%s].username", i), username,
-						MEMBER_NOT_FOUND.getMessage()));
+				final String field = String.format("postImageTags[%s].username", i);
+				errors.add(new FieldError(field, username, MEMBER_NOT_FOUND.getMessage()));
 			}
 		}
 
@@ -340,13 +336,10 @@ public class PostService {
 		}
 	}
 
-	private void setPostLikesCount(Member loginMember, PostDto post) {
+	private void hidePostLikesCountIfPostLikeFlagIsFalse(Member loginMember, PostDto post) {
 		if (!post.getMember().getId().equals(loginMember.getId()) && !post.isLikeOptionFlag()) {
 			final int count = countOfFollowingsFromPostLikes(post.getPostId(), loginMember);
 			post.setPostLikesCount(count);
-		} else if (post.isPostLikeFlag()) {
-			final int countByMe = 1;
-			post.setPostLikesCount(post.getPostLikesCount() + countByMe);
 		}
 	}
 
@@ -405,12 +398,12 @@ public class PostService {
 		final Map<Long, List<CommentDto>> recentCommentMap =
 			commentRepository.findAllRecentCommentDto(memberId, postIds).stream()
 				.collect(Collectors.groupingBy(CommentDto::getPostId));
-		postDtos.forEach(p -> {
-			final List<CommentDto> commentDtos = recentCommentMap.containsKey(p.getPostId()) ?
-				recentCommentMap.get(p.getPostId()) : new ArrayList<>();
+		postDtos.forEach(post -> {
+			final List<CommentDto> commentDtos = recentCommentMap.containsKey(post.getPostId()) ?
+				recentCommentMap.get(post.getPostId()) : new ArrayList<>();
 			commentService.setHasStory(commentDtos);
 			commentService.setMentionAndHashtagList(commentDtos);
-			p.setRecentComments(commentDtos);
+			post.setRecentComments(commentDtos);
 		});
 	}
 
