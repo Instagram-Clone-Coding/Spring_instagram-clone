@@ -17,7 +17,7 @@ public class MemberPostDto {
 	private Long postId;
 	private MemberDto member;
 	private PostImageDto postImages;
-	private boolean hasManyPosts;
+	private boolean hasManyPostImages;
 	private boolean likeOptionFlag;
 	private boolean postLikeFlag;
 	private int postCommentsCount;
@@ -25,11 +25,11 @@ public class MemberPostDto {
 
 	@Builder
 	@QueryProjection
-	public MemberPostDto(Long postId, Member member, boolean hasManyPosts, boolean likeOptionFlag, boolean postLikeFlag,
+	public MemberPostDto(Long postId, Member member, boolean hasManyPostImages, boolean likeOptionFlag, boolean postLikeFlag,
 		int postCommentsCount, int postLikesCount) {
 		this.postId = postId;
 		this.member = new MemberDto(member);
-		this.hasManyPosts = hasManyPosts;
+		this.hasManyPostImages = hasManyPostImages;
 		this.likeOptionFlag = likeOptionFlag;
 		this.postLikeFlag = postLikeFlag;
 		this.postCommentsCount = postCommentsCount;
@@ -38,10 +38,10 @@ public class MemberPostDto {
 
 	@Builder
 	@QueryProjection
-	public MemberPostDto(Long postId, Member member, boolean hasManyPosts, int postCommentsCount, int postLikesCount) {
+	public MemberPostDto(Long postId, Member member, boolean hasManyPostImages, int postCommentsCount, int postLikesCount) {
 		this.postId = postId;
 		this.member = new MemberDto(member);
-		this.hasManyPosts = hasManyPosts;
+		this.hasManyPostImages = hasManyPostImages;
 		this.postCommentsCount = postCommentsCount;
 		this.postLikesCount = postLikesCount;
 	}

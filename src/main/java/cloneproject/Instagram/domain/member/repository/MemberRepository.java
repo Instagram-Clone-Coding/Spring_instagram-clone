@@ -15,8 +15,6 @@ public interface MemberRepository
 
 	Optional<Member> findByUsername(String username);
 
-	Optional<Member> findById(Long id);
-
 	boolean existsByUsername(String username);
 
 	List<Member> findAllByUsernameIn(Collection<String> usernames);

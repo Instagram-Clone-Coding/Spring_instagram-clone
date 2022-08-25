@@ -2,8 +2,10 @@ package cloneproject.Instagram.domain.member.repository.querydsl;
 
 import static cloneproject.Instagram.domain.feed.entity.QBookmark.*;
 import static cloneproject.Instagram.domain.feed.entity.QPost.*;
+import static cloneproject.Instagram.domain.feed.entity.QPostImage.*;
 import static cloneproject.Instagram.domain.feed.entity.QPostLike.*;
 import static cloneproject.Instagram.domain.feed.entity.QPostTag.*;
+import static cloneproject.Instagram.domain.member.entity.QMember.*;
 
 import java.util.List;
 
@@ -37,6 +39,7 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 				post.comments.size(),
 				post.postLikes.size()))
 			.from(post)
+			.innerJoin(post.member, member)
 			.where(post.member.username.eq(username))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
@@ -58,9 +61,13 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 				bookmark.post.id,
 				bookmark.post.member,
 				bookmark.post.postImages.size().gt(1),
+				post.likeFlag,
+				existPostLikeWherePostEqAndMemberIdEq(loginMemberId),
 				bookmark.post.comments.size(),
 				bookmark.post.postLikes.size()))
 			.from(bookmark)
+			.innerJoin(bookmark.post, post)
+			.innerJoin(bookmark.post.member, member)
 			.where(bookmark.member.id.eq(loginMemberId))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
@@ -87,6 +94,9 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 				postTag.postImage.post.comments.size(),
 				postTag.postImage.post.postLikes.size()))
 			.from(postTag)
+			.innerJoin(postTag.postImage, postImage)
+			.innerJoin(postTag.postImage.post, post)
+			.innerJoin(postTag.postImage.post.member, member)
 			.where(postTag.tag.username.eq(username))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
