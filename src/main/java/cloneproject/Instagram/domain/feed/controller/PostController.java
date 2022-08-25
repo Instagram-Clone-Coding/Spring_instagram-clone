@@ -71,7 +71,7 @@ public class PostController {
 	@GetMapping
 	public ResponseEntity<ResultResponse> getPostPage(@RequestParam int page) {
 		page = (page == BASE_PAGE_NUMBER ? BASE_PAGE_NUMBER : page - PAGE_ADJUSTMENT_VALUE) + BASE_POST_SIZE;
-		final Page<PostDto> postPage = postService.getPostDtoPage(INFINITY_SCROLL_SIZE, page);
+		final Page<PostDto> postPage = postService.getPostDtoPage(POST_INFINITY_SCROLL_SIZE, page);
 
 		return ResponseEntity.ok(ResultResponse.of(FIND_POST_PAGE_SUCCESS, postPage));
 	}
@@ -261,7 +261,7 @@ public class PostController {
 	public ResponseEntity<ResultResponse> getHashtagPosts(@RequestParam int page, @RequestParam int size,
 		@NotBlank(message = "hashtag는 필수입니다.") @RequestParam String hashtag) {
 		page = (page == BASE_PAGE_NUMBER ? BASE_PAGE_NUMBER : page - PAGE_ADJUSTMENT_VALUE);
-		final Page<PostDto> response = postService.getHashTagPosts(page, size, hashtag.substring(HASHTAG_LENGTH));
+		final Page<PostDto> response = postService.getHashTagPosts(page, size, hashtag.substring(HASHTAG_PREFIX_LENGTH));
 
 		return ResponseEntity.ok(ResultResponse.of(GET_HASHTAG_POSTS_SUCCESS, response));
 	}
