@@ -1,6 +1,7 @@
 package cloneproject.Instagram.domain.feed.controller;
 
 import static cloneproject.Instagram.global.result.ResultCode.*;
+import static cloneproject.Instagram.global.util.ConstantUtils.*;
 import static org.springframework.http.MediaType.*;
 
 import java.util.List;
@@ -40,6 +41,8 @@ import cloneproject.Instagram.global.result.ResultResponse;
 @RequestMapping("/posts")
 public class PostController {
 
+	private static final int BASE_POST_SIZE = 10;
+
 	private final PostService postService;
 
 	@ApiOperation(value = "게시물 업로드", consumes = MULTIPART_FORM_DATA_VALUE)
@@ -67,7 +70,8 @@ public class PostController {
 	@ApiImplicitParam(name = "page", value = "게시물 page", example = "1", required = true)
 	@GetMapping
 	public ResponseEntity<ResultResponse> getPostPage(@RequestParam int page) {
-		final Page<PostDto> postPage = postService.getPostDtoPage(1, page);
+		page = (page == BASE_PAGE_NUMBER ? BASE_PAGE_NUMBER : page - PAGE_ADJUSTMENT_VALUE) + BASE_POST_SIZE;
+		final Page<PostDto> postPage = postService.getPostDtoPage(POST_INFINITY_SCROLL_SIZE, page);
 
 		return ResponseEntity.ok(ResultResponse.of(FIND_POST_PAGE_SUCCESS, postPage));
 	}
@@ -79,7 +83,7 @@ public class PostController {
 	})
 	@GetMapping("/recent")
 	public ResponseEntity<ResultResponse> getRecent10Posts() {
-		final List<PostDto> postList = postService.getRecent10PostDtos();
+		final List<PostDto> postList = postService.getPostDtoPage(BASE_POST_SIZE, BASE_PAGE_NUMBER).getContent();
 
 		return ResponseEntity.ok(ResultResponse.of(FIND_RECENT10POSTS_SUCCESS, postList));
 	}
@@ -98,7 +102,7 @@ public class PostController {
 	public ResponseEntity<ResultResponse> deletePost(@RequestParam Long postId) {
 		postService.delete(postId);
 
-		return ResponseEntity.ok(ResultResponse.of(DELETE_POST_SUCCESS, null));
+		return ResponseEntity.ok(ResultResponse.of(DELETE_POST_SUCCESS));
 	}
 
 	@ApiOperation(value = "게시물 조회")
@@ -182,6 +186,7 @@ public class PostController {
 	@GetMapping("/{postId}/likes")
 	public ResponseEntity<ResultResponse> getMembersLikedPost(
 		@PathVariable Long postId, @RequestParam int page, @RequestParam int size) {
+		page = (page == BASE_PAGE_NUMBER ? BASE_PAGE_NUMBER : page - PAGE_ADJUSTMENT_VALUE);
 		final Page<LikeMemberDto> response = postService.getPostLikeMembersDtoPage(postId, page, size);
 
 		return ResponseEntity.ok(ResultResponse.of(GET_POST_LIKES_SUCCESS, response));
@@ -255,7 +260,8 @@ public class PostController {
 	@GetMapping("/hashtags")
 	public ResponseEntity<ResultResponse> getHashtagPosts(@RequestParam int page, @RequestParam int size,
 		@NotBlank(message = "hashtag는 필수입니다.") @RequestParam String hashtag) {
-		final Page<PostDto> response = postService.getHashTagPosts(page, size, hashtag.substring(1));
+		page = (page == BASE_PAGE_NUMBER ? BASE_PAGE_NUMBER : page - PAGE_ADJUSTMENT_VALUE);
+		final Page<PostDto> response = postService.getHashTagPosts(page, size, hashtag.substring(HASHTAG_PREFIX_LENGTH));
 
 		return ResponseEntity.ok(ResultResponse.of(GET_HASHTAG_POSTS_SUCCESS, response));
 	}
