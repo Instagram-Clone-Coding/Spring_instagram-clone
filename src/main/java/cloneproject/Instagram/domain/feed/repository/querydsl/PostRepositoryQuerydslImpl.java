@@ -4,6 +4,9 @@ import static cloneproject.Instagram.domain.feed.entity.QBookmark.*;
 import static cloneproject.Instagram.domain.feed.entity.QPost.*;
 import static cloneproject.Instagram.domain.feed.entity.QPostLike.*;
 import static cloneproject.Instagram.domain.follow.entity.QFollow.*;
+import static cloneproject.Instagram.domain.follow.entity.QHashtagFollow.*;
+import static cloneproject.Instagram.domain.hashtag.entity.QHashtagPost.*;
+import static cloneproject.Instagram.domain.member.entity.QMember.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 
 import cloneproject.Instagram.domain.feed.dto.PostDto;
 import cloneproject.Instagram.domain.feed.dto.QPostDto;
-import cloneproject.Instagram.domain.member.entity.QMember;
 
 @RequiredArgsConstructor
 public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
@@ -43,8 +45,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 				post.likeFlag
 			))
 			.from(post)
-			.innerJoin(post.member, QMember.member)
-			.where(isPostUploadedByFollowings(memberId))
+			.innerJoin(post.member, member)
+			.where(isUploadedByFollowingsBy(memberId).or(withFollowingHashtagBy(memberId)))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.orderBy(post.id.desc())
@@ -53,7 +55,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 
 		final long total = queryFactory
 			.selectFrom(post)
-			.where(isPostUploadedByFollowings(memberId))
+			.innerJoin(post.member, member)
+			.where(isUploadedByFollowingsBy(memberId).or(withFollowingHashtagBy(memberId)))
 			.fetchCount();
 
 		return new PageImpl<>(postDtos, pageable, total);
@@ -99,14 +102,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 
 	@Override
 	public Page<PostDto> findPostDtoPage(Pageable pageable, Long memberId, List<Long> postIds) {
-		final List<PostDto> postDtos = findAllPostDtoByPostIdIn(memberId, postIds);
-		final long total = countByPostIdIn(postIds);
-
-		return new PageImpl<>(postDtos, pageable, total);
-	}
-
-	private List<PostDto> findAllPostDtoByPostIdIn(Long memberId, List<Long> postIds) {
-		return queryFactory
+		final List<PostDto> postDtos = queryFactory
 			.select(new QPostDto(
 				post.id,
 				post.content,
@@ -120,19 +116,29 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 				post.likeFlag
 			))
 			.from(post)
-			.innerJoin(post.member, QMember.member)
+			.innerJoin(post.member, member)
 			.where(post.id.in(postIds))
 			.orderBy(post.id.desc())
 			.fetch();
-	}
 
-	private long countByPostIdIn(List<Long> ids) {
-		return queryFactory
+		final long total = queryFactory
 			.selectFrom(post)
-			.where(post.id.in(ids))
+			.where(post.id.in(postIds))
 			.fetchCount();
+
+		return new PageImpl<>(postDtos, pageable, total);
 	}
 
+	private BooleanExpression withFollowingHashtagBy(Long memberId) {
+		return post.id.in(
+			JPAExpressions
+				.select(hashtagPost.post.id)
+				.from(hashtagPost)
+				.join(hashtagFollow).on(hashtagPost.hashtag.id.eq(hashtagFollow.hashtag.id))
+				.innerJoin(hashtagFollow.member, member)
+				.where(hashtagFollow.member.id.eq(memberId))
+		);
+	}
 	private BooleanExpression isExistPostLikeWherePostEqAndMemberIdEq(Long id) {
 		return JPAExpressions
 			.selectFrom(postLike)
@@ -147,11 +153,12 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 			.exists();
 	}
 
-	private BooleanExpression isPostUploadedByFollowings(Long id) {
+	private BooleanExpression isUploadedByFollowingsBy(Long id) {
 		return post.member.username.in(
 			JPAExpressions
 				.select(follow.followMember.username)
 				.from(follow)
+				.innerJoin(follow.followMember, member)
 				.where(follow.member.id.eq(id)));
 	}
 
