@@ -83,7 +83,7 @@ public class MemberRepositoryQuerydslTest {
 		}
 
 		@Test
-		void findMyProfile_FindWithIsMeFlagTrue() {
+		void findMyProfile_MeFlagIsTrue() {
 			// given
 			final Member member = MemberUtils.newInstance();
 			memberRepository.save(member);
@@ -97,7 +97,7 @@ public class MemberRepositoryQuerydslTest {
 		}
 
 		@Test
-		void tomIsBlockedByJerryAndTomRequestJerryProfile_FindUserProfileWithCountHidden() {
+		void blockedByMember_BlockedFlagIsTrueAndCountsAreHidden() {
 			// given
 			final long postCount = 1;
 			final long followerCount = 2;
@@ -131,7 +131,7 @@ public class MemberRepositoryQuerydslTest {
 		}
 
 		@Test
-		void tomIsBlockingJerryAndTomRequestJerryProfile_FindUserProfileWithCountHidden() {
+		void blockingMember_BlockingFlagIsTrueAndCountsAreHidden() {
 			// given
 			final long postCount = 1;
 			final long followerCount = 2;
@@ -165,7 +165,7 @@ public class MemberRepositoryQuerydslTest {
 		}
 
 		@Test
-		void notBlokcingEachOther_FindUserProfileWithoutCountHidden() {
+		void notBlokcingEachOther_CountsAreNotHidden() {
 			// given
 			final long postCount = 1;
 			final long followerCount = 2;
@@ -192,7 +192,7 @@ public class MemberRepositoryQuerydslTest {
 		}
 
 		@Test
-		void tomIsFollowedByJerryAndTomRequestJerryProfile_FindWithFollowerFlagTrue() {
+		void followedByMember_FollowerFlagIsTrue() {
 			// given
 			final Member tom = MemberUtils.newInstance();
 			memberRepository.save(tom);
@@ -215,7 +215,7 @@ public class MemberRepositoryQuerydslTest {
 		}
 
 		@Test
-		void tomIsFollowingJerryAndTomRequestJerryProfile_FindWithFollowingFlagTrue() {
+		void followingMember_FollowingFlagTrue() {
 			// given
 			final Member tom = MemberUtils.newInstance();
 			memberRepository.save(tom);
@@ -275,7 +275,7 @@ public class MemberRepositoryQuerydslTest {
 		}
 
 		@Test
-		void findMyProfile_FindWithIsMeFlagTrue() {
+		void findMyProfile_MeFlagIsTrue() {
 			// given
 			final Member member = MemberUtils.newInstance();
 			memberRepository.save(member);
@@ -289,7 +289,7 @@ public class MemberRepositoryQuerydslTest {
 		}
 
 		@Test
-		void tomIsBlockedByJerryAndTomRequestJerryProfile_FindMiniProfileWithCountHidden() {
+		void blockedByMember_BlockedFlagIsTrueAndCountsAreHidden() {
 			// given
 			final long postCount = 1;
 			final long followerCount = 2;
@@ -323,7 +323,7 @@ public class MemberRepositoryQuerydslTest {
 		}
 
 		@Test
-		void tomIsBlockingJerryAndTomRequestJerryProfile_FindMiniProfileWithCountHidden() {
+		void blockingMember_BlockingFlagIsTrueAndCountsAreHidden() {
 			// given
 			final long postCount = 1;
 			final long followerCount = 2;
@@ -357,7 +357,7 @@ public class MemberRepositoryQuerydslTest {
 		}
 
 		@Test
-		void notBlockingEachOther_FindMiniProfileWithoutCountHidden() {
+		void notBlockingEachOther_CountsAreNotHidden() {
 			// given
 			final long postCount = 1;
 			final long followerCount = 2;
@@ -384,7 +384,7 @@ public class MemberRepositoryQuerydslTest {
 		}
 
 		@Test
-		void tomIsFollowedByJerryAndTomRequestJerryProfile_FindWithFollowerFlagTrue() {
+		void followedByMember_FollowerFlagIsTrue() {
 			// given
 			final Member tom = MemberUtils.newInstance();
 			memberRepository.save(tom);
@@ -407,7 +407,7 @@ public class MemberRepositoryQuerydslTest {
 		}
 
 		@Test
-		void tomIsFollowingJerryAndTomRequestJerryProfile_FindWithFollowingFlagTrue() {
+		void followingMember_FollowingFlagIsTrue() {
 			// given
 			final Member tom = MemberUtils.newInstance();
 			memberRepository.save(tom);

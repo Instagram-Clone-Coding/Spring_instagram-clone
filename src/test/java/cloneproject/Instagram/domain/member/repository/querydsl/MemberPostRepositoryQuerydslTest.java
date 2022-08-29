@@ -189,7 +189,7 @@ class MemberPostRepositoryQuerydslTest {
 		}
 
 		@Test
-		void postHaveMoreThanOneImage_FindWithHasManyPostImagesFlagTrue() {
+		void postHaveMoreThanOneImage_HasManyPostImagesFlagIsTrue() {
 			// given
 			final long postImageCount = 2;
 			final int page = 0;
@@ -214,7 +214,7 @@ class MemberPostRepositoryQuerydslTest {
 		}
 
 		@Test
-		void memberLikesPost_FindMemberPostDtoWithLikeFlagTrue() {
+		void memberLikesPost_LikeFlagIsTrue() {
 			// given
 			final int page = 0;
 			final int pageSize = 1;
@@ -561,7 +561,7 @@ class MemberPostRepositoryQuerydslTest {
 		}
 
 		@Test
-		void postHaveMoreThanOneImage_FindWithHasManyPostImagesFlagTrue() {
+		void postHaveMoreThanOneImage_HasManyPostImagesFlagIsTrue() {
 			// given
 			final long postImageCount = 2;
 			final int page = 0;
