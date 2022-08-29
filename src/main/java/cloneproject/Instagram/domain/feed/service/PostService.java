@@ -284,10 +284,8 @@ public class PostService {
 		setPostImages(postDtos, postIds);
 		setRecentComments(loginMember.getId(), postDtos, postIds);
 		setFollowingMemberUsernameLikedPost(loginMember, postDtos, postIds);
-		postDtos.forEach(post -> {
-			hidePostLikesCountIfPostLikeFlagIsFalse(loginMember, post);
-			setMentionAndHashtagList(post);
-		});
+		setMentionAndHashtagList(postDtos);
+		postDtos.forEach(postDto -> hidePostLikesCountIfPostLikeFlagIsFalse(loginMember, postDto));
 	}
 
 	private void setContent(Member loginMember, PostDto postDto) {
@@ -307,6 +305,29 @@ public class PostService {
 		if (postDto.isPostLikeFlag()) {
 			postDto.setPostLikesCount(0);
 		}
+	}
+
+	private void setMentionAndHashtagList(PostDto postDto) {
+		setMentionAndHashtagList(List.of(postDto));
+	}
+
+	private void setMentionAndHashtagList(List<PostDto> postDtos) {
+		final List<String> mentionedUsernames = new ArrayList<>();
+		postDtos.forEach(postDto -> mentionedUsernames.addAll(
+			stringExtractUtil.extractMentions(postDto.getPostContent(), mentionedUsernames)));
+		final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
+			.map(Member::getUsername)
+			.collect(Collectors.toList());
+
+		postDtos.forEach(postDto -> {
+			final List<String> mentionsOfContent = stringExtractUtil.extractMentions(postDto.getPostContent()).stream()
+				.filter(existentUsernames::contains)
+				.collect(Collectors.toList());
+			postDto.setMentionsOfContent(mentionsOfContent);
+
+			final List<String> hashtagsOfContent = stringExtractUtil.extractHashtags(postDto.getPostContent());
+			postDto.setHashtagsOfContent(hashtagsOfContent);
+		});
 	}
 
 	private void validateParameters(int multipartFileSize, int altTextSize, List<PostImageTagRequest> tags) {
@@ -341,16 +362,6 @@ public class PostService {
 			final int count = countOfFollowingsFromPostLikes(post.getPostId(), loginMember);
 			post.setPostLikesCount(count);
 		}
-	}
-
-	private void setMentionAndHashtagList(PostDto post) {
-		final List<String> mentionedUsernames = stringExtractUtil.extractMentions(post.getPostContent(), List.of());
-		final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
-			.map(Member::getUsername)
-			.collect(Collectors.toList());
-		post.setMentionsOfContent(existentUsernames);
-		final List<String> hashtags = stringExtractUtil.extractHashtags(post.getPostContent());
-		post.setHashtagsOfContent(hashtags);
 	}
 
 	private void setPostImages(List<PostDto> postDtos, List<Long> postIds) {

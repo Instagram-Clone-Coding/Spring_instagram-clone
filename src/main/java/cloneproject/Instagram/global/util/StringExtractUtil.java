@@ -28,6 +28,10 @@ public class StringExtractUtil {
 		return new ArrayList<>(mentions);
 	}
 
+	public List<String> extractMentions(String input) {
+		return extractMentions(input, List.of());
+	}
+
 	public List<String> extractHashtags(String input) {
 		final Set<String> hashtags = new HashSet<>();
 		final String regex = "#[0-9a-zA-Z가-힣ㄱ-ㅎ_]+";
