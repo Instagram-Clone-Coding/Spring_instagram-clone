@@ -1,6 +1,7 @@
 package cloneproject.Instagram.domain.feed.repository.querydsl;
 
 import static cloneproject.Instagram.domain.feed.entity.QCommentLike.*;
+import static cloneproject.Instagram.domain.feed.entity.QPost.*;
 import static cloneproject.Instagram.domain.feed.entity.QPostLike.*;
 import static cloneproject.Instagram.domain.follow.entity.QFollow.*;
 import static cloneproject.Instagram.domain.member.entity.QMember.*;
@@ -17,7 +18,9 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
 
+import cloneproject.Instagram.domain.feed.dto.PostLikeCountDto;
 import cloneproject.Instagram.domain.feed.dto.PostLikeDto;
+import cloneproject.Instagram.domain.feed.dto.QPostLikeCountDto;
 import cloneproject.Instagram.domain.feed.dto.QPostLikeDto;
 import cloneproject.Instagram.domain.member.dto.LikeMemberDto;
 import cloneproject.Instagram.domain.member.dto.QLikeMemberDto;
@@ -135,6 +138,26 @@ public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQueryds
 			.fetchCount();
 
 		return new PageImpl<>(likeMembersDtos, pageable, total);
+	}
+
+	@Override
+	public List<PostLikeCountDto> findAllPostLikeCountDtoOfFollowingsLikedPostByMemberAndPostIdIn(Member member,
+		List<Long> postIds) {
+		return queryFactory
+			.select(new QPostLikeCountDto(
+				postLike.post.id,
+				postLike.count()
+			))
+			.from(postLike)
+			.where(postLike.post.id.in(postIds).and(
+				JPAExpressions
+					.selectFrom(follow)
+					.join(post).on(post.member.eq(follow.followMember))
+					.where(follow.member.id.eq(member.getId()))
+					.exists())
+			)
+			.groupBy(postLike.post.id)
+			.fetch();
 	}
 
 	private BooleanExpression isFollower(Long memberId, QMember member) {
