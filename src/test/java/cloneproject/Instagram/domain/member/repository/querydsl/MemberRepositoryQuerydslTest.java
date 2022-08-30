@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -45,303 +46,389 @@ public class MemberRepositoryQuerydslTest {
 	@Autowired
 	private BlockRepository blockRepository;
 
-	@Test
-	void findUserProfile_ValidArguments_AllFieldsMappedSuccess() {
-		// given
-		final long postCount = 3;
-		final long followerCount = 4;
-		final long followingCount = 5;
+	@Nested
+	class FindUserProfileByLoginMemberIdAndTargetUsername {
 
-		final Member member = MemberUtils.newInstance();
-		memberRepository.save(member);
+		@Test
+		void validArguments_AllFieldsMappedSuccess() {
+			// given
+			final long postCount = 3;
+			final long followerCount = 4;
+			final long followingCount = 5;
 
-		preparePosts(member, postCount);
-		prepareFollows(member, followerCount, followingCount);
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
 
-		// when
-		final UserProfileResponse userProfileResponse = memberRepository.findUserProfile(UNLOGIN_MEMBER_ID,
-			member.getUsername());
+			preparePosts(member, postCount);
+			prepareFollows(member, followerCount, followingCount);
 
-		// then
-		assertThat(userProfileResponse.getMemberUsername()).isEqualTo(member.getUsername());
-		assertThat(userProfileResponse.getMemberName()).isEqualTo(member.getName());
-		assertThat(userProfileResponse.getMemberIntroduce()).isEqualTo(member.getIntroduce());
-		assertThat(userProfileResponse.getMemberWebsite()).isEqualTo(member.getWebsite());
-		assertThat(userProfileResponse.getMemberImage()).isEqualTo(member.getImage());
-		assertThat(userProfileResponse.getMemberPostsCount()).isEqualTo(postCount);
-		assertThat(userProfileResponse.getMemberFollowersCount()).isEqualTo(followerCount);
-		assertThat(userProfileResponse.getMemberFollowingsCount()).isEqualTo(followingCount);
-		assertThat(userProfileResponse.isMe()).isFalse();
-		assertThat(userProfileResponse.isFollowing()).isFalse();
-		assertThat(userProfileResponse.isFollower()).isFalse();
-		assertThat(userProfileResponse.isBlocking()).isFalse();
-		assertThat(userProfileResponse.isBlocked()).isFalse();
+			// when
+			final UserProfileResponse userProfileResponse = memberRepository.findUserProfileByLoginMemberIdAndTargetUsername(UNLOGIN_MEMBER_ID,
+				member.getUsername());
+
+			// then
+			assertThat(userProfileResponse.getMemberUsername()).isEqualTo(member.getUsername());
+			assertThat(userProfileResponse.getMemberName()).isEqualTo(member.getName());
+			assertThat(userProfileResponse.getMemberIntroduce()).isEqualTo(member.getIntroduce());
+			assertThat(userProfileResponse.getMemberWebsite()).isEqualTo(member.getWebsite());
+			assertThat(userProfileResponse.getMemberImage()).isEqualTo(member.getImage());
+			assertThat(userProfileResponse.getMemberPostsCount()).isEqualTo(postCount);
+			assertThat(userProfileResponse.getMemberFollowersCount()).isEqualTo(followerCount);
+			assertThat(userProfileResponse.getMemberFollowingsCount()).isEqualTo(followingCount);
+			assertThat(userProfileResponse.isMe()).isFalse();
+			assertThat(userProfileResponse.isFollowing()).isFalse();
+			assertThat(userProfileResponse.isFollower()).isFalse();
+			assertThat(userProfileResponse.isBlocking()).isFalse();
+			assertThat(userProfileResponse.isBlocked()).isFalse();
+		}
+
+		@Test
+		void findMyProfile_MeFlagIsTrue() {
+			// given
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
+
+			// when
+			final UserProfileResponse userProfileResponse = memberRepository.findUserProfileByLoginMemberIdAndTargetUsername(member.getId(),
+				member.getUsername());
+
+			// then
+			assertThat(userProfileResponse.isMe()).isTrue();
+		}
+
+		@Test
+		void blockedByTarget_BlockedFlagIsTrueAndCountsAreHidden() {
+			// given
+			final long postCount = 1;
+			final long followerCount = 2;
+			final long followingCount = 3;
+
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
+
+			final Member target = MemberUtils.newInstance();
+			memberRepository.save(target);
+
+			final Block block = Block.builder()
+				.member(target)
+				.blockMember(member)
+				.build();
+			blockRepository.save(block);
+
+			preparePosts(target, postCount);
+			prepareFollows(target, followerCount, followingCount);
+
+			// when
+			final UserProfileResponse userProfileResponse = memberRepository.findUserProfileByLoginMemberIdAndTargetUsername(member.getId(),
+				target.getUsername());
+
+			// then
+			assertThat(userProfileResponse.getMemberUsername()).isEqualTo(target.getUsername());
+			assertThat(userProfileResponse.isBlocked()).isTrue();
+			assertThat(userProfileResponse.getMemberPostsCount()).isEqualTo(HIDDEN_POST_COUNT);
+			assertThat(userProfileResponse.getMemberFollowersCount()).isEqualTo(HIDDEN_FOLLOWER_COUNT);
+			assertThat(userProfileResponse.getMemberFollowingsCount()).isEqualTo(HIDDEN_FOLLOWING_COUNT);
+		}
+
+		@Test
+		void blockingTarget_BlockingFlagIsTrueAndCountsAreHidden() {
+			// given
+			final long postCount = 1;
+			final long followerCount = 2;
+			final long followingCount = 3;
+
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
+
+			final Member target = MemberUtils.newInstance();
+			memberRepository.save(target);
+
+			final Block block = Block.builder()
+				.member(member)
+				.blockMember(target)
+				.build();
+			blockRepository.save(block);
+
+			preparePosts(target, postCount);
+			prepareFollows(target, followerCount, followingCount);
+
+			// when
+			final UserProfileResponse userProfileResponse = memberRepository.findUserProfileByLoginMemberIdAndTargetUsername(member.getId(),
+				target.getUsername());
+
+			// then
+			assertThat(userProfileResponse.getMemberUsername()).isEqualTo(target.getUsername());
+			assertThat(userProfileResponse.isBlocking()).isTrue();
+			assertThat(userProfileResponse.getMemberPostsCount()).isEqualTo(HIDDEN_POST_COUNT);
+			assertThat(userProfileResponse.getMemberFollowersCount()).isEqualTo(HIDDEN_FOLLOWER_COUNT);
+			assertThat(userProfileResponse.getMemberFollowingsCount()).isEqualTo(HIDDEN_FOLLOWING_COUNT);
+		}
+
+		@Test
+		void notBlokcingEachOther_CountsAreNotHidden() {
+			// given
+			final long postCount = 1;
+			final long followerCount = 2;
+			final long followingCount = 3;
+
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
+
+			final Member target = MemberUtils.newInstance();
+			memberRepository.save(target);
+
+			preparePosts(target, postCount);
+			prepareFollows(target, followerCount, followingCount);
+
+			// when
+			final UserProfileResponse userProfileResponse = memberRepository.findUserProfileByLoginMemberIdAndTargetUsername(member.getId(),
+				target.getUsername());
+
+			// then
+			assertThat(userProfileResponse.getMemberUsername()).isEqualTo(target.getUsername());
+			assertThat(userProfileResponse.getMemberPostsCount()).isEqualTo(postCount);
+			assertThat(userProfileResponse.getMemberFollowersCount()).isEqualTo(followerCount);
+			assertThat(userProfileResponse.getMemberFollowingsCount()).isEqualTo(followingCount);
+		}
+
+		@Test
+		void followedByTarget_FollowerFlagIsTrue() {
+			// given
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
+
+			final Member target = MemberUtils.newInstance();
+			memberRepository.save(target);
+
+			final Follow follow = Follow.builder()
+				.member(target)
+				.followMember(member)
+				.build();
+			followRepository.save(follow);
+
+			// when
+			final UserProfileResponse userProfileResponse = memberRepository.findUserProfileByLoginMemberIdAndTargetUsername(member.getId(),
+				target.getUsername());
+
+			// then
+			assertThat(userProfileResponse.isFollower()).isTrue();
+		}
+
+		@Test
+		void followingTarget_FollowingFlagTrue() {
+			// given
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
+
+			final Member target = MemberUtils.newInstance();
+			memberRepository.save(target);
+
+			final Follow follow = Follow.builder()
+				.member(member)
+				.followMember(target)
+				.build();
+			followRepository.save(follow);
+
+			// when
+			final UserProfileResponse userProfileResponse = memberRepository.findUserProfileByLoginMemberIdAndTargetUsername(member.getId(),
+				target.getUsername());
+
+			// then
+			assertThat(userProfileResponse.isFollowing()).isTrue();
+		}
+
 	}
 
-	@Test
-	void findUserProfile_RequestMyProfile_FindWithIsMeFlagTrue() {
-		// given
-		final Member member = MemberUtils.newInstance();
-		memberRepository.save(member);
+	@Nested
+	class FindMiniProfileByLoginMemberIdAndTargetUsername {
 
-		// when
-		final UserProfileResponse userProfileResponse = memberRepository.findUserProfile(member.getId(),
-			member.getUsername());
+		@Test
+		void validArguments_AllFieldsMappedSuccess() {
+			// given
+			final long postCount = 3;
+			final long followerCount = 4;
+			final long followingCount = 5;
 
-		// then
-		assertThat(userProfileResponse.isMe()).isTrue();
-	}
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
 
-	@Test
-	void findUserProfile_JerryBlockingTomAndTomRequestJerryProfile_FindUserProfileWithCountHidden() {
-		// given
-		final long postCount = 1;
-		final long followerCount = 2;
-		final long followingCount = 3;
+			preparePosts(member, postCount);
+			prepareFollows(member, followerCount, followingCount);
 
-		final Member tom = MemberUtils.newInstance();
-		memberRepository.save(tom);
+			// when
+			final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfileByLoginMemberIdAndTargetUsername(UNLOGIN_MEMBER_ID,
+				member.getUsername());
 
-		final Member jerry = MemberUtils.newInstance();
-		memberRepository.save(jerry);
+			// then
+			assertThat(miniProfileResponse.getMemberUsername()).isEqualTo(member.getUsername());
+			assertThat(miniProfileResponse.getMemberName()).isEqualTo(member.getName());
+			assertThat(miniProfileResponse.getMemberWebsite()).isEqualTo(member.getWebsite());
+			assertThat(miniProfileResponse.getMemberImage()).isEqualTo(member.getImage());
+			assertThat(miniProfileResponse.getMemberPostsCount()).isEqualTo(postCount);
+			assertThat(miniProfileResponse.getMemberFollowersCount()).isEqualTo(followerCount);
+			assertThat(miniProfileResponse.getMemberFollowingsCount()).isEqualTo(followingCount);
+			assertThat(miniProfileResponse.isMe()).isFalse();
+			assertThat(miniProfileResponse.isFollowing()).isFalse();
+			assertThat(miniProfileResponse.isFollower()).isFalse();
+			assertThat(miniProfileResponse.isBlocking()).isFalse();
+			assertThat(miniProfileResponse.isBlocked()).isFalse();
+		}
 
-		final Block block = Block.builder()
-			.member(jerry)
-			.blockMember(tom)
-			.build();
-		blockRepository.save(block);
+		@Test
+		void findMyProfile_MeFlagIsTrue() {
+			// given
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
 
-		preparePosts(jerry, postCount);
-		prepareFollows(jerry, followerCount, followingCount);
+			// when
+			final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfileByLoginMemberIdAndTargetUsername(member.getId(),
+				member.getUsername());
 
-		// when
-		final UserProfileResponse userProfileResponse = memberRepository.findUserProfile(tom.getId(),
-			jerry.getUsername());
+			// then
+			assertThat(miniProfileResponse.isMe()).isTrue();
+		}
 
-		// then
-		assertThat(userProfileResponse.getMemberUsername()).isEqualTo(jerry.getUsername());
-		assertThat(userProfileResponse.isBlocked()).isTrue();
-		assertThat(userProfileResponse.getMemberPostsCount()).isEqualTo(HIDDEN_POST_COUNT);
-		assertThat(userProfileResponse.getMemberFollowersCount()).isEqualTo(HIDDEN_FOLLOWER_COUNT);
-		assertThat(userProfileResponse.getMemberFollowingsCount()).isEqualTo(HIDDEN_FOLLOWING_COUNT);
-	}
+		@Test
+		void blockedByTarget_BlockedFlagIsTrueAndCountsAreHidden() {
+			// given
+			final long postCount = 1;
+			final long followerCount = 2;
+			final long followingCount = 3;
 
-	@Test
-	void findUserProfile_TomBlockingJerryAndTomRequestJerryProfile_FindWithBlockingFlagTrue() {
-		// given
-		final Member tom = MemberUtils.newInstance();
-		memberRepository.save(tom);
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
 
-		final Member jerry = MemberUtils.newInstance();
-		memberRepository.save(jerry);
+			final Member target = MemberUtils.newInstance();
+			memberRepository.save(target);
 
-		final Block block = Block.builder()
-			.member(tom)
-			.blockMember(jerry)
-			.build();
-		blockRepository.save(block);
+			final Block block = Block.builder()
+				.member(target)
+				.blockMember(member)
+				.build();
+			blockRepository.save(block);
 
-		// when
-		final UserProfileResponse userProfileResponse = memberRepository.findUserProfile(tom.getId(),
-			jerry.getUsername());
+			preparePosts(target, postCount);
+			prepareFollows(target, followerCount, followingCount);
 
-		// then
-		assertThat(userProfileResponse.isBlocking()).isTrue();
-	}
+			// when
+			final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfileByLoginMemberIdAndTargetUsername(member.getId(),
+				target.getUsername());
 
-	@Test
-	void findUserProfile_JerryFollowingTomAndTomRequestJerryProfile_FindWithFollowerFlagTrue() {
-		// given
-		final Member tom = MemberUtils.newInstance();
-		memberRepository.save(tom);
+			// then
+			assertThat(miniProfileResponse.getMemberUsername()).isEqualTo(target.getUsername());
+			assertThat(miniProfileResponse.isBlocked()).isTrue();
+			assertThat(miniProfileResponse.getMemberPostsCount()).isEqualTo(HIDDEN_POST_COUNT);
+			assertThat(miniProfileResponse.getMemberFollowersCount()).isEqualTo(HIDDEN_FOLLOWER_COUNT);
+			assertThat(miniProfileResponse.getMemberFollowingsCount()).isEqualTo(HIDDEN_FOLLOWING_COUNT);
+		}
 
-		final Member jerry = MemberUtils.newInstance();
-		memberRepository.save(jerry);
+		@Test
+		void blockingTarget_BlockingFlagIsTrueAndCountsAreHidden() {
+			// given
+			final long postCount = 1;
+			final long followerCount = 2;
+			final long followingCount = 3;
 
-		final Follow follow = Follow.builder()
-			.member(jerry)
-			.followMember(tom)
-			.build();
-		followRepository.save(follow);
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
 
-		// when
-		final UserProfileResponse userProfileResponse = memberRepository.findUserProfile(tom.getId(),
-			jerry.getUsername());
+			final Member target = MemberUtils.newInstance();
+			memberRepository.save(target);
 
-		// then
-		assertThat(userProfileResponse.isFollower()).isTrue();
-	}
+			final Block block = Block.builder()
+				.member(member)
+				.blockMember(target)
+				.build();
+			blockRepository.save(block);
 
-	@Test
-	void findUserProfile_TomFollowingJerryAndTomRequestJerryProfile_FindWithFollowingFlagTrue() {
-		// given
-		final Member tom = MemberUtils.newInstance();
-		memberRepository.save(tom);
+			preparePosts(target, postCount);
+			prepareFollows(target, followerCount, followingCount);
 
-		final Member jerry = MemberUtils.newInstance();
-		memberRepository.save(jerry);
+			// when
+			final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfileByLoginMemberIdAndTargetUsername(member.getId(),
+				target.getUsername());
 
-		final Follow follow = Follow.builder()
-			.member(tom)
-			.followMember(jerry)
-			.build();
-		followRepository.save(follow);
+			// then
+			assertThat(miniProfileResponse.getMemberUsername()).isEqualTo(target.getUsername());
+			assertThat(miniProfileResponse.isBlocking()).isTrue();
+			assertThat(miniProfileResponse.getMemberPostsCount()).isEqualTo(HIDDEN_POST_COUNT);
+			assertThat(miniProfileResponse.getMemberFollowersCount()).isEqualTo(HIDDEN_FOLLOWER_COUNT);
+			assertThat(miniProfileResponse.getMemberFollowingsCount()).isEqualTo(HIDDEN_FOLLOWING_COUNT);
+		}
 
-		// when
-		final UserProfileResponse userProfileResponse = memberRepository.findUserProfile(tom.getId(),
-			jerry.getUsername());
+		@Test
+		void notBlockingEachOther_CountsAreNotHidden() {
+			// given
+			final long postCount = 1;
+			final long followerCount = 2;
+			final long followingCount = 3;
 
-		// then
-		assertThat(userProfileResponse.isFollowing()).isTrue();
-	}
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
 
-	@Test
-	void findMiniProfile_ValidArguments_AllFieldsMappedSuccess() {
-		// given
-		final long postCount = 3;
-		final long followerCount = 4;
-		final long followingCount = 5;
+			final Member target = MemberUtils.newInstance();
+			memberRepository.save(target);
 
-		final Member member = MemberUtils.newInstance();
-		memberRepository.save(member);
+			preparePosts(target, postCount);
+			prepareFollows(target, followerCount, followingCount);
 
-		preparePosts(member, postCount);
-		prepareFollows(member, followerCount, followingCount);
+			// when
+			final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfileByLoginMemberIdAndTargetUsername(member.getId(),
+				target.getUsername());
 
-		// when
-		final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfile(UNLOGIN_MEMBER_ID,
-			member.getUsername());
+			// then
+			assertThat(miniProfileResponse.getMemberUsername()).isEqualTo(target.getUsername());
+			assertThat(miniProfileResponse.getMemberPostsCount()).isEqualTo(postCount);
+			assertThat(miniProfileResponse.getMemberFollowersCount()).isEqualTo(followerCount);
+			assertThat(miniProfileResponse.getMemberFollowingsCount()).isEqualTo(followingCount);
+		}
 
-		// then
-		assertThat(miniProfileResponse.getMemberUsername()).isEqualTo(member.getUsername());
-		assertThat(miniProfileResponse.getMemberName()).isEqualTo(member.getName());
-		assertThat(miniProfileResponse.getMemberWebsite()).isEqualTo(member.getWebsite());
-		assertThat(miniProfileResponse.getMemberImage()).isEqualTo(member.getImage());
-		assertThat(miniProfileResponse.getMemberPostsCount()).isEqualTo(postCount);
-		assertThat(miniProfileResponse.getMemberFollowersCount()).isEqualTo(followerCount);
-		assertThat(miniProfileResponse.getMemberFollowingsCount()).isEqualTo(followingCount);
-		assertThat(miniProfileResponse.isMe()).isFalse();
-		assertThat(miniProfileResponse.isFollowing()).isFalse();
-		assertThat(miniProfileResponse.isFollower()).isFalse();
-		assertThat(miniProfileResponse.isBlocking()).isFalse();
-		assertThat(miniProfileResponse.isBlocked()).isFalse();
-	}
+		@Test
+		void followedByTarget_FollowerFlagIsTrue() {
+			// given
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
 
-	@Test
-	void findMiniProfile_RequestMyProfile_FindWithIsMeFlagTrue() {
-		// given
-		final Member member = MemberUtils.newInstance();
-		memberRepository.save(member);
+			final Member target = MemberUtils.newInstance();
+			memberRepository.save(target);
 
-		// when
-		final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfile(member.getId(),
-			member.getUsername());
+			final Follow follow = Follow.builder()
+				.member(target)
+				.followMember(member)
+				.build();
+			followRepository.save(follow);
 
-		// then
-		assertThat(miniProfileResponse.isMe()).isTrue();
-	}
+			// when
+			final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfileByLoginMemberIdAndTargetUsername(member.getId(),
+				target.getUsername());
 
-	@Test
-	void findMiniProfile_JerryBlockingTomAndTomRequestJerryProfile_FindMiniProfileWithCountHidden() {
-		// given
-		final long postCount = 1;
-		final long followerCount = 2;
-		final long followingCount = 3;
+			// then
+			assertThat(miniProfileResponse.isFollower()).isTrue();
+		}
 
-		final Member tom = MemberUtils.newInstance();
-		memberRepository.save(tom);
+		@Test
+		void followingTarget_FollowingFlagIsTrue() {
+			// given
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
 
-		final Member jerry = MemberUtils.newInstance();
-		memberRepository.save(jerry);
+			final Member target = MemberUtils.newInstance();
+			memberRepository.save(target);
 
-		final Block block = Block.builder()
-			.member(jerry)
-			.blockMember(tom)
-			.build();
-		blockRepository.save(block);
+			final Follow follow = Follow.builder()
+				.member(member)
+				.followMember(target)
+				.build();
+			followRepository.save(follow);
 
-		preparePosts(jerry, postCount);
-		prepareFollows(jerry, followerCount, followingCount);
+			// when
+			final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfileByLoginMemberIdAndTargetUsername(member.getId(),
+				target.getUsername());
 
-		// when
-		final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfile(tom.getId(),
-			jerry.getUsername());
+			// then
+			assertThat(miniProfileResponse.isFollowing()).isTrue();
+		}
 
-		// then
-		assertThat(miniProfileResponse.getMemberUsername()).isEqualTo(jerry.getUsername());
-		assertThat(miniProfileResponse.isBlocked()).isTrue();
-		assertThat(miniProfileResponse.getMemberPostsCount()).isEqualTo(HIDDEN_POST_COUNT);
-		assertThat(miniProfileResponse.getMemberFollowersCount()).isEqualTo(HIDDEN_FOLLOWER_COUNT);
-		assertThat(miniProfileResponse.getMemberFollowingsCount()).isEqualTo(HIDDEN_FOLLOWING_COUNT);
-	}
-
-	@Test
-	void findMiniProfile_TomBlockingJerryAndTomRequestJerryProfile_FindWithBlockingFlagTrue() {
-		// given
-		final Member tom = MemberUtils.newInstance();
-		memberRepository.save(tom);
-
-		final Member jerry = MemberUtils.newInstance();
-		memberRepository.save(jerry);
-
-		final Block block = Block.builder()
-			.member(tom)
-			.blockMember(jerry)
-			.build();
-		blockRepository.save(block);
-
-		// when
-		final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfile(tom.getId(),
-			jerry.getUsername());
-
-		// then
-		assertThat(miniProfileResponse.isBlocking()).isTrue();
-	}
-
-	@Test
-	void findMiniProfile_JerryFollowingTomAndTomRequestJerryProfile_FindWithFollowerFlagTrue() {
-		// given
-		final Member tom = MemberUtils.newInstance();
-		memberRepository.save(tom);
-
-		final Member jerry = MemberUtils.newInstance();
-		memberRepository.save(jerry);
-
-		final Follow follow = Follow.builder()
-			.member(jerry)
-			.followMember(tom)
-			.build();
-		followRepository.save(follow);
-
-		// when
-		final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfile(tom.getId(),
-			jerry.getUsername());
-
-		// then
-		assertThat(miniProfileResponse.isFollower()).isTrue();
-	}
-
-	@Test
-	void findMiniProfile_TomFollowingJerryAndTomRequestJerryProfile_FindWithFollowingFlagTrue() {
-		// given
-		final Member tom = MemberUtils.newInstance();
-		memberRepository.save(tom);
-
-		final Member jerry = MemberUtils.newInstance();
-		memberRepository.save(jerry);
-
-		final Follow follow = Follow.builder()
-			.member(tom)
-			.followMember(jerry)
-			.build();
-		followRepository.save(follow);
-
-		// when
-		final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfile(tom.getId(),
-			jerry.getUsername());
-
-		// then
-		assertThat(miniProfileResponse.isFollowing()).isTrue();
 	}
 
 	private void preparePosts(Member member, long postCount) {

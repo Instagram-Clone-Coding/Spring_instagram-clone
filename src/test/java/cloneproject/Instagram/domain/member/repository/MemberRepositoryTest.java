@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.List;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -21,84 +22,104 @@ public class MemberRepositoryTest {
 	@Autowired
 	private MemberRepository memberRepository;
 
-	@Test
-	void findByUsername_MemberExist_ReturnMember() {
-		// given
-		final Member givenMember = MemberUtils.newInstance();
-		memberRepository.save(givenMember);
+	@Nested
+	class FindByUsername {
 
-		// when
-		final boolean isPresent = memberRepository.findByUsername(givenMember.getUsername()).isPresent();
+		@Test
+		void memberExist_ReturnMember() {
+			// given
+			final Member givenMember = MemberUtils.newInstance();
+			memberRepository.save(givenMember);
 
-		// then
-		assertThat(isPresent).isTrue();
+			// when
+			final boolean isPresent = memberRepository.findByUsername(givenMember.getUsername()).isPresent();
+
+			// then
+			assertThat(isPresent).isTrue();
+		}
+
+		@Test
+		void memberNotExist_ReturnEmpty() {
+			// given
+			final String randomUsername = RandomStringUtils.random(15, true, true);
+
+			// when
+			final boolean isEmpty = memberRepository.findByUsername(randomUsername).isEmpty();
+
+			// then
+			assertThat(isEmpty).isTrue();
+		}
+
 	}
 
-	@Test
-	void findByUsername_MemberNotExist_ReturnEmpty() {
-		// given
-		final String randomUsername = RandomStringUtils.random(15, true, true);
+	@Nested
+	class ExistsByUsername {
 
-		// when
-		final boolean isEmpty = memberRepository.findByUsername(randomUsername).isEmpty();
+		@Test
+		void memberExist_ReturnTrue() {
+			// given
+			final Member givenMember = MemberUtils.newInstance();
+			memberRepository.save(givenMember);
 
-		// then
-		assertThat(isEmpty).isTrue();
+			// when
+			final boolean isPresent = memberRepository.existsByUsername(givenMember.getUsername());
+
+			// then
+			assertThat(isPresent).isTrue();
+		}
+
+		@Test
+		void memberNotExist_ReturnFalse() {
+			// given
+			final String randomUsername = RandomStringUtils.random(20, true, true);
+
+			// when
+			final boolean isPresent = memberRepository.existsByUsername(randomUsername);
+
+			// then
+			assertThat(isPresent).isFalse();
+		}
+
 	}
 
-	@Test
-	void existsByUsername_MemberExist_ReturnTrue() {
-		// given
-		final Member givenMember = MemberUtils.newInstance();
-		memberRepository.save(givenMember);
+	@Nested
+	class FindAllByUsernameIn {
 
-		// when
-		final boolean isPresent = memberRepository.existsByUsername(givenMember.getUsername());
+		@Test
+		void existent3Usernames_Find3Members() {
+			// given
+			final long memberCount = 3;
+			final List<Member> givenMembers = MemberUtils.newDistinctInstances(memberCount);
+			memberRepository.saveAll(givenMembers);
+			final List<String> existent3Usernames = MemberUtils.getUsernamesFromMemberList(givenMembers);
 
-		// then
-		assertThat(isPresent).isTrue();
+			// when
+			final List<Member> members = memberRepository.findAllByUsernameIn(existent3Usernames);
+
+			// then
+			assertThat(members.size()).isEqualTo(memberCount);
+		}
+
 	}
 
-	@Test
-	void existsByUsername_MemberNotExist_ReturnFalse() {
-		// given
-		final String randomUsername = RandomStringUtils.random(20, true, true);
+	@Nested
+	class FindAllByIdIn {
 
-		// when
-		final boolean isPresent = memberRepository.existsByUsername(randomUsername);
+		@Test
+		void existent3Ids_Find3Members() {
+			// given
+			final long memberCount = 3;
+			final List<Member> givenMembers = MemberUtils.newDistinctInstances(memberCount);
+			memberRepository.saveAll(givenMembers);
+			final List<Long> existent3Ids = MemberUtils.getIdsFromMemberList(givenMembers);
 
-		// then
-		assertThat(isPresent).isFalse();
-	}
+			// when
+			final List<Member> members = memberRepository.findAllByIdIn(existent3Ids);
 
-	@Test
-	void findAllByUsernameIn_3MembersExist_Find3Members() {
-		// given
-		final long memberCount = 3;
-		final List<Member> givenMembers = MemberUtils.newDistinctInstances(memberCount);
-		memberRepository.saveAll(givenMembers);
-		final List<String> usernames = MemberUtils.getUsernamesFromMemberList(givenMembers);
+			// then
+			assertThat(members.size()).isEqualTo(memberCount);
+		}
 
-		// when
-		final List<Member> members = memberRepository.findAllByUsernameIn(usernames);
-
-		// then
-		assertThat(members.size()).isEqualTo(memberCount);
-	}
-
-	@Test
-	void findAllByIdIn_3MembersExist_Find3Members() {
-		// given
-		final long memberCount = 3;
-		final List<Member> givenMembers = MemberUtils.newDistinctInstances(memberCount);
-		memberRepository.saveAll(givenMembers);
-		final List<Long> ids = MemberUtils.getIdsFromMemberList(givenMembers);
-
-		// when
-		final List<Member> members = memberRepository.findAllByIdIn(ids);
-
-		// then
-		assertThat(members.size()).isEqualTo(memberCount);
 	}
 
 }

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -62,547 +63,571 @@ class MemberPostRepositoryQuerydslTest {
 	@Autowired
 	private BookmarkRepository bookmarkRepository;
 
-	@Test
-	void findMemberPostDtoPage_Total15PostsExistAndOnly10PostsUploadedByMember_Find10MemberPostDtos() {
-		// given
-		final long memberUploadedPostCount = 10;
-		final long otherPostCount = 5;
-		final int page = 0;
-		final int pageSize = 15;
+	@Nested
+	class FindMemberPostDtoPageByLoginMemberIdAndTargetUsername {
 
-		final Member member = MemberUtils.newInstance();
-		memberRepository.save(member);
+		@Test
+		void total15PostsExistAndOnly10PostsUploadedByMember_Find10MemberPostDtos() {
+			// given
+			final long memberUploadedPostCount = 10;
+			final long otherPostCount = 5;
+			final int page = 0;
+			final int pageSize = 15;
 
-		final Member anotherMember = MemberUtils.newInstance();
-		memberRepository.save(anotherMember);
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
 
-		final List<Post> otherPosts = PostUtils.newInstances(anotherMember, otherPostCount);
-		postRepository.saveAll(otherPosts);
+			final Member anotherMember = MemberUtils.newInstance();
+			memberRepository.save(anotherMember);
 
-		final List<Post> memberUploadedPosts = PostUtils.newInstances(member, memberUploadedPostCount);
-		postRepository.saveAll(memberUploadedPosts);
+			final List<Post> otherPosts = PostUtils.newInstances(anotherMember, otherPostCount);
+			postRepository.saveAll(otherPosts);
 
-		prepareBookmarks(memberUploadedPosts, member);
-		final Pageable pageable = PageRequest.of(page, pageSize);
+			final List<Post> memberUploadedPosts = PostUtils.newInstances(member, memberUploadedPostCount);
+			postRepository.saveAll(memberUploadedPosts);
 
-		// when
-		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtos(member.getId(),
-			member.getUsername(), pageable);
+			prepareBookmarks(memberUploadedPosts, member);
+			final Pageable pageable = PageRequest.of(page, pageSize);
 
-		// then
-		assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(memberUploadedPostCount);
+			// when
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
+				member.getUsername(), pageable);
+
+			// then
+			assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(memberUploadedPostCount);
+		}
+
+		@Test
+		void total20PostsExistAndPage0AndSize15_FindTotal20PostsAnd2PagesAndCurrent15PostsAnd0Page() {
+			// given
+			final long postCount = 20;
+			final int page = 0;
+			final int pageSize = 15;
+
+			final int expectedTotalPage = 2;
+			final int expectedCurrentPage = 0;
+
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
+
+			final List<Post> posts = PostUtils.newInstances(member, postCount);
+			postRepository.saveAll(posts);
+
+			final Pageable pageable = PageRequest.of(page, pageSize);
+
+			// when
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
+				member.getUsername(), pageable);
+
+			// then
+			assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(postCount);
+			assertThat(memberPostDtoPage.getTotalPages()).isEqualTo(expectedTotalPage);
+			assertThat(memberPostDtoPage.getContent().size()).isEqualTo(pageSize);
+			assertThat(memberPostDtoPage.getNumber()).isEqualTo(expectedCurrentPage);
+		}
+
+		@Test
+		void total20PostsExistAndPage1AndSize15_FindTotal20PostsAnd2PagesAndCurrent5PostsAnd1Page() {
+			// given
+			final long postCount = 20;
+			final int page = 1;
+			final int pageSize = 15;
+
+			final int expectedTotalPage = 2;
+			final int expectedCurrentPage = 1;
+			final int expectedCurrentPostCount = 5;
+
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
+
+			final List<Post> posts = PostUtils.newInstances(member, postCount);
+			postRepository.saveAll(posts);
+
+			final Pageable pageable = PageRequest.of(page, pageSize);
+
+			// when
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
+				member.getUsername(), pageable);
+
+			// then
+			assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(postCount);
+			assertThat(memberPostDtoPage.getTotalPages()).isEqualTo(expectedTotalPage);
+			assertThat(memberPostDtoPage.getContent().size()).isEqualTo(expectedCurrentPostCount);
+			assertThat(memberPostDtoPage.getNumber()).isEqualTo(expectedCurrentPage);
+		}
+
+		@Test
+		void validArguments_AllFieldsMappedSuccess() {
+			// given
+			final long postImageCount = 1;
+			final long postCommentCount = 3;
+			final long postLikeCount = 3;
+			final int page = 0;
+			final int pageSize = 1;
+
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
+
+			final Post post = PostUtils.newInstance(member);
+			postRepository.save(post);
+
+			preparePostImagesAndCommentsAndLikes(post, member, postImageCount, postCommentCount, postLikeCount);
+			final Pageable pageable = PageRequest.of(page, pageSize);
+
+			// when
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
+				member.getUsername(), pageable);
+
+			// then
+			assertThat(memberPostDtoPage.getContent().size()).isNotZero();
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostId()).isEqualTo(post.getId());
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getMember().getId()).isEqualTo(
+				member.getId());
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isHasManyPostImages()).isFalse();
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostCommentsCount()).isEqualTo(
+				postCommentCount);
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostLikesCount()).isEqualTo(
+				postLikeCount);
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isPostLikeFlag()).isFalse();
+		}
+
+		@Test
+		void postHas2Images_HasManyPostImagesFlagIsTrue() {
+			// given
+			final long postImageCount = 2;
+			final int page = 0;
+			final int pageSize = 1;
+
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
+
+			final Post post = PostUtils.newInstance(member);
+			postRepository.save(post);
+
+			preparePostImages(post, postImageCount);
+			final Pageable pageable = PageRequest.of(page, pageSize);
+
+			// when
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
+				member.getUsername(), pageable);
+
+			// then
+			assertThat(memberPostDtoPage.getContent().size()).isNotZero();
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isHasManyPostImages()).isTrue();
+		}
+
+		@Test
+		void memberLikesPost_LikeFlagIsTrue() {
+			// given
+			final int page = 0;
+			final int pageSize = 1;
+
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
+
+			final Post post = PostUtils.newInstance(member);
+			postRepository.save(post);
+
+			final PostLike postLike = PostLikeUtils.of(post, member);
+			postLikeRepository.save(postLike);
+
+			final Pageable pageable = PageRequest.of(page, pageSize);
+
+			// when
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
+				member.getUsername(), pageable);
+
+			// then
+			assertThat(memberPostDtoPage.getContent().size()).isNotZero();
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isPostLikeFlag()).isTrue();
+		}
+
 	}
 
-	@Test
-	void findMemberPostDtos_20PostsExistAndPage0AndSize15_FindTotal20PostsAnd2PageAndCurrent15PostsAnd0Page() {
-		// given
-		final long postCount = 20;
-		final int page = 0;
-		final int pageSize = 15;
+	@Nested
+	class FindMemberSavedPostDtoPageByLoginMemberId {
 
-		final int expectedTotalPage = 2;
-		final int expectedCurrentPage = 0;
+		@Test
+		void total15PostsExistAndOnly10PostsSaved_Find10MemberPostDtos() {
+			// given
+			final long unsavedPostCount = 5;
+			final long savedPostCount = 10;
+			final int page = 0;
+			final int pageSize = 15;
 
-		final Member member = MemberUtils.newInstance();
-		memberRepository.save(member);
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
 
-		final List<Post> posts = PostUtils.newInstances(member, postCount);
-		postRepository.saveAll(posts);
+			final List<Post> unsavedPosts = PostUtils.newInstances(member, unsavedPostCount);
+			postRepository.saveAll(unsavedPosts);
 
-		final Pageable pageable = PageRequest.of(page, pageSize);
+			final List<Post> savedPosts = PostUtils.newInstances(member, savedPostCount);
+			postRepository.saveAll(savedPosts);
 
-		// when
-		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtos(member.getId(),
-			member.getUsername(), pageable);
+			prepareBookmarks(savedPosts, member);
+			final Pageable pageable = PageRequest.of(page, pageSize);
 
-		// then
-		assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(postCount);
-		assertThat(memberPostDtoPage.getTotalPages()).isEqualTo(expectedTotalPage);
-		assertThat(memberPostDtoPage.getContent().size()).isEqualTo(pageSize);
-		assertThat(memberPostDtoPage.getNumber()).isEqualTo(expectedCurrentPage);
+			// when
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPageByLoginMemberId(member.getId(),
+				pageable);
+
+			// then
+			assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(savedPostCount);
+		}
+
+		@Test
+		void total20PostsSavedAndPage1AndSize15_FindTotal20PostsAnd2PagesAndCurrent5PostsAnd1Page() {
+			// given
+			final long savedPostCount = 20;
+			final int page = 0;
+			final int pageSize = 15;
+
+			final int expectedTotalPage = 2;
+			final int expectedCurrentPage = 0;
+
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
+
+			final List<Post> savedPosts = PostUtils.newInstances(member, savedPostCount);
+			postRepository.saveAll(savedPosts);
+
+			prepareBookmarks(savedPosts, member);
+			final Pageable pageable = PageRequest.of(page, pageSize);
+
+			// when
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPageByLoginMemberId(member.getId(),
+				pageable);
+
+			// then
+			assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(savedPostCount);
+			assertThat(memberPostDtoPage.getTotalPages()).isEqualTo(expectedTotalPage);
+			assertThat(memberPostDtoPage.getContent().size()).isEqualTo(pageSize);
+			assertThat(memberPostDtoPage.getNumber()).isEqualTo(expectedCurrentPage);
+		}
+
+		@Test
+		void total20PostsSavedAndPage0AndSize15_FindTotal20PostsAnd2PagesAndCurrent15PostsAnd0Page() {
+			// given
+			final long savedPostCount = 20;
+			final int page = 1;
+			final int pageSize = 15;
+
+			final int expectedTotalPage = 2;
+			final int expectedCurrentPage = 1;
+			final int expectedCurrentPostCount = 5;
+
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
+
+			final List<Post> savedPosts = PostUtils.newInstances(member, savedPostCount);
+			postRepository.saveAll(savedPosts);
+
+			prepareBookmarks(savedPosts, member);
+			final Pageable pageable = PageRequest.of(page, pageSize);
+
+			// when
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPageByLoginMemberId(member.getId(),
+				pageable);
+
+			// then
+			assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(savedPostCount);
+			assertThat(memberPostDtoPage.getTotalPages()).isEqualTo(expectedTotalPage);
+			assertThat(memberPostDtoPage.getContent().size()).isEqualTo(expectedCurrentPostCount);
+			assertThat(memberPostDtoPage.getNumber()).isEqualTo(expectedCurrentPage);
+		}
+
+		@Test
+		void validArguments_AllFieldsMappedSuccess() {
+			// given
+			final long postImageCount = 1;
+			final long postCommentCount = 3;
+			final long postLikeCount = 3;
+			final int page = 0;
+			final int pageSize = 1;
+
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
+
+			final Post post = PostUtils.newInstance(member);
+			postRepository.save(post);
+
+			prepareBookmark(post, member);
+			preparePostImagesAndCommentsAndLikes(post, member, postImageCount, postCommentCount, postLikeCount);
+			final Pageable pageable = PageRequest.of(page, pageSize);
+
+			// when
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPageByLoginMemberId(member.getId(),
+				pageable);
+
+			// then
+			assertThat(memberPostDtoPage.getContent().size()).isNotZero();
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostId()).isEqualTo(post.getId());
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getMember().getId()).isEqualTo(
+				member.getId());
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isHasManyPostImages()).isFalse();
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostCommentsCount()).isEqualTo(
+				postCommentCount);
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostLikesCount()).isEqualTo(
+				postLikeCount);
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isPostLikeFlag()).isFalse();
+		}
+
+		@Test
+		void postHas2Images_FindWithHasManyPostImagesFlagTrue() {
+			// given
+			final long postImageCount = 2;
+			final int page = 0;
+			final int pageSize = 1;
+
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
+
+			final Post post = PostUtils.newInstance(member);
+			postRepository.save(post);
+
+			prepareBookmark(post, member);
+			preparePostImages(post, postImageCount);
+			final Pageable pageable = PageRequest.of(page, pageSize);
+
+			// when
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPageByLoginMemberId(member.getId(),
+				pageable);
+
+			// then
+			assertThat(memberPostDtoPage.getContent().size()).isNotZero();
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isHasManyPostImages()).isTrue();
+		}
+
+		@Test
+		void memberLikesPost_FindMemberPostDtoWithLikeFlagTrue() {
+			// given
+			final int page = 0;
+			final int pageSize = 1;
+
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
+
+			final Post post = PostUtils.newInstance(member);
+			postRepository.save(post);
+
+			final PostLike postLike = PostLikeUtils.of(post, member);
+			postLikeRepository.save(postLike);
+			prepareBookmark(post, member);
+
+			final Pageable pageable = PageRequest.of(page, pageSize);
+
+			// when
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPageByLoginMemberId(member.getId(),
+				pageable);
+
+			// then
+			assertThat(memberPostDtoPage.getContent().size()).isNotZero();
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isPostLikeFlag()).isTrue();
+		}
+
 	}
 
-	@Test
-	void findMemberPostDtos_20PostsExistAndPage1AndSize15_FindTotal20PostsAnd2PageAndCurrent5PostsAnd1Page() {
-		// given
-		final long postCount = 20;
-		final int page = 1;
-		final int pageSize = 15;
-
-		final int expectedTotalPage = 2;
-		final int expectedCurrentPage = 1;
-		final int expectedCurrentPostCount = 5;
-
-		final Member member = MemberUtils.newInstance();
-		memberRepository.save(member);
-
-		final List<Post> posts = PostUtils.newInstances(member, postCount);
-		postRepository.saveAll(posts);
-
-		final Pageable pageable = PageRequest.of(page, pageSize);
-
-		// when
-		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtos(member.getId(),
-			member.getUsername(), pageable);
-
-		// then
-		assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(postCount);
-		assertThat(memberPostDtoPage.getTotalPages()).isEqualTo(expectedTotalPage);
-		assertThat(memberPostDtoPage.getContent().size()).isEqualTo(expectedCurrentPostCount);
-		assertThat(memberPostDtoPage.getNumber()).isEqualTo(expectedCurrentPage);
-	}
-
-	@Test
-	void findMemberPostDtos_ValidArguments_AllFieldsMappedSuccess() {
-		// given
-		final long postImageCount = 1;
-		final long postCommentCount = 3;
-		final long postLikeCount = 3;
-		final int page = 0;
-		final int pageSize = 1;
-
-		final Member member = MemberUtils.newInstance();
-		memberRepository.save(member);
-
-		final Post post = PostUtils.newInstance(member);
-		postRepository.save(post);
-
-		preparePostImagesAndCommentsAndLikes(post, member, postImageCount, postCommentCount, postLikeCount);
-		final Pageable pageable = PageRequest.of(page, pageSize);
-
-		// when
-		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtos(member.getId(),
-			member.getUsername(), pageable);
-
-		// then
-		assertThat(memberPostDtoPage.getContent().size()).isNotZero();
-		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isHasManyPostImages()).isFalse();
-		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostCommentsCount()).isEqualTo(
-			postCommentCount);
-		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostLikesCount()).isEqualTo(
-			postLikeCount);
-		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isPostLikeFlag()).isFalse();
-	}
-
-	@Test
-	void findMemberPostDtos_PostHaveMoreThanOneImage_FindWithHasManyPostImagesFlagTrue() {
-		// given
-		final long postImageCount = 2;
-		final int page = 0;
-		final int pageSize = 1;
-
-		final Member member = MemberUtils.newInstance();
-		memberRepository.save(member);
-
-		final Post post = PostUtils.newInstance(member);
-		postRepository.save(post);
-
-		preparePostImages(post, postImageCount);
-		final Pageable pageable = PageRequest.of(page, pageSize);
-
-		// when
-		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtos(member.getId(),
-			member.getUsername(), pageable);
-
-		// then
-		assertThat(memberPostDtoPage.getContent().size()).isNotZero();
-		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isHasManyPostImages()).isTrue();
-	}
-
-	@Test
-	void findMemberPostDtos_MemberLikesPost_FindMemberPostDtoWithLikeFlagTrue() {
-		// given
-		final int page = 0;
-		final int pageSize = 1;
-
-		final Member member = MemberUtils.newInstance();
-		memberRepository.save(member);
-
-		final Post post = PostUtils.newInstance(member);
-		postRepository.save(post);
-
-		final PostLike postLike = PostLikeUtils.of(post, member);
-		postLikeRepository.save(postLike);
-
-		final Pageable pageable = PageRequest.of(page, pageSize);
-
-		// when
-		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtos(member.getId(),
-			member.getUsername(), pageable);
-
-		// then
-		assertThat(memberPostDtoPage.getContent().size()).isNotZero();
-		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isPostLikeFlag()).isTrue();
-	}
-
-	@Test
-	void findMemberSavedPostDtoPage_Total15PostsExistAndOnly10PostsSaved_Find10MemberPostDtos() {
-		// given
-		final long unsavedPostCount = 5;
-		final long savedPostCount = 10;
-		final int page = 0;
-		final int pageSize = 15;
-
-		final Member member = MemberUtils.newInstance();
-		memberRepository.save(member);
-
-		final List<Post> unsavedPosts = PostUtils.newInstances(member, unsavedPostCount);
-		postRepository.saveAll(unsavedPosts);
-
-		final List<Post> savedPosts = PostUtils.newInstances(member, savedPostCount);
-		postRepository.saveAll(savedPosts);
-
-		prepareBookmarks(savedPosts, member);
-		final Pageable pageable = PageRequest.of(page, pageSize);
-
-		// when
-		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPage(member.getId(),
-			pageable);
-
-		// then
-		assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(savedPostCount);
-	}
-
-	@Test
-	void findMemberSavedPostDtoPage_20PostsSavedAndPage1AndSize15_FindTotal20PostsAnd2PageAndCurrent5PostsAnd1Page() {
-		// given
-		final long savedPostCount = 20;
-		final int page = 0;
-		final int pageSize = 15;
-
-		final int expectedTotalPage = 2;
-		final int expectedCurrentPage = 0;
-
-		final Member member = MemberUtils.newInstance();
-		memberRepository.save(member);
-
-		final List<Post> savedPosts = PostUtils.newInstances(member, savedPostCount);
-		postRepository.saveAll(savedPosts);
-
-		prepareBookmarks(savedPosts, member);
-		final Pageable pageable = PageRequest.of(page, pageSize);
-
-		// when
-		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPage(member.getId(),
-			pageable);
-
-		// then
-		assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(savedPostCount);
-		assertThat(memberPostDtoPage.getTotalPages()).isEqualTo(expectedTotalPage);
-		assertThat(memberPostDtoPage.getContent().size()).isEqualTo(pageSize);
-		assertThat(memberPostDtoPage.getNumber()).isEqualTo(expectedCurrentPage);
-	}
-
-	@Test
-	void findMemberSavedPostDtoPage_20PostsSavedAndPage0AndSize15_FindTotal20PostsAnd2PageAndCurrent15PostsAnd0Page() {
-		// given
-		final long savedPostCount = 20;
-		final int page = 1;
-		final int pageSize = 15;
-
-		final int expectedTotalPage = 2;
-		final int expectedCurrentPage = 1;
-		final int expectedCurrentPostCount = 5;
-
-		final Member member = MemberUtils.newInstance();
-		memberRepository.save(member);
-
-		final List<Post> savedPosts = PostUtils.newInstances(member, savedPostCount);
-		postRepository.saveAll(savedPosts);
-
-		prepareBookmarks(savedPosts, member);
-		final Pageable pageable = PageRequest.of(page, pageSize);
-
-		// when
-		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPage(member.getId(),
-			pageable);
-
-		// then
-		assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(savedPostCount);
-		assertThat(memberPostDtoPage.getTotalPages()).isEqualTo(expectedTotalPage);
-		assertThat(memberPostDtoPage.getContent().size()).isEqualTo(expectedCurrentPostCount);
-		assertThat(memberPostDtoPage.getNumber()).isEqualTo(expectedCurrentPage);
-	}
-
-	@Test
-	void findMemberSavedPostDtoPage_ValidArguments_AllFieldsMappedSuccess() {
-		// given
-		final long postImageCount = 1;
-		final long postCommentCount = 3;
-		final long postLikeCount = 3;
-		final int page = 0;
-		final int pageSize = 1;
-
-		final Member member = MemberUtils.newInstance();
-		memberRepository.save(member);
-
-		final Post post = PostUtils.newInstance(member);
-		postRepository.save(post);
-
-		prepareBookmark(post, member);
-		preparePostImagesAndCommentsAndLikes(post, member, postImageCount, postCommentCount, postLikeCount);
-		final Pageable pageable = PageRequest.of(page, pageSize);
-
-		// when
-		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPage(member.getId(),
-			pageable);
-
-		// then
-		assertThat(memberPostDtoPage.getContent().size()).isNotZero();
-		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isHasManyPostImages()).isFalse();
-		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostCommentsCount()).isEqualTo(
-			postCommentCount);
-		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostLikesCount()).isEqualTo(
-			postLikeCount);
-		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isPostLikeFlag()).isFalse();
-	}
-
-	@Test
-	void findMemberSavedPostDtoPage_PostHaveMoreThanOneImage_FindWithHasManyPostImagesFlagTrue() {
-		// given
-		final long postImageCount = 2;
-		final int page = 0;
-		final int pageSize = 1;
-
-		final Member member = MemberUtils.newInstance();
-		memberRepository.save(member);
-
-		final Post post = PostUtils.newInstance(member);
-		postRepository.save(post);
-
-		prepareBookmark(post, member);
-		preparePostImages(post, postImageCount);
-		final Pageable pageable = PageRequest.of(page, pageSize);
-
-		// when
-		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPage(member.getId(),
-			pageable);
-
-		// then
-		assertThat(memberPostDtoPage.getContent().size()).isNotZero();
-		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isHasManyPostImages()).isTrue();
-	}
-
-	@Test
-	void findMemberSavedPostDtoPage_MemberLikesPost_FindMemberPostDtoWithLikeFlagTrue() {
-		// given
-		final int page = 0;
-		final int pageSize = 1;
-
-		final Member member = MemberUtils.newInstance();
-		memberRepository.save(member);
-
-		final Post post = PostUtils.newInstance(member);
-		postRepository.save(post);
-
-		final PostLike postLike = PostLikeUtils.of(post, member);
-		postLikeRepository.save(postLike);
-		prepareBookmark(post, member);
-
-		final Pageable pageable = PageRequest.of(page, pageSize);
-
-		// when
-		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPage(member.getId(),
-			pageable);
-
-		// then
-		assertThat(memberPostDtoPage.getContent().size()).isNotZero();
-		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isPostLikeFlag()).isTrue();
-	}
-
-	@Test
-	void findMemberTaggedPostDtoPage_Total15PostsExistAndOnly10PostsTagged_Find10MemberPostDtos() {
-		// given
-		final long untaggedPostCount = 5;
-		final long taggedPostCount = 10;
-		final long postImageCount = 1;
-		final int page = 0;
-		final int pageSize = 15;
-
-		final Member member = MemberUtils.newInstance();
-		memberRepository.save(member);
-
-		final List<Post> untaggedPosts = PostUtils.newInstances(member, untaggedPostCount);
-		postRepository.saveAll(untaggedPosts);
-
-		final List<Post> taggedPosts = PostUtils.newInstances(member, taggedPostCount);
-		postRepository.saveAll(taggedPosts);
-
-		final List<PostImage> postImages = PostImageUtils.newInstancesForEachPost(taggedPosts, postImageCount);
-		postImageRepository.saveAll(postImages);
-
-		preparePostTags(postImages, member);
-		final Pageable pageable = PageRequest.of(page, pageSize);
-
-		// when
-		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPage(member.getId(),
-			member.getUsername(), pageable);
-
-		// then
-		assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(taggedPostCount);
-	}
-
-	@Test
-	void findMemberTaggedPostDtoPage_20PostsTaggedAndPage0AndSize15_FindTotal20PostsAnd2PageAndCurrent15PostsAnd0Page() {
-		// given
-		final long taggedPostCount = 20;
-		final long postImageCount = 1;
-		final int page = 0;
-		final int pageSize = 15;
-
-		final int expectedTotalPage = 2;
-		final int expectedCurrentPage = 0;
-
-		final Member member = MemberUtils.newInstance();
-		memberRepository.save(member);
-
-		final List<Post> taggedPosts = PostUtils.newInstances(member, taggedPostCount);
-		postRepository.saveAll(taggedPosts);
-
-		final List<PostImage> postImages = PostImageUtils.newInstancesForEachPost(taggedPosts, postImageCount);
-		postImageRepository.saveAll(postImages);
-
-		preparePostTags(postImages, member);
-		final Pageable pageable = PageRequest.of(page, pageSize);
-
-		// when
-		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPage(member.getId(),
-			member.getUsername(), pageable);
-
-		// then
-		assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(taggedPostCount);
-		assertThat(memberPostDtoPage.getTotalPages()).isEqualTo(expectedTotalPage);
-		assertThat(memberPostDtoPage.getContent().size()).isEqualTo(pageSize);
-		assertThat(memberPostDtoPage.getNumber()).isEqualTo(expectedCurrentPage);
-	}
-
-	@Test
-	void findMemberTaggedPostDtoPage_20PostsTaggedAndPage1AndSize15_FindTotal20PostsAnd2PageAndCurrent5PostsAnd1Page() {
-		// given
-		final long taggedPostCount = 20;
-		final long postImageCount = 1;
-		final int page = 1;
-		final int pageSize = 15;
-
-		final int expectedTotalPage = 2;
-		final int expectedCurrentPage = 1;
-		final int expectedCurrentPostCount = 5;
-
-		final Member member = MemberUtils.newInstance();
-		memberRepository.save(member);
-
-		final List<Post> taggedPosts = PostUtils.newInstances(member, taggedPostCount);
-		postRepository.saveAll(taggedPosts);
-
-		final List<PostImage> postImages = PostImageUtils.newInstancesForEachPost(taggedPosts, postImageCount);
-		postImageRepository.saveAll(postImages);
-
-		preparePostTags(postImages, member);
-		final Pageable pageable = PageRequest.of(page, pageSize);
-
-		// when
-		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPage(member.getId(),
-			member.getUsername(), pageable);
-
-		// then
-		assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(taggedPostCount);
-		assertThat(memberPostDtoPage.getTotalPages()).isEqualTo(expectedTotalPage);
-		assertThat(memberPostDtoPage.getContent().size()).isEqualTo(expectedCurrentPostCount);
-		assertThat(memberPostDtoPage.getNumber()).isEqualTo(expectedCurrentPage);
-	}
-
-	@Test
-	void findMemberTaggedPostDtoPage_ValidArguments_AllFieldsMappedSuccess() {
-		// given
-		final long postImageCount = 1;
-		final long postCommentCount = 4;
-		final long postLikeCount = 5;
-		final int page = 0;
-		final int pageSize = 15;
-
-		final Member member = MemberUtils.newInstance();
-		memberRepository.save(member);
-
-		final Post post = PostUtils.newInstance(member);
-		postRepository.save(post);
-
-		final List<PostImage> postImages = preparePostImagesAndCommentsAndLikes(post, member, postImageCount,
-			postCommentCount, postLikeCount);
-
-		preparePostTags(postImages, member);
-		final Pageable pageable = PageRequest.of(page, pageSize);
-
-		// when
-		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPage(member.getId(),
-			member.getUsername(), pageable);
-
-		// then
-		assertThat(memberPostDtoPage.getContent().size()).isNotZero();
-		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isHasManyPostImages()).isFalse();
-		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostCommentsCount()).isEqualTo(
-			postCommentCount);
-		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostLikesCount()).isEqualTo(
-			postLikeCount);
-		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isPostLikeFlag()).isFalse();
-	}
-
-	@Test
-	void findMemberTaggedPostDtoPage_PostHaveMoreThanOneImage_FindWithHasManyPostImagesFlagTrue() {
-		// given
-		final long postImageCount = 2;
-		final int page = 0;
-		final int pageSize = 1;
-
-		final Member member = MemberUtils.newInstance();
-		memberRepository.save(member);
-
-		final Post post = PostUtils.newInstance(member);
-		postRepository.save(post);
-
-		final List<PostImage> postImages = preparePostImages(post, postImageCount);
-		preparePostTags(postImages, member);
-
-		final Pageable pageable = PageRequest.of(page, pageSize);
-
-		// when
-		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPage(member.getId(),
-			member.getUsername(), pageable);
-
-		// then
-		assertThat(memberPostDtoPage.getContent().size()).isNotZero();
-		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isHasManyPostImages()).isTrue();
-	}
-
-	@Test
-	void findMemberTaggedPostDtoPage_MemberLikesPost_FindMemberPostDtoWithLikeFlagTrue() {
-		// given
-		final int page = 0;
-		final int pageSize = 1;
-
-		final Member member = MemberUtils.newInstance();
-		memberRepository.save(member);
-
-		final Post post = PostUtils.newInstance(member);
-		postRepository.save(post);
-
-		final PostLike postLike = PostLikeUtils.of(post, member);
-		postLikeRepository.save(postLike);
-
-		final PostImage postImage = PostImageUtils.newInstance(post);
-		postImageRepository.save(postImage);
-
-		final PostTag postTag = PostTagUtils.newInstance(postImage, member.getUsername());
-		postTagRepository.save(postTag);
-
-		final Pageable pageable = PageRequest.of(page, pageSize);
-
-		// when
-		final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPage(member.getId(),
-			member.getUsername(), pageable);
-
-		// then
-		assertThat(memberPostDtoPage.getContent().size()).isNotZero();
-		assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isPostLikeFlag()).isTrue();
+	@Nested
+	class FindMemberTaggedPostDtoPageByLoginMemberIdAndTargetUsername {
+
+		@Test
+		void total15PostsExistAndOnly10PostsTagged_Find10MemberPostDtos() {
+			// given
+			final long untaggedPostCount = 5;
+			final long taggedPostCount = 10;
+			final long postImageCount = 1;
+			final int page = 0;
+			final int pageSize = 15;
+
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
+
+			final List<Post> untaggedPosts = PostUtils.newInstances(member, untaggedPostCount);
+			postRepository.saveAll(untaggedPosts);
+
+			final List<Post> taggedPosts = PostUtils.newInstances(member, taggedPostCount);
+			postRepository.saveAll(taggedPosts);
+
+			final List<PostImage> postImages = PostImageUtils.newInstancesForEachPost(taggedPosts, postImageCount);
+			postImageRepository.saveAll(postImages);
+
+			preparePostTags(postImages, member);
+			final Pageable pageable = PageRequest.of(page, pageSize);
+
+			// when
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
+				member.getUsername(), pageable);
+
+			// then
+			assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(taggedPostCount);
+		}
+
+		@Test
+		void total20PostsTaggedAndPage0AndSize15_FindTotal20PostsAnd2PagesAndCurrent15PostsAnd0Page() {
+			// given
+			final long taggedPostCount = 20;
+			final long postImageCount = 1;
+			final int page = 0;
+			final int pageSize = 15;
+
+			final int expectedTotalPage = 2;
+			final int expectedCurrentPage = 0;
+
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
+
+			final List<Post> taggedPosts = PostUtils.newInstances(member, taggedPostCount);
+			postRepository.saveAll(taggedPosts);
+
+			final List<PostImage> postImages = PostImageUtils.newInstancesForEachPost(taggedPosts, postImageCount);
+			postImageRepository.saveAll(postImages);
+
+			preparePostTags(postImages, member);
+			final Pageable pageable = PageRequest.of(page, pageSize);
+
+			// when
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
+				member.getUsername(), pageable);
+
+			// then
+			assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(taggedPostCount);
+			assertThat(memberPostDtoPage.getTotalPages()).isEqualTo(expectedTotalPage);
+			assertThat(memberPostDtoPage.getContent().size()).isEqualTo(pageSize);
+			assertThat(memberPostDtoPage.getNumber()).isEqualTo(expectedCurrentPage);
+		}
+
+		@Test
+		void total20PostsTaggedAndPage1AndSize15_FindTotal20PostsAnd2PagesAndCurrent5PostsAnd1Page() {
+			// given
+			final long taggedPostCount = 20;
+			final long postImageCount = 1;
+			final int page = 1;
+			final int pageSize = 15;
+
+			final int expectedTotalPage = 2;
+			final int expectedCurrentPage = 1;
+			final int expectedCurrentPostCount = 5;
+
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
+
+			final List<Post> taggedPosts = PostUtils.newInstances(member, taggedPostCount);
+			postRepository.saveAll(taggedPosts);
+
+			final List<PostImage> postImages = PostImageUtils.newInstancesForEachPost(taggedPosts, postImageCount);
+			postImageRepository.saveAll(postImages);
+
+			preparePostTags(postImages, member);
+			final Pageable pageable = PageRequest.of(page, pageSize);
+
+			// when
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
+				member.getUsername(), pageable);
+
+			// then
+			assertThat(memberPostDtoPage.getTotalElements()).isEqualTo(taggedPostCount);
+			assertThat(memberPostDtoPage.getTotalPages()).isEqualTo(expectedTotalPage);
+			assertThat(memberPostDtoPage.getContent().size()).isEqualTo(expectedCurrentPostCount);
+			assertThat(memberPostDtoPage.getNumber()).isEqualTo(expectedCurrentPage);
+		}
+
+		@Test
+		void validArguments_AllFieldsMappedSuccess() {
+			// given
+			final long postImageCount = 1;
+			final long postCommentCount = 4;
+			final long postLikeCount = 5;
+			final int page = 0;
+			final int pageSize = 15;
+
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
+
+			final Post post = PostUtils.newInstance(member);
+			postRepository.save(post);
+
+			final List<PostImage> postImages = preparePostImagesAndCommentsAndLikes(post, member, postImageCount,
+				postCommentCount, postLikeCount);
+
+			preparePostTags(postImages, member);
+			final Pageable pageable = PageRequest.of(page, pageSize);
+
+			// when
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
+				member.getUsername(), pageable);
+
+			// then
+			assertThat(memberPostDtoPage.getContent().size()).isNotZero();
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostId()).isEqualTo(post.getId());
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getMember().getId()).isEqualTo(
+				member.getId());
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isHasManyPostImages()).isFalse();
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostCommentsCount()).isEqualTo(
+				postCommentCount);
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostLikesCount()).isEqualTo(
+				postLikeCount);
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isPostLikeFlag()).isFalse();
+		}
+
+		@Test
+		void postHas2Images_HasManyPostImagesFlagIsTrue() {
+			// given
+			final long postImageCount = 2;
+			final int page = 0;
+			final int pageSize = 1;
+
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
+
+			final Post post = PostUtils.newInstance(member);
+			postRepository.save(post);
+
+			final List<PostImage> postImages = preparePostImages(post, postImageCount);
+			preparePostTags(postImages, member);
+
+			final Pageable pageable = PageRequest.of(page, pageSize);
+
+			// when
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
+				member.getUsername(), pageable);
+
+			// then
+			assertThat(memberPostDtoPage.getContent().size()).isNotZero();
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isHasManyPostImages()).isTrue();
+		}
+
+		@Test
+		void memberLikesPost_FindMemberPostDtoWithLikeFlagTrue() {
+			// given
+			final int page = 0;
+			final int pageSize = 1;
+
+			final Member member = MemberUtils.newInstance();
+			memberRepository.save(member);
+
+			final Post post = PostUtils.newInstance(member);
+			postRepository.save(post);
+
+			final PostLike postLike = PostLikeUtils.of(post, member);
+			postLikeRepository.save(postLike);
+
+			final PostImage postImage = PostImageUtils.newInstance(post);
+			postImageRepository.save(postImage);
+
+			final PostTag postTag = PostTagUtils.newInstance(postImage, member.getUsername());
+			postTagRepository.save(postTag);
+
+			final Pageable pageable = PageRequest.of(page, pageSize);
+
+			// when
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
+				member.getUsername(), pageable);
+
+			// then
+			assertThat(memberPostDtoPage.getContent().size()).isNotZero();
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isPostLikeFlag()).isTrue();
+		}
+
 	}
 
 	private List<PostImage> preparePostImagesAndCommentsAndLikes(Post post, Member member, long postImageCount,

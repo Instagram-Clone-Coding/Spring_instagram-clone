@@ -80,7 +80,7 @@ public class MemberPostService {
 	public Page<MemberPostDto> getMemberSavedPostPage(int size, int page) {
 		final Member loginMember = authUtil.getLoginMember();
 		final Pageable pageable = PageRequest.of(page + PAGE_OFFSET, size);
-		final Page<MemberPostDto> posts = memberRepository.findMemberSavedPostDtoPage(loginMember.getId(), pageable);
+		final Page<MemberPostDto> posts = memberRepository.findMemberSavedPostDtoPageByLoginMemberId(loginMember.getId(), pageable);
 		final List<MemberPostDto> content = posts.getContent();
 		setMemberPostImageDtos(content);
 		setPostLikesCount(loginMember, content);
@@ -90,7 +90,7 @@ public class MemberPostService {
 	public List<MemberPostDto> getRecent15SavedPostDtos() {
 		final Member loginMember = authUtil.getLoginMember();
 		final Pageable pageable = PageRequest.of(0, FIRST_PAGE_SIZE);
-		final Page<MemberPostDto> posts = memberRepository.findMemberSavedPostDtoPage(loginMember.getId(), pageable);
+		final Page<MemberPostDto> posts = memberRepository.findMemberSavedPostDtoPageByLoginMemberId(loginMember.getId(), pageable);
 		final List<MemberPostDto> content = posts.getContent();
 		setMemberPostImageDtos(content);
 		return content;
@@ -106,7 +106,7 @@ public class MemberPostService {
 		}
 
 		final Pageable pageable = PageRequest.of(page + PAGE_OFFSET, size);
-		final Page<MemberPostDto> posts = memberRepository.findMemberTaggedPostDtoPage(loginMember.getId(), username,
+		final Page<MemberPostDto> posts = memberRepository.findMemberTaggedPostDtoPageByLoginMemberIdAndTargetUsername(loginMember.getId(), username,
 			pageable);
 		final List<MemberPostDto> content = posts.getContent();
 		setMemberPostImageDtos(content);
@@ -124,7 +124,7 @@ public class MemberPostService {
 		}
 
 		final Pageable pageable = PageRequest.of(0, FIRST_PAGE_SIZE);
-		final Page<MemberPostDto> posts = memberRepository.findMemberTaggedPostDtoPage(loginMember.getId(), username,
+		final Page<MemberPostDto> posts = memberRepository.findMemberTaggedPostDtoPageByLoginMemberIdAndTargetUsername(loginMember.getId(), username,
 			pageable);
 		final List<MemberPostDto> content = posts.getContent();
 		setMemberPostImageDtos(content);
@@ -140,7 +140,7 @@ public class MemberPostService {
 			return Page.empty();
 		}
 
-		return memberRepository.findMemberPostDtos(memberId, username, pageable);
+		return memberRepository.findMemberPostDtoPageByLoginMemberIdAndTargetUsername(memberId, username, pageable);
 	}
 
 	private void setPostLikesCount(Member loginMember, List<MemberPostDto> content) {
@@ -165,7 +165,7 @@ public class MemberPostService {
 		final Map<Long, List<PostImageDto>> postDTOMap = postImageDtos.stream()
 			.collect(Collectors.groupingBy(PostImageDto::getPostId));
 
-		memberPostDtos.forEach(p -> p.setPostImages(postDTOMap.get(p.getPostId()).get(0)));
+		memberPostDtos.forEach(p -> p.setPostImage(postDTOMap.get(p.getPostId()).get(0)));
 	}
 
 }
