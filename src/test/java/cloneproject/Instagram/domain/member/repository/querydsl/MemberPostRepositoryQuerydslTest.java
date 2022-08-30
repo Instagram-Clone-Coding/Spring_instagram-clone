@@ -180,6 +180,9 @@ class MemberPostRepositoryQuerydslTest {
 
 			// then
 			assertThat(memberPostDtoPage.getContent().size()).isNotZero();
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostId()).isEqualTo(post.getId());
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getMember().getId()).isEqualTo(
+				member.getId());
 			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isHasManyPostImages()).isFalse();
 			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostCommentsCount()).isEqualTo(
 				postCommentCount);
@@ -358,6 +361,9 @@ class MemberPostRepositoryQuerydslTest {
 
 			// then
 			assertThat(memberPostDtoPage.getContent().size()).isNotZero();
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostId()).isEqualTo(post.getId());
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getMember().getId()).isEqualTo(
+				member.getId());
 			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isHasManyPostImages()).isFalse();
 			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostCommentsCount()).isEqualTo(
 				postCommentCount);
@@ -552,6 +558,9 @@ class MemberPostRepositoryQuerydslTest {
 
 			// then
 			assertThat(memberPostDtoPage.getContent().size()).isNotZero();
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostId()).isEqualTo(post.getId());
+			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getMember().getId()).isEqualTo(
+				member.getId());
 			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).isHasManyPostImages()).isFalse();
 			assertThat(memberPostDtoPage.getContent().get(FIRST_ELEMENT_INDEX).getPostCommentsCount()).isEqualTo(
 				postCommentCount);
