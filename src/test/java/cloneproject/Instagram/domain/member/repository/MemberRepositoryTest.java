@@ -56,7 +56,7 @@ public class MemberRepositoryTest {
 	class ExistsByUsername {
 
 		@Test
-		void existsByUsername_MemberExist_ReturnTrue() {
+		void memberExist_ReturnTrue() {
 			// given
 			final Member givenMember = MemberUtils.newInstance();
 			memberRepository.save(givenMember);
@@ -69,7 +69,7 @@ public class MemberRepositoryTest {
 		}
 
 		@Test
-		void existsByUsername_MemberNotExist_ReturnFalse() {
+		void memberNotExist_ReturnFalse() {
 			// given
 			final String randomUsername = RandomStringUtils.random(20, true, true);
 

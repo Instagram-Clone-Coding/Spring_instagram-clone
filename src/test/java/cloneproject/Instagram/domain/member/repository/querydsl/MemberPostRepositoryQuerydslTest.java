@@ -98,7 +98,7 @@ class MemberPostRepositoryQuerydslTest {
 		}
 
 		@Test
-		void total20PostsExistAndPage0AndSize15_FindTotal20PostsAnd2PageAndCurrent15PostsAnd0Page() {
+		void total20PostsExistAndPage0AndSize15_FindTotal20PostsAnd2PagesAndCurrent15PostsAnd0Page() {
 			// given
 			final long postCount = 20;
 			final int page = 0;
@@ -127,7 +127,7 @@ class MemberPostRepositoryQuerydslTest {
 		}
 
 		@Test
-		void total20PostsExistAndPage1AndSize15_FindTotal20PostsAnd2PageAndCurrent5PostsAnd1Page() {
+		void total20PostsExistAndPage1AndSize15_FindTotal20PostsAnd2PagesAndCurrent5PostsAnd1Page() {
 			// given
 			final long postCount = 20;
 			final int page = 1;
@@ -189,7 +189,7 @@ class MemberPostRepositoryQuerydslTest {
 		}
 
 		@Test
-		void postHaveMoreThanOneImage_HasManyPostImagesFlagIsTrue() {
+		void postHas2Images_HasManyPostImagesFlagIsTrue() {
 			// given
 			final long postImageCount = 2;
 			final int page = 0;
@@ -273,7 +273,7 @@ class MemberPostRepositoryQuerydslTest {
 		}
 
 		@Test
-		void total20PostsSavedAndPage1AndSize15_FindTotal20PostsAnd2PageAndCurrent5PostsAnd1Page() {
+		void total20PostsSavedAndPage1AndSize15_FindTotal20PostsAnd2PagesAndCurrent5PostsAnd1Page() {
 			// given
 			final long savedPostCount = 20;
 			final int page = 0;
@@ -303,7 +303,7 @@ class MemberPostRepositoryQuerydslTest {
 		}
 
 		@Test
-		void total20PostsSavedAndPage0AndSize15_FindTotal20PostsAnd2PageAndCurrent15PostsAnd0Page() {
+		void total20PostsSavedAndPage0AndSize15_FindTotal20PostsAnd2PagesAndCurrent15PostsAnd0Page() {
 			// given
 			final long savedPostCount = 20;
 			final int page = 1;
@@ -367,7 +367,7 @@ class MemberPostRepositoryQuerydslTest {
 		}
 
 		@Test
-		void postHaveMoreThanOneImage_FindWithHasManyPostImagesFlagTrue() {
+		void postHas2Images_FindWithHasManyPostImagesFlagTrue() {
 			// given
 			final long postImageCount = 2;
 			final int page = 0;
@@ -457,7 +457,7 @@ class MemberPostRepositoryQuerydslTest {
 		}
 
 		@Test
-		void total20PostsTaggedAndPage0AndSize15_FindTotal20PostsAnd2PageAndCurrent15PostsAnd0Page() {
+		void total20PostsTaggedAndPage0AndSize15_FindTotal20PostsAnd2PagesAndCurrent15PostsAnd0Page() {
 			// given
 			final long taggedPostCount = 20;
 			final long postImageCount = 1;
@@ -491,7 +491,7 @@ class MemberPostRepositoryQuerydslTest {
 		}
 
 		@Test
-		void total20PostsTaggedAndPage1AndSize15_FindTotal20PostsAnd2PageAndCurrent5PostsAnd1Page() {
+		void total20PostsTaggedAndPage1AndSize15_FindTotal20PostsAnd2PagesAndCurrent5PostsAnd1Page() {
 			// given
 			final long taggedPostCount = 20;
 			final long postImageCount = 1;
@@ -561,7 +561,7 @@ class MemberPostRepositoryQuerydslTest {
 		}
 
 		@Test
-		void postHaveMoreThanOneImage_HasManyPostImagesFlagIsTrue() {
+		void postHas2Images_HasManyPostImagesFlagIsTrue() {
 			// given
 			final long postImageCount = 2;
 			final int page = 0;
