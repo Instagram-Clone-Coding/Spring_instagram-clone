@@ -314,7 +314,7 @@ public class PostService {
 	private void setMentionAndHashtagList(List<PostDto> postDtos) {
 		final List<String> mentionedUsernames = new ArrayList<>();
 		postDtos.forEach(postDto -> mentionedUsernames.addAll(
-			stringExtractUtil.extractMentions(postDto.getPostContent(), mentionedUsernames)));
+			stringExtractUtil.extractMentionsWithExceptList(postDto.getPostContent(), mentionedUsernames)));
 		final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
 			.map(Member::getUsername)
 			.collect(toList());

@@ -43,7 +43,7 @@ public class MentionService {
 
 	@Transactional
 	public void mentionMembers(Member member, Post post) {
-		final List<String> usernames = stringExtractUtil.extractMentions(post.getContent(),
+		final List<String> usernames = stringExtractUtil.extractMentionsWithExceptList(post.getContent(),
 			List.of(member.getUsername()));
 		final List<Member> mentionedMembers = memberRepository.findAllByUsernameIn(usernames);
 		mentionRepository.savePostMentionsBatch(member.getId(), mentionedMembers, post.getId(), LocalDateTime.now());
@@ -52,7 +52,7 @@ public class MentionService {
 
 	@Transactional
 	public void mentionMembers(Member member, Comment comment) {
-		final List<String> usernames = stringExtractUtil.extractMentions(comment.getContent(),
+		final List<String> usernames = stringExtractUtil.extractMentionsWithExceptList(comment.getContent(),
 			List.of(member.getUsername()));
 		final List<Member> mentionedMembers = memberRepository.findAllByUsernameIn(usernames);
 		mentionRepository.saveCommentMentionsBatch(member.getId(), mentionedMembers, comment.getPost().getId(),
