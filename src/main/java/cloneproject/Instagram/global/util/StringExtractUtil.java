@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class StringExtractUtil {
 
-	public List<String> extractMentions(String input, List<String> exceptUsernames) {
+	public List<String> extractMentionsWithExceptList(String input, List<String> exceptUsernames) {
 		final Set<String> mentions = new HashSet<>();
 		final String regex = "@[0-9a-zA-Z가-힣ㄱ-ㅎ]+";
 		final Pattern pattern = Pattern.compile(regex);
@@ -26,6 +26,10 @@ public class StringExtractUtil {
 		}
 
 		return new ArrayList<>(mentions);
+	}
+
+	public List<String> extractMentions(String input) {
+		return extractMentionsWithExceptList(input, List.of());
 	}
 
 	public List<String> extractHashtags(String input) {

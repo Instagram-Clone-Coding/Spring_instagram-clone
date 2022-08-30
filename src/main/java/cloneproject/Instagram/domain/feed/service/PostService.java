@@ -3,12 +3,12 @@ package cloneproject.Instagram.domain.feed.service;
 import static cloneproject.Instagram.domain.alarm.dto.AlarmType.*;
 import static cloneproject.Instagram.global.error.ErrorCode.*;
 import static cloneproject.Instagram.global.util.ConstantUtils.*;
+import static java.util.stream.Collectors.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -26,6 +26,7 @@ import cloneproject.Instagram.domain.feed.dto.CommentDto;
 import cloneproject.Instagram.domain.feed.dto.PostDto;
 import cloneproject.Instagram.domain.feed.dto.PostImageDto;
 import cloneproject.Instagram.domain.feed.dto.PostImageTagRequest;
+import cloneproject.Instagram.domain.feed.dto.PostLikeCountDto;
 import cloneproject.Instagram.domain.feed.dto.PostLikeDto;
 import cloneproject.Instagram.domain.feed.dto.PostTagDto;
 import cloneproject.Instagram.domain.feed.dto.PostUploadRequest;
@@ -106,7 +107,7 @@ public class PostService {
 
 		final Set<String> taggedMemberUsernames = request.getPostImageTags().stream()
 			.map(PostImageTagRequest::getUsername)
-			.collect(Collectors.toSet());
+			.collect(toSet());
 		taggedMemberUsernames.remove(loginMember.getUsername());
 		messageService.sendMessageToMembersIndividually(loginMember, post, taggedMemberUsernames);
 
@@ -162,11 +163,11 @@ public class PostService {
 	public int countOfFollowingsFromPostLikes(Long postId, Member loginMember) {
 		final Set<Member> postLikeMembers = postLikeService.getAllWithMember(postId).stream()
 			.map(PostLike::getMember)
-			.collect(Collectors.toSet());
+			.collect(toSet());
 
 		final List<Member> followings = followService.getFollowings(loginMember).stream()
 			.map(Follow::getFollowMember)
-			.collect(Collectors.toList());
+			.collect(toList());
 
 		int count = 0;
 		for (Member following : followings) {
@@ -212,11 +213,8 @@ public class PostService {
 		if (post.getMember().equals(loginMember) || post.isLikeFlag()) {
 			likeMemberDtoPage = postLikeRepository.findPostLikeMembersDtoPage(pageable, postId, loginMember.getId());
 		} else {
-			final List<Member> followings = followService.getFollowings(loginMember).stream()
-				.map(Follow::getFollowMember)
-				.collect(Collectors.toList());
-			likeMemberDtoPage = postLikeRepository.findPostLikeMembersDtoPageInFollowings(pageable, postId,
-				loginMember.getId(), followings);
+			likeMemberDtoPage = postLikeRepository.findPostLikeMembersDtoPageOfFollowingsByMemberIdAndPostId(pageable,
+				loginMember.getId(), postId);
 		}
 
 		if (postLikeRepository.findByMemberAndPost(loginMember, post).isPresent()) {
@@ -254,14 +252,16 @@ public class PostService {
 		messageService.sendMessageToMembersIndividually(authUtil.getLoginMember(), getPost(postId), usernames);
 	}
 
+	// TODO: 리팩토링 고려
 	public Page<PostDto> getHashTagPosts(int page, int size, String name) {
 		final Pageable pageable = PageRequest.of(page, size);
 		return hashtagRepository.findByName(name)
 			.map(hashtag -> {
-				final List<Long> postIds =
-					hashtagPostRepository.findAllByHashtagOrderByPostIdDesc(pageable, hashtag).getContent().stream()
-						.map(hashtagPost -> hashtagPost.getPost().getId())
-						.collect(Collectors.toList());
+				final List<Long> postIds = hashtagPostRepository.findAllByHashtagOrderByPostIdDesc(pageable, hashtag)
+					.getContent()
+					.stream()
+					.map(hashtagPost -> hashtagPost.getPost().getId())
+					.collect(toList());
 
 				return getPostDtoPage(pageable, postIds);
 			})
@@ -278,16 +278,14 @@ public class PostService {
 	private void setContents(Member loginMember, List<PostDto> postDtos) {
 		final List<Long> postIds = postDtos.stream()
 			.map(PostDto::getPostId)
-			.collect(Collectors.toList());
+			.collect(toList());
 
 		setHasStoryInPostDto(postDtos);
 		setPostImages(postDtos, postIds);
 		setRecentComments(loginMember.getId(), postDtos, postIds);
 		setFollowingMemberUsernameLikedPost(loginMember, postDtos, postIds);
-		postDtos.forEach(post -> {
-			hidePostLikesCountIfPostLikeFlagIsFalse(loginMember, post);
-			setMentionAndHashtagList(post);
-		});
+		setMentionAndHashtagList(postDtos);
+		hidePostLikesCountIfPostLikeFlagIsFalse(loginMember, postDtos);
 	}
 
 	private void setContent(Member loginMember, PostDto postDto) {
@@ -309,6 +307,29 @@ public class PostService {
 		}
 	}
 
+	private void setMentionAndHashtagList(PostDto postDto) {
+		setMentionAndHashtagList(List.of(postDto));
+	}
+
+	private void setMentionAndHashtagList(List<PostDto> postDtos) {
+		final List<String> mentionedUsernames = new ArrayList<>();
+		postDtos.forEach(postDto -> mentionedUsernames.addAll(
+			stringExtractUtil.extractMentionsWithExceptList(postDto.getPostContent(), mentionedUsernames)));
+		final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
+			.map(Member::getUsername)
+			.collect(toList());
+
+		postDtos.forEach(postDto -> {
+			final List<String> mentionsOfContent = stringExtractUtil.extractMentions(postDto.getPostContent()).stream()
+				.filter(existentUsernames::contains)
+				.collect(toList());
+			postDto.setMentionsOfContent(mentionsOfContent);
+
+			final List<String> hashtagsOfContent = stringExtractUtil.extractHashtags(postDto.getPostContent());
+			postDto.setHashtagsOfContent(hashtagsOfContent);
+		});
+	}
+
 	private void validateParameters(int multipartFileSize, int altTextSize, List<PostImageTagRequest> tags) {
 		final List<FieldError> errors = new ArrayList<>();
 
@@ -319,9 +340,9 @@ public class PostService {
 
 		final List<String> usernames = tags.stream()
 			.map(PostImageTagRequest::getUsername)
-			.collect(Collectors.toList());
+			.collect(toList());
 		final Map<String, Member> usernameMap = memberRepository.findAllByUsernameIn(usernames).stream()
-			.collect(Collectors.toMap(Member::getUsername, m -> m));
+			.collect(toMap(Member::getUsername, m -> m));
 
 		for (int i = 0; i < usernames.size(); i++) {
 			final String username = usernames.get(i);
@@ -336,33 +357,33 @@ public class PostService {
 		}
 	}
 
-	private void hidePostLikesCountIfPostLikeFlagIsFalse(Member loginMember, PostDto post) {
-		if (!post.getMember().getId().equals(loginMember.getId()) && !post.isLikeOptionFlag()) {
-			final int count = countOfFollowingsFromPostLikes(post.getPostId(), loginMember);
-			post.setPostLikesCount(count);
-		}
+	private void hidePostLikesCountIfPostLikeFlagIsFalse(Member loginMember, PostDto postDto) {
+		hidePostLikesCountIfPostLikeFlagIsFalse(loginMember, List.of(postDto));
 	}
 
-	private void setMentionAndHashtagList(PostDto post) {
-		final List<String> mentionedUsernames = stringExtractUtil.extractMentions(post.getPostContent(), List.of());
-		final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
-			.map(Member::getUsername)
-			.collect(Collectors.toList());
-		post.setMentionsOfContent(existentUsernames);
-		final List<String> hashtags = stringExtractUtil.extractHashtags(post.getPostContent());
-		post.setHashtagsOfContent(hashtags);
+	private void hidePostLikesCountIfPostLikeFlagIsFalse(Member loginMember, List<PostDto> postDtos) {
+		final Map<Long, PostDto> postDtosToHidePostLikesCountMap = postDtos.stream()
+			.filter(postDto -> !postDto.getMember().getId().equals(loginMember.getId()) && !postDto.isLikeOptionFlag())
+			.collect(toMap(PostDto::getPostId, PostDto -> PostDto));
+
+		final List<Long> postIds = new ArrayList<>(postDtosToHidePostLikesCountMap.keySet());
+		final List<PostLikeCountDto> postLikeCountDtos = postLikeRepository
+			.findAllPostLikeCountDtoOfFollowingsLikedPostByMemberAndPostIdIn(loginMember, postIds);
+
+		postLikeCountDtos.forEach(postLikeCountDto -> postDtosToHidePostLikesCountMap.get(postLikeCountDto.getPostId())
+			.setPostLikesCount(postLikeCountDto.getPostLikesCount()));
 	}
 
 	private void setPostImages(List<PostDto> postDtos, List<Long> postIds) {
 		final List<PostImageDto> postImageDtos = postImageRepository.findAllPostImageDto(postIds);
 		final List<Long> postImageIds = postImageDtos.stream()
 			.map(PostImageDto::getId)
-			.collect(Collectors.toList());
+			.collect(toList());
 
 		setPostTags(postImageDtos, postImageIds);
 
 		final Map<Long, List<PostImageDto>> postDtoMap = postImageDtos.stream()
-			.collect(Collectors.groupingBy(PostImageDto::getPostId));
+			.collect(groupingBy(PostImageDto::getPostId));
 		postDtos.forEach(p -> p.setPostImages(postDtoMap.get(p.getPostId())));
 	}
 
@@ -370,20 +391,17 @@ public class PostService {
 		final List<PostTagDto> postTagDtos = postTagRepository.findAllPostTagDto(postImageIds);
 
 		final Map<Long, List<PostTagDto>> postImageDtoMap = postTagDtos.stream()
-			.collect(Collectors.groupingBy(PostTagDto::getPostImageId));
+			.collect(groupingBy(PostTagDto::getPostImageId));
 		postImageDtos.forEach(i -> i.setPostTags(postImageDtoMap.get(i.getId())));
 	}
 
 	private void setFollowingMemberUsernameLikedPost(Member member, List<PostDto> postDtos, List<Long> postIds) {
-		final List<Member> followings = followService.getFollowings(member).stream()
-			.map(Follow::getFollowMember)
-			.collect(Collectors.toList());
 		final Map<Long, List<PostLikeDto>> postLikeDtoMap =
-			postLikeRepository.findAllPostLikeDtoInFollowings(member.getId(), postIds, followings).stream()
-				.collect(Collectors.groupingBy(PostLikeDto::getPostId));
-		postDtos.forEach(p -> p.setFollowingMemberUsernameLikedPost(
-			postLikeDtoMap.containsKey(p.getPostId()) ? postLikeDtoMap.get(p.getPostId()).get(ANY_INDEX).getUsername() :
-				EMPTY));
+			postLikeRepository.findAllPostLikeDtoOfFollowingsByMemberIdAndPostIdIn(member.getId(), postIds)
+				.stream()
+				.collect(groupingBy(PostLikeDto::getPostId));
+		postDtos.forEach(p -> p.setFollowingMemberUsernameLikedPost(postLikeDtoMap.containsKey(p.getPostId())
+			? postLikeDtoMap.get(p.getPostId()).get(ANY_INDEX).getUsername() : EMPTY));
 	}
 
 	private void setHasStoryInPostDto(List<PostDto> postDtos) {
@@ -397,7 +415,7 @@ public class PostService {
 	private void setRecentComments(Long memberId, List<PostDto> postDtos, List<Long> postIds) {
 		final Map<Long, List<CommentDto>> recentCommentMap =
 			commentRepository.findAllRecentCommentDto(memberId, postIds).stream()
-				.collect(Collectors.groupingBy(CommentDto::getPostId));
+				.collect(groupingBy(CommentDto::getPostId));
 		postDtos.forEach(post -> {
 			final List<CommentDto> commentDtos = recentCommentMap.containsKey(post.getPostId()) ?
 				recentCommentMap.get(post.getPostId()) : new ArrayList<>();

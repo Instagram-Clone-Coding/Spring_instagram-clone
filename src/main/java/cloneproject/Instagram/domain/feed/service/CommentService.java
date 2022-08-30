@@ -210,7 +210,7 @@ public class CommentService {
 
 	public void setMentionAndHashtagList(List<CommentDto> content) {
 		content.forEach(comment -> {
-			final List<String> mentionedUsernames = stringExtractUtil.extractMentions(comment.getContent(), List.of());
+			final List<String> mentionedUsernames = stringExtractUtil.extractMentionsWithExceptList(comment.getContent(), List.of());
 			final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
 				.map(Member::getUsername)
 				.collect(Collectors.toList());

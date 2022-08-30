@@ -92,7 +92,7 @@ public class StoryService {
 				continue;
 			final List<StoryContentRequest> storyContents = storyContentMap.get(i + 1);
 			for (StoryContentRequest storyContent : storyContents) {
-				final List<String> mentionedUsernames = stringExtractUtil.extractMentions(storyContent.getContent(),
+				final List<String> mentionedUsernames = stringExtractUtil.extractMentionsWithExceptList(storyContent.getContent(),
 					List.of(member.getUsername()));
 				usernames.addAll(mentionedUsernames);
 			}

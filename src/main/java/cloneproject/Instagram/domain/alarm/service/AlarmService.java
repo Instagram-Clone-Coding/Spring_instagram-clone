@@ -194,7 +194,7 @@ public class AlarmService {
 	}
 
 	private void setMentionAndHashtagList(String content, AlarmContentDto dto) {
-		final List<String> mentionedUsernames = stringExtractUtil.extractMentions(content, List.of());
+		final List<String> mentionedUsernames = stringExtractUtil.extractMentionsWithExceptList(content, List.of());
 		final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
 			.map(Member::getUsername)
 			.collect(Collectors.toList());

@@ -1,5 +1,7 @@
 package cloneproject.Instagram.domain.feed.dto;
 
+import static cloneproject.Instagram.global.util.ConstantUtils.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,13 +26,13 @@ public class PostDto {
 	private List<PostImageDto> postImages = new ArrayList<>();
 	private LocalDateTime postUploadDate;
 	private MemberDto member;
-	private int postCommentsCount;
-	private int postLikesCount;
+	private long postCommentsCount;
+	private long postLikesCount;
 	private boolean postBookmarkFlag;
 	private boolean postLikeFlag;
 	private boolean commentOptionFlag;
 	private boolean likeOptionFlag;
-	private String followingMemberUsernameLikedPost = "";
+	private String followingMemberUsernameLikedPost = EMPTY;
 	private List<CommentDto> recentComments = new ArrayList<>();
 
 	@QueryProjection
@@ -76,7 +78,7 @@ public class PostDto {
 		this.recentComments = commentDtos;
 	}
 
-	public void setPostLikesCount(int postLikesCount) {
+	public void setPostLikesCount(long postLikesCount) {
 		this.postLikesCount = postLikesCount;
 	}
 

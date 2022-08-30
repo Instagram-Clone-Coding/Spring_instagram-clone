@@ -4,6 +4,9 @@ import static cloneproject.Instagram.domain.feed.entity.QBookmark.*;
 import static cloneproject.Instagram.domain.feed.entity.QPost.*;
 import static cloneproject.Instagram.domain.feed.entity.QPostLike.*;
 import static cloneproject.Instagram.domain.follow.entity.QFollow.*;
+import static cloneproject.Instagram.domain.follow.entity.QHashtagFollow.*;
+import static cloneproject.Instagram.domain.hashtag.entity.QHashtagPost.*;
+import static cloneproject.Instagram.domain.member.entity.QMember.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,13 +17,13 @@ import org.springframework.data.domain.Pageable;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
 
 import cloneproject.Instagram.domain.feed.dto.PostDto;
 import cloneproject.Instagram.domain.feed.dto.QPostDto;
-import cloneproject.Instagram.domain.member.entity.QMember;
 
 @RequiredArgsConstructor
 public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
@@ -43,8 +46,9 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 				post.likeFlag
 			))
 			.from(post)
-			.innerJoin(post.member, QMember.member)
-			.where(isPostUploadedByFollowings(memberId))
+			.innerJoin(post.member, member)
+			.where(post.member.id.in(getFollowingMemberIdsByMemberId(memberId))
+				.or(post.id.in(getPostIdsOfFollowingHashtagByMemberId(memberId))))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.orderBy(post.id.desc())
@@ -53,7 +57,9 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 
 		final long total = queryFactory
 			.selectFrom(post)
-			.where(isPostUploadedByFollowings(memberId))
+			.innerJoin(post.member, member)
+			.where(post.member.id.in(getFollowingMemberIdsByMemberId(memberId))
+				.or(post.id.in(getPostIdsOfFollowingHashtagByMemberId(memberId))))
 			.fetchCount();
 
 		return new PageImpl<>(postDtos, pageable, total);
@@ -99,14 +105,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 
 	@Override
 	public Page<PostDto> findPostDtoPage(Pageable pageable, Long memberId, List<Long> postIds) {
-		final List<PostDto> postDtos = findAllPostDtoByPostIdIn(memberId, postIds);
-		final long total = countByPostIdIn(postIds);
-
-		return new PageImpl<>(postDtos, pageable, total);
-	}
-
-	private List<PostDto> findAllPostDtoByPostIdIn(Long memberId, List<Long> postIds) {
-		return queryFactory
+		final List<PostDto> postDtos = queryFactory
 			.select(new QPostDto(
 				post.id,
 				post.content,
@@ -120,17 +119,17 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 				post.likeFlag
 			))
 			.from(post)
-			.innerJoin(post.member, QMember.member)
+			.innerJoin(post.member, member)
 			.where(post.id.in(postIds))
 			.orderBy(post.id.desc())
 			.fetch();
-	}
 
-	private long countByPostIdIn(List<Long> ids) {
-		return queryFactory
+		final long total = queryFactory
 			.selectFrom(post)
-			.where(post.id.in(ids))
+			.where(post.id.in(postIds))
 			.fetchCount();
+
+		return new PageImpl<>(postDtos, pageable, total);
 	}
 
 	private BooleanExpression isExistPostLikeWherePostEqAndMemberIdEq(Long id) {
@@ -147,12 +146,20 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 			.exists();
 	}
 
-	private BooleanExpression isPostUploadedByFollowings(Long id) {
-		return post.member.username.in(
-			JPAExpressions
-				.select(follow.followMember.username)
-				.from(follow)
-				.where(follow.member.id.eq(id)));
+	private JPQLQuery<Long> getFollowingMemberIdsByMemberId(Long memberId) {
+		return JPAExpressions
+			.select(follow.followMember.id)
+			.from(follow)
+			.where(follow.member.id.eq(memberId));
+	}
+
+	private JPQLQuery<Long> getPostIdsOfFollowingHashtagByMemberId(Long memberId) {
+		return JPAExpressions
+			.select(hashtagPost.post.id)
+			.from(hashtagPost)
+			.join(hashtagFollow).on(hashtagFollow.member.id.eq(memberId)
+				.and(hashtagFollow.hashtag.id.eq(hashtagPost.hashtag.id)))
+			.innerJoin(hashtagPost.post, post).on(hashtagPost.post.member.id.ne(memberId));
 	}
 
 }
