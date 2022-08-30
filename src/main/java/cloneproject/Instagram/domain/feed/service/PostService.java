@@ -213,11 +213,8 @@ public class PostService {
 		if (post.getMember().equals(loginMember) || post.isLikeFlag()) {
 			likeMemberDtoPage = postLikeRepository.findPostLikeMembersDtoPage(pageable, postId, loginMember.getId());
 		} else {
-			final List<Member> followings = followService.getFollowings(loginMember).stream()
-				.map(Follow::getFollowMember)
-				.collect(toList());
-			likeMemberDtoPage = postLikeRepository.findPostLikeMembersDtoPageInFollowings(pageable, postId,
-				loginMember.getId(), followings);
+			likeMemberDtoPage = postLikeRepository.findPostLikeMembersDtoPageOfFollowingsByMemberIdAndPostId(pageable,
+				loginMember.getId(), postId);
 		}
 
 		if (postLikeRepository.findByMemberAndPost(loginMember, post).isPresent()) {
@@ -255,14 +252,16 @@ public class PostService {
 		messageService.sendMessageToMembersIndividually(authUtil.getLoginMember(), getPost(postId), usernames);
 	}
 
+	// TODO: 리팩토링 고려
 	public Page<PostDto> getHashTagPosts(int page, int size, String name) {
 		final Pageable pageable = PageRequest.of(page, size);
 		return hashtagRepository.findByName(name)
 			.map(hashtag -> {
-				final List<Long> postIds =
-					hashtagPostRepository.findAllByHashtagOrderByPostIdDesc(pageable, hashtag).getContent().stream()
-						.map(hashtagPost -> hashtagPost.getPost().getId())
-						.collect(toList());
+				final List<Long> postIds = hashtagPostRepository.findAllByHashtagOrderByPostIdDesc(pageable, hashtag)
+					.getContent()
+					.stream()
+					.map(hashtagPost -> hashtagPost.getPost().getId())
+					.collect(toList());
 
 				return getPostDtoPage(pageable, postIds);
 			})
@@ -358,11 +357,8 @@ public class PostService {
 		}
 	}
 
-	private void hidePostLikesCountIfPostLikeFlagIsFalse(Member loginMember, PostDto post) {
-		if (!post.getMember().getId().equals(loginMember.getId()) && !post.isLikeOptionFlag()) {
-			final int postLikesCount = countOfFollowingsFromPostLikes(post.getPostId(), loginMember);
-			post.setPostLikesCount(postLikesCount);
-		}
+	private void hidePostLikesCountIfPostLikeFlagIsFalse(Member loginMember, PostDto postDto) {
+		hidePostLikesCountIfPostLikeFlagIsFalse(loginMember, List.of(postDto));
 	}
 
 	private void hidePostLikesCountIfPostLikeFlagIsFalse(Member loginMember, List<PostDto> postDtos) {
@@ -400,15 +396,12 @@ public class PostService {
 	}
 
 	private void setFollowingMemberUsernameLikedPost(Member member, List<PostDto> postDtos, List<Long> postIds) {
-		final List<Member> followings = followService.getFollowings(member).stream()
-			.map(Follow::getFollowMember)
-			.collect(toList());
 		final Map<Long, List<PostLikeDto>> postLikeDtoMap =
-			postLikeRepository.findAllPostLikeDtoInFollowings(member.getId(), postIds, followings).stream()
+			postLikeRepository.findAllPostLikeDtoOfFollowingsByMemberIdAndPostIdIn(member.getId(), postIds)
+				.stream()
 				.collect(groupingBy(PostLikeDto::getPostId));
-		postDtos.forEach(p -> p.setFollowingMemberUsernameLikedPost(
-			postLikeDtoMap.containsKey(p.getPostId()) ? postLikeDtoMap.get(p.getPostId()).get(ANY_INDEX).getUsername() :
-				EMPTY));
+		postDtos.forEach(p -> p.setFollowingMemberUsernameLikedPost(postLikeDtoMap.containsKey(p.getPostId())
+			? postLikeDtoMap.get(p.getPostId()).get(ANY_INDEX).getUsername() : EMPTY));
 	}
 
 	private void setHasStoryInPostDto(List<PostDto> postDtos) {

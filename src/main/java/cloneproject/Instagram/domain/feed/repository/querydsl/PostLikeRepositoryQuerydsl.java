@@ -12,12 +12,11 @@ import cloneproject.Instagram.domain.member.entity.Member;
 
 public interface PostLikeRepositoryQuerydsl {
 
-	List<PostLikeDto> findAllPostLikeDtoInFollowings(Long memberId, List<Long> postIds, List<Member> followings);
+	List<PostLikeDto> findAllPostLikeDtoOfFollowingsByMemberIdAndPostIdIn(Long memberId, List<Long> postIds);
 
 	Page<LikeMemberDto> findPostLikeMembersDtoPage(Pageable pageable, Long postId, Long memberId);
 
-	Page<LikeMemberDto> findPostLikeMembersDtoPageInFollowings(Pageable pageable, Long postId, Long memberId,
-		List<Member> followings);
+	Page<LikeMemberDto> findPostLikeMembersDtoPageOfFollowingsByMemberIdAndPostId(Pageable pageable, Long memberId, Long postId);
 
 	Page<LikeMemberDto> findCommentLikeMembersDtoPage(Pageable pageable, Long commentId, Long memberId);
 
