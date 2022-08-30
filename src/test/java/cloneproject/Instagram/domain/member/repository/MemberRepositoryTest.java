@@ -86,15 +86,15 @@ public class MemberRepositoryTest {
 	class FindAllByUsernameIn {
 
 		@Test
-		void given3Usernames_Find3Members() {
+		void existent3Usernames_Find3Members() {
 			// given
 			final long memberCount = 3;
 			final List<Member> givenMembers = MemberUtils.newDistinctInstances(memberCount);
 			memberRepository.saveAll(givenMembers);
-			final List<String> usernames = MemberUtils.getUsernamesFromMemberList(givenMembers);
+			final List<String> existent3Usernames = MemberUtils.getUsernamesFromMemberList(givenMembers);
 
 			// when
-			final List<Member> members = memberRepository.findAllByUsernameIn(usernames);
+			final List<Member> members = memberRepository.findAllByUsernameIn(existent3Usernames);
 
 			// then
 			assertThat(members.size()).isEqualTo(memberCount);
@@ -106,15 +106,15 @@ public class MemberRepositoryTest {
 	class FindAllByIdIn {
 
 		@Test
-		void given3Ids_Find3Members() {
+		void existent3Ids_Find3Members() {
 			// given
 			final long memberCount = 3;
 			final List<Member> givenMembers = MemberUtils.newDistinctInstances(memberCount);
 			memberRepository.saveAll(givenMembers);
-			final List<Long> ids = MemberUtils.getIdsFromMemberList(givenMembers);
+			final List<Long> existent3Ids = MemberUtils.getIdsFromMemberList(givenMembers);
 
 			// when
-			final List<Member> members = memberRepository.findAllByIdIn(ids);
+			final List<Member> members = memberRepository.findAllByIdIn(existent3Ids);
 
 			// then
 			assertThat(members.size()).isEqualTo(memberCount);
