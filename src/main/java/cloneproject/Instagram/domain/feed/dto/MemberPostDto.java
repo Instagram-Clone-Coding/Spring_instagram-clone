@@ -16,7 +16,7 @@ public class MemberPostDto {
 
 	private Long postId;
 	private MemberDto member;
-	private PostImageDto postImages;
+	private PostImageDto postImage;
 	private boolean hasManyPostImages;
 	private boolean likeOptionFlag;
 	private boolean postLikeFlag;
@@ -46,8 +46,8 @@ public class MemberPostDto {
 		this.postLikesCount = postLikesCount;
 	}
 
-	public void setPostImages(PostImageDto postImageDto) {
-		this.postImages = postImageDto;
+	public void setPostImage(PostImageDto postImageDto) {
+		this.postImage = postImageDto;
 	}
 
 	public void setPostLikesCount(int postLikesCount) {

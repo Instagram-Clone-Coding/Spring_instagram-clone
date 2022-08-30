@@ -165,7 +165,7 @@ public class MemberPostService {
 		final Map<Long, List<PostImageDto>> postDTOMap = postImageDtos.stream()
 			.collect(Collectors.groupingBy(PostImageDto::getPostId));
 
-		memberPostDtos.forEach(p -> p.setPostImages(postDTOMap.get(p.getPostId()).get(0)));
+		memberPostDtos.forEach(p -> p.setPostImage(postDTOMap.get(p.getPostId()).get(0)));
 	}
 
 }
