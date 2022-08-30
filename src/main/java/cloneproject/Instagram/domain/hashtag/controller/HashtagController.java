@@ -7,7 +7,10 @@ import javax.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,12 +21,14 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 
+import cloneproject.Instagram.domain.hashtag.dto.HashtagProfileResponse;
 import cloneproject.Instagram.domain.hashtag.service.HashtagService;
 import cloneproject.Instagram.global.result.ResultResponse;
 
 @Api(tags = "해시태그 API")
 @Validated
 @RestController
+@RequestMapping("/hashtags")
 @RequiredArgsConstructor
 public class HashtagController {
 
@@ -42,7 +47,7 @@ public class HashtagController {
 		@ApiResponse(code = 401, message = "M003 - 로그인이 필요한 화면입니다.")
 	})
 	@ApiImplicitParam(name = "hashtag", value = "hashtag", example = "#만두", required = true)
-	@PostMapping("/hashtags/follow")
+	@PostMapping("/follow")
 	public ResponseEntity<ResultResponse> followHashtag(
 		@NotBlank(message = "hashtag는 필수입니다.") @RequestParam String hashtag) {
 		hashtagService.followHashtag(hashtag);
@@ -63,12 +68,22 @@ public class HashtagController {
 		@ApiResponse(code = 401, message = "M003 - 로그인이 필요한 화면입니다.")
 	})
 	@ApiImplicitParam(name = "hashtag", value = "hashtag", example = "#만두", required = true)
-	@DeleteMapping("/hashtags/follow")
+	@DeleteMapping("/follow")
 	public ResponseEntity<ResultResponse> unfollowHashtag(
 		@NotBlank(message = "hashtag는 필수입니다.") @RequestParam String hashtag) {
 		hashtagService.unfollowHashtag(hashtag);
 
 		return ResponseEntity.ok(ResultResponse.of(UNFOLLOW_HASHTAG_SUCCESS));
+	}
+
+	@ApiOperation(value = "해시태그 프로필 조회")
+	@ApiImplicitParam(name = "hashtag", value = "hashtag", example = "만두", required = true)
+	@GetMapping("/{hashtag}")
+	public ResponseEntity<ResultResponse> getHashtagProfile(
+		@NotBlank(message = "hashtag는 필수입니다.") @PathVariable String hashtag) {
+		final HashtagProfileResponse response = hashtagService.getHashtagProfileByHashtagName(hashtag);
+
+		return ResponseEntity.ok(ResultResponse.of(GET_HASHTAG_PROFILE_SUCCESS, response));
 	}
 
 }

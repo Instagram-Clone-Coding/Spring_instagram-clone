@@ -10,8 +10,10 @@ import cloneproject.Instagram.domain.feed.entity.Post;
 import cloneproject.Instagram.domain.hashtag.entity.Hashtag;
 import cloneproject.Instagram.domain.hashtag.entity.HashtagPost;
 import cloneproject.Instagram.domain.hashtag.repository.jdbc.HashtagPostRepositoryJdbc;
+import cloneproject.Instagram.domain.hashtag.repository.querydsl.HashtagPostRepositoryQuerydsl;
 
-public interface HashtagPostRepository extends JpaRepository<HashtagPost, Long>, HashtagPostRepositoryJdbc {
+public interface HashtagPostRepository extends JpaRepository<HashtagPost, Long>, HashtagPostRepositoryJdbc,
+	HashtagPostRepositoryQuerydsl {
 
 	List<HashtagPost> findAllByPost(Post post);
 

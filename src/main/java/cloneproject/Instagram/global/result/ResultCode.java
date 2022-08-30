@@ -95,6 +95,7 @@ public enum ResultCode {
 	GET_HASHTAGS_SUCCESS(200, "H001", "해시태그 목록 페이징 조회에 성공하였습니다."),
 	FOLLOW_HASHTAG_SUCCESS(200, "H002", "해시태그 팔로우에 성공하였습니다."),
 	UNFOLLOW_HASHTAG_SUCCESS(200, "H003", "해시태그 언팔로우에 성공하였습니다."),
+	GET_HASHTAG_PROFILE_SUCCESS(200, "H004", "해시태그 프로필 조회에 성공하였습니다."),
 
 	// Story
 	CREATE_STORY_SUCCESS(200, "S001", "스토리 업로드 성공"),
