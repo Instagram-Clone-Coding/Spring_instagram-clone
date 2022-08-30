@@ -64,7 +64,7 @@ class MemberPostRepositoryQuerydslTest {
 	private BookmarkRepository bookmarkRepository;
 
 	@Nested
-	class FindMemberPostDtoPage {
+	class FindMemberPostDtoPageByLoginMemberIdAndTargetUsername {
 
 		@Test
 		void total15PostsExistAndOnly10PostsUploadedByMember_Find10MemberPostDtos() {
@@ -90,7 +90,7 @@ class MemberPostRepositoryQuerydslTest {
 			final Pageable pageable = PageRequest.of(page, pageSize);
 
 			// when
-			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtos(member.getId(),
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
 				member.getUsername(), pageable);
 
 			// then
@@ -116,7 +116,7 @@ class MemberPostRepositoryQuerydslTest {
 			final Pageable pageable = PageRequest.of(page, pageSize);
 
 			// when
-			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtos(member.getId(),
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
 				member.getUsername(), pageable);
 
 			// then
@@ -146,7 +146,7 @@ class MemberPostRepositoryQuerydslTest {
 			final Pageable pageable = PageRequest.of(page, pageSize);
 
 			// when
-			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtos(member.getId(),
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
 				member.getUsername(), pageable);
 
 			// then
@@ -175,7 +175,7 @@ class MemberPostRepositoryQuerydslTest {
 			final Pageable pageable = PageRequest.of(page, pageSize);
 
 			// when
-			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtos(member.getId(),
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
 				member.getUsername(), pageable);
 
 			// then
@@ -208,7 +208,7 @@ class MemberPostRepositoryQuerydslTest {
 			final Pageable pageable = PageRequest.of(page, pageSize);
 
 			// when
-			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtos(member.getId(),
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
 				member.getUsername(), pageable);
 
 			// then
@@ -234,7 +234,7 @@ class MemberPostRepositoryQuerydslTest {
 			final Pageable pageable = PageRequest.of(page, pageSize);
 
 			// when
-			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtos(member.getId(),
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
 				member.getUsername(), pageable);
 
 			// then
@@ -245,7 +245,7 @@ class MemberPostRepositoryQuerydslTest {
 	}
 
 	@Nested
-	class FindMemberSavedPostDtoPage {
+	class FindMemberSavedPostDtoPageByLoginMemberId {
 
 		@Test
 		void total15PostsExistAndOnly10PostsSaved_Find10MemberPostDtos() {
@@ -268,7 +268,7 @@ class MemberPostRepositoryQuerydslTest {
 			final Pageable pageable = PageRequest.of(page, pageSize);
 
 			// when
-			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPage(member.getId(),
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPageByLoginMemberId(member.getId(),
 				pageable);
 
 			// then
@@ -295,7 +295,7 @@ class MemberPostRepositoryQuerydslTest {
 			final Pageable pageable = PageRequest.of(page, pageSize);
 
 			// when
-			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPage(member.getId(),
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPageByLoginMemberId(member.getId(),
 				pageable);
 
 			// then
@@ -326,7 +326,7 @@ class MemberPostRepositoryQuerydslTest {
 			final Pageable pageable = PageRequest.of(page, pageSize);
 
 			// when
-			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPage(member.getId(),
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPageByLoginMemberId(member.getId(),
 				pageable);
 
 			// then
@@ -356,7 +356,7 @@ class MemberPostRepositoryQuerydslTest {
 			final Pageable pageable = PageRequest.of(page, pageSize);
 
 			// when
-			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPage(member.getId(),
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPageByLoginMemberId(member.getId(),
 				pageable);
 
 			// then
@@ -390,7 +390,7 @@ class MemberPostRepositoryQuerydslTest {
 			final Pageable pageable = PageRequest.of(page, pageSize);
 
 			// when
-			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPage(member.getId(),
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPageByLoginMemberId(member.getId(),
 				pageable);
 
 			// then
@@ -417,7 +417,7 @@ class MemberPostRepositoryQuerydslTest {
 			final Pageable pageable = PageRequest.of(page, pageSize);
 
 			// when
-			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPage(member.getId(),
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberSavedPostDtoPageByLoginMemberId(member.getId(),
 				pageable);
 
 			// then
@@ -428,7 +428,7 @@ class MemberPostRepositoryQuerydslTest {
 	}
 
 	@Nested
-	class FindMemberTaggedPostDtoPage {
+	class FindMemberTaggedPostDtoPageByLoginMemberIdAndTargetUsername {
 
 		@Test
 		void total15PostsExistAndOnly10PostsTagged_Find10MemberPostDtos() {
@@ -455,7 +455,7 @@ class MemberPostRepositoryQuerydslTest {
 			final Pageable pageable = PageRequest.of(page, pageSize);
 
 			// when
-			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPage(member.getId(),
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
 				member.getUsername(), pageable);
 
 			// then
@@ -486,7 +486,7 @@ class MemberPostRepositoryQuerydslTest {
 			final Pageable pageable = PageRequest.of(page, pageSize);
 
 			// when
-			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPage(member.getId(),
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
 				member.getUsername(), pageable);
 
 			// then
@@ -521,7 +521,7 @@ class MemberPostRepositoryQuerydslTest {
 			final Pageable pageable = PageRequest.of(page, pageSize);
 
 			// when
-			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPage(member.getId(),
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
 				member.getUsername(), pageable);
 
 			// then
@@ -553,7 +553,7 @@ class MemberPostRepositoryQuerydslTest {
 			final Pageable pageable = PageRequest.of(page, pageSize);
 
 			// when
-			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPage(member.getId(),
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
 				member.getUsername(), pageable);
 
 			// then
@@ -588,7 +588,7 @@ class MemberPostRepositoryQuerydslTest {
 			final Pageable pageable = PageRequest.of(page, pageSize);
 
 			// when
-			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPage(member.getId(),
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
 				member.getUsername(), pageable);
 
 			// then
@@ -620,7 +620,7 @@ class MemberPostRepositoryQuerydslTest {
 			final Pageable pageable = PageRequest.of(page, pageSize);
 
 			// when
-			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPage(member.getId(),
+			final Page<MemberPostDto> memberPostDtoPage = memberRepository.findMemberTaggedPostDtoPageByLoginMemberIdAndTargetUsername(member.getId(),
 				member.getUsername(), pageable);
 
 			// then
