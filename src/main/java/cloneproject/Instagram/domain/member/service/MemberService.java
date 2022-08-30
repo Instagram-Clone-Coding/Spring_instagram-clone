@@ -73,7 +73,7 @@ public class MemberService {
 		final Member member = memberRepository.findByUsername(username)
 			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
-		final MiniProfileResponse result = memberRepository.findMiniProfile(memberId, member.getUsername());
+		final MiniProfileResponse result = memberRepository.findMiniProfileByLoginMemberIdAndTargetUsername(memberId, member.getUsername());
 		final List<FollowDto> followDtos = followRepository.findFollowingMemberFollowList(memberId, username);
 
 		result.setFollowingMemberFollow(followDtos, MAX_MINI_PROFILE_FOLLOWING_MEMBER_FOLLOW_COUNT);
@@ -124,7 +124,7 @@ public class MemberService {
 		final Member member = memberRepository.findByUsername(username)
 			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
-		final UserProfileResponse result = memberRepository.findUserProfile(memberId, member.getUsername());
+		final UserProfileResponse result = memberRepository.findUserProfileByLoginMemberIdAndTargetUsername(memberId, member.getUsername());
 		final List<FollowDto> followDtos = followRepository.findFollowingMemberFollowList(memberId, username);
 
 		result.setFollowingMemberFollow(followDtos, MAX_PROFILE_FOLLOWING_MEMBER_FOLLOW_COUNT);

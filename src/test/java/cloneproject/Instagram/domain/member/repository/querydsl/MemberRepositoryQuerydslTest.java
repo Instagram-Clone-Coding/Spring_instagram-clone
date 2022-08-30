@@ -47,7 +47,7 @@ public class MemberRepositoryQuerydslTest {
 	private BlockRepository blockRepository;
 
 	@Nested
-	class FindUserProfile {
+	class FindUserProfileByLoginMemberIdAndTargetUsername {
 
 		@Test
 		void validArguments_AllFieldsMappedSuccess() {
@@ -63,7 +63,7 @@ public class MemberRepositoryQuerydslTest {
 			prepareFollows(member, followerCount, followingCount);
 
 			// when
-			final UserProfileResponse userProfileResponse = memberRepository.findUserProfile(UNLOGIN_MEMBER_ID,
+			final UserProfileResponse userProfileResponse = memberRepository.findUserProfileByLoginMemberIdAndTargetUsername(UNLOGIN_MEMBER_ID,
 				member.getUsername());
 
 			// then
@@ -89,7 +89,7 @@ public class MemberRepositoryQuerydslTest {
 			memberRepository.save(member);
 
 			// when
-			final UserProfileResponse userProfileResponse = memberRepository.findUserProfile(member.getId(),
+			final UserProfileResponse userProfileResponse = memberRepository.findUserProfileByLoginMemberIdAndTargetUsername(member.getId(),
 				member.getUsername());
 
 			// then
@@ -119,7 +119,7 @@ public class MemberRepositoryQuerydslTest {
 			prepareFollows(target, followerCount, followingCount);
 
 			// when
-			final UserProfileResponse userProfileResponse = memberRepository.findUserProfile(member.getId(),
+			final UserProfileResponse userProfileResponse = memberRepository.findUserProfileByLoginMemberIdAndTargetUsername(member.getId(),
 				target.getUsername());
 
 			// then
@@ -153,7 +153,7 @@ public class MemberRepositoryQuerydslTest {
 			prepareFollows(target, followerCount, followingCount);
 
 			// when
-			final UserProfileResponse userProfileResponse = memberRepository.findUserProfile(member.getId(),
+			final UserProfileResponse userProfileResponse = memberRepository.findUserProfileByLoginMemberIdAndTargetUsername(member.getId(),
 				target.getUsername());
 
 			// then
@@ -181,7 +181,7 @@ public class MemberRepositoryQuerydslTest {
 			prepareFollows(target, followerCount, followingCount);
 
 			// when
-			final UserProfileResponse userProfileResponse = memberRepository.findUserProfile(member.getId(),
+			final UserProfileResponse userProfileResponse = memberRepository.findUserProfileByLoginMemberIdAndTargetUsername(member.getId(),
 				target.getUsername());
 
 			// then
@@ -207,7 +207,7 @@ public class MemberRepositoryQuerydslTest {
 			followRepository.save(follow);
 
 			// when
-			final UserProfileResponse userProfileResponse = memberRepository.findUserProfile(member.getId(),
+			final UserProfileResponse userProfileResponse = memberRepository.findUserProfileByLoginMemberIdAndTargetUsername(member.getId(),
 				target.getUsername());
 
 			// then
@@ -230,7 +230,7 @@ public class MemberRepositoryQuerydslTest {
 			followRepository.save(follow);
 
 			// when
-			final UserProfileResponse userProfileResponse = memberRepository.findUserProfile(member.getId(),
+			final UserProfileResponse userProfileResponse = memberRepository.findUserProfileByLoginMemberIdAndTargetUsername(member.getId(),
 				target.getUsername());
 
 			// then
@@ -240,7 +240,7 @@ public class MemberRepositoryQuerydslTest {
 	}
 
 	@Nested
-	class FindMiniProfile {
+	class FindMiniProfileByLoginMemberIdAndTargetUsername {
 
 		@Test
 		void validArguments_AllFieldsMappedSuccess() {
@@ -256,7 +256,7 @@ public class MemberRepositoryQuerydslTest {
 			prepareFollows(member, followerCount, followingCount);
 
 			// when
-			final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfile(UNLOGIN_MEMBER_ID,
+			final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfileByLoginMemberIdAndTargetUsername(UNLOGIN_MEMBER_ID,
 				member.getUsername());
 
 			// then
@@ -281,7 +281,7 @@ public class MemberRepositoryQuerydslTest {
 			memberRepository.save(member);
 
 			// when
-			final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfile(member.getId(),
+			final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfileByLoginMemberIdAndTargetUsername(member.getId(),
 				member.getUsername());
 
 			// then
@@ -311,7 +311,7 @@ public class MemberRepositoryQuerydslTest {
 			prepareFollows(target, followerCount, followingCount);
 
 			// when
-			final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfile(member.getId(),
+			final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfileByLoginMemberIdAndTargetUsername(member.getId(),
 				target.getUsername());
 
 			// then
@@ -345,7 +345,7 @@ public class MemberRepositoryQuerydslTest {
 			prepareFollows(target, followerCount, followingCount);
 
 			// when
-			final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfile(member.getId(),
+			final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfileByLoginMemberIdAndTargetUsername(member.getId(),
 				target.getUsername());
 
 			// then
@@ -373,7 +373,7 @@ public class MemberRepositoryQuerydslTest {
 			prepareFollows(target, followerCount, followingCount);
 
 			// when
-			final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfile(member.getId(),
+			final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfileByLoginMemberIdAndTargetUsername(member.getId(),
 				target.getUsername());
 
 			// then
@@ -399,7 +399,7 @@ public class MemberRepositoryQuerydslTest {
 			followRepository.save(follow);
 
 			// when
-			final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfile(member.getId(),
+			final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfileByLoginMemberIdAndTargetUsername(member.getId(),
 				target.getUsername());
 
 			// then
@@ -422,7 +422,7 @@ public class MemberRepositoryQuerydslTest {
 			followRepository.save(follow);
 
 			// when
-			final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfile(member.getId(),
+			final MiniProfileResponse miniProfileResponse = memberRepository.findMiniProfileByLoginMemberIdAndTargetUsername(member.getId(),
 				target.getUsername());
 
 			// then

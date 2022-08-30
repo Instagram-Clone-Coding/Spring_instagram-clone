@@ -5,8 +5,8 @@ import cloneproject.Instagram.domain.member.dto.UserProfileResponse;
 
 public interface MemberRepositoryQuerydsl {
 
-	UserProfileResponse findUserProfile(Long loginUserId, String username);
+	UserProfileResponse findUserProfileByLoginMemberIdAndTargetUsername(Long loginUserId, String username);
 
-	MiniProfileResponse findMiniProfile(Long loginUserId, String username);
+	MiniProfileResponse findMiniProfileByLoginMemberIdAndTargetUsername(Long loginUserId, String username);
 
 }
