@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 			))
 			.from(post)
 			.innerJoin(post.member, member)
-			.where(isUploadedByFollowingsBy(memberId).or(withFollowingHashtagBy(memberId)))
+			.where(post.member.id.in(getFollowingMemberIdsByMemberId(memberId))
+				.or(post.id.in(getPostIdsOfFollowingHashtagByMemberId(memberId))))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.orderBy(post.id.desc())
@@ -56,7 +58,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 		final long total = queryFactory
 			.selectFrom(post)
 			.innerJoin(post.member, member)
-			.where(isUploadedByFollowingsBy(memberId).or(withFollowingHashtagBy(memberId)))
+			.where(post.member.id.in(getFollowingMemberIdsByMemberId(memberId))
+				.or(post.id.in(getPostIdsOfFollowingHashtagByMemberId(memberId))))
 			.fetchCount();
 
 		return new PageImpl<>(postDtos, pageable, total);
@@ -129,16 +132,6 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 		return new PageImpl<>(postDtos, pageable, total);
 	}
 
-	private BooleanExpression withFollowingHashtagBy(Long memberId) {
-		return post.id.in(
-			JPAExpressions
-				.select(hashtagPost.post.id)
-				.from(hashtagPost)
-				.join(hashtagFollow).on(hashtagPost.hashtag.id.eq(hashtagFollow.hashtag.id))
-				.innerJoin(hashtagFollow.member, member)
-				.where(hashtagFollow.member.id.eq(memberId))
-		);
-	}
 	private BooleanExpression isExistPostLikeWherePostEqAndMemberIdEq(Long id) {
 		return JPAExpressions
 			.selectFrom(postLike)
@@ -153,13 +146,20 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 			.exists();
 	}
 
-	private BooleanExpression isUploadedByFollowingsBy(Long id) {
-		return post.member.username.in(
-			JPAExpressions
-				.select(follow.followMember.username)
-				.from(follow)
-				.innerJoin(follow.followMember, member)
-				.where(follow.member.id.eq(id)));
+	private JPQLQuery<Long> getFollowingMemberIdsByMemberId(Long memberId) {
+		return JPAExpressions
+			.select(follow.followMember.id)
+			.from(follow)
+			.where(follow.member.id.eq(memberId));
+	}
+
+	private JPQLQuery<Long> getPostIdsOfFollowingHashtagByMemberId(Long memberId) {
+		return JPAExpressions
+			.select(hashtagPost.post.id)
+			.from(hashtagPost)
+			.join(hashtagFollow).on(hashtagFollow.member.id.eq(memberId)
+				.and(hashtagFollow.hashtag.id.eq(hashtagPost.hashtag.id)))
+			.innerJoin(hashtagPost.post, post).on(hashtagPost.post.member.id.ne(memberId));
 	}
 
 }
