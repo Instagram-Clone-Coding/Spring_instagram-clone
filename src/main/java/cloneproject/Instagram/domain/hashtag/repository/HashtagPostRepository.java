@@ -2,9 +2,10 @@ package cloneproject.Instagram.domain.hashtag.repository;
 
 import java.util.List;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import cloneproject.Instagram.domain.feed.entity.Post;
 import cloneproject.Instagram.domain.hashtag.entity.Hashtag;
@@ -21,6 +22,7 @@ public interface HashtagPostRepository extends JpaRepository<HashtagPost, Long>,
 
 	List<HashtagPost> findAllByPostAndHashtagIn(Post post, List<Hashtag> hashtags);
 
-	Page<HashtagPost> findAllByHashtagOrderByPostIdDesc(Pageable pageable, Hashtag hashtag);
+	@Query("select hp from HashtagPost hp join fetch hp.post where hp.hashtag.id = :hashtagId")
+	List<HashtagPost> findAllWithPostByHashtagId(Pageable pageable, @Param("hashtagId") Long hashtagId);
 
 }

@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -254,11 +255,10 @@ public class PostService {
 
 	// TODO: 리팩토링 고려
 	public Page<PostDto> getHashTagPosts(int page, int size, String name) {
-		final Pageable pageable = PageRequest.of(page, size);
+		final Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "postId");
 		return hashtagRepository.findByName(name)
 			.map(hashtag -> {
-				final List<Long> postIds = hashtagPostRepository.findAllByHashtagOrderByPostIdDesc(pageable, hashtag)
-					.getContent()
+				final List<Long> postIds = hashtagPostRepository.findAllWithPostByHashtagId(pageable, hashtag.getId())
 					.stream()
 					.map(hashtagPost -> hashtagPost.getPost().getId())
 					.collect(toList());
