@@ -155,8 +155,23 @@ public class HashtagService {
 			.orElseThrow(() -> new EntityNotFoundException(HASHTAG_NOT_FOUND));
 		final HashtagProfileResponse hashtagProfile = hashtagPostRepository.findHashtagProfileByLoginMemberIdAndHashtagId(
 			loginMember.getId(), hashtag.getId());
-		final PageRequest firstElement = PageRequest.of(0, 1, Sort.Direction.DESC, "postId");
+		final PageRequest firstElement = PageRequest.of(0, 1, Sort.Direction.DESC, "post.id");
 		final Image image = hashtagPostRepository.findAllWithPostByHashtagId(firstElement, hashtag.getId())
+			.get(ANY_INDEX)
+			.getPost()
+			.getPostImages()
+			.get(ANY_INDEX)
+			.getImage();
+		hashtagProfile.setImage(image);
+		return hashtagProfile;
+	}
+
+	public HashtagProfileResponse getHashtagProfileByHashtagNameWithoutLogin(String hashtagName) {
+		final Long hashtagId = hashtagRepository.findByName(hashtagName)
+			.orElseThrow(() -> new EntityNotFoundException(HASHTAG_NOT_FOUND)).getId();
+		final HashtagProfileResponse hashtagProfile = hashtagPostRepository.findHashtagProfileByHashtagId(hashtagId);
+		final PageRequest firstElement = PageRequest.of(0, 1, Sort.Direction.DESC, "post.id");
+		final Image image = hashtagPostRepository.findAllWithPostByHashtagId(firstElement, hashtagId)
 			.get(ANY_INDEX)
 			.getPost()
 			.getPostImages()

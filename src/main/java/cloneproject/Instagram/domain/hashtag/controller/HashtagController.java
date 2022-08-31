@@ -93,4 +93,20 @@ public class HashtagController {
 		return ResponseEntity.ok(ResultResponse.of(GET_HASHTAG_PROFILE_SUCCESS, response));
 	}
 
+	@ApiOperation(value = "로그인 없이 해시태그 프로필 조회")
+	@ApiResponses({
+		@ApiResponse(code = 200, message = "H004 - 해시태그 프로필 조회에 성공하였습니다."),
+		@ApiResponse(code = 400, message = "G003 - 유효하지 않은 입력입니다.\n"
+			+ "G004 - 입력 타입이 유효하지 않습니다.\n"
+			+ "H001 - 존재하지 않는 해시태그 입니다.\n")
+	})
+	@ApiImplicitParam(name = "hashtag", value = "hashtag", example = "만두", required = true)
+	@GetMapping("/{hashtag}/without")
+	public ResponseEntity<ResultResponse> getHashtagProfileWithoutLogin(
+		@NotBlank(message = "hashtag는 필수입니다.") @PathVariable String hashtag) {
+		final HashtagProfileResponse response = hashtagService.getHashtagProfileByHashtagNameWithoutLogin(hashtag);
+
+		return ResponseEntity.ok(ResultResponse.of(GET_HASHTAG_PROFILE_SUCCESS, response));
+	}
+
 }

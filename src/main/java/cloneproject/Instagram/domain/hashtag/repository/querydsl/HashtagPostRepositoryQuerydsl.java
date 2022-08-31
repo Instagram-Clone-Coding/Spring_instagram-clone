@@ -7,4 +7,6 @@ public interface HashtagPostRepositoryQuerydsl {
 
 	HashtagProfileResponse findHashtagProfileByLoginMemberIdAndHashtagId(Long loginMemberId, Long hashtagId);
 
+	HashtagProfileResponse findHashtagProfileByHashtagId(Long hashtagId);
+
 }

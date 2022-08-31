@@ -32,6 +32,19 @@ public class HashtagPostRepositoryQuerydslImpl implements HashtagPostRepositoryQ
 			.fetchOne();
 	}
 
+	@Override
+	public HashtagProfileResponse findHashtagProfileByHashtagId(Long hashtagId) {
+		return queryFactory
+			.select(new QHashtagProfileResponse(
+				hashtagPost.hashtag.name,
+				hashtagPost.count()
+			))
+			.from(hashtagPost)
+			.innerJoin(hashtagPost.hashtag, hashtag)
+			.where(hashtagPost.hashtag.id.eq(hashtagId))
+			.fetchOne();
+	}
+
 	private BooleanExpression isFollowingHashtag(Long loginMemberId, Long hashtagId) {
 		return JPAExpressions
 			.selectFrom(hashtagFollow)

@@ -21,6 +21,13 @@ public class HashtagProfileResponse {
 		this.isFollowing = isFollowing;
 	}
 
+	@QueryProjection
+	public HashtagProfileResponse(String name, Long postCount) {
+		this.name = name;
+		this.postCount = postCount;
+		this.isFollowing = false;
+	}
+
 	public void setImage(Image image) {
 		this.image = image;
 	}
