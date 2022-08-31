@@ -77,6 +77,13 @@ public class HashtagController {
 	}
 
 	@ApiOperation(value = "해시태그 프로필 조회")
+	@ApiResponses({
+		@ApiResponse(code = 200, message = "H004 - 해시태그 프로필 조회에 성공하였습니다."),
+		@ApiResponse(code = 400, message = "G003 - 유효하지 않은 입력입니다.\n"
+			+ "G004 - 입력 타입이 유효하지 않습니다.\n"
+			+ "H001 - 존재하지 않는 해시태그 입니다.\n"),
+		@ApiResponse(code = 401, message = "M003 - 로그인이 필요한 화면입니다.")
+	})
 	@ApiImplicitParam(name = "hashtag", value = "hashtag", example = "만두", required = true)
 	@GetMapping("/{hashtag}")
 	public ResponseEntity<ResultResponse> getHashtagProfile(
