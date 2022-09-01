@@ -23,42 +23,42 @@ public class MemberRepositoryQuerydslImpl implements MemberRepositoryQuerydsl {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public UserProfileResponse findUserProfileByLoginMemberIdAndTargetUsername(Long loginUserId, String username) {
+	public UserProfileResponse findUserProfileByLoginMemberIdAndTargetUsername(Long loginMemberId, String username) {
 		return queryFactory
 			.select(new QUserProfileResponse(
 				member.username,
 				member.name,
 				member.website,
 				member.image,
-				isFollowing(loginUserId, username),
-				isFollower(loginUserId, username),
-				isBlocking(loginUserId, username),
-				isBlocked(loginUserId, username),
+				isFollowing(loginMemberId, username),
+				isFollower(loginMemberId, username),
+				isBlocking(loginMemberId, username),
+				isBlocked(loginMemberId, username),
 				member.introduce,
 				getPostCount(username),
 				getFollowingCount(username),
 				getFollowerCount(username),
-				member.id.eq(loginUserId)))
+				member.id.eq(loginMemberId)))
 			.from(member)
 			.where(member.username.eq(username))
 			.fetchOne();
 	}
 
 	@Override
-	public MiniProfileResponse findMiniProfileByLoginMemberIdAndTargetUsername(Long loginUserId, String username) {
+	public MiniProfileResponse findMiniProfileByLoginMemberIdAndTargetUsername(Long loginMemberId, String username) {
 		return queryFactory
 			.select(new QMiniProfileResponse(
 				member.username,
 				member.name,
 				member.image,
-				isFollowing(loginUserId, username),
-				isFollower(loginUserId, username),
-				isBlocking(loginUserId, username),
-				isBlocked(loginUserId, username),
+				isFollowing(loginMemberId, username),
+				isFollower(loginMemberId, username),
+				isBlocking(loginMemberId, username),
+				isBlocked(loginMemberId, username),
 				getPostCount(username),
 				getFollowingCount(username),
 				getFollowerCount(username),
-				member.id.eq(loginUserId)))
+				member.id.eq(loginMemberId)))
 			.from(member)
 			.where(member.username.eq(username))
 			.fetchOne();
