@@ -1,6 +1,7 @@
 package cloneproject.Instagram.domain.hashtag.service;
 
 import static cloneproject.Instagram.global.error.ErrorCode.*;
+import static cloneproject.Instagram.global.util.ConstantUtils.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -10,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +24,7 @@ import cloneproject.Instagram.domain.follow.entity.HashtagFollow;
 import cloneproject.Instagram.domain.follow.exception.HashtagFollowFailException;
 import cloneproject.Instagram.domain.follow.exception.HashtagUnfollowFailException;
 import cloneproject.Instagram.domain.follow.repository.HashtagFollowRepository;
+import cloneproject.Instagram.domain.hashtag.dto.HashtagProfileResponse;
 import cloneproject.Instagram.domain.hashtag.entity.Hashtag;
 import cloneproject.Instagram.domain.hashtag.entity.HashtagPost;
 import cloneproject.Instagram.domain.hashtag.exception.HashtagPrefixMismatchException;
@@ -31,6 +35,7 @@ import cloneproject.Instagram.domain.search.service.SearchService;
 import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 import cloneproject.Instagram.global.util.AuthUtil;
 import cloneproject.Instagram.global.util.StringExtractUtil;
+import cloneproject.Instagram.global.vo.Image;
 
 @Service
 @RequiredArgsConstructor
@@ -142,6 +147,38 @@ public class HashtagService {
 		hashtagPostRepository.deleteAllInBatch(hashtagPosts);
 		searchService.deleteSearchHashtags(deleteHashtags);
 		hashtagRepository.deleteAllInBatch(deleteHashtags);
+	}
+
+	public HashtagProfileResponse getHashtagProfileByHashtagName(String hashtagName) {
+		final Member loginMember = authUtil.getLoginMember();
+		final Hashtag hashtag = hashtagRepository.findByName(hashtagName)
+			.orElseThrow(() -> new EntityNotFoundException(HASHTAG_NOT_FOUND));
+		final HashtagProfileResponse hashtagProfile = hashtagPostRepository.findHashtagProfileByLoginMemberIdAndHashtagId(
+			loginMember.getId(), hashtag.getId());
+		final PageRequest firstElement = PageRequest.of(0, 1, Sort.Direction.DESC, "post.id");
+		final Image image = hashtagPostRepository.findAllWithPostByHashtagId(firstElement, hashtag.getId())
+			.get(ANY_INDEX)
+			.getPost()
+			.getPostImages()
+			.get(ANY_INDEX)
+			.getImage();
+		hashtagProfile.setImage(image);
+		return hashtagProfile;
+	}
+
+	public HashtagProfileResponse getHashtagProfileByHashtagNameWithoutLogin(String hashtagName) {
+		final Long hashtagId = hashtagRepository.findByName(hashtagName)
+			.orElseThrow(() -> new EntityNotFoundException(HASHTAG_NOT_FOUND)).getId();
+		final HashtagProfileResponse hashtagProfile = hashtagPostRepository.findHashtagProfileByHashtagId(hashtagId);
+		final PageRequest firstElement = PageRequest.of(0, 1, Sort.Direction.DESC, "post.id");
+		final Image image = hashtagPostRepository.findAllWithPostByHashtagId(firstElement, hashtagId)
+			.get(ANY_INDEX)
+			.getPost()
+			.getPostImages()
+			.get(ANY_INDEX)
+			.getImage();
+		hashtagProfile.setImage(image);
+		return hashtagProfile;
 	}
 
 	private void registerHashtags(Post post, String content) {
