@@ -57,7 +57,7 @@ public class MemberAuthService {
 		}
 		final String username = registerRequest.getUsername();
 
-		if (!emailCodeService.checkEmailCode(username, registerRequest.getEmail(), registerRequest.getCode())) {
+		if (!emailCodeService.checkRegisterCode(username, registerRequest.getEmail(), registerRequest.getCode())) {
 			return false;
 		}
 
@@ -76,7 +76,7 @@ public class MemberAuthService {
 		if (memberRepository.existsByUsername(username)) {
 			throw new EntityAlreadyExistException(USERNAME_ALREADY_EXIST);
 		}
-		emailCodeService.sendEmailConfirmationCode(username, email);
+		emailCodeService.sendRegisterCode(username, email);
 	}
 
 	@Transactional

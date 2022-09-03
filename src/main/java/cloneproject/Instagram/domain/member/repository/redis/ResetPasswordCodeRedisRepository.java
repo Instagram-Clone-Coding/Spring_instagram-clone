@@ -8,6 +8,6 @@ import cloneproject.Instagram.domain.member.entity.redis.ResetPasswordCode;
 
 public interface ResetPasswordCodeRedisRepository extends CrudRepository<ResetPasswordCode, String> {
 
-	public Optional<ResetPasswordCode> findByUsername(String username);
+	Optional<ResetPasswordCode> findByUsername(String username);
 
 }

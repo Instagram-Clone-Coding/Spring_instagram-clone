@@ -12,8 +12,8 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@RedisHash("EmailCode")
-public class EmailCode implements Serializable {
+@RedisHash("RegisterCode")
+public class RegisterCode implements Serializable {
 
 	@Id
 	@Indexed // Redis 에선 Indexed 어노테이션이 있어야 find 가능
@@ -27,7 +27,7 @@ public class EmailCode implements Serializable {
 	private Long timeout = 300L;
 
 	@Builder
-	public EmailCode(String username, String code, String email) {
+	public RegisterCode(String username, String code, String email) {
 		this.username = username;
 		this.code = code;
 		this.email = email;
