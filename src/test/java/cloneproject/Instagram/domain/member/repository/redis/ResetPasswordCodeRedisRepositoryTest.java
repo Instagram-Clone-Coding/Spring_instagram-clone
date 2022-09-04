@@ -2,6 +2,7 @@ package cloneproject.Instagram.domain.member.repository.redis;
 
 import static org.assertj.core.api.Assertions.*;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,11 +41,10 @@ public class ResetPasswordCodeRedisRepositoryTest {
 		@Test
 		void resetPasswordCodeNotExist_ReturnEmpty() {
 			// given
-			final ResetPasswordCode resetPasswordCode = ResetPasswordCodeUtils.newInstance();
+			final String randomUsername = RandomStringUtils.random(15, true, true);
 
 			// when
-			final boolean isEmpty = resetPasswordCodeRedisRepository.findByUsername(resetPasswordCode.getUsername())
-				.isEmpty();
+			final boolean isEmpty = resetPasswordCodeRedisRepository.findByUsername(randomUsername).isEmpty();
 
 			// then
 			assertThat(isEmpty).isTrue();
