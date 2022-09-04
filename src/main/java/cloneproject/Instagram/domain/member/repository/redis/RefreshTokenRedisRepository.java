@@ -9,9 +9,7 @@ import cloneproject.Instagram.domain.member.entity.redis.RefreshToken;
 
 public interface RefreshTokenRedisRepository extends CrudRepository<RefreshToken, String> {
 
-	List<RefreshToken> findByMemberId(Long memberId);
-
-	boolean existsByMemberIdAndValue(Long memberId, String value);
+	List<RefreshToken> findAllByMemberId(Long memberId);
 
 	Optional<RefreshToken> findByMemberIdAndValue(Long memberId, String value);
 

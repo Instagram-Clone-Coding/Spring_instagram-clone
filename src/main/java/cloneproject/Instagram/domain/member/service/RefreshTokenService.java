@@ -31,7 +31,7 @@ public class RefreshTokenService {
 
 	@Transactional
 	public void addRefreshToken(Long memberId, String tokenValue, String device, Location location) {
-		final List<RefreshToken> refreshTokens = refreshTokenRedisRepository.findByMemberId(memberId)
+		final List<RefreshToken> refreshTokens = refreshTokenRedisRepository.findAllByMemberId(memberId)
 			.stream()
 			.sorted(Comparator.comparing(RefreshToken::getLastUpdateDate))
 			.collect(Collectors.toList());
@@ -89,7 +89,7 @@ public class RefreshTokenService {
 
 	@Transactional(readOnly = true)
 	public List<LoginDevicesDto> getLoginDevices(Long memberId, String currentToken) {
-		final List<RefreshToken> refreshTokens = refreshTokenRedisRepository.findByMemberId(memberId)
+		final List<RefreshToken> refreshTokens = refreshTokenRedisRepository.findAllByMemberId(memberId)
 			.stream()
 			.sorted(Comparator.comparing(RefreshToken::getLastUpdateDate).reversed())
 			.collect(Collectors.toList());
