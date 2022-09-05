@@ -16,12 +16,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import cloneproject.Instagram.domain.member.entity.Member;
-import cloneproject.Instagram.domain.member.entity.redis.EmailCode;
+import cloneproject.Instagram.domain.member.entity.redis.RegisterCode;
 import cloneproject.Instagram.domain.member.entity.redis.ResetPasswordCode;
 import cloneproject.Instagram.domain.member.exception.EmailNotConfirmedException;
 import cloneproject.Instagram.domain.member.exception.PasswordResetFailException;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
-import cloneproject.Instagram.domain.member.repository.redis.EmailCodeRedisRepository;
+import cloneproject.Instagram.domain.member.repository.redis.RegisterCodeRedisRepository;
 import cloneproject.Instagram.domain.member.repository.redis.ResetPasswordCodeRedisRepository;
 import cloneproject.Instagram.global.error.exception.FileConvertFailException;
 import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
@@ -33,40 +33,35 @@ import cloneproject.Instagram.infra.email.EmailService;
 public class EmailCodeService {
 
 	private final MemberRepository memberRepository;
-	private final EmailCodeRedisRepository emailCodeRedisRepository;
+	private final RegisterCodeRedisRepository emailCodeRedisRepository;
 	private final ResetPasswordCodeRedisRepository resetPasswordCodeRedisRepository;
 	private final EmailService emailService;
 
 	private String confirmEmailUI;
 	private String resetPasswordEmailUI;
 
-	public void sendEmailConfirmationCode(String username, String email) {
+	public void sendRegisterCode(String username, String email) {
 		final String code = createConfirmationCode(6);
 		final String text = String.format(confirmEmailUI, email, code, email);
 		emailService.sendHtmlTextEmail(username + ", Welcome to Instagram.", text, email);
 
-		final EmailCode emailCode = EmailCode.builder()
+		final RegisterCode registerCode = RegisterCode.builder()
 			.username(username)
 			.email(email)
 			.code(code)
 			.build();
-		emailCodeRedisRepository.save(emailCode);
+		emailCodeRedisRepository.save(registerCode);
 	}
 
-	public boolean checkEmailCode(String username, String email, String code) {
-		final Optional<EmailCode> optionalEmailCode = emailCodeRedisRepository.findByUsername(username);
+	public boolean checkRegisterCode(String username, String email, String code) {
+		final RegisterCode registerCode = emailCodeRedisRepository.findByUsername(username)
+			.orElseThrow(EmailNotConfirmedException::new);
 
-		if (optionalEmailCode.isEmpty()) {
-			throw new EmailNotConfirmedException();
-		}
-
-		final EmailCode emailCode = optionalEmailCode.get();
-
-		if (!emailCode.getCode().equals(code) || !emailCode.getEmail().equals(email)) {
+		if (!registerCode.getCode().equals(code) || !registerCode.getEmail().equals(email)) {
 			return false;
 		}
 
-		emailCodeRedisRepository.delete(emailCode);
+		emailCodeRedisRepository.delete(registerCode);
 		return true;
 	}
 
