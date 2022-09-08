@@ -52,6 +52,7 @@ import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.mention.service.MentionService;
+import cloneproject.Instagram.domain.story.entity.redis.MemberStory;
 import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
 import cloneproject.Instagram.global.error.ErrorResponse.FieldError;
 import cloneproject.Instagram.global.error.exception.EntityAlreadyExistException;
@@ -137,21 +138,22 @@ public class PostService {
 	public Page<PostDto> getPostDtoPage(int size, int page) {
 		final Member loginMember = authUtil.getLoginMember();
 		final Pageable pageable = PageRequest.of(page, size);
-		final Page<PostDto> postDtoPage = postRepository.findPostDtoPage(loginMember.getId(), pageable);
+		final Page<PostDto> postDtoPage = postRepository.findPostDtoPageOfFollowingMembersOrHashtagsByMemberId(
+			loginMember.getId(), pageable);
 		setContents(loginMember, postDtoPage.getContent());
 		return postDtoPage;
 	}
 
 	public PostDto getPostDto(Long postId) {
 		final Member loginMember = authUtil.getLoginMember();
-		final PostDto postDto = postRepository.findPostDto(postId, loginMember.getId())
+		final PostDto postDto = postRepository.findPostDtoByPostIdAndMemberId(postId, loginMember.getId())
 			.orElseThrow(() -> new EntityNotFoundException(POST_NOT_FOUND));
 		setContent(loginMember, postDto);
 		return postDto;
 	}
 
 	public PostDto getPostDtoWithoutLogin(Long postId) {
-		final PostDto postDto = postRepository.findPostDtoWithoutLogin(postId)
+		final PostDto postDto = postRepository.findPostDtoWithoutLoginByPostId(postId)
 			.orElseThrow(() -> new EntityNotFoundException(POST_NOT_FOUND));
 		setContentWithoutLogin(postDto);
 		return postDto;
@@ -226,7 +228,10 @@ public class PostService {
 			final long total = likeMemberDtoPage.getTotalElements() + countByMe;
 			likeMemberDtoPage = new PageImpl<>(likeMemberDtos, pageable, total);
 		}
-		setHasStory(likeMemberDtoPage);
+		final List<MemberDto> memberDtos = likeMemberDtoPage.getContent().stream()
+			.map(LikeMemberDto::getMember)
+			.collect(toList());
+		setHasStoryInMemberDtos(memberDtos);
 
 		return likeMemberDtoPage;
 	}
@@ -253,7 +258,7 @@ public class PostService {
 		messageService.sendMessageToMembersIndividually(authUtil.getLoginMember(), getPost(postId), usernames);
 	}
 
-	// TODO: 리팩토링 고려
+	// TODO: 리팩토링 post + hashtagPost 쿼리 최적화
 	public Page<PostDto> getHashTagPosts(int page, int size, String name) {
 		final Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "postId");
 		return hashtagRepository.findByName(name)
@@ -265,12 +270,13 @@ public class PostService {
 
 				return getPostDtoPage(pageable, postIds);
 			})
-			.orElse(new PageImpl<>(new ArrayList<>(), pageable, NONE));
+			.orElse(new PageImpl<>(new ArrayList<>(), pageable, NONE)); // TODO: throw exception, ApiResponse 업데이트
 	}
 
 	private Page<PostDto> getPostDtoPage(Pageable pageable, List<Long> postIds) {
 		final Member loginMember = authUtil.getLoginMember();
-		final Page<PostDto> postDtoPage = postRepository.findPostDtoPage(pageable, loginMember.getId(), postIds);
+		final Page<PostDto> postDtoPage = postRepository.findPostDtoPageByMemberIdAndPostIdIn(pageable,
+			loginMember.getId(), postIds);
 		setContents(loginMember, postDtoPage.getContent());
 		return postDtoPage;
 	}
@@ -279,8 +285,11 @@ public class PostService {
 		final List<Long> postIds = postDtos.stream()
 			.map(PostDto::getPostId)
 			.collect(toList());
+		final List<MemberDto> memberDtos = postDtos.stream()
+			.map(PostDto::getMember)
+			.collect(toList());
 
-		setHasStoryInPostDto(postDtos);
+		setHasStoryInMemberDtos(memberDtos);
 		setPostImages(postDtos, postIds);
 		setRecentComments(loginMember.getId(), postDtos, postIds);
 		setFollowingMemberUsernameLikedPost(loginMember, postDtos, postIds);
@@ -289,7 +298,7 @@ public class PostService {
 	}
 
 	private void setContent(Member loginMember, PostDto postDto) {
-		setHasStoryInPostDto(List.of(postDto));
+		setHasStoryInMemberDtos(List.of(postDto.getMember()));
 		setPostImages(List.of(postDto), List.of(postDto.getPostId()));
 		setFollowingMemberUsernameLikedPost(loginMember, List.of(postDto), List.of(postDto.getPostId()));
 		setComments(postDto);
@@ -298,7 +307,7 @@ public class PostService {
 	}
 
 	private void setContentWithoutLogin(PostDto postDto) {
-		setHasStoryInPostDto(List.of(postDto));
+		setHasStoryInMemberDtos(List.of(postDto.getMember()));
 		setPostImages(List.of(postDto), List.of(postDto.getPostId()));
 		setComments(postDto);
 		setMentionAndHashtagList(postDto);
@@ -375,7 +384,7 @@ public class PostService {
 	}
 
 	private void setPostImages(List<PostDto> postDtos, List<Long> postIds) {
-		final List<PostImageDto> postImageDtos = postImageRepository.findAllPostImageDto(postIds);
+		final List<PostImageDto> postImageDtos = postImageRepository.findAllPostImageDtoByPostIdIn(postIds);
 		final List<Long> postImageIds = postImageDtos.stream()
 			.map(PostImageDto::getId)
 			.collect(toList());
@@ -400,43 +409,39 @@ public class PostService {
 			postLikeRepository.findAllPostLikeDtoOfFollowingsByMemberIdAndPostIdIn(member.getId(), postIds)
 				.stream()
 				.collect(groupingBy(PostLikeDto::getPostId));
-		postDtos.forEach(p -> p.setFollowingMemberUsernameLikedPost(postLikeDtoMap.containsKey(p.getPostId())
-			? postLikeDtoMap.get(p.getPostId()).get(ANY_INDEX).getUsername() : EMPTY));
+		postDtos.forEach(postDto ->
+			postDto.setFollowingMemberUsernameLikedPost(postLikeDtoMap.containsKey(postDto.getPostId())
+				? postLikeDtoMap.get(postDto.getPostId()).get(ANY_INDEX).getUsername() : EMPTY));
 	}
 
-	private void setHasStoryInPostDto(List<PostDto> postDtos) {
-		postDtos.forEach(post -> {
-			final MemberDto postMember = post.getMember();
-			final boolean hasStory = !memberStoryRedisRepository.findAllByMemberId(postMember.getId()).isEmpty();
-			postMember.setHasStory(hasStory);
-		});
+	private void setHasStoryInMemberDtos(List<MemberDto> memberDtos) {
+		final List<Long> memberIds = memberDtos.stream()
+			.map(MemberDto::getId)
+			.collect(toList());
+		final Map<Long, MemberStory> memberStoryMap = memberStoryRedisRepository.findAllByMemberIdIn(memberIds).stream()
+			.collect(toMap(MemberStory::getMemberId, memberStory -> memberStory));
+		memberDtos.forEach(memberDto -> memberDto.setHasStory(memberStoryMap.containsKey(memberDto.getId())));
 	}
 
 	private void setRecentComments(Long memberId, List<PostDto> postDtos, List<Long> postIds) {
 		final Map<Long, List<CommentDto>> recentCommentMap =
-			commentRepository.findAllRecentCommentDto(memberId, postIds).stream()
+			commentRepository.findAllRecentCommentDto(memberId, postIds).stream() // TODO: 메소드명 리팩토링
 				.collect(groupingBy(CommentDto::getPostId));
-		postDtos.forEach(post -> {
-			final List<CommentDto> commentDtos = recentCommentMap.containsKey(post.getPostId()) ?
-				recentCommentMap.get(post.getPostId()) : new ArrayList<>();
-			commentService.setHasStory(commentDtos);
-			commentService.setMentionAndHashtagList(commentDtos);
-			post.setRecentComments(commentDtos);
+		postDtos.forEach(postDto -> {
+			final List<CommentDto> commentDtos = recentCommentMap.containsKey(postDto.getPostId()) ?
+				recentCommentMap.get(postDto.getPostId()) : new ArrayList<>();
+			commentService.setHasStory(commentDtos); // TODO: 하나의 리스트로 모아서 호출
+			commentService.setMentionAndHashtagList(commentDtos); // TODO: 하나의 리스트로 모아서 호출
+			postDto.setRecentComments(commentDtos);
 		});
 	}
 
 	private void setComments(PostDto postDto) {
-		final Page<CommentDto> commentDtoPage = commentService.getCommentDtoPageWithoutLogin(postDto.getPostId(),
-			BASE_PAGE_NUMBER);
-		final List<CommentDto> commentDtos = commentDtoPage.getContent();
+		final List<CommentDto> commentDtos = commentService.getCommentDtoPageWithoutLogin(postDto.getPostId(),
+			BASE_PAGE_NUMBER).getContent();
 		commentService.setHasStory(commentDtos);
 		commentService.setMentionAndHashtagList(commentDtos);
 		postDto.setRecentComments(commentDtos);
-	}
-
-	private void setHasStory(Page<LikeMemberDto> likeMembersDTOs) {
-		likeMembersDTOs.getContent().forEach(dto ->
-			dto.setHasStory(!memberStoryRedisRepository.findAllByMemberId(dto.getMember().getId()).isEmpty()));
 	}
 
 	private Post getPost(Long postId) {

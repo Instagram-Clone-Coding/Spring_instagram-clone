@@ -160,7 +160,7 @@ public class MemberPostService {
 			.map(MemberPostDto::getPostId)
 			.collect(Collectors.toList());
 
-		final List<PostImageDto> postImageDtos = postImageRepository.findAllPostImageDto(postIds);
+		final List<PostImageDto> postImageDtos = postImageRepository.findAllPostImageDtoByPostIdIn(postIds);
 
 		final Map<Long, List<PostImageDto>> postDTOMap = postImageDtos.stream()
 			.collect(Collectors.groupingBy(PostImageDto::getPostId));

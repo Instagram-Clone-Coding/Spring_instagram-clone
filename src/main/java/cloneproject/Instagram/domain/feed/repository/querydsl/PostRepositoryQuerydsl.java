@@ -10,12 +10,12 @@ import cloneproject.Instagram.domain.feed.dto.PostDto;
 
 public interface PostRepositoryQuerydsl {
 
-	Page<PostDto> findPostDtoPage(Long memberId, Pageable pageable);
+	Page<PostDto> findPostDtoPageOfFollowingMembersOrHashtagsByMemberId(Long memberId, Pageable pageable);
 
-	Optional<PostDto> findPostDto(Long postId, Long memberId);
+	Optional<PostDto> findPostDtoByPostIdAndMemberId(Long postId, Long memberId);
 
-	Optional<PostDto> findPostDtoWithoutLogin(Long postId);
+	Optional<PostDto> findPostDtoWithoutLoginByPostId(Long postId);
 
-	Page<PostDto> findPostDtoPage(Pageable pageable, Long memberId, List<Long> postIds);
+	Page<PostDto> findPostDtoPageByMemberIdAndPostIdIn(Pageable pageable, Long memberId, List<Long> postIds);
 
 }

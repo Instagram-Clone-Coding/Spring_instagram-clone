@@ -31,7 +31,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public Page<PostDto> findPostDtoPage(Long memberId, Pageable pageable) {
+	public Page<PostDto> findPostDtoPageOfFollowingMembersOrHashtagsByMemberId(Long memberId, Pageable pageable) {
 		final List<PostDto> postDtos = queryFactory
 			.select(new QPostDto(
 				post.id,
@@ -66,7 +66,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 	}
 
 	@Override
-	public Optional<PostDto> findPostDto(Long postId, Long memberId) {
+	public Optional<PostDto> findPostDtoByPostIdAndMemberId(Long postId, Long memberId) {
 		return Optional.ofNullable(queryFactory
 			.select(new QPostDto(
 				post.id,
@@ -86,7 +86,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 	}
 
 	@Override
-	public Optional<PostDto> findPostDtoWithoutLogin(Long postId) {
+	public Optional<PostDto> findPostDtoWithoutLoginByPostId(Long postId) {
 		return Optional.ofNullable(queryFactory
 			.select(new QPostDto(
 				post.id,
@@ -104,7 +104,7 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 	}
 
 	@Override
-	public Page<PostDto> findPostDtoPage(Pageable pageable, Long memberId, List<Long> postIds) {
+	public Page<PostDto> findPostDtoPageByMemberIdAndPostIdIn(Pageable pageable, Long memberId, List<Long> postIds) {
 		final List<PostDto> postDtos = queryFactory
 			.select(new QPostDto(
 				post.id,

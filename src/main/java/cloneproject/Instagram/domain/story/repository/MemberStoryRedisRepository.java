@@ -10,4 +10,6 @@ public interface MemberStoryRedisRepository extends CrudRepository<MemberStory, 
 
 	List<MemberStory> findAllByMemberId(Long memberId);
 
+	List<MemberStory> findAllByMemberIdIn(List<Long> memberIds);
+
 }
