@@ -51,17 +51,23 @@ public class BlockServiceTest {
 			// given
 			final long memberId = 1L;
 			final long targetId = 2L;
-			final Member member = MemberUtils.newInstance();
-			final Member target = MemberUtils.newInstance();
 
-			ReflectionTestUtils.setField(member, MEMBER_ID_VARIABLE_NAME, memberId);
-			ReflectionTestUtils.setField(target, MEMBER_ID_VARIABLE_NAME, targetId);
+			final String targetUsername = RandomStringUtils.random(15, true, true);
+			final Member member = mock(Member.class);
+			final Member target = mock(Member.class);
+			// final Member member = MemberUtils.newInstance();
+			// final Member target = MemberUtils.newInstance();
+
+			given(member.getId()).willReturn(memberId);
+			given(target.getId()).willReturn(targetId);
+			// ReflectionTestUtils.setField(member, MEMBER_ID_VARIABLE_NAME, memberId);
+			// ReflectionTestUtils.setField(target, MEMBER_ID_VARIABLE_NAME, targetId);
 
 			given(authUtil.getLoginMember()).willReturn(member);
-			given(memberRepository.findByUsername(target.getUsername())).willReturn(Optional.of(target));
+			given(memberRepository.findByUsername(targetUsername)).willReturn(Optional.of(target));
 
 			// when
-			boolean didBlock = blockService.block(target.getUsername());
+			boolean didBlock = blockService.block(targetUsername);
 
 			assertThat(didBlock).isTrue();
 			then(blockRepository).should().save(any());
