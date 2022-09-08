@@ -52,8 +52,8 @@ import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.mention.service.MentionService;
-import cloneproject.Instagram.domain.story.entity.redis.MemberStory;
 import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
+import cloneproject.Instagram.domain.story.service.MemberStoryService;
 import cloneproject.Instagram.global.error.ErrorResponse.FieldError;
 import cloneproject.Instagram.global.error.exception.EntityAlreadyExistException;
 import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
@@ -84,6 +84,7 @@ public class PostService {
 	private final PostLikeService postLikeService;
 	private final PostImageService postImageService;
 	private final FollowService followService;
+	private final MemberStoryService memberStoryService;
 	private final MemberStoryRedisRepository memberStoryRedisRepository;
 	private final StringExtractUtil stringExtractUtil;
 
@@ -231,7 +232,7 @@ public class PostService {
 		final List<MemberDto> memberDtos = likeMemberDtoPage.getContent().stream()
 			.map(LikeMemberDto::getMember)
 			.collect(toList());
-		setHasStoryInMemberDtos(memberDtos);
+		memberStoryService.setHasStoryInMemberDtos(memberDtos);
 
 		return likeMemberDtoPage;
 	}
@@ -289,7 +290,7 @@ public class PostService {
 			.map(PostDto::getMember)
 			.collect(toList());
 
-		setHasStoryInMemberDtos(memberDtos);
+		memberStoryService.setHasStoryInMemberDtos(memberDtos);
 		setPostImages(postDtos, postIds);
 		setRecentComments(loginMember.getId(), postDtos, postIds);
 		setFollowingMemberUsernameLikedPost(loginMember, postDtos, postIds);
@@ -298,7 +299,7 @@ public class PostService {
 	}
 
 	private void setContent(Member loginMember, PostDto postDto) {
-		setHasStoryInMemberDtos(List.of(postDto.getMember()));
+		memberStoryService.setHasStoryInMemberDtos(List.of(postDto.getMember()));
 		setPostImages(List.of(postDto), List.of(postDto.getPostId()));
 		setFollowingMemberUsernameLikedPost(loginMember, List.of(postDto), List.of(postDto.getPostId()));
 		setComments(postDto);
@@ -307,7 +308,7 @@ public class PostService {
 	}
 
 	private void setContentWithoutLogin(PostDto postDto) {
-		setHasStoryInMemberDtos(List.of(postDto.getMember()));
+		memberStoryService.setHasStoryInMemberDtos(List.of(postDto.getMember()));
 		setPostImages(List.of(postDto), List.of(postDto.getPostId()));
 		setComments(postDto);
 		setMentionAndHashtagList(postDto);
@@ -414,26 +415,25 @@ public class PostService {
 				? postLikeDtoMap.get(postDto.getPostId()).get(ANY_INDEX).getUsername() : EMPTY));
 	}
 
-	private void setHasStoryInMemberDtos(List<MemberDto> memberDtos) {
-		final List<Long> memberIds = memberDtos.stream()
-			.map(MemberDto::getId)
-			.collect(toList());
-		final Map<Long, MemberStory> memberStoryMap = memberStoryRedisRepository.findAllByMemberIdIn(memberIds).stream()
-			.collect(toMap(MemberStory::getMemberId, memberStory -> memberStory));
-		memberDtos.forEach(memberDto -> memberDto.setHasStory(memberStoryMap.containsKey(memberDto.getId())));
-	}
-
 	private void setRecentComments(Long memberId, List<PostDto> postDtos, List<Long> postIds) {
 		final Map<Long, List<CommentDto>> recentCommentMap =
-			commentRepository.findAllRecentCommentDto(memberId, postIds).stream() // TODO: 메소드명 리팩토링
+			commentRepository.findAllRecentCommentDtoByMemberIdAndPostIdIn(memberId, postIds).stream()
 				.collect(groupingBy(CommentDto::getPostId));
+
+		final List<CommentDto> totalCommentDtos = new ArrayList<>();
 		postDtos.forEach(postDto -> {
-			final List<CommentDto> commentDtos = recentCommentMap.containsKey(postDto.getPostId()) ?
-				recentCommentMap.get(postDto.getPostId()) : new ArrayList<>();
-			commentService.setHasStory(commentDtos); // TODO: 하나의 리스트로 모아서 호출
-			commentService.setMentionAndHashtagList(commentDtos); // TODO: 하나의 리스트로 모아서 호출
-			postDto.setRecentComments(commentDtos);
+			if (recentCommentMap.containsKey(postDto.getPostId())) {
+				final List<CommentDto> commentDtos = recentCommentMap.get(postDto.getPostId());
+				totalCommentDtos.addAll(commentDtos);
+				postDto.setRecentComments(commentDtos);
+			}
 		});
+		commentService.setMentionAndHashtagList(totalCommentDtos);
+
+		final List<MemberDto> totalMemberDtos = totalCommentDtos.stream()
+			.map(CommentDto::getMember)
+			.collect(toList());
+		memberStoryService.setHasStoryInMemberDtos(totalMemberDtos);
 	}
 
 	private void setComments(PostDto postDto) {
