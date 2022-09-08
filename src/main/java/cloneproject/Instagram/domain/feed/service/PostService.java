@@ -52,7 +52,6 @@ import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.mention.service.MentionService;
-import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
 import cloneproject.Instagram.domain.story.service.MemberStoryService;
 import cloneproject.Instagram.global.error.ErrorResponse.FieldError;
 import cloneproject.Instagram.global.error.exception.EntityAlreadyExistException;
@@ -85,7 +84,6 @@ public class PostService {
 	private final PostImageService postImageService;
 	private final FollowService followService;
 	private final MemberStoryService memberStoryService;
-	private final MemberStoryRedisRepository memberStoryRedisRepository;
 	private final StringExtractUtil stringExtractUtil;
 
 	@Transactional
@@ -439,7 +437,10 @@ public class PostService {
 	private void setComments(PostDto postDto) {
 		final List<CommentDto> commentDtos = commentService.getCommentDtoPageWithoutLogin(postDto.getPostId(),
 			BASE_PAGE_NUMBER).getContent();
-		commentService.setHasStory(commentDtos);
+		final List<MemberDto> memberDtos = commentDtos.stream()
+			.map(CommentDto::getMember)
+			.collect(toList());
+		memberStoryService.setHasStoryInMemberDtos(memberDtos);
 		commentService.setMentionAndHashtagList(commentDtos);
 		postDto.setRecentComments(commentDtos);
 	}
