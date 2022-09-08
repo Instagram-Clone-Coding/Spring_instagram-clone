@@ -2,11 +2,11 @@ package cloneproject.Instagram.domain.feed.service;
 
 import static cloneproject.Instagram.domain.alarm.dto.AlarmType.*;
 import static cloneproject.Instagram.global.error.ErrorCode.*;
+import static java.util.stream.Collectors.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -37,7 +37,7 @@ import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.mention.service.MentionService;
-import cloneproject.Instagram.domain.story.repository.MemberStoryRedisRepository;
+import cloneproject.Instagram.domain.story.service.MemberStoryService;
 import cloneproject.Instagram.global.error.exception.EntityAlreadyExistException;
 import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 import cloneproject.Instagram.global.util.AuthUtil;
@@ -58,7 +58,7 @@ public class CommentService {
 	private final CommentLikeService commentLikeService;
 	private final RecentCommentService recentCommentService;
 	private final MentionService mentionService;
-	private final MemberStoryRedisRepository memberStoryRedisRepository;
+	private final MemberStoryService memberStoryService;
 	private final StringExtractUtil stringExtractUtil;
 	private final MemberRepository memberRepository;
 
@@ -124,11 +124,14 @@ public class CommentService {
 		page = (page == 0 ? 0 : page - 1);
 		final Pageable pageable = PageRequest.of(page, 10);
 
-		final Page<CommentDto> commentDtoPage = commentRepository.findCommentDtoPage(loginMember.getId(), postId,
-			pageable);
-		final List<CommentDto> content = commentDtoPage.getContent();
-		setHasStory(content);
-		setMentionAndHashtagList(content);
+		final Page<CommentDto> commentDtoPage = commentRepository.findCommentDtoPageByMemberIdAndPostId(
+			loginMember.getId(), postId, pageable);
+		final List<CommentDto> commentDtos = commentDtoPage.getContent();
+		final List<MemberDto> memberDtos = commentDtos.stream()
+			.map(CommentDto::getMember)
+			.collect(toList());
+		memberStoryService.setHasStoryInMemberDtos(memberDtos);
+		setMentionAndHashtagList(commentDtos);
 
 		return commentDtoPage;
 	}
@@ -137,10 +140,14 @@ public class CommentService {
 		page = (page == 0 ? 0 : page - 1);
 		final Pageable pageable = PageRequest.of(page, 10);
 
-		final Page<CommentDto> commentDtoPage = commentRepository.findCommentDtoPageWithoutLogin( postId, pageable);
-		final List<CommentDto> content = commentDtoPage.getContent();
-		setHasStory(content);
-		setMentionAndHashtagList(content);
+		final Page<CommentDto> commentDtoPage = commentRepository.findCommentDtoPageWithoutLoginByPostId(postId,
+			pageable);
+		final List<CommentDto> commentDtos = commentDtoPage.getContent();
+		final List<MemberDto> memberDtos = commentDtos.stream()
+			.map(CommentDto::getMember)
+			.collect(toList());
+		memberStoryService.setHasStoryInMemberDtos(memberDtos);
+		setMentionAndHashtagList(commentDtos);
 
 		return commentDtoPage;
 	}
@@ -150,11 +157,15 @@ public class CommentService {
 		page = (page == 0 ? 0 : page - 1);
 		final Pageable pageable = PageRequest.of(page, 10);
 
-		final Page<CommentDto> replyDtoPage = commentRepository.findReplyDtoPage(loginMember.getId(), commentId,
+		final Page<CommentDto> replyDtoPage = commentRepository.findReplyDtoPageByMemberIdAndCommentId(
+			loginMember.getId(), commentId,
 			pageable);
-		final List<CommentDto> content = replyDtoPage.getContent();
-		setHasStory(content);
-		setMentionAndHashtagList(content);
+		final List<CommentDto> commentDtos = replyDtoPage.getContent();
+		final List<MemberDto> memberDtos = commentDtos.stream()
+			.map(CommentDto::getMember)
+			.collect(toList());
+		memberStoryService.setHasStoryInMemberDtos(memberDtos);
+		setMentionAndHashtagList(commentDtos);
 
 		return replyDtoPage;
 	}
@@ -196,7 +207,10 @@ public class CommentService {
 			likeMemberDtos.addAll(likeMemberDtoPage.getContent());
 			likeMemberDtoPage = new PageImpl<>(likeMemberDtos, pageable, likeMemberDtoPage.getTotalElements() + 1);
 		}
-		setHasStory(likeMemberDtoPage);
+		final List<MemberDto> memberDtos = likeMemberDtoPage.getContent().stream()
+			.map(LikeMemberDto::getMember)
+			.collect(toList());
+		memberStoryService.setHasStoryInMemberDtos(memberDtos);
 
 		return likeMemberDtoPage;
 	}
@@ -208,31 +222,23 @@ public class CommentService {
 		recentCommentService.deleteAll(post);
 	}
 
-	public void setMentionAndHashtagList(List<CommentDto> content) {
-		content.forEach(comment -> {
-			final List<String> mentionedUsernames = stringExtractUtil.extractMentionsWithExceptList(comment.getContent(), List.of());
-			final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
-				.map(Member::getUsername)
-				.collect(Collectors.toList());
-			comment.setMentionsOfContent(existentUsernames);
+	public void setMentionAndHashtagList(List<CommentDto> commentDtos) {
+		final List<String> mentionedUsernames = new ArrayList<>();
+		commentDtos.forEach(commentDto -> mentionedUsernames.addAll(
+			stringExtractUtil.extractMentionsWithExceptList(commentDto.getContent(), mentionedUsernames)));
+		final List<String> existentUsernames = memberRepository.findAllByUsernameIn(mentionedUsernames).stream()
+			.map(Member::getUsername)
+			.collect(toList());
 
-			final List<String> hashtags = stringExtractUtil.extractHashtags(comment.getContent());
-			comment.setHashtagsOfContent(hashtags);
+		commentDtos.forEach(commentDto -> {
+			final List<String> mentionsOfContent = stringExtractUtil.extractMentions(commentDto.getContent()).stream()
+				.filter(existentUsernames::contains)
+				.collect(toList());
+			commentDto.setMentionsOfContent(mentionsOfContent);
+
+			final List<String> hashtagsOfContent = stringExtractUtil.extractHashtags(commentDto.getContent());
+			commentDto.setHashtagsOfContent(hashtagsOfContent);
 		});
-	}
-
-	public void setHasStory(List<CommentDto> commentDtos) {
-		commentDtos.forEach(comment -> {
-			final MemberDto member = comment.getMember();
-			final boolean hasStory = memberStoryRedisRepository.findAllByMemberId(member.getId()).size() > 0;
-			member.setHasStory(hasStory);
-		});
-	}
-
-	private void setHasStory(Page<LikeMemberDto> likeMembersDTOs) {
-		likeMembersDTOs.getContent()
-			.forEach(dto -> dto.setHasStory(
-				memberStoryRedisRepository.findAllByMemberId(dto.getMember().getId()).size() > 0));
 	}
 
 	private Post getPostWithMember(Long postId) {
