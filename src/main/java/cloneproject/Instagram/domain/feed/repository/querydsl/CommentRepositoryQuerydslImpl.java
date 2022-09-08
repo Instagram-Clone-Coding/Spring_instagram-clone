@@ -26,7 +26,7 @@ public class CommentRepositoryQuerydslImpl implements CommentRepositoryQuerydsl 
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public List<CommentDto> findAllRecentCommentDto(Long memberId, List<Long> postIds) {
+	public List<CommentDto> findAllRecentCommentDtoByMemberIdAndPostIdIn(Long memberId, List<Long> postIds) {
 		return queryFactory
 			.select(new QCommentDto(
 				recentComment.post.id,
@@ -46,7 +46,7 @@ public class CommentRepositoryQuerydslImpl implements CommentRepositoryQuerydsl 
 	}
 
 	@Override
-	public Page<CommentDto> findCommentDtoPage(Long memberId, Long postId, Pageable pageable) {
+	public Page<CommentDto> findCommentDtoPageByMemberIdAndPostId(Long memberId, Long postId, Pageable pageable) {
 		final List<CommentDto> commentDtos = queryFactory
 			.select(new QCommentDto(
 				comment.post.id,
@@ -75,7 +75,7 @@ public class CommentRepositoryQuerydslImpl implements CommentRepositoryQuerydsl 
 	}
 
 	@Override
-	public Page<CommentDto> findCommentDtoPageWithoutLogin(Long postId, Pageable pageable) {
+	public Page<CommentDto> findCommentDtoPageWithoutLoginByPostId(Long postId, Pageable pageable) {
 		final List<CommentDto> commentDtos = queryFactory
 			.select(new QCommentDto(
 				comment.post.id,
@@ -103,7 +103,7 @@ public class CommentRepositoryQuerydslImpl implements CommentRepositoryQuerydsl 
 
 	}
 	@Override
-	public Page<CommentDto> findReplyDtoPage(Long memberId, Long commentId, Pageable pageable) {
+	public Page<CommentDto> findReplyDtoPageByMemberIdAndCommentId(Long memberId, Long commentId, Pageable pageable) {
 		final List<CommentDto> commentDtos = queryFactory
 			.select(new QCommentDto(
 				comment.post.id,
