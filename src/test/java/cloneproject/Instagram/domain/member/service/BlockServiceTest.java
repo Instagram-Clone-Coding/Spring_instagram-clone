@@ -52,7 +52,7 @@ public class BlockServiceTest {
 			final long memberId = 1L;
 			final long targetId = 2L;
 
-			final String targetUsername = RandomStringUtils.random(15, true, true);
+			final String targetUsername = MemberUtils.getRandomUsername();
 			final Member member = mock(Member.class);
 			final Member target = mock(Member.class);
 			// final Member member = MemberUtils.newInstance();
@@ -77,7 +77,7 @@ public class BlockServiceTest {
 		void targetNotExist_ThrowException() {
 			// given
 			final long memberId = 1L;
-			final String randomUsername = RandomStringUtils.random(15, true, true);
+			final String randomUsername = MemberUtils.getRandomUsername();
 			final Member member = MemberUtils.newInstance();
 
 			ReflectionTestUtils.setField(member, MEMBER_ID_VARIABLE_NAME, memberId);
