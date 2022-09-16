@@ -12,6 +12,10 @@ import cloneproject.Instagram.domain.member.entity.Member;
 
 public class MemberUtils {
 
+	public static String getRandomUsername() {
+		return RandomStringUtils.random(15, true, true);
+	}
+
 	public static Member newInstance() {
 		final String username = RandomStringUtils.random(20, true, true);
 		final String password = RandomStringUtils.random(20, true, true);

@@ -2,24 +2,21 @@ package cloneproject.Instagram.domain.member.service;
 
 import static cloneproject.Instagram.global.error.ErrorCode.*;
 
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import cloneproject.Instagram.domain.follow.entity.Follow;
 import cloneproject.Instagram.domain.follow.repository.FollowRepository;
 import cloneproject.Instagram.domain.member.entity.Block;
 import cloneproject.Instagram.domain.member.entity.Member;
-import cloneproject.Instagram.domain.member.exception.AlreadyBlockException;
-import cloneproject.Instagram.domain.member.exception.CantBlockMyselfException;
-import cloneproject.Instagram.domain.member.exception.CantUnblockException;
-import cloneproject.Instagram.domain.member.exception.CantUnblockMyselfException;
+import cloneproject.Instagram.domain.member.exception.BlockMyselfFailException;
+import cloneproject.Instagram.domain.member.exception.UnblockFailException;
+import cloneproject.Instagram.domain.member.exception.UnblockMyselfFailException;
 import cloneproject.Instagram.domain.member.repository.BlockRepository;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
+import cloneproject.Instagram.global.error.exception.EntityAlreadyExistException;
 import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 import cloneproject.Instagram.global.util.AuthUtil;
 
@@ -40,18 +37,17 @@ public class BlockService {
 			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
 		if (member.getId().equals(blockMember.getId())) {
-			throw new CantBlockMyselfException();
+			throw new BlockMyselfFailException();
 		}
 		if (blockRepository.existsByMemberIdAndBlockMemberId(member.getId(), blockMember.getId())) {
-			throw new AlreadyBlockException();
+			throw new EntityAlreadyExistException(BLOCK_ALREADY_EXIST);
 		}
 
-		// 팔로우가 되어있었다면 언팔로우
-		Optional<Follow> follow = followRepository.findByMemberIdAndFollowMemberId(member.getId(), blockMember.getId());
-		follow.ifPresent(followRepository::delete);
+		followRepository.findByMemberIdAndFollowMemberId(member.getId(), blockMember.getId())
+			.ifPresent(followRepository::delete);
 
-		follow = followRepository.findByMemberIdAndFollowMemberId(blockMember.getId(), member.getId());
-		follow.ifPresent(followRepository::delete);
+		followRepository.findByMemberIdAndFollowMemberId(blockMember.getId(), member.getId())
+			.ifPresent(followRepository::delete);
 
 		final Block block = new Block(member, blockMember);
 		blockRepository.save(block);
@@ -65,11 +61,11 @@ public class BlockService {
 			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
 		if (memberId.equals(blockMember.getId())) {
-			throw new CantUnblockMyselfException();
+			throw new UnblockMyselfFailException();
 		}
 
 		final Block block = blockRepository.findByMemberIdAndBlockMemberId(memberId, blockMember.getId())
-			.orElseThrow(CantUnblockException::new);
+			.orElseThrow(UnblockFailException::new);
 		blockRepository.delete(block);
 		return true;
 	}

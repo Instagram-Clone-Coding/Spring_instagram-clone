@@ -41,7 +41,7 @@ public class MemberRepositoryTest {
 		@Test
 		void memberNotExist_ReturnEmpty() {
 			// given
-			final String randomUsername = RandomStringUtils.random(15, true, true);
+			final String randomUsername = MemberUtils.getRandomUsername();
 
 			// when
 			final boolean isEmpty = memberRepository.findByUsername(randomUsername).isEmpty();
@@ -71,7 +71,7 @@ public class MemberRepositoryTest {
 		@Test
 		void memberNotExist_ReturnFalse() {
 			// given
-			final String randomUsername = RandomStringUtils.random(20, true, true);
+			final String randomUsername = MemberUtils.getRandomUsername();
 
 			// when
 			final boolean isPresent = memberRepository.existsByUsername(randomUsername);

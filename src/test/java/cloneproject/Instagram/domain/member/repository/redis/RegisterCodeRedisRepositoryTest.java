@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Import;
 import cloneproject.Instagram.domain.member.entity.redis.RegisterCode;
 import cloneproject.Instagram.global.config.EmbeddedRedisConfig;
 import cloneproject.Instagram.global.config.RedisConfig;
+import cloneproject.Instagram.util.domain.member.MemberUtils;
 import cloneproject.Instagram.util.domain.member.redis.RegisterCodeUtils;
 
 @DataRedisTest
@@ -41,7 +42,7 @@ public class RegisterCodeRedisRepositoryTest {
 		@Test
 		void registerCodeNotExist_ReturnEmpty() {
 			// given
-			final String randomUsername = RandomStringUtils.random(15, true, true);
+			final String randomUsername = MemberUtils.getRandomUsername();
 
 			// when
 			final boolean isEmpty = registerCodeRedisRepository.findByUsername(randomUsername).isEmpty();
