@@ -49,6 +49,7 @@ public enum ResultCode {
 	GET_FOLLOWINGS_SUCCESS(200, "F003", "회원 팔로잉 목록을 조회하였습니다."),
 	GET_FOLLOWERS_SUCCESS(200, "F004", "회원 팔로워 목록을 조회하였습니다."),
 	DELETE_FOLLOWER_SUCCESS(200, "F005", "팔로워 삭제를 성공하였습니다."),
+	FOLLOW_FAIL(200, "F006", "팔로우할 수 없는 대상입니다."),
 
 	// Block
 	BLOCK_SUCCESS(200, "B001", "회원 차단 완료"),

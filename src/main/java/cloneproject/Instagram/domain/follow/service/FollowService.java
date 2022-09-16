@@ -48,14 +48,17 @@ public class FollowService {
 		final Member followMember = memberRepository.findByUsername(followMemberUsername)
 			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
-		if (member.getId().equals(followMember.getId()))
+		if (member.getId().equals(followMember.getId())) {
 			throw new FollowMyselfFailException();
-		if (followRepository.existsByMemberIdAndFollowMemberId(member.getId(), followMember.getId()))
+		}
+		if (followRepository.existsByMemberIdAndFollowMemberId(member.getId(), followMember.getId())) {
 			throw new EntityAlreadyExistException(ErrorCode.FOLLOW_ALREADY_EXIST);
+		}
 
 		// 차단당했다면
-		if (blockRepository.existsByMemberIdAndBlockMemberId(followMember.getId(), member.getId()))
-			throw new EntityNotFoundException(MEMBER_NOT_FOUND);
+		if (blockRepository.existsByMemberIdAndBlockMemberId(followMember.getId(), member.getId())) {
+			return false;
+		}
 
 		// 차단했었다면 차단해제
 		blockRepository.findByMemberIdAndBlockMemberId(member.getId(), followMember.getId())
