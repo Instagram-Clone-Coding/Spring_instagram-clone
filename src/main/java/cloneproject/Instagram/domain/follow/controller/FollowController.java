@@ -47,9 +47,9 @@ public class FollowController {
 	public ResponseEntity<ResultResponse> follow(@PathVariable("followMemberUsername") @Validated
 	@NotBlank(message = "username이 필요합니다") String followMemberUsername) {
 		final boolean success = followService.follow(followMemberUsername);
-		if(success){
+		if (success) {
 			return ResponseEntity.ok(ResultResponse.of(FOLLOW_SUCCESS, success));
-		}else{
+		} else {
 			return ResponseEntity.ok(ResultResponse.of(FOLLOW_FAIL, success));
 		}
 	}
