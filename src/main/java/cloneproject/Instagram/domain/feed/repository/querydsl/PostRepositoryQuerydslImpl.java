@@ -78,7 +78,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 				isExistBookmarkWherePostEqMemberIdEq(memberId),
 				isExistPostLikeWherePostEqAndMemberIdEq(memberId),
 				post.commentFlag,
-				post.likeFlag
+				post.likeFlag,
+				isFollowing(memberId)
 			))
 			.from(post)
 			.where(post.id.eq(postId))
@@ -116,7 +117,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 				isExistBookmarkWherePostEqMemberIdEq(memberId),
 				isExistPostLikeWherePostEqAndMemberIdEq(memberId),
 				post.commentFlag,
-				post.likeFlag
+				post.likeFlag,
+				isFollowing(memberId)
 			))
 			.from(post)
 			.innerJoin(post.member, member)
@@ -130,6 +132,13 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 			.fetchCount();
 
 		return new PageImpl<>(postDtos, pageable, total);
+	}
+
+	private BooleanExpression isFollowing(Long memberId) {
+		return JPAExpressions
+			.selectFrom(follow)
+			.where(follow.member.id.eq(memberId).and(follow.followMember.id.eq(post.member.id)))
+			.exists();
 	}
 
 	private BooleanExpression isExistPostLikeWherePostEqAndMemberIdEq(Long id) {
