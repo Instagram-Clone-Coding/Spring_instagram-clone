@@ -61,7 +61,7 @@ public class MemberAuthService {
 			return false;
 		}
 
-		final Member member = registerRequest.convert();
+		final Member member = convertRegisterRequestToMember(registerRequest);
 		final String encryptedPassword = bCryptPasswordEncoder.encode(member.getPassword());
 		member.setEncryptedPassword(encryptedPassword);
 		memberRepository.save(member);
@@ -143,6 +143,15 @@ public class MemberAuthService {
 	@Transactional
 	public void logoutDevice(String tokenId) {
 		refreshTokenService.deleteRefreshTokenWithId(authUtil.getLoginMemberId(), tokenId);
+	}
+
+	private Member convertRegisterRequestToMember(RegisterRequest registerRequest) {
+		return Member.builder()
+			.username(registerRequest.getUsername())
+			.name(registerRequest.getName())
+			.password(registerRequest.getPassword())
+			.email(registerRequest.getEmail())
+			.build();
 	}
 
 }
