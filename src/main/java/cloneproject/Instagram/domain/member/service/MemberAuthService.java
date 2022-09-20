@@ -4,7 +4,6 @@ import static cloneproject.Instagram.global.error.ErrorCode.*;
 
 import java.util.List;
 
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import cloneproject.Instagram.domain.member.dto.JwtDto;
-import cloneproject.Instagram.domain.member.dto.LoginDevicesDto;
+import cloneproject.Instagram.domain.member.dto.LoginDeviceDto;
 import cloneproject.Instagram.domain.member.dto.RegisterRequest;
 import cloneproject.Instagram.domain.member.dto.ResetPasswordRequest;
 import cloneproject.Instagram.domain.member.dto.UpdatePasswordRequest;
@@ -36,7 +35,6 @@ import cloneproject.Instagram.infra.location.dto.Location;
 public class MemberAuthService {
 
 	private final AuthUtil authUtil;
-	private final AuthenticationManagerBuilder authenticationManagerBuilder;
 	private final JwtUtil jwtUtil;
 	private final EmailCodeService emailCodeService;
 	private final MemberRepository memberRepository;
@@ -98,7 +96,6 @@ public class MemberAuthService {
 		return emailCodeService.sendResetPasswordCode(username);
 	}
 
-	// TODO 수정
 	@Transactional
 	public JwtDto resetPassword(ResetPasswordRequest resetPasswordRequest, String device, String ip) {
 		final Member member = memberRepository.findByUsername(resetPasswordRequest.getUsername())
@@ -130,19 +127,19 @@ public class MemberAuthService {
 		return emailCodeService.checkResetPasswordCode(username, code);
 	}
 
-	@Transactional
-	public void logout(String refreshToken) {
-		refreshTokenService.deleteRefreshTokenWithValue(authUtil.getLoginMemberId(), refreshToken);
-	}
-
-	public List<LoginDevicesDto> getLoginDevices(String currentToken) {
+	public List<LoginDeviceDto> getLoginDevices(String currentToken) {
 		final Member member = authUtil.getLoginMember();
 		return refreshTokenService.getLoginDevices(member.getId(), currentToken);
 	}
 
 	@Transactional
+	public void logout(String refreshToken) {
+		refreshTokenService.deleteRefreshTokenByValue(authUtil.getLoginMemberId(), refreshToken);
+	}
+
+	@Transactional
 	public void logoutDevice(String tokenId) {
-		refreshTokenService.deleteRefreshTokenWithId(authUtil.getLoginMemberId(), tokenId);
+		refreshTokenService.deleteRefreshTokenByMemberIdAndId(authUtil.getLoginMemberId(), tokenId);
 	}
 
 	private Member convertRegisterRequestToMember(RegisterRequest registerRequest) {

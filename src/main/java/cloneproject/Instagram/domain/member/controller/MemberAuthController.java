@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import cloneproject.Instagram.domain.member.dto.JwtDto;
 import cloneproject.Instagram.domain.member.dto.JwtResponse;
-import cloneproject.Instagram.domain.member.dto.LoginDevicesDto;
+import cloneproject.Instagram.domain.member.dto.LoginDeviceDto;
 import cloneproject.Instagram.domain.member.dto.LoginRequest;
 import cloneproject.Instagram.domain.member.dto.LoginWithCodeRequest;
 import cloneproject.Instagram.domain.member.dto.RegisterRequest;
@@ -300,7 +300,7 @@ public class MemberAuthController {
 	@GetMapping(value = "/accounts/login/device")
 	public ResponseEntity<ResultResponse> getLoginDevices(
 		@CookieValue(value = "refreshToken", required = true) Cookie refreshCookie) {
-		final List<LoginDevicesDto> loginDevicesDtos = memberAuthService.getLoginDevices(refreshCookie.getValue());
+		final List<LoginDeviceDto> loginDevicesDtos = memberAuthService.getLoginDevices(refreshCookie.getValue());
 
 		return ResponseEntity.ok(ResultResponse.of(GET_LOGIN_DEVICES_SUCCESS, loginDevicesDtos));
 	}

@@ -11,7 +11,7 @@ import cloneproject.Instagram.infra.location.dto.Location;
 @Getter
 @Builder
 @AllArgsConstructor
-public class LoginDevicesDto {
+public class LoginDeviceDto {
 
 	private String tokenId;
 	private Location location;
