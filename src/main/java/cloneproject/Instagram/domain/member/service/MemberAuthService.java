@@ -128,8 +128,7 @@ public class MemberAuthService {
 	}
 
 	public List<LoginDeviceDto> getLoginDevices(String currentToken) {
-		final Member member = authUtil.getLoginMember();
-		return refreshTokenService.getLoginDevices(member.getId(), currentToken);
+		return refreshTokenService.getLoginDevices(authUtil.getLoginMemberId(), currentToken);
 	}
 
 	@Transactional
