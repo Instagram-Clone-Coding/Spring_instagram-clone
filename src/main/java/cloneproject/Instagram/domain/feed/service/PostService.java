@@ -257,7 +257,6 @@ public class PostService {
 		messageService.sendMessageToMembersIndividually(authUtil.getLoginMember(), getPost(postId), usernames);
 	}
 
-	// TODO: 리팩토링 post + hashtagPost 쿼리 최적화
 	public Page<PostDto> getHashTagPosts(int page, int size, String name) {
 		final Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "postId");
 		return hashtagRepository.findByName(name)
@@ -266,18 +265,13 @@ public class PostService {
 					.stream()
 					.map(hashtagPost -> hashtagPost.getPost().getId())
 					.collect(toList());
-
-				return getPostDtoPage(pageable, postIds);
+				final Member loginMember = authUtil.getLoginMember();
+				final Page<PostDto> postDtoPage = postRepository.findPostDtoPageByMemberIdAndPostIdIn(pageable,
+					loginMember.getId(), postIds);
+				setContents(loginMember, postDtoPage.getContent());
+				return postDtoPage;
 			})
-			.orElse(new PageImpl<>(new ArrayList<>(), pageable, NONE)); // TODO: throw exception, ApiResponse 업데이트
-	}
-
-	private Page<PostDto> getPostDtoPage(Pageable pageable, List<Long> postIds) {
-		final Member loginMember = authUtil.getLoginMember();
-		final Page<PostDto> postDtoPage = postRepository.findPostDtoPageByMemberIdAndPostIdIn(pageable,
-			loginMember.getId(), postIds);
-		setContents(loginMember, postDtoPage.getContent());
-		return postDtoPage;
+			.orElse(new PageImpl<>(new ArrayList<>(), pageable, NONE));
 	}
 
 	private void setContents(Member loginMember, List<PostDto> postDtos) {
@@ -344,6 +338,16 @@ public class PostService {
 		if (multipartFileSize != altTextSize) {
 			errors.add(new FieldError("postImages.size" + COMMA_WITH_BLANK + "altTexts.size",
 				multipartFileSize + COMMA_WITH_BLANK + altTextSize, POST_IMAGES_AND_ALT_TEXTS_MISMATCH.getMessage()));
+		}
+
+		final Map<Long, List<PostImageTagRequest>> tagMapGroupByImageId = tags.stream()
+			.collect(groupingBy(PostImageTagRequest::getId));
+		for (Long imageId : tagMapGroupByImageId.keySet()) {
+			final int tagSize = tagMapGroupByImageId.get(imageId).size();
+			if (tagSize > 20) {
+				errors.add(new FieldError("postImageTags.size", String.valueOf(tagSize),
+					POST_TAGS_EXCEED.getMessage()));
+			}
 		}
 
 		final List<String> usernames = tags.stream()

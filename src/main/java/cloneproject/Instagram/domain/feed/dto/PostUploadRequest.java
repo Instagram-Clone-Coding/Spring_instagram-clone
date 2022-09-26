@@ -23,11 +23,11 @@ import lombok.Setter;
 public class PostUploadRequest {
 
 	@ApiModelProperty(value = "게시물 내용", example = "안녕하세요!", required = true)
-	@Size(max = 2200, message = "최대 2,200자까지 입력 가능합니다.")
+	@Size(max = 2200, message = "게시물 내용은 최대 2,200자까지 입력 가능합니다.")
 	private String content;
 
 	@ApiModelProperty(value = "게시물 이미지", required = true)
-	@Size(min = 1, message = "게시물 이미지는 필수입니다.")
+	@Size(min = 1, max = 10, message = "게시물 이미지는 1개 이상, 10개 이하만 추가할 수 있습니다.")
 	private List<MultipartFile> postImages = new ArrayList<>();
 
 	@ApiModelProperty(value = "게시물 이미지 대체 텍스트", required = true, example = "image")
