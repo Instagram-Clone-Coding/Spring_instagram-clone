@@ -20,9 +20,6 @@ public class MemberStoryService {
 	private final MemberStoryRedisRepository memberStoryRedisRepository;
 
 	public void setHasStoryInMemberDtos(List<MemberDto> memberDtos) {
-		final List<Long> memberIds = memberDtos.stream()
-			.map(MemberDto::getId)
-			.collect(toList());
 		memberDtos.forEach(memberDto -> memberDto.setHasStory(doesHasStory(memberDto.getId())));
 	}
 
