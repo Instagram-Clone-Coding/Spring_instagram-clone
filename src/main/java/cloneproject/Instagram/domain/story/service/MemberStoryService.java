@@ -1,7 +1,5 @@
 package cloneproject.Instagram.domain.story.service;
 
-import static java.util.stream.Collectors.*;
-
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -20,10 +18,10 @@ public class MemberStoryService {
 	private final MemberStoryRedisRepository memberStoryRedisRepository;
 
 	public void setHasStoryInMemberDtos(List<MemberDto> memberDtos) {
-		memberDtos.forEach(memberDto -> memberDto.setHasStory(doesHasStory(memberDto.getId())));
+		memberDtos.forEach(memberDto -> memberDto.setHasStory(existsMemberStory(memberDto.getId())));
 	}
 
-	private boolean doesHasStory(Long memberId) {
+	private boolean existsMemberStory(Long memberId) {
 		return !memberStoryRedisRepository.findAllByMemberId(memberId).isEmpty();
 	}
 
