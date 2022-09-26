@@ -198,8 +198,8 @@ public class CommentService {
 		page = (page == 0 ? 0 : page - 1);
 		final Pageable pageable = PageRequest.of(page, size);
 
-		Page<LikeMemberDto> likeMemberDtoPage =
-			postLikeRepository.findCommentLikeMembersDtoPage(pageable, commentId, loginMember.getId());
+		Page<LikeMemberDto> likeMemberDtoPage = postLikeRepository.findCommentLikeMembersDtoPageExceptMeByCommentIdAndMemberId(
+			pageable, commentId, loginMember.getId());
 
 		if (commentLikeRepository.findByMemberAndComment(loginMember, comment).isPresent()) {
 			final List<LikeMemberDto> likeMemberDtos = new ArrayList<>();
