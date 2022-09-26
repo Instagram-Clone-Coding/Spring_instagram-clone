@@ -213,20 +213,13 @@ public class PostService {
 
 		Page<LikeMemberDto> likeMemberDtoPage;
 		if (post.getMember().equals(loginMember) || post.isLikeFlag()) {
-			likeMemberDtoPage = postLikeRepository.findPostLikeMembersDtoPage(pageable, postId, loginMember.getId());
+			likeMemberDtoPage = postLikeRepository.findPostLikeMembersDtoPageExceptMeByPostIdAndMemberId(pageable,
+				postId, loginMember.getId());
 		} else {
 			likeMemberDtoPage = postLikeRepository.findPostLikeMembersDtoPageOfFollowingsByMemberIdAndPostId(pageable,
 				loginMember.getId(), postId);
 		}
 
-		if (postLikeRepository.findByMemberAndPost(loginMember, post).isPresent()) {
-			final List<LikeMemberDto> likeMemberDtos = new ArrayList<>();
-			likeMemberDtos.add(new LikeMemberDto(loginMember, false, false));
-			likeMemberDtos.addAll(likeMemberDtoPage.getContent());
-			final int countByMe = 1;
-			final long total = likeMemberDtoPage.getTotalElements() + countByMe;
-			likeMemberDtoPage = new PageImpl<>(likeMemberDtos, pageable, total);
-		}
 		final List<MemberDto> memberDtos = likeMemberDtoPage.getContent().stream()
 			.map(LikeMemberDto::getMember)
 			.collect(toList());
