@@ -14,18 +14,12 @@ public class LikeMemberDto {
 	private MemberDto member;
 	private boolean isFollowing;
 	private boolean isFollower;
-	private boolean hasStory;
 
 	@QueryProjection
 	public LikeMemberDto(Member member, boolean isFollowing, boolean isFollower) {
 		this.member = new MemberDto(member);
 		this.isFollowing = isFollowing;
 		this.isFollower = isFollower;
-		this.hasStory = false;
-	}
-
-	public void setHasStory(boolean hasStory) {
-		this.hasStory = hasStory;
 	}
 
 }

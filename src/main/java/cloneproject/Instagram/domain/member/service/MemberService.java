@@ -138,7 +138,7 @@ public class MemberService {
 		final List<Long> postIds = posts.stream()
 			.map(Post::getId)
 			.collect(Collectors.toList());
-		final List<PostImageDto> postImages = postImageRepository.findAllPostImageDto(postIds);
+		final List<PostImageDto> postImages = postImageRepository.findAllPostImageDtoByPostIdIn(postIds);
 
 		final Map<Long, List<PostImageDto>> postDTOMap = postImages.stream()
 			.collect(Collectors.groupingBy(PostImageDto::getPostId));

@@ -32,6 +32,7 @@ public class PostDto {
 	private boolean postLikeFlag;
 	private boolean commentOptionFlag;
 	private boolean likeOptionFlag;
+	private boolean isFollowing;
 	private String followingMemberUsernameLikedPost = EMPTY;
 	private List<CommentDto> recentComments = new ArrayList<>();
 
@@ -49,6 +50,24 @@ public class PostDto {
 		this.postLikeFlag = postLikeFlag;
 		this.commentOptionFlag = commentOptionFlag;
 		this.likeOptionFlag = likeOptionFlag;
+		this.isFollowing = true;
+	}
+
+	@QueryProjection
+	public PostDto(Long postId, String postContent, LocalDateTime postUploadDate, Member member, int postCommentsCount,
+		int postLikesCount, boolean postBookmarkFlag, boolean postLikeFlag, boolean commentOptionFlag,
+		boolean likeOptionFlag, boolean isFollowing) {
+		this.postId = postId;
+		this.postContent = postContent;
+		this.postUploadDate = postUploadDate;
+		this.member = new MemberDto(member);
+		this.postCommentsCount = postCommentsCount;
+		this.postLikesCount = postLikesCount;
+		this.postBookmarkFlag = postBookmarkFlag;
+		this.postLikeFlag = postLikeFlag;
+		this.commentOptionFlag = commentOptionFlag;
+		this.likeOptionFlag = likeOptionFlag;
+		this.isFollowing = isFollowing;
 	}
 
 	@QueryProjection
@@ -64,6 +83,7 @@ public class PostDto {
 		this.postLikeFlag = false;
 		this.commentOptionFlag = commentOptionFlag;
 		this.likeOptionFlag = likeOptionFlag;
+		this.isFollowing = false;
 	}
 
 	public void setPostImages(List<PostImageDto> postImageDtos) {

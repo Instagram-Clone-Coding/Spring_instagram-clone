@@ -46,7 +46,7 @@ public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQueryds
 	}
 
 	@Override
-	public Page<LikeMemberDto> findPostLikeMembersDtoPage(Pageable pageable, Long postId, Long memberId) {
+	public Page<LikeMemberDto> findPostLikeMembersDtoPageExceptMeByPostIdAndMemberId(Pageable pageable, Long postId, Long memberId) {
 		final List<LikeMemberDto> likeMembersDtos = queryFactory
 			.select(new QLikeMemberDto(
 				postLike.member,
@@ -95,7 +95,7 @@ public class PostLikeRepositoryQuerydslImpl implements PostLikeRepositoryQueryds
 	}
 
 	@Override
-	public Page<LikeMemberDto> findCommentLikeMembersDtoPage(Pageable pageable, Long commentId, Long memberId) {
+	public Page<LikeMemberDto> findCommentLikeMembersDtoPageExceptMeByCommentIdAndMemberId(Pageable pageable, Long commentId, Long memberId) {
 		final List<LikeMemberDto> likeMembersDtos = queryFactory
 			.select(new QLikeMemberDto(
 				commentLike.member,

@@ -25,4 +25,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
 
 	List<Comment> findAllByParent(Comment comment);
 
+	List<Comment> findTop2ByPostIdOrderByIdDesc(Long postId);
+
 }

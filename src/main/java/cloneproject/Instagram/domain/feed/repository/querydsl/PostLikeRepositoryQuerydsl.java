@@ -14,11 +14,11 @@ public interface PostLikeRepositoryQuerydsl {
 
 	List<PostLikeDto> findAllPostLikeDtoOfFollowingsByMemberIdAndPostIdIn(Long memberId, List<Long> postIds);
 
-	Page<LikeMemberDto> findPostLikeMembersDtoPage(Pageable pageable, Long postId, Long memberId);
+	Page<LikeMemberDto> findPostLikeMembersDtoPageExceptMeByPostIdAndMemberId(Pageable pageable, Long postId, Long memberId);
 
 	Page<LikeMemberDto> findPostLikeMembersDtoPageOfFollowingsByMemberIdAndPostId(Pageable pageable, Long memberId, Long postId);
 
-	Page<LikeMemberDto> findCommentLikeMembersDtoPage(Pageable pageable, Long commentId, Long memberId);
+	Page<LikeMemberDto> findCommentLikeMembersDtoPageExceptMeByCommentIdAndMemberId(Pageable pageable, Long commentId, Long memberId);
 
 	List<PostLikeCountDto> findAllPostLikeCountDtoOfFollowingsLikedPostByMemberAndPostIdIn(Member member,
 		List<Long> postIds);

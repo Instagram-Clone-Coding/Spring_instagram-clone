@@ -4,10 +4,9 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-docker-compose.yml
-Dockerfile
-src/main/resources/*.yml
-src/main/resources/*.mmdb
+**/src/main/resources/*.yml
+**/src/test/resources/*.yml
+**/src/main/resources/*.mmdb
 *.xml
 
 ### STS ###

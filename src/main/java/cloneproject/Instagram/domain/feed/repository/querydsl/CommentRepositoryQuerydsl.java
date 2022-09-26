@@ -9,12 +9,12 @@ import cloneproject.Instagram.domain.feed.dto.CommentDto;
 
 public interface CommentRepositoryQuerydsl {
 
-	List<CommentDto> findAllRecentCommentDto(Long memberId, List<Long> postIds);
+	List<CommentDto> findAllRecentCommentDtoByMemberIdAndPostIdIn(Long memberId, List<Long> postIds);
 
-	Page<CommentDto> findCommentDtoPage(Long memberId, Long postId, Pageable pageable);
+	Page<CommentDto> findCommentDtoPageByMemberIdAndPostId(Long memberId, Long postId, Pageable pageable);
 
-	Page<CommentDto> findCommentDtoPageWithoutLogin(Long postId, Pageable pageable);
+	Page<CommentDto> findCommentDtoPageWithoutLoginByPostId(Long postId, Pageable pageable);
 
-	Page<CommentDto> findReplyDtoPage(Long memberId, Long commentId, Pageable pageable);
+	Page<CommentDto> findReplyDtoPageByMemberIdAndCommentId(Long memberId, Long commentId, Pageable pageable);
 
 }
