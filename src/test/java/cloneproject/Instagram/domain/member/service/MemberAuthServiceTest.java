@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.ThrowableAssert.*;
 import static org.mockito.BDDMockito.*;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import cloneproject.Instagram.domain.member.dto.RegisterRequest;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.search.repository.SearchMemberRepository;
+import cloneproject.Instagram.global.error.exception.EntityAlreadyExistException;
 import cloneproject.Instagram.global.util.AuthUtil;
 import cloneproject.Instagram.global.util.JwtUtil;
 import cloneproject.Instagram.infra.location.LocationService;
@@ -86,24 +88,90 @@ public class MemberAuthServiceTest {
 		@Test
 		void validArguments_MemberRegistered() {
 			// given
-			final String username = MemberUtils.getRandomUsername();
-			given(memberRepository.existsByUsername(username)).willReturn(true);
+			final RegisterRequest registerRequest = newRegisterRequest();
+			given(memberRepository.existsByUsername(registerRequest.getUsername())).willReturn(true);
 
 			// when
-			final boolean canUseUsername = memberAuthService.checkUsername(username);
+			final ThrowingCallable executable = () -> memberAuthService.register(registerRequest);
 
 			// then
-			assertThat(canUseUsername).isFalse();
+			assertThatThrownBy(executable).isInstanceOf(EntityAlreadyExistException.class);
 		}
 
+		@Test
+		void usernameExist_ThrowException() {
+			// given
+			final RegisterRequest registerRequest = newRegisterRequest();
+			given(emailCodeService.checkRegisterCode(
+				registerRequest.getUsername(),
+				registerRequest.getEmail(),
+				registerRequest.getCode())).willReturn(true);
+
+			// when
+			final boolean didRegister = memberAuthService.register(registerRequest);
+
+			// then
+			assertThat(didRegister).isTrue();
+		}
+
+		@Test
+		void checkRegisterCodeFail_returnFalse() {
+			// given
+			final RegisterRequest registerRequest = newRegisterRequest();
+			given(emailCodeService.checkRegisterCode(
+				registerRequest.getUsername(),
+				registerRequest.getEmail(),
+				registerRequest.getCode())).willReturn(false);
+
+			// when
+			final boolean didRegister = memberAuthService.register(registerRequest);
+
+			// then
+			assertThat(didRegister).isFalse();
+		}
+
+		private RegisterRequest newRegisterRequest() {
+			return new RegisterRequest(
+				RandomStringUtils.random(20, true, true),
+				RandomStringUtils.random(20, true, true),
+				RandomStringUtils.random(20, true, true),
+				RandomStringUtils.random(20, true, true) + "example.com",
+				RandomStringUtils.random(6, true, true)
+			);
+		}
 
 	}
 
-	private RegisterRequest newInstance() {
-		return new RegisterRequest(
-			MemberUtils.getRandomUsername(),
+	@Nested
+	class SendEmailConfirmation {
 
-		);
+		@Test
+		void validArguments_SendEmail() {
+			// given
+			final String username = MemberUtils.getRandomUsername();
+			final String email = RandomStringUtils.random(20, true, true) + "example.com";
+
+			// when
+			memberAuthService.sendEmailConfirmation(username, email);
+
+			// then
+			then(emailCodeService).should().sendRegisterCode(username, email);
+		}
+
+		@Test
+		void usernameExist_ThrowException() {
+			// given
+			final String username = MemberUtils.getRandomUsername();
+			final String email = RandomStringUtils.random(20, true, true) + "example.com";
+			given(memberRepository.existsByUsername(username)).willReturn(true);
+
+			// when
+			final ThrowingCallable executable = () -> memberAuthService.sendEmailConfirmation(username, email);
+
+			// then
+			assertThatThrownBy(executable).isInstanceOf(EntityAlreadyExistException.class);
+		}
+
 	}
 
 }
