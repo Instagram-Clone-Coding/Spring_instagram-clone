@@ -43,7 +43,8 @@ public class PostRepositoryQuerydslImpl implements PostRepositoryQuerydsl {
 				isExistBookmarkWherePostEqMemberIdEq(memberId),
 				isExistPostLikeWherePostEqAndMemberIdEq(memberId),
 				post.commentFlag,
-				post.likeFlag
+				post.likeFlag,
+				isFollowing(memberId)
 			))
 			.from(post)
 			.innerJoin(post.member, member)
