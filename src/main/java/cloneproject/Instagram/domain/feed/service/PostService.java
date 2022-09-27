@@ -251,7 +251,7 @@ public class PostService {
 	}
 
 	public Page<PostDto> getHashTagPosts(int page, int size, String name) {
-		final Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "postId");
+		final Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "id");
 		return hashtagRepository.findByName(name)
 			.map(hashtag -> {
 				final List<Long> postIds = hashtagPostRepository.findAllWithPostByHashtagId(pageable, hashtag.getId())
@@ -264,7 +264,7 @@ public class PostService {
 				setContents(loginMember, postDtoPage.getContent());
 				return postDtoPage;
 			})
-			.orElse(new PageImpl<>(new ArrayList<>(), pageable, NONE));
+			.orElse(new PageImpl<>(new ArrayList<>()));
 	}
 
 	private void setContents(Member loginMember, List<PostDto> postDtos) {
