@@ -14,6 +14,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import cloneproject.Instagram.domain.member.dto.RegisterRequest;
+import cloneproject.Instagram.domain.member.dto.UpdatePasswordRequest;
+import cloneproject.Instagram.domain.member.entity.Member;
+import cloneproject.Instagram.domain.member.exception.AccountMismatchException;
+import cloneproject.Instagram.domain.member.exception.PasswordEqualWithOldException;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.search.repository.SearchMemberRepository;
 import cloneproject.Instagram.global.error.exception.EntityAlreadyExistException;
@@ -170,6 +174,69 @@ public class MemberAuthServiceTest {
 
 			// then
 			assertThatThrownBy(executable).isInstanceOf(EntityAlreadyExistException.class);
+		}
+
+	}
+
+	@Nested
+	class UpdatePassword {
+
+		@Test
+		void validArguments_UpdatePassword() {
+			// given
+			final Member member = MemberUtils.newInstance();
+			final UpdatePasswordRequest updatePasswordRequest = newUpdatePasswordRequest();
+
+			given(authUtil.getLoginMember()).willReturn(member);
+			given(bCryptPasswordEncoder.matches(updatePasswordRequest.getOldPassword(), member.getPassword())).willReturn(true);
+
+			// when
+			memberAuthService.updatePassword(updatePasswordRequest);
+
+			// then
+			then(memberRepository).should().save(member);
+		}
+
+		@Test
+		void wrongOldPassword_ThrowException() {
+			// given
+			final Member member = MemberUtils.newInstance();
+			final UpdatePasswordRequest updatePasswordRequest = newUpdatePasswordRequest();
+
+			given(authUtil.getLoginMember()).willReturn(member);
+			given(bCryptPasswordEncoder.matches(updatePasswordRequest.getOldPassword(), member.getPassword())).willReturn(false);
+
+			// when
+			final ThrowingCallable executable = () -> memberAuthService.updatePassword(updatePasswordRequest);
+
+			// then
+			assertThatThrownBy(executable).isInstanceOf(AccountMismatchException.class);
+		}
+
+		@Test
+		void NewAndOldPasswordAreEqual_ThrowException() {
+			// given
+			final Member member = MemberUtils.newInstance();
+			final UpdatePasswordRequest updatePasswordRequest = new UpdatePasswordRequest(
+				member.getPassword(),
+				member.getPassword()
+			);
+
+			given(authUtil.getLoginMember()).willReturn(member);
+			given(bCryptPasswordEncoder.matches(updatePasswordRequest.getOldPassword(), member.getPassword())).willReturn(true);
+
+			// when
+			final ThrowingCallable executable = () -> memberAuthService.updatePassword(updatePasswordRequest);
+
+			// then
+			assertThatThrownBy(executable).isInstanceOf(PasswordEqualWithOldException.class);
+		}
+
+		private UpdatePasswordRequest newUpdatePasswordRequest() {
+			return new UpdatePasswordRequest(
+				RandomStringUtils.random(20, true, true),
+				RandomStringUtils.random(20, true, true)
+			);
 		}
 
 	}

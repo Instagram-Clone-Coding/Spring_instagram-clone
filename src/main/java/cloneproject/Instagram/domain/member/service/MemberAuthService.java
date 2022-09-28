@@ -18,6 +18,7 @@ import cloneproject.Instagram.domain.member.dto.ResetPasswordRequest;
 import cloneproject.Instagram.domain.member.dto.UpdatePasswordRequest;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.exception.AccountMismatchException;
+import cloneproject.Instagram.domain.member.exception.PasswordEqualWithOldException;
 import cloneproject.Instagram.domain.member.exception.PasswordResetFailException;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.search.entity.SearchMember;
@@ -84,7 +85,7 @@ public class MemberAuthService {
 			throw new AccountMismatchException();
 		}
 		if (updatePasswordRequest.getOldPassword().equals(updatePasswordRequest.getNewPassword())) {
-			throw new EntityAlreadyExistException(PASSWORD_ALREADY_EXIST);
+			throw new PasswordEqualWithOldException();
 		}
 		final String encryptedPassword = bCryptPasswordEncoder.encode(updatePasswordRequest.getNewPassword());
 		member.setEncryptedPassword(encryptedPassword);
@@ -106,7 +107,7 @@ public class MemberAuthService {
 			throw new PasswordResetFailException();
 		}
 		if (bCryptPasswordEncoder.matches(resetPasswordRequest.getNewPassword(), member.getPassword())) {
-			throw new EntityAlreadyExistException(PASSWORD_ALREADY_EXIST);
+			throw new EntityAlreadyExistException(PASSWORD_EQUAL_WITH_OLD);
 		}
 
 		final String encryptedPassword = bCryptPasswordEncoder.encode(resetPasswordRequest.getNewPassword());
