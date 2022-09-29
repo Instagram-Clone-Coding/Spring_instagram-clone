@@ -107,7 +107,7 @@ public class MemberAuthService {
 			throw new PasswordResetFailException();
 		}
 		if (bCryptPasswordEncoder.matches(resetPasswordRequest.getNewPassword(), member.getPassword())) {
-			throw new EntityAlreadyExistException(PASSWORD_EQUAL_WITH_OLD);
+			throw new PasswordEqualWithOldException();
 		}
 
 		final String encryptedPassword = bCryptPasswordEncoder.encode(resetPasswordRequest.getNewPassword());
