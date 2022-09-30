@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.ThrowableAssert.*;
 import static org.mockito.BDDMockito.*;
 
+import java.util.Optional;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -13,11 +15,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import cloneproject.Instagram.domain.member.dto.JwtDto;
 import cloneproject.Instagram.domain.member.dto.RegisterRequest;
+import cloneproject.Instagram.domain.member.dto.ResetPasswordRequest;
 import cloneproject.Instagram.domain.member.dto.UpdatePasswordRequest;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.exception.AccountMismatchException;
 import cloneproject.Instagram.domain.member.exception.PasswordEqualWithOldException;
+import cloneproject.Instagram.domain.member.exception.PasswordResetFailException;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.search.repository.SearchMemberRepository;
 import cloneproject.Instagram.global.error.exception.EntityAlreadyExistException;
@@ -188,7 +193,9 @@ public class MemberAuthServiceTest {
 			final UpdatePasswordRequest updatePasswordRequest = newUpdatePasswordRequest();
 
 			given(authUtil.getLoginMember()).willReturn(member);
-			given(bCryptPasswordEncoder.matches(updatePasswordRequest.getOldPassword(), member.getPassword())).willReturn(true);
+			given(
+				bCryptPasswordEncoder.matches(updatePasswordRequest.getOldPassword(), member.getPassword())).willReturn(
+				true);
 
 			// when
 			memberAuthService.updatePassword(updatePasswordRequest);
@@ -204,7 +211,9 @@ public class MemberAuthServiceTest {
 			final UpdatePasswordRequest updatePasswordRequest = newUpdatePasswordRequest();
 
 			given(authUtil.getLoginMember()).willReturn(member);
-			given(bCryptPasswordEncoder.matches(updatePasswordRequest.getOldPassword(), member.getPassword())).willReturn(false);
+			given(
+				bCryptPasswordEncoder.matches(updatePasswordRequest.getOldPassword(), member.getPassword())).willReturn(
+				false);
 
 			// when
 			final ThrowingCallable executable = () -> memberAuthService.updatePassword(updatePasswordRequest);
@@ -214,7 +223,7 @@ public class MemberAuthServiceTest {
 		}
 
 		@Test
-		void NewAndOldPasswordAreEqual_ThrowException() {
+		void newAndOldPasswordAreEqual_ThrowException() {
 			// given
 			final Member member = MemberUtils.newInstance();
 			final UpdatePasswordRequest updatePasswordRequest = new UpdatePasswordRequest(
@@ -223,7 +232,9 @@ public class MemberAuthServiceTest {
 			);
 
 			given(authUtil.getLoginMember()).willReturn(member);
-			given(bCryptPasswordEncoder.matches(updatePasswordRequest.getOldPassword(), member.getPassword())).willReturn(true);
+			given(
+				bCryptPasswordEncoder.matches(updatePasswordRequest.getOldPassword(), member.getPassword())).willReturn(
+				true);
 
 			// when
 			final ThrowingCallable executable = () -> memberAuthService.updatePassword(updatePasswordRequest);
@@ -235,6 +246,110 @@ public class MemberAuthServiceTest {
 		private UpdatePasswordRequest newUpdatePasswordRequest() {
 			return new UpdatePasswordRequest(
 				RandomStringUtils.random(20, true, true),
+				RandomStringUtils.random(20, true, true)
+			);
+		}
+
+	}
+
+	@Nested
+	class SendResetPasswordCode {
+
+		@Test
+		void validArguments_UpdatePassword() {
+			// given
+			final String username = MemberUtils.getRandomUsername();
+			final String givenEmail = RandomStringUtils.random(20, true, true) + "example.com";
+
+			given(emailCodeService.sendResetPasswordCode(username)).willReturn(givenEmail);
+
+			// when
+			final String email = memberAuthService.sendResetPasswordCode(username);
+
+			// then
+			assertThat(email).isEqualTo(givenEmail);
+		}
+
+	}
+
+	@Nested
+	class ResetPassword {
+
+		@Test
+		void validArguments_ResetPassword() {
+			// given
+			final String tokenType = "Bearer";
+			final Member member = MemberUtils.newInstance();
+			final String device = RandomStringUtils.random(10, true, true);
+			final String ip = RandomStringUtils.random(10, true, true);
+			final ResetPasswordRequest resetPasswordRequest = newResetPasswordRequest(member.getUsername());
+			final JwtDto givenJwtDto = newJwtDto(tokenType);
+
+			given(memberRepository.findByUsername(member.getUsername())).willReturn(Optional.of(member));
+			given(emailCodeService.checkResetPasswordCode(member.getUsername(),
+				resetPasswordRequest.getCode())).willReturn(true);
+			given(jwtUtil.generateJwtDto(member)).willReturn(givenJwtDto);
+
+			// when
+			final JwtDto jwtDto = memberAuthService.resetPassword(resetPasswordRequest, device, ip);
+
+			// then
+			assertThat(jwtDto.getType()).isEqualTo(tokenType);
+			then(jwtUtil).should().generateJwtDto(member);
+			then(emailCodeService).should().deleteResetPasswordCode(member.getUsername());
+		}
+
+		@Test
+		void wrongEmailCode_ThrowException() {
+			// given
+			final Member member = MemberUtils.newInstance();
+			final String device = RandomStringUtils.random(10, true, true);
+			final String ip = RandomStringUtils.random(10, true, true);
+			final ResetPasswordRequest resetPasswordRequest = newResetPasswordRequest(member.getUsername());
+
+			given(memberRepository.findByUsername(member.getUsername())).willReturn(Optional.of(member));
+
+			// when
+			final ThrowingCallable executable = () -> memberAuthService.resetPassword(resetPasswordRequest, device, ip);
+
+			// then
+			assertThatThrownBy(executable).isInstanceOf(PasswordResetFailException.class);
+		}
+
+		@Test
+		void newAndOldPasswordAreEqual_ThrowException() {
+			// given
+			final Member member = MemberUtils.newInstance();
+			final String device = RandomStringUtils.random(10, true, true);
+			final String ip = RandomStringUtils.random(10, true, true);
+			final ResetPasswordRequest resetPasswordRequest = newResetPasswordRequest(member.getUsername());
+
+			given(memberRepository.findByUsername(member.getUsername())).willReturn(Optional.of(member));
+			given(emailCodeService.checkResetPasswordCode(member.getUsername(),
+				resetPasswordRequest.getCode())).willReturn(true);
+			given(
+				bCryptPasswordEncoder.matches(resetPasswordRequest.getNewPassword(), member.getPassword())).willReturn(
+				true);
+
+			// when
+			final ThrowingCallable executable = () -> memberAuthService.resetPassword(resetPasswordRequest, device, ip);
+
+			// then
+			assertThatThrownBy(executable).isInstanceOf(PasswordEqualWithOldException.class);
+		}
+
+		private JwtDto newJwtDto(String tokenType) {
+			return new JwtDto(
+				tokenType,
+				RandomStringUtils.random(10, true, true),
+				RandomStringUtils.random(10, true, true)
+			);
+		}
+
+		private ResetPasswordRequest newResetPasswordRequest(String username) {
+			return new ResetPasswordRequest(
+				username,
+				RandomStringUtils.random(30, true, true),
 				RandomStringUtils.random(20, true, true)
 			);
 		}
