@@ -128,6 +128,7 @@ public class MemberAuthService {
 		return emailCodeService.checkResetPasswordCode(username, code);
 	}
 
+	@Transactional(readOnly = true)
 	public List<LoginDeviceDto> getLoginDevices(String currentToken) {
 		return refreshTokenService.getLoginDevices(authUtil.getLoginMemberId(), currentToken);
 	}
