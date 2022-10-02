@@ -48,13 +48,4 @@ public class RegisterRequest {
 	@Length(max = 6, min = 6, message = "인증코드는 6자리 입니다.")
 	private String code;
 
-	public Member convert() {
-		return Member.builder()
-			.username(getUsername())
-			.name(getName())
-			.password(getPassword())
-			.email(getEmail())
-			.build();
-	}
-
 }

@@ -38,7 +38,7 @@ public enum ErrorCode {
 	UNBLOCK_FAIL(400, "M010", "차단하지 않은 유저는 차단해제 할 수 없습니다."),
 	BLOCK_MYSELF_FAIL(400, "M011", "자기 자신을 차단 할 수 없습니다."),
 	UNBLOCK_MYSELF_FAIL(400, "M012", "자기 자신을 차단해제 할 수 없습니다."),
-	PASSWORD_ALREADY_EXIST(400, "M013", "기존 비밀번호와 동일하게 변경할 수 없습니다."),
+	PASSWORD_EQUAL_WITH_OLD(400, "M013", "기존 비밀번호와 동일하게 변경할 수 없습니다."),
 	LOGOUT_BY_ANOTHER(401, "M014", "다른 기기에 의해 로그아웃되었습니다."),
 
 	// Follow
