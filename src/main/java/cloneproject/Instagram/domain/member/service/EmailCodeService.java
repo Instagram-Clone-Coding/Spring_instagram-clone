@@ -4,11 +4,10 @@ import static cloneproject.Instagram.global.error.ErrorCode.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
-import java.util.Random;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -23,14 +22,19 @@ import cloneproject.Instagram.domain.member.exception.PasswordResetFailException
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.member.repository.redis.RegisterCodeRedisRepository;
 import cloneproject.Instagram.domain.member.repository.redis.ResetPasswordCodeRedisRepository;
-import cloneproject.Instagram.global.error.exception.FileConvertFailException;
 import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
+import cloneproject.Instagram.global.error.exception.FileConvertFailException;
 import cloneproject.Instagram.infra.email.EmailService;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class EmailCodeService {
+
+	private static final int REGISTER_CODE_LENGTH = 6;
+	private static final int RESET_PASSWORD_CODE_LENGTH = 30;
+	private static final String REGISTER_EMAIL_SUBJECT_POSTFIX = ", Welcome to Instagram.";
+	private static final String RESET_PASSWORD_EMAIL_SUBJECT_POSTFIX = ", recover your account's password.";
 
 	private final MemberRepository memberRepository;
 	private final RegisterCodeRedisRepository emailCodeRedisRepository;
@@ -41,9 +45,9 @@ public class EmailCodeService {
 	private String resetPasswordEmailUI;
 
 	public void sendRegisterCode(String username, String email) {
-		final String code = createConfirmationCode(6);
-		final String text = String.format(confirmEmailUI, email, code, email);
-		emailService.sendHtmlTextEmail(username + ", Welcome to Instagram.", text, email);
+		final String code = createConfirmationCode(REGISTER_CODE_LENGTH);
+		emailService.sendHtmlTextEmail(username + REGISTER_EMAIL_SUBJECT_POSTFIX, getRegisterEmailText(email, code),
+			email);
 
 		final RegisterCode registerCode = RegisterCode.builder()
 			.username(username)
@@ -69,11 +73,10 @@ public class EmailCodeService {
 		final Member member = memberRepository.findByUsername(username)
 			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
 
-		final String code = createConfirmationCode(30);
+		final String code = createConfirmationCode(RESET_PASSWORD_CODE_LENGTH);
 		final String email = member.getEmail();
-		final String text = String.format(resetPasswordEmailUI, username, username, code, username, username, code,
-			email, username);
-		emailService.sendHtmlTextEmail(username + ", recover your account's password.", text, email);
+		final String text = getResetPasswordEmailText(username, email, code);
+		emailService.sendHtmlTextEmail(username + RESET_PASSWORD_EMAIL_SUBJECT_POSTFIX, text, email);
 
 		final ResetPasswordCode resetPasswordCode = ResetPasswordCode.builder()
 			.username(username)
@@ -85,15 +88,8 @@ public class EmailCodeService {
 	}
 
 	public boolean checkResetPasswordCode(String username, String code) {
-		final Optional<ResetPasswordCode> optionalResetPasswordCode = resetPasswordCodeRedisRepository
-			.findByUsername(username);
-
-		if (optionalResetPasswordCode.isEmpty()) {
-			throw new EmailNotConfirmedException();
-		}
-
-		final ResetPasswordCode resetPasswordCode = optionalResetPasswordCode.get();
-
+		final ResetPasswordCode resetPasswordCode = resetPasswordCodeRedisRepository
+			.findByUsername(username).orElseThrow(EmailNotConfirmedException::new);
 		return resetPasswordCode.getCode().equals(code);
 	}
 
@@ -103,19 +99,16 @@ public class EmailCodeService {
 		resetPasswordCodeRedisRepository.delete(resetPasswordCode);
 	}
 
-	public String createConfirmationCode(int length) {
-		final StringBuilder key = new StringBuilder();
-		final Random random = new Random();
-		for (int i = 0; i < length; i++) {
-			final boolean isAlphabet = random.nextBoolean();
+	private String getRegisterEmailText(String email, String code) {
+		return String.format(confirmEmailUI, email, code, email);
+	}
 
-			if (isAlphabet) {
-				key.append((char)((random.nextInt(26)) + 65));
-			} else {
-				key.append((random.nextInt(10)));
-			}
-		}
-		return key.toString();
+	private String getResetPasswordEmailText(String username, String email, String code) {
+		return String.format(resetPasswordEmailUI, username, username, code, username, username, code, email, username);
+	}
+
+	private String createConfirmationCode(int length) {
+		return RandomStringUtils.random(length, true, true);
 	}
 
 	@PostConstruct
