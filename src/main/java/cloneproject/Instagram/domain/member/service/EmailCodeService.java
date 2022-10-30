@@ -114,11 +114,12 @@ public class EmailCodeService {
 	@PostConstruct
 	private void loadEmailUI() {
 		try {
-			ClassPathResource resource = new ClassPathResource("confirmEmailUI.html");
-			confirmEmailUI = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+			final ClassPathResource confirmEmailUIResource = new ClassPathResource("confirmEmailUI.html");
+			final ClassPathResource resetPasswordEmailUIResource = new ClassPathResource("resetPasswordEmailUI.html");
 
-			resource = new ClassPathResource("resetPasswordEmailUI.html");
-			resetPasswordEmailUI = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+			confirmEmailUI = new String(confirmEmailUIResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+			resetPasswordEmailUI = new String(resetPasswordEmailUIResource.getInputStream().readAllBytes(),
+				StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			throw new FileConvertFailException();
 		}
