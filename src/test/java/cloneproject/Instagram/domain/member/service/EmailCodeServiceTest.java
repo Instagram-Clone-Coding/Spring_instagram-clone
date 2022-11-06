@@ -34,7 +34,7 @@ public class EmailCodeServiceTest {
 	private MemberRepository memberRepository;
 
 	@Mock
-	private RegisterCodeRedisRepository emailCodeRedisRepository;
+	private RegisterCodeRedisRepository registerCodeRedisRepository;
 
 	@Mock
 	private ResetPasswordCodeRedisRepository resetPasswordCodeRedisRepository;
@@ -57,7 +57,7 @@ public class EmailCodeServiceTest {
 			emailCodeService.sendRegisterCode(username, email);
 
 			// then
-			then(emailCodeRedisRepository).should().save(any());
+			then(registerCodeRedisRepository).should().save(any());
 		}
 
 	}
@@ -69,7 +69,7 @@ public class EmailCodeServiceTest {
 		void validArguments_DeleteCodeAndReturnTrue() {
 			// given
 			final RegisterCode registerCode = newRegisterCode();
-			given(emailCodeRedisRepository.findByUsername(registerCode.getUsername())).willReturn(
+			given(registerCodeRedisRepository.findByUsername(registerCode.getUsername())).willReturn(
 				Optional.of(registerCode));
 
 			// when
@@ -78,7 +78,7 @@ public class EmailCodeServiceTest {
 
 			// then
 			assertThat(result).isTrue();
-			then(emailCodeRedisRepository).should().delete(any());
+			then(registerCodeRedisRepository).should().delete(any());
 		}
 
 		@Test
@@ -98,7 +98,7 @@ public class EmailCodeServiceTest {
 		void registerCodeNotMatch_ReturnFalse() {
 			// given
 			final RegisterCode registerCode = newRegisterCode();
-			given(emailCodeRedisRepository.findByUsername(registerCode.getUsername())).willReturn(
+			given(registerCodeRedisRepository.findByUsername(registerCode.getUsername())).willReturn(
 				Optional.of(registerCode));
 			final String anotherCode = RandomStringUtils.random(30, true, true);
 
@@ -114,7 +114,7 @@ public class EmailCodeServiceTest {
 		void emailNotMatch_ReturnFalse() {
 			// given
 			final RegisterCode registerCode = newRegisterCode();
-			given(emailCodeRedisRepository.findByUsername(registerCode.getUsername())).willReturn(
+			given(registerCodeRedisRepository.findByUsername(registerCode.getUsername())).willReturn(
 				Optional.of(registerCode));
 			final String anotherEmail = RandomStringUtils.random(9, true, true) + "@email.com";
 

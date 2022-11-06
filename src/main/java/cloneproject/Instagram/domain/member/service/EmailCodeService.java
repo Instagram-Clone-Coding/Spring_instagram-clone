@@ -37,7 +37,7 @@ public class EmailCodeService {
 	private static final String RESET_PASSWORD_EMAIL_SUBJECT_POSTFIX = ", recover your account's password.";
 
 	private final MemberRepository memberRepository;
-	private final RegisterCodeRedisRepository emailCodeRedisRepository;
+	private final RegisterCodeRedisRepository registerCodeRedisRepository;
 	private final ResetPasswordCodeRedisRepository resetPasswordCodeRedisRepository;
 	private final EmailService emailService;
 
@@ -54,18 +54,18 @@ public class EmailCodeService {
 			.email(email)
 			.code(code)
 			.build();
-		emailCodeRedisRepository.save(registerCode);
+		registerCodeRedisRepository.save(registerCode);
 	}
 
 	public boolean checkRegisterCode(String username, String email, String code) {
-		final RegisterCode registerCode = emailCodeRedisRepository.findByUsername(username)
+		final RegisterCode registerCode = registerCodeRedisRepository.findByUsername(username)
 			.orElseThrow(EmailNotConfirmedException::new);
 
 		if (!registerCode.getCode().equals(code) || !registerCode.getEmail().equals(email)) {
 			return false;
 		}
 
-		emailCodeRedisRepository.delete(registerCode);
+		registerCodeRedisRepository.delete(registerCode);
 		return true;
 	}
 
