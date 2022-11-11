@@ -38,7 +38,7 @@ public class ResetPasswordCodeUserDetailService implements UserDetailsService {
 	}
 
 	private UserDetails createUserDetails(ResetPasswordCode resetPasswordCode) {
-		Member member = memberRepository.findByUsername(resetPasswordCode.getUsername())
+		final Member member = memberRepository.findByUsername(resetPasswordCode.getUsername())
 			.orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
 		final GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getRole().toString());
 		return new User(
