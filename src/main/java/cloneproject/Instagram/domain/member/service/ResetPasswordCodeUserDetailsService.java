@@ -24,7 +24,7 @@ import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ResetPasswordCodeUserDetailService implements UserDetailsService {
+public class ResetPasswordCodeUserDetailsService implements UserDetailsService {
 
 	private final ResetPasswordCodeRedisRepository resetPasswordCodeRedisRepository;
 	private final MemberRepository memberRepository;
