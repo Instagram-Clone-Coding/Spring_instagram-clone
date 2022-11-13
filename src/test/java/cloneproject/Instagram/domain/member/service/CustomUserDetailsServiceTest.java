@@ -12,8 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -24,8 +22,6 @@ import cloneproject.Instagram.util.domain.member.MemberUtils;
 
 @ExtendWith(MockitoExtension.class)
 public class CustomUserDetailsServiceTest {
-
-	private final String MEMBER_ID_VARIABLE_NAME = "id";
 
 	@InjectMocks
 	private CustomUserDetailsService customUserDetailsService;
@@ -41,8 +37,7 @@ public class CustomUserDetailsServiceTest {
 			// given
 			final long memberId = 1L;
 			final Member member = MemberUtils.newInstance();
-			final GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getRole().toString());
-			ReflectionTestUtils.setField(member, MEMBER_ID_VARIABLE_NAME, memberId);
+			ReflectionTestUtils.setField(member, "id", memberId);
 
 			given(memberRepository.findByUsername(member.getUsername())).willReturn(Optional.of(member));
 

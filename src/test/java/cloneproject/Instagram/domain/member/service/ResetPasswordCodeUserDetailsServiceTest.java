@@ -26,8 +26,6 @@ import cloneproject.Instagram.util.domain.member.MemberUtils;
 @ExtendWith(MockitoExtension.class)
 public class ResetPasswordCodeUserDetailsServiceTest {
 
-	private final String MEMBER_ID_VARIABLE_NAME = "id";
-
 	@InjectMocks
 	private ResetPasswordCodeUserDetailsService resetPasswordCodeUserDetailsService;
 
@@ -50,7 +48,7 @@ public class ResetPasswordCodeUserDetailsServiceTest {
 				.code(code)
 				.username(member.getUsername())
 				.build();
-			ReflectionTestUtils.setField(member, MEMBER_ID_VARIABLE_NAME, memberId);
+			ReflectionTestUtils.setField(member, "id", memberId);
 
 			given(memberRepository.findByUsername(member.getUsername())).willReturn(Optional.of(member));
 			given(resetPasswordCodeRedisRepository.findByUsername(member.getUsername())).willReturn(
