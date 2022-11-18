@@ -6,6 +6,7 @@ import static cloneproject.Instagram.domain.member.entity.QMember.*;
 import static cloneproject.Instagram.domain.search.entity.QSearch.*;
 import static cloneproject.Instagram.domain.search.entity.QSearchHashtag.*;
 import static cloneproject.Instagram.domain.search.entity.QSearchMember.*;
+import static cloneproject.Instagram.domain.feed.entity.QPost.*;
 
 import java.util.List;
 import java.util.Map;
@@ -83,6 +84,18 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 			.orderBy(searchHashtag.count.desc())
 			.limit(SEARCH_SIZE)
 			.distinct()
+			.fetch();
+	}
+
+	@Override
+	public List<Long> findMemberIdsOrderByPostCounts() {
+		return queryFactory
+			.select(post.member.id)
+			.from(post)
+			.groupBy(post.member.id)
+			.orderBy(post.count().desc())
+			.distinct()
+			.limit(SEARCH_SIZE)
 			.fetch();
 	}
 

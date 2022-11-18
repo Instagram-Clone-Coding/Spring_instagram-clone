@@ -17,6 +17,8 @@ public interface SearchRepositoryQuerydsl {
 
 	List<Long> findHashtagIdsByTextLike(String text);
 
+	List<Long> findMemberIdsOrderByPostCounts();
+
 	void checkMatchingMember(String text, List<Search> searches, List<Long> searchIds);
 
 	void checkMatchingHashtag(String text, List<Search> searches, List<Long> searchIds);
