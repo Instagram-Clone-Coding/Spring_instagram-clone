@@ -26,6 +26,7 @@ import cloneproject.Instagram.domain.member.dto.MemberDto;
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.exception.MemberDoesNotExistException;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
+import cloneproject.Instagram.domain.search.dto.RecommendMemberDto;
 import cloneproject.Instagram.domain.search.dto.SearchDto;
 import cloneproject.Instagram.domain.search.dto.SearchHashtagDto;
 import cloneproject.Instagram.domain.search.dto.SearchMemberDto;
@@ -91,6 +92,18 @@ public class SearchService {
 		final List<Member> members = memberRepository.findAllByIdIn(memberIds);
 		return members.stream()
 			.map(MemberDto::new)
+			.collect(Collectors.toList());
+	}
+
+	public List<MemberDto> getRecommendMembers() {
+		final List<RecommendMemberDto> recommendMembers = searchRepository.findRecommendMemberDtosOrderByPostCounts();
+		final List<Long> memberIds = recommendMembers.stream()
+			.map(RecommendMemberDto::getMemberId)
+			.collect(Collectors.toList());
+		final Map<Long, MemberDto> memberMap = searchRepository.findAllMemberDtoByIdIn(memberIds);
+
+		return memberIds.stream()
+			.map(memberMap::get)
 			.collect(Collectors.toList());
 	}
 
