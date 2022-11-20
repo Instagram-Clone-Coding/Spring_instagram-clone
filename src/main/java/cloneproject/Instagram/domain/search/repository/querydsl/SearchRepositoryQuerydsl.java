@@ -3,6 +3,8 @@ package cloneproject.Instagram.domain.search.repository.querydsl;
 import java.util.List;
 import java.util.Map;
 
+import cloneproject.Instagram.domain.member.dto.MemberDto;
+import cloneproject.Instagram.domain.search.dto.RecommendMemberDto;
 import cloneproject.Instagram.domain.search.dto.SearchHashtagDto;
 import cloneproject.Instagram.domain.search.dto.SearchMemberDto;
 import cloneproject.Instagram.domain.search.entity.Search;
@@ -17,7 +19,7 @@ public interface SearchRepositoryQuerydsl {
 
 	List<Long> findHashtagIdsByTextLike(String text);
 
-	List<Long> findMemberIdsOrderByPostCounts();
+	List<RecommendMemberDto> findRecommendMemberDtosOrderByPostCounts();
 
 	void checkMatchingMember(String text, List<Search> searches, List<Long> searchIds);
 
@@ -30,5 +32,7 @@ public interface SearchRepositoryQuerydsl {
 	Map<Long, SearchHashtagDto> findAllSearchHashtagDtoByIdIn(List<Long> searchIds);
 
 	Map<Long, SearchMemberDto> findAllSearchMemberDtoByIdIn(Long loginId, List<Long> ids);
+
+	Map<Long, MemberDto> findAllMemberDtoByIdIn(List<Long> memberIds);
 
 }
