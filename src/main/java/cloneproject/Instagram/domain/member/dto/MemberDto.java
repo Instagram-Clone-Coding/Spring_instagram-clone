@@ -1,5 +1,7 @@
 package cloneproject.Instagram.domain.member.dto;
 
+import com.querydsl.core.annotations.QueryProjection;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +18,7 @@ public class MemberDto {
 	private Image image;
 	private boolean hasStory;
 
+	@QueryProjection
 	public MemberDto(Member member) {
 		this.id = member.getId();
 		this.username = member.getUsername();
