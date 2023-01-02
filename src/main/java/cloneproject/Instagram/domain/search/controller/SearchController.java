@@ -56,6 +56,18 @@ public class SearchController {
 		return ResponseEntity.ok(ResultResponse.of(SEARCH_SUCCESS, searchDtos));
 	}
 
+	@ApiOperation(value = "팔로잉 멤버 추천")
+	@ApiResponses({
+		@ApiResponse(code = 200, message = "SE009 - 팔로잉 추천 멤버 조회에 성공하였습니다."),
+		@ApiResponse(code = 401, message = "M003 - 로그인이 필요한 화면입니다.")
+	})
+	@GetMapping("/recommend")
+	public ResponseEntity<ResultResponse> getRecommendMembers() {
+		final List<MemberDto> searchDtos = searchService.getRecommendMembers();
+
+		return ResponseEntity.ok(ResultResponse.of(GET_RECOMMEND_MEMBER_SUCCESS, searchDtos));
+	}
+
 	@ApiOperation(value = "멤버 자동완성")
 	@ApiResponses({
 		@ApiResponse(code = 200, message = "SE007 - 멤버 자동완성 조회에 성공하였습니다."),

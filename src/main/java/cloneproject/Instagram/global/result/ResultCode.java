@@ -110,7 +110,8 @@ public enum ResultCode {
 	DELETE_RECENT_SEARCH_SUCCESS(200, "SE005", "최근 검색 기록 삭제에 성공하였습니다."),
 	DELETE_ALL_RECENT_SEARCH_SUCCESS(200, "SE006", "최근 검색 기록 전체 삭제에 성공하였습니다."),
 	GET_MEMBER_AUTO_COMPLETE_SUCCESS(200, "SE007", "멤버 자동완성 조회에 성공하였습니다."),
-	GET_HASHTAG_AUTO_COMPLETE_SUCCESS(200, "SE008", "해시태그 자동완성 조회에 성공하였습니다.");
+	GET_HASHTAG_AUTO_COMPLETE_SUCCESS(200, "SE008", "해시태그 자동완성 조회에 성공하였습니다."),
+	GET_RECOMMEND_MEMBER_SUCCESS(200, "SE009", "팔로잉 추천 멤버 조회에 성공하였습니다.");
 
 	private final int status;
 	private final String code;
