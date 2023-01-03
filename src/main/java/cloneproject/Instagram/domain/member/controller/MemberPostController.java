@@ -33,6 +33,11 @@ import cloneproject.Instagram.global.result.ResultResponse;
 @RequestMapping("/accounts")
 public class MemberPostController {
 
+	private static final int FIRST_PAGE_SIZE_FOR_PROFILE = 15;
+	private static final int FIRST_PAGE_SIZE_FOR_POST = 6;
+	private static final int PAGE_SIZE_FOR_PROFILE = 3;
+	private static final int PAGE_OFFSET_FOR_PROFILE = 4;
+
 	private final MemberPostService memberPostService;
 
 	@ApiOperation(value = "멤버 게시물 15개 조회")
@@ -46,7 +51,25 @@ public class MemberPostController {
 	@ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma")
 	@GetMapping("/{username}/posts/recent")
 	public ResponseEntity<ResultResponse> getRecent15Posts(@PathVariable("username") String username) {
-		final List<MemberPostDto> postList = memberPostService.getRecent15PostDtos(username);
+		final List<MemberPostDto> postList = memberPostService.getMemberPostDtoPage(username,
+				FIRST_PAGE_SIZE_FOR_PROFILE, 0).getContent();
+
+		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_RECENT15_MEMBER_POSTS_SUCCESS, postList));
+	}
+
+	@ApiOperation(value = "멤버 게시물 6개 조회")
+	@ApiResponses({
+		@ApiResponse(code = 200, message = "MP001 - 회원의 최근 게시물 15개 조회에 성공하였습니다."),
+		@ApiResponse(code = 400, message = "G003 - 유효하지 않은 입력입니다.\n"
+			+ "G004 - 입력 타입이 유효하지 않습니다.\n"
+			+ "M001 - 존재 하지 않는 유저입니다."),
+		@ApiResponse(code = 401, message = "M003 - 로그인이 필요한 화면입니다.")
+	})
+	@ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma")
+	@GetMapping("/{username}/posts/recent/post")
+	public ResponseEntity<ResultResponse> getRecent6Posts(@PathVariable("username") String username) {
+		final List<MemberPostDto> postList = memberPostService.getMemberPostDtoPage(username, FIRST_PAGE_SIZE_FOR_POST,
+				0).getContent();
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_RECENT15_MEMBER_POSTS_SUCCESS, postList));
 	}
@@ -66,7 +89,8 @@ public class MemberPostController {
 	@GetMapping("/{username}/posts")
 	public ResponseEntity<ResultResponse> getPostPage(@PathVariable("username") String username,
 		@Min(1) @RequestParam int page) {
-		final Page<MemberPostDto> postPage = memberPostService.getMemberPostDtoPage(username, 3, page);
+		final Page<MemberPostDto> postPage = memberPostService.getMemberPostDtoPage(username, PAGE_SIZE_FOR_PROFILE,
+			page + PAGE_OFFSET_FOR_PROFILE);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_MEMBER_POSTS_SUCCESS, postPage));
 	}
@@ -81,7 +105,8 @@ public class MemberPostController {
 	@ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma")
 	@GetMapping("/{username}/posts/recent/without")
 	public ResponseEntity<ResultResponse> getRecent15PostsWithoutLogin(@PathVariable("username") String username) {
-		final List<MemberPostDto> postList = memberPostService.getRecent15PostDtosWithoutLogin(username);
+		final List<MemberPostDto> postList = memberPostService.getMemberPostDtoPageWithoutLogin(username,
+			FIRST_PAGE_SIZE_FOR_PROFILE, 0).getContent();
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_RECENT15_MEMBER_POSTS_SUCCESS, postList));
 	}
@@ -100,7 +125,8 @@ public class MemberPostController {
 	@GetMapping("/{username}/posts/without")
 	public ResponseEntity<ResultResponse> getPostPageWithoutLogin(@PathVariable("username") String username,
 		@Min(1) @RequestParam int page) {
-		final Page<MemberPostDto> postPage = memberPostService.getMemberPostDtoPageWithoutLogin(username, 3, page);
+		final Page<MemberPostDto> postPage = memberPostService.getMemberPostDtoPageWithoutLogin(username,
+			PAGE_SIZE_FOR_PROFILE, page + PAGE_OFFSET_FOR_PROFILE);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_MEMBER_POSTS_SUCCESS, postPage));
 	}
@@ -115,7 +141,8 @@ public class MemberPostController {
 	})
 	@GetMapping("/posts/saved/recent")
 	public ResponseEntity<ResultResponse> getRecent15SavedPosts() {
-		final List<MemberPostDto> postList = memberPostService.getRecent15SavedPostDtos();
+		final List<MemberPostDto> postList = memberPostService.getMemberSavedPostPage(FIRST_PAGE_SIZE_FOR_PROFILE, 0)
+			.getContent();
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_RECENT15_MEMBER_SAVED_POSTS_SUCCESS, postList));
 	}
@@ -130,7 +157,8 @@ public class MemberPostController {
 	@GetMapping("/posts/saved")
 	@ApiImplicitParam(name = "page", value = "페이지", required = true, example = "1")
 	public ResponseEntity<ResultResponse> getSavedPostPage(@Min(1) @RequestParam int page) {
-		final Page<MemberPostDto> postPage = memberPostService.getMemberSavedPostPage(3, page);
+		final Page<MemberPostDto> postPage = memberPostService.getMemberSavedPostPage(PAGE_SIZE_FOR_PROFILE,
+			page + PAGE_OFFSET_FOR_PROFILE);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_MEMBER_SAVED_POSTS_SUCCESS, postPage));
 	}
@@ -147,7 +175,8 @@ public class MemberPostController {
 	@ApiImplicitParam(name = "username", value = "유저네임", required = true, example = "dlwlrma")
 	@GetMapping("/{username}/posts/tagged/recent")
 	public ResponseEntity<ResultResponse> getRecent10TaggedPosts(@PathVariable("username") String username) {
-		final List<MemberPostDto> postList = memberPostService.getRecent15TaggedPostDtos(username);
+		final List<MemberPostDto> postList = memberPostService.getMemberTaggedPostDtoPage(username,
+			FIRST_PAGE_SIZE_FOR_PROFILE, 0).getContent();
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_RECENT15_MEMBER_TAGGED_POSTS_SUCCESS, postList));
 	}
@@ -167,7 +196,8 @@ public class MemberPostController {
 	@GetMapping("/{username}/posts/tagged")
 	public ResponseEntity<ResultResponse> getTaggedPostPage(@PathVariable("username") String username,
 		@Min(1) @RequestParam int page) {
-		final Page<MemberPostDto> postPage = memberPostService.getMemberTaggedPostDtoPage(username, 3, page);
+		final Page<MemberPostDto> postPage = memberPostService.getMemberTaggedPostDtoPage(username,
+			PAGE_SIZE_FOR_PROFILE, page + PAGE_OFFSET_FOR_PROFILE);
 
 		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_MEMBER_TAGGED_POSTS_SUCCESS, postPage));
 	}
