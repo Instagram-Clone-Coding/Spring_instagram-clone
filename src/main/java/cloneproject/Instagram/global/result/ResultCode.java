@@ -62,6 +62,7 @@ public enum ResultCode {
 	GET_MEMBER_SAVED_POSTS_SUCCESS(200, "MP004", "회원의 저장한 게시물 조회에 성공하였습니다."),
 	GET_RECENT15_MEMBER_TAGGED_POSTS_SUCCESS(200, "MP005", "회원의 최근 태그된 게시물 15개 조회에 성공하였습니다."),
 	GET_MEMBER_TAGGED_POSTS_SUCCESS(200, "MP006", "회원의 태그된 게시물 조회에 성공하였습니다."),
+	GET_RECENT6_MEMBER_POSTS_SUCCESS(200, "MP007", "회원의 최근 게시물 6개 조회에 성공하였습니다."),
 
 	// Feed
 	CREATE_POST_SUCCESS(200, "F001", "게시물 업로드에 성공하였습니다."),

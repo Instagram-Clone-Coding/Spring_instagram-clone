@@ -59,7 +59,7 @@ public class MemberPostController {
 
 	@ApiOperation(value = "멤버 게시물 6개 조회")
 	@ApiResponses({
-		@ApiResponse(code = 200, message = "MP001 - 회원의 최근 게시물 15개 조회에 성공하였습니다."),
+		@ApiResponse(code = 200, message = "MP007 - 회원의 최근 게시물 6개 조회에 성공하였습니다."),
 		@ApiResponse(code = 400, message = "G003 - 유효하지 않은 입력입니다.\n"
 			+ "G004 - 입력 타입이 유효하지 않습니다.\n"
 			+ "M001 - 존재 하지 않는 유저입니다."),
@@ -71,7 +71,7 @@ public class MemberPostController {
 		final List<MemberPostDto> postList = memberPostService.getMemberPostDtoPage(username, FIRST_PAGE_SIZE_FOR_POST,
 				0).getContent();
 
-		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_RECENT15_MEMBER_POSTS_SUCCESS, postList));
+		return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_RECENT6_MEMBER_POSTS_SUCCESS, postList));
 	}
 
 	@ApiOperation(value = "멤버 게시물 페이징 조회(무한스크롤)")
