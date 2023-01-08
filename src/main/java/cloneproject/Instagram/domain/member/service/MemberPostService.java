@@ -2,7 +2,6 @@ package cloneproject.Instagram.domain.member.service;
 
 import static cloneproject.Instagram.global.error.ErrorCode.*;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,9 +29,6 @@ import cloneproject.Instagram.global.util.AuthUtil;
 @Transactional(readOnly = true)
 public class MemberPostService {
 
-	private static final int FIRST_PAGE_SIZE = 15;
-	private static final int PAGE_OFFSET = 4;
-
 	private final AuthUtil authUtil;
 	private final MemberRepository memberRepository;
 	private final BlockRepository blockRepository;
@@ -40,60 +36,33 @@ public class MemberPostService {
 	private final PostService postService;
 
 	public Page<MemberPostDto> getMemberPostDtoPageWithoutLogin(String username, int size, int page) {
-		final Pageable pageable = PageRequest.of(page + PAGE_OFFSET, size);
+		final Pageable pageable = PageRequest.of(page, size);
 		final Page<MemberPostDto> posts = getMemberPostDtoPage(-1L, username, pageable);
 		final List<MemberPostDto> content = posts.getContent();
 		setMemberPostImageDtos(content);
 		setPostLikesCount(null, content);
 		return posts;
-	}
-
-	public List<MemberPostDto> getRecent15PostDtosWithoutLogin(String username) {
-		final Pageable pageable = PageRequest.of(0, FIRST_PAGE_SIZE);
-		final Page<MemberPostDto> posts = getMemberPostDtoPage(-1L, username, pageable);
-		final List<MemberPostDto> content = posts.getContent();
-		setMemberPostImageDtos(content);
-		setPostLikesCount(null, content);
-		return content;
 	}
 
 	public Page<MemberPostDto> getMemberPostDtoPage(String username, int size, int page) {
 		final Member loginMember = authUtil.getLoginMember();
-		final Pageable pageable = PageRequest.of(page + PAGE_OFFSET, size);
+		final Pageable pageable = PageRequest.of(page, size);
 		final Page<MemberPostDto> posts = getMemberPostDtoPage(loginMember.getId(), username, pageable);
 		final List<MemberPostDto> content = posts.getContent();
 		setMemberPostImageDtos(content);
 		setPostLikesCount(loginMember, content);
 		return posts;
-	}
-
-	public List<MemberPostDto> getRecent15PostDtos(String username) {
-		final Member loginMember = authUtil.getLoginMember();
-		final Pageable pageable = PageRequest.of(0, FIRST_PAGE_SIZE);
-		final Page<MemberPostDto> posts = getMemberPostDtoPage(loginMember.getId(), username, pageable);
-		final List<MemberPostDto> content = posts.getContent();
-		setMemberPostImageDtos(content);
-		setPostLikesCount(loginMember, content);
-		return content;
 	}
 
 	public Page<MemberPostDto> getMemberSavedPostPage(int size, int page) {
 		final Member loginMember = authUtil.getLoginMember();
-		final Pageable pageable = PageRequest.of(page + PAGE_OFFSET, size);
-		final Page<MemberPostDto> posts = memberRepository.findMemberSavedPostDtoPageByLoginMemberId(loginMember.getId(), pageable);
+		final Pageable pageable = PageRequest.of(page, size);
+		final Page<MemberPostDto> posts = memberRepository.findMemberSavedPostDtoPageByLoginMemberId(
+			loginMember.getId(), pageable);
 		final List<MemberPostDto> content = posts.getContent();
 		setMemberPostImageDtos(content);
 		setPostLikesCount(loginMember, content);
 		return posts;
-	}
-
-	public List<MemberPostDto> getRecent15SavedPostDtos() {
-		final Member loginMember = authUtil.getLoginMember();
-		final Pageable pageable = PageRequest.of(0, FIRST_PAGE_SIZE);
-		final Page<MemberPostDto> posts = memberRepository.findMemberSavedPostDtoPageByLoginMemberId(loginMember.getId(), pageable);
-		final List<MemberPostDto> content = posts.getContent();
-		setMemberPostImageDtos(content);
-		return content;
 	}
 
 	public Page<MemberPostDto> getMemberTaggedPostDtoPage(String username, int size, int page) {
@@ -105,31 +74,14 @@ public class MemberPostService {
 			return Page.empty();
 		}
 
-		final Pageable pageable = PageRequest.of(page + PAGE_OFFSET, size);
-		final Page<MemberPostDto> posts = memberRepository.findMemberTaggedPostDtoPageByLoginMemberIdAndTargetUsername(loginMember.getId(), username,
+		final Pageable pageable = PageRequest.of(page, size);
+		final Page<MemberPostDto> posts = memberRepository.findMemberTaggedPostDtoPageByLoginMemberIdAndTargetUsername(
+			loginMember.getId(), username,
 			pageable);
 		final List<MemberPostDto> content = posts.getContent();
 		setMemberPostImageDtos(content);
 		setPostLikesCount(loginMember, content);
 		return posts;
-	}
-
-	public List<MemberPostDto> getRecent15TaggedPostDtos(String username) {
-		final Member loginMember = authUtil.getLoginMember();
-		final Member member = memberRepository.findByUsername(username)
-			.orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_FOUND));
-
-		if (blockRepository.isBlockingOrIsBlocked(loginMember.getId(), member.getId())) {
-			return Collections.emptyList();
-		}
-
-		final Pageable pageable = PageRequest.of(0, FIRST_PAGE_SIZE);
-		final Page<MemberPostDto> posts = memberRepository.findMemberTaggedPostDtoPageByLoginMemberIdAndTargetUsername(loginMember.getId(), username,
-			pageable);
-		final List<MemberPostDto> content = posts.getContent();
-		setMemberPostImageDtos(content);
-		setPostLikesCount(loginMember, content);
-		return content;
 	}
 
 	private Page<MemberPostDto> getMemberPostDtoPage(Long memberId, String username, Pageable pageable) {
