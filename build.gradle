@@ -29,7 +29,13 @@ dependencies {
 	implementation 'commons-io:commons-io:2.6'
 	implementation group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
 	implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
-	implementation 'com.querydsl:querydsl-jpa'
+
+	// Release on 22 Jul 2021 (latest)
+	// https://github.com/querydsl/querydsl
+	implementation 'com.querydsl:querydsl-core:5.0.0'
+	implementation 'com.querydsl:querydsl-jpa:5.0.0'
+	implementation 'com.querydsl:querydsl-apt:5.0.0' // For converting Entity To QEntity
+
     implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.2'
     implementation group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.2'
     implementation group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.2'
@@ -47,38 +53,46 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 }
 
-test {
+tasks.named('test') {
 	useJUnitPlatform()
 }
 
-//querydsl 추가
 def querydslDir = "$buildDir/generated/querydsl"
 
+// QueryDSL plugin refers to here
 querydsl {
 	library = "com.querydsl:querydsl-apt"
 	jpa = true
 	querydslSourcesDir = querydslDir
 }
 
+// include querydslDir to build target
 sourceSets {
-	main {
-		java {
-			srcDirs = ['src/main/java', querydslDir]
-		}
-	}
+	main.java.srcDir querydslDir
 }
 
-compileQuerydsl{
+// Querydsl compile option
+// 'compileQuerydsl' or 'gradle build' -> QClass generated in querydslDir
+compileQuerydsl {
 	options.annotationProcessorPath = configurations.querydsl
 }
 
+// QueryDSL extends compileClasspath
 configurations {
 	querydsl.extendsFrom compileClasspath
 }
 
 compileQuerydsl.doFirst {
-	if(file(querydslDir).exists())
+	if (file(querydslDir).exists()) {
 		delete(file(querydslDir))
+	}
 }
-tasks.withType(JavaCompile) { options.annotationProcessorGeneratedSourcesDirectory = file(querydslDir) }
-//querydsl 추가 끝
+
+clean.doLast {
+	delete file(querydslDir)
+}
+
+// when JavaCompile task run -> QClass generated in querydslDir
+tasks.withType(JavaCompile) {
+	options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
+}
