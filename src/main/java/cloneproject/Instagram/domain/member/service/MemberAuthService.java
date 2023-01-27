@@ -23,6 +23,7 @@ import cloneproject.Instagram.domain.member.exception.PasswordResetFailException
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
 import cloneproject.Instagram.domain.search.entity.SearchMember;
 import cloneproject.Instagram.domain.search.repository.SearchMemberRepository;
+import cloneproject.Instagram.global.annotation.Timed;
 import cloneproject.Instagram.global.error.exception.EntityAlreadyExistException;
 import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 import cloneproject.Instagram.global.util.AuthUtil;
@@ -93,6 +94,7 @@ public class MemberAuthService {
 	}
 
 	@Transactional
+	@Timed
 	public String sendResetPasswordCode(String username) {
 		return emailCodeService.sendResetPasswordCode(username);
 	}

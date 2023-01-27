@@ -62,6 +62,7 @@ public enum ResultCode {
 	GET_MEMBER_SAVED_POSTS_SUCCESS(200, "MP004", "회원의 저장한 게시물 조회에 성공하였습니다."),
 	GET_RECENT15_MEMBER_TAGGED_POSTS_SUCCESS(200, "MP005", "회원의 최근 태그된 게시물 15개 조회에 성공하였습니다."),
 	GET_MEMBER_TAGGED_POSTS_SUCCESS(200, "MP006", "회원의 태그된 게시물 조회에 성공하였습니다."),
+	GET_RECENT6_MEMBER_POSTS_SUCCESS(200, "MP007", "회원의 최근 게시물 6개 조회에 성공하였습니다."),
 
 	// Feed
 	CREATE_POST_SUCCESS(200, "F001", "게시물 업로드에 성공하였습니다."),
@@ -110,7 +111,8 @@ public enum ResultCode {
 	DELETE_RECENT_SEARCH_SUCCESS(200, "SE005", "최근 검색 기록 삭제에 성공하였습니다."),
 	DELETE_ALL_RECENT_SEARCH_SUCCESS(200, "SE006", "최근 검색 기록 전체 삭제에 성공하였습니다."),
 	GET_MEMBER_AUTO_COMPLETE_SUCCESS(200, "SE007", "멤버 자동완성 조회에 성공하였습니다."),
-	GET_HASHTAG_AUTO_COMPLETE_SUCCESS(200, "SE008", "해시태그 자동완성 조회에 성공하였습니다.");
+	GET_HASHTAG_AUTO_COMPLETE_SUCCESS(200, "SE008", "해시태그 자동완성 조회에 성공하였습니다."),
+	GET_RECOMMEND_MEMBER_SUCCESS(200, "SE009", "팔로잉 추천 멤버 조회에 성공하였습니다.");
 
 	private final int status;
 	private final String code;

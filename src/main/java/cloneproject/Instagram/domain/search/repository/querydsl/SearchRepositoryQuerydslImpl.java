@@ -1,5 +1,6 @@
 package cloneproject.Instagram.domain.search.repository.querydsl;
 
+import static cloneproject.Instagram.domain.feed.entity.QPost.*;
 import static cloneproject.Instagram.domain.follow.entity.QFollow.*;
 import static cloneproject.Instagram.domain.hashtag.entity.QHashtag.*;
 import static cloneproject.Instagram.domain.member.entity.QMember.*;
@@ -17,8 +18,12 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import cloneproject.Instagram.domain.member.dto.MemberDto;
+import cloneproject.Instagram.domain.member.dto.QMemberDto;
+import cloneproject.Instagram.domain.search.dto.QRecommendMemberDto;
 import cloneproject.Instagram.domain.search.dto.QSearchHashtagDto;
 import cloneproject.Instagram.domain.search.dto.QSearchMemberDto;
+import cloneproject.Instagram.domain.search.dto.RecommendMemberDto;
 import cloneproject.Instagram.domain.search.dto.SearchHashtagDto;
 import cloneproject.Instagram.domain.search.dto.SearchMemberDto;
 import cloneproject.Instagram.domain.search.entity.Search;
@@ -83,6 +88,21 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 			.orderBy(searchHashtag.count.desc())
 			.limit(SEARCH_SIZE)
 			.distinct()
+			.fetch();
+	}
+
+	@Override
+	public List<RecommendMemberDto> findRecommendMemberDtosOrderByPostCounts() {
+		return queryFactory
+			.select(new QRecommendMemberDto(
+				post.member.id,
+				post.count()
+			))
+			.from(post)
+			.groupBy(post.member.id)
+			.orderBy(post.count().desc())
+			.distinct()
+			.limit(SEARCH_SIZE)
 			.fetch();
 	}
 
@@ -184,6 +204,16 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 					.selectFrom(follow)
 					.where(follow.member.id.eq(searchMember.member.id).and(follow.followMember.id.eq(loginId)))
 					.exists())));
+	}
+
+	@Override
+	public Map<Long, MemberDto> findAllMemberDtoByIdIn(List<Long> memberIds) {
+		return queryFactory
+			.from(member)
+			.where(member.id.in(memberIds))
+			.transform(GroupBy.groupBy(member.id).as(new QMemberDto(
+				member)
+			));
 	}
 
 	private <T> void checkSearchSize(List<T> list) {

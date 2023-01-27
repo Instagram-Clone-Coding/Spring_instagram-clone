@@ -16,12 +16,15 @@ import lombok.extern.slf4j.Slf4j;
 
 import cloneproject.Instagram.domain.member.entity.Member;
 import cloneproject.Instagram.domain.member.repository.MemberRepository;
+import cloneproject.Instagram.global.error.ErrorCode;
+import cloneproject.Instagram.global.error.exception.EntityNotFoundException;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
+	private static final String errorMessage = "일치하는 계정이 없습니다";
 	private final MemberRepository memberRepository;
 
 	@Override
@@ -29,12 +32,11 @@ public class CustomUserDetailsService implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username) {
 		return memberRepository.findByUsername(username)
 			.map(this::createUserDetails)
-			.orElseThrow(() -> new UsernameNotFoundException("일치하는 계정이 없습니다"));
+			.orElseThrow(() -> new UsernameNotFoundException(errorMessage));
 	}
 
 	private UserDetails createUserDetails(Member member) {
 		final GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getRole().toString());
-		// TOKEN, AUTHENTICATION 에 넣을 값 (ex. username, id)
 		return new User(
 			String.valueOf(member.getId()),
 			member.getPassword(),
