@@ -80,12 +80,14 @@ public class S3Uploader {
 
 	private File convertMultipartFileToLocalFile(MultipartFile file) {
 		try {
-			final File convertFile = new File(
-				System.getProperty("user.dir") + "\\upload\\" + file.getOriginalFilename());
+			final String pathname = System.getProperty("user.dir") + "\\upload\\" + file.getOriginalFilename();
+			final File convertFile = new File(pathname);
 			if (convertFile.createNewFile()) {
+				log.info("create local file: " + pathname);
 				try (FileOutputStream fos = new FileOutputStream(convertFile)) {
 					fos.write(file.getBytes());
 				}
+				log.info("complete write to local file");
 				return convertFile;
 			}
 			throw new FileConvertFailException();
