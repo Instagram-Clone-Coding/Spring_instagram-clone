@@ -88,10 +88,6 @@ compileQuerydsl.doFirst {
 	}
 }
 
-clean.doLast {
-	delete file(querydslDir)
-}
-
 // when JavaCompile task run -> QClass generated in querydslDir
 tasks.withType(JavaCompile) {
 	options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
