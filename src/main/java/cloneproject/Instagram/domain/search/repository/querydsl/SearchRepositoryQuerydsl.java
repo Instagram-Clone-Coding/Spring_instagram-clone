@@ -19,7 +19,7 @@ public interface SearchRepositoryQuerydsl {
 
 	List<Long> findHashtagIdsByTextLike(String text);
 
-	List<RecommendMemberDto> findRecommendMemberDtosOrderByPostCounts();
+	List<RecommendMemberDto> findRecommendMemberDtosOrderByPostCounts(Long loginId);
 
 	void checkMatchingMember(String text, List<Search> searches, List<Long> searchIds);
 
