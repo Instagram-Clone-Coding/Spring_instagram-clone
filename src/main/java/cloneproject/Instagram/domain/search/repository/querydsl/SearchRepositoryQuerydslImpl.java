@@ -92,13 +92,14 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 	}
 
 	@Override
-	public List<RecommendMemberDto> findRecommendMemberDtosOrderByPostCounts() {
+	public List<RecommendMemberDto> findRecommendMemberDtosOrderByPostCounts(Long loginId) {
 		return queryFactory
 			.select(new QRecommendMemberDto(
 				post.member.id,
 				post.count()
 			))
 			.from(post)
+			.where(post.member.id.ne(loginId))
 			.groupBy(post.member.id)
 			.orderBy(post.count().desc())
 			.distinct()

@@ -96,7 +96,9 @@ public class SearchService {
 	}
 
 	public List<MemberDto> getRecommendMembers() {
-		final List<RecommendMemberDto> recommendMembers = searchRepository.findRecommendMemberDtosOrderByPostCounts();
+		final Long loginId = authUtil.getLoginMemberId();
+		final List<RecommendMemberDto> recommendMembers = searchRepository.findRecommendMemberDtosOrderByPostCounts(
+			loginId);
 		final List<Long> memberIds = recommendMembers.stream()
 			.map(RecommendMemberDto::getMemberId)
 			.collect(Collectors.toList());

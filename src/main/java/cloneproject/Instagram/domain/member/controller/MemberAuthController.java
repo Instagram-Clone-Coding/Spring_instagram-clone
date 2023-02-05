@@ -55,8 +55,8 @@ public class MemberAuthController {
 	private final MemberAuthService memberAuthService;
 	private final int REFRESH_TOKEN_EXPIRES = 60 * 60 * 24 * 7; // 7일
 
-	@Value("${cookie-domain}")
-	private String COOKIE_DOMAIN;
+	@Value("${server-domain}")
+	private String SERVER_DOMAIN;
 
 	@ApiOperation(value = "username 중복 조회")
 	@ApiResponses({
@@ -240,7 +240,7 @@ public class MemberAuthController {
 		// cookie.setSecure(true); https 미지원
 		cookie.setHttpOnly(true);
 		cookie.setPath("/");
-		cookie.setDomain(COOKIE_DOMAIN);
+		cookie.setDomain(SERVER_DOMAIN);
 
 		response.addCookie(cookie);
 
@@ -260,7 +260,7 @@ public class MemberAuthController {
 		// cookie.setSecure(true); https 미지원
 		cookie.setHttpOnly(true);
 		cookie.setPath("/");
-		cookie.setDomain(COOKIE_DOMAIN);
+		cookie.setDomain(SERVER_DOMAIN);
 
 		response.addCookie(cookie);
 
@@ -331,7 +331,7 @@ public class MemberAuthController {
 		// cookie.setSecure(true); https 미지원
 		cookie.setHttpOnly(true);
 		cookie.setPath("/");
-		cookie.setDomain(COOKIE_DOMAIN);
+		cookie.setDomain(SERVER_DOMAIN);
 
 		return cookie;
 	}

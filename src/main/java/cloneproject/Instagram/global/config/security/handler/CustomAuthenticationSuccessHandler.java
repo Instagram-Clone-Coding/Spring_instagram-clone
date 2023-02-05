@@ -43,8 +43,8 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 	private final int REFRESH_TOKEN_EXPIRES = 60 * 60 * 24 * 7; // 7일
 	private final ResultCode DEFAULT_RESULT_CODE = LOGIN_SUCCESS;
 	private Map<String, ResultCode> resultCodeMap;
-	@Value("${cookie-domain}")
-	private String COOKIE_DOMAIN;
+	@Value("${server-domain}")
+	private String SERVER_DOMAIN;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
@@ -98,7 +98,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 		// cookie.setSecure(true); https 미지원
 		cookie.setHttpOnly(true);
 		cookie.setPath("/");
-		cookie.setDomain(COOKIE_DOMAIN);
+		cookie.setDomain(SERVER_DOMAIN);
 
 		response.addCookie(cookie);
 	}

@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,8 @@ public class EmailCodeService {
 	private final ResetPasswordCodeRedisRepository resetPasswordCodeRedisRepository;
 	private final EmailService emailService;
 
+	@Value("${server-domain}")
+	private String SERVER_DOMAIN;
 	private String confirmEmailUI;
 	private String resetPasswordEmailUI;
 
@@ -104,7 +107,8 @@ public class EmailCodeService {
 	}
 
 	private String getResetPasswordEmailText(String username, String email, String code) {
-		return String.format(resetPasswordEmailUI, username, username, code, username, username, code, email, username);
+		return String.format(resetPasswordEmailUI, username, SERVER_DOMAIN, username, code, username, SERVER_DOMAIN,
+			username, code, email, username);
 	}
 
 	private String createConfirmationCode(int length) {
