@@ -50,7 +50,7 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 		final long total = queryFactory
 			.selectFrom(post)
 			.where(post.member.username.eq(username))
-			.fetchCount();
+			.fetch().size();
 		return new PageImpl<>(posts, pageable, total);
 	}
 
@@ -78,7 +78,7 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 		final long total = queryFactory
 			.selectFrom(bookmark)
 			.where(bookmark.member.id.eq(loginMemberId))
-			.fetchCount();
+			.fetch().size();
 		return new PageImpl<>(posts, pageable, total);
 	}
 
@@ -107,7 +107,7 @@ public class MemberPostRepositoryQuerydslImpl implements MemberPostRepositoryQue
 		final long total = queryFactory
 			.selectFrom(postTag)
 			.where(postTag.tag.username.eq(username))
-			.fetchCount();
+			.fetch().size();
 		return new PageImpl<>(posts, pageable, total);
 	}
 

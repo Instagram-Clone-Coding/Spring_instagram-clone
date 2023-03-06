@@ -1,5 +1,6 @@
 package cloneproject.Instagram.domain.feed.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.querydsl.core.annotations.QueryProjection;
 
 import lombok.AccessLevel;
@@ -15,10 +16,16 @@ import cloneproject.Instagram.domain.member.entity.Member;
 public class MemberPostDto {
 
 	private Long postId;
+
+	@JsonIgnore
 	private MemberDto member;
 	private PostImageDto postImage;
 	private boolean hasManyPostImages;
+
+	@JsonIgnore
 	private boolean likeOptionFlag;
+
+	@JsonIgnore
 	private boolean postLikeFlag;
 	private int postCommentsCount;
 	private int postLikesCount;

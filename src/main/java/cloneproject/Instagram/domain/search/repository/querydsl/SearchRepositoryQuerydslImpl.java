@@ -35,6 +35,7 @@ import cloneproject.Instagram.domain.search.entity.SearchMember;
 public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 
 	private static final int SEARCH_SIZE = 50;
+	private static final int RECOMMEND_SIZE = 10;
 	private final JPAQueryFactory queryFactory;
 
 	@Override
@@ -99,11 +100,15 @@ public class SearchRepositoryQuerydslImpl implements SearchRepositoryQuerydsl {
 				post.count()
 			))
 			.from(post)
-			.where(post.member.id.ne(loginId))
+			.where(post.member.id.ne(loginId).and(post.member.id.notIn(
+				JPAExpressions.select(follow.followMember.id)
+					.from(follow)
+					.where(follow.member.id.eq(loginId))
+			)))
 			.groupBy(post.member.id)
 			.orderBy(post.count().desc())
 			.distinct()
-			.limit(SEARCH_SIZE)
+			.limit(RECOMMEND_SIZE)
 			.fetch();
 	}
 
