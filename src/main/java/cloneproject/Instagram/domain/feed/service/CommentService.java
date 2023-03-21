@@ -86,7 +86,14 @@ public class CommentService {
 		mentionService.mentionMembers(loginMember, comment);
 		alarmService.alert(COMMENT, post.getMember(), post, comment);
 
-		return new CommentUploadResponse(comment.getId());
+		final CommentDto commentDto = new CommentDto(
+			comment.getId(),
+			comment.getMember(),
+			comment.getContent(),
+			comment.getUploadDate()
+		);
+		setMentionAndHashtagList(List.of(commentDto));
+		return new CommentUploadResponse(commentDto);
 	}
 
 	@Transactional
