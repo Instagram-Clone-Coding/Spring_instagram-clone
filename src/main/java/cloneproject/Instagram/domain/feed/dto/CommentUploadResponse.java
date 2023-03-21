@@ -7,6 +7,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class CommentUploadResponse {
 
-	private Long commentId;
+	private CommentDto comment;
 
 }

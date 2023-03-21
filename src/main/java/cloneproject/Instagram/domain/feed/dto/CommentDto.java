@@ -30,6 +30,19 @@ public class CommentDto {
 	private List<String> mentionsOfContent = new ArrayList<>();
 	private List<String> hashtagsOfContent = new ArrayList<>();
 
+	public CommentDto(Long id, Member member, String content, LocalDateTime uploadDate, int commentLikesCount, boolean commentLikeFlag, int repliesCount, List<String> mentionsOfContent,
+		List<String> hashtagsOfContent) {
+		this.id = id;
+		this.member = new MemberDto(member);
+		this.content = content;
+		this.uploadDate = uploadDate;
+		this.commentLikesCount = commentLikesCount;
+		this.commentLikeFlag = commentLikeFlag;
+		this.repliesCount = repliesCount;
+		this.mentionsOfContent = mentionsOfContent;
+		this.hashtagsOfContent = hashtagsOfContent;
+	}
+
 	@QueryProjection
 	public CommentDto(Long postId, Long id, Member member, String content, LocalDateTime uploadDate,
 		int commentLikesCount, boolean commentLikeFlag, int repliesCount) {
